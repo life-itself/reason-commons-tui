@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "phases": [
+    {
+      "id": "p0",
+      "name": "Durable minimal case",
+      "release": "v1",
+      "requires": []
+    },
+    {
+      "id": "p1",
+      "name": "Persistent TUI workspace",
+      "release": "v1",
+      "requires": [
+        "p0"
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Goal action review",
+      "release": "v1",
+      "requires": [
+        "p1"
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "Causal reasoning",
+      "release": "later",
+      "requires": [
+        "p2"
+      ]
+    },
+    {
+      "id": "p4",
+      "name": "Facilitated group",
+      "release": "later",
+      "requires": [
+        "p3"
+      ]
+    },
+    {
+      "id": "p5",
+      "name": "Full Thinking Processes",
+      "release": "later",
+      "requires": [
+        "p4"
+      ]
+    }
+  ],
+  "v1_scenarios": [
+    "S01",
+    "S02",
+    "S03",
+    "S04",
+    "S06",
+    "S07",
+    "S08",
+    "S09",
+    "S10",
+    "S11",
+    "S12",
+    "S13",
+    "S17",
+    "S30",
+    "S32",
+    "S34",
+    "S35",
+    "S36",
+    "S37",
+    "S39",
+    "S40",
+    "S42",
+    "S43",
+    "S44",
+    "S45",
+    "S46",
+    "S47",
+    "S48",
+    "S49",
+    "S51",
+    "S52",
+    "S54",
+    "S55",
+    "S56",
+    "S57",
+    "S58",
+    "S63",
+    "S67",
+    "S68",
+    "S69",
+    "S70",
+    "S72",
+    "S73",
+    "S93",
+    "S94",
+    "S95",
+    "S101",
+    "S102",
+    "S104",
+    "S105",
+    "S107",
+    "S108",
+    "S110",
+    "S111",
+    "S113",
+    "S114",
+    "S115",
+    "S116",
+    "S117",
+    "S118",
+    "S119",
+    "S120",
+    "S121",
+    "S122"
+  ],
+  "sessions": {
+    "example-mvp-session.txt": {
+      "profile": "p2",
+      "calls": 6,
+      "revisions": 6,
+      "format": "tui",
+      "width": 80
+    },
+    "example-tui-session.txt": {
+      "profile": "p5",
+      "calls": 15,
+      "revisions": 18,
+      "format": "tui",
+      "width": 120
+    },
+    "example-review-session.txt": {
+      "profile": "p5",
+      "calls": 3,
+      "revisions": 3,
+      "format": "tui",
+      "width": 120
+    }
+  },
+  "interface": {
+    "product": "Reason Commons",
+    "executable": "reason-commons",
+    "default": "persistent_tui",
+    "alternate": "accessible_ordered_text",
+    "interactive_command_language": false,
+    "user_facing_intervention_ids": false
+  },
+  "screens": {
+    "example-mvp-session.txt": [
+      "M01",
+      "M02",
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M07"
+    ],
+    "example-tui-session.txt": [
+      "S01",
+      "S02",
+      "S03",
+      "S04",
+      "S05",
+      "S05A",
+      "S05B",
+      "S06",
+      "S07",
+      "S08",
+      "S09",
+      "S10",
+      "S11",
+      "S12",
+      "S13",
+      "S14",
+      "S15",
+      "S16",
+      "S17",
+      "S18",
+      "S19",
+      "S20",
+      "S21",
+      "S22",
+      "S23",
+      "S24"
+    ],
+    "example-review-session.txt": [
+      "R01",
+      "R02",
+      "R03",
+      "R04"
+    ]
+  }
+}

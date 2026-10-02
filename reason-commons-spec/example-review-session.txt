@@ -1,0 +1,194 @@
+ILLUSTRATIVE CROSS-TOOL TUI CORRECTION AND ACTION REVIEW
+Delivery profile: p5 cumulative roadmap; independent fictional fixture.
+The r0000 fixture contains goal G1, CRT L1@1, Cloud A4@1, FRT I1@1, prerequisite IO2@1 and action T1@1. Dependencies
+are stored exact references, not discovered by a renderer. Frames are 120x40; keyboard and focus follow the main TUI
+specimen.
+$ reason-commons resume ./setup-review-fixture
+EVENT start r0000
+
+SCREEN R01 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| setup | Sam (declared) | r0000 saved | Start / Challenge the setup route | Focus: Response                           |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: timely delivery + agreed throughput floor | Reviews and uncertainty remain visible                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | CURRENT CLAIM / L1@1: every urgent insertion adds setup time (hypothesis).                          |
+|                | DECISION / What counterexample would change this explanation or admission rule?                     |
+| * Next         | [Inspect L1]  [Sources]  [Cross-tool references]                                                    |
+|   Goal         |                                                                                                     |
+|   Reasoning    | Stored future I1@1: check setup/delivery consequences before admission.                             |
+|   Unlinked     | Stored Cloud A4@1: every sequence change jeopardizes due work (proposed).                           |
+|   Tests        | IO2@1 setup information adequate: UNKNOWN. T1@1 authority meeting: NOT STARTED.                     |
+|   Actions      | These exact formulations can be inspected; none is established by its placement.                    |
+|   History      |                                                                                                     |
+|                |                                                                                                     |
+| [Views]        |                                                                                                     |
+| [Actions]      |                                                                                                     |
+|                |                                                                                                     |
+| Saved locally  |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Start | Send asks consultant; Enter adds a line.                                                         |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Sam submits: A same-setup insertion added no setup time. Qualify the causal route to insertions adding setup
+changes. We still have late orders. Review whether the admission rule can allow setup-neutral jobs.
+EVENT semantic in001 r0001 question001
+
+SCREEN R02 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| setup | Sam (declared) | r0001 saved | Correction and dependent review | Focus: Response                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: timely delivery + agreed throughput floor | Reviews and uncertainty remain visible                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | CHANGE / source in001, Sam's report / late-order report UNCHANGED                                   |
+|                | +-- BEFORE / L1@1 ----------------------+ +-- AFTER / L1@2 -----------------------+                 |
+| * Next         | | Every urgent insertion adds setup time| | Only insertions adding setup changes |                  |
+|   Goal         | | Hypothesis                            | | use this setup-loss route.            |                 |
+|   Reasoning    | +---------------------------------------+ +---------------------------------------+                 |
+|   Unlinked     | A setup-neutral insertion can still consume PROCESSING time: separate route.                        |
+|   Tests        |                                                                                                     |
+|   Actions      | +-- REGISTERED CONSEQUENCES / current r0001 -----------------------------+                          |
+|   History      | | L1@2  ---- used by ---- Cloud A4@1: REVIEW NEEDED                      |                          |
+|                | |       ---- used by ---- FRT I1@1:   REVIEW NEEDED                      |                          |
+| [Views]        | |       ---- used by ---- PRT IO2@1:  REVIEW NEEDED                      |                          |
+| [Actions]      | +-----------------------------------------------------------------------+                           |
+|                | Trace labels are dependencies, not causal arrows. List is not exhaustive reality.                   |
+| Saved locally  | Past reviews remain on OLD versions. No belief, assent or test reliance transfers.                  |
+|                | T1 execution unchanged; pilot effects UNOBSERVED; no delivery gain established.                     |
+|                | DECISION / Can admission distinguish setup-neutral work AND its processing load?                    |
+|                | What information and accuracy would support that decision?                                          |
+|                | [Compare versions]  [Review Cloud]  [Review future]  [Review prerequisite]                          |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Correction and dependent review | Send asks consultant; Enter adds a line.                               |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Sam opens Compare versions, then Esc. Same the question, draft and scroll restored; no call. He submits:
+Sponsor held the authority meeting and named owner/backup. Record T1 completed. We have not checked that roles
+understand escalation or can apply the admission rule.
+EVENT semantic in002 r0002 question002
+
+SCREEN R03 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| setup | Sam (declared) | r0002 saved | Observe what the action achieved | Focus: Response                            |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: timely delivery + agreed throughput floor | Reviews and uncertainty remain visible                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | ACTION T1@1 / reported by Sam                                                                       |
+|                | +------------------------------------+  +---------------------------------------+                   |
+| * Next         | | Meeting and naming: COMPLETED     |  | Roles acknowledge authority: UNKNOWN |                     |
+|   Goal         | +------------------------------------+  +---------------------------------------+                   |
+|   Reasoning    | Completion cannot set the expected state automatically.                                             |
+|   Unlinked     | Observe: both roles explain response, escalation and backup cover.                                  |
+|   Tests        | If either fails: clarify authority and rehearse; retain the failure record.                         |
+|   Actions      |                                                                                                     |
+|   History      | Setup-information adequacy remains UNKNOWN. Registered reviews remain open.                         |
+|                | DECISION / What did the roles demonstrate rather than merely attend?                                |
+| [Views]        | [Observation fields]  [Action rationale]  [Open dependent reviews]                                  |
+| [Actions]      |                                                                                                     |
+|                |                                                                                                     |
+| Saved locally  |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Observe what the action achieved | Send asks consultant; Enter adds a line.                              |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Sam submits: Both roles explained escalation correctly in rehearsal. I will run a small supervised test under
+my stated authority while setup accuracy remains uncertain. Retain that uncertainty and admission-rule review; do not
+expand on this rehearsal alone.
+EVENT semantic in003 r0003 question003
+
+SCREEN R04 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| setup | Sam (declared) | r0003 saved | Bounded decision under uncertainty | Focus: Response                          |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: timely delivery + agreed throughput floor | Reviews and uncertainty remain visible                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | Authority state: MET according to reported rehearsal; real pilot UNOBSERVED.                        |
+|                | Sam's explicit bounded intention recorded; authority is his declaration.                            |
+| * Next         | Setup accuracy: UNKNOWN. Admission-rule and dependent reviews: OPEN.                                |
+|   Goal         | Original claims, observations and positions remain attached to their versions.                      |
+|   Reasoning    | No belief or consensus inferred from the willingness to test.                                       |
+|   Unlinked     |                                                                                                     |
+|   Tests        | DECISION / Is the accuracy criterion adequate for this supervised trial?                            |
+|   Actions      | Specify accuracy criterion, scope and stopping observation before operation.                        |
+|   History      | A willingness to test has not filled these missing conditions.                                      |
+|                | [Unresolved reviews]  [Original forecast]  [Exact versions]                                         |
+| [Views]        |                                                                                                     |
+| [Actions]      |                                                                                                     |
+|                |                                                                                                     |
+| Saved locally  |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Bounded decision under uncertainty | Send asks consultant; Enter adds a line.                            |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Actions > Consultant calls, then Save and quit. Local.
+CONSULTANT CALLS 3: in001 through in003.
+3 reasoning revisions = 3 semantic commits + 0 structured local decisions.
+

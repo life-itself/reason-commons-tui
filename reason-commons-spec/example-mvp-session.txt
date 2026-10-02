@@ -1,0 +1,246 @@
+REASON COMMONS / FIRST-RELEASE TUI JOURNEY
+Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
+Fictional Forge case; not implemented software. Frames are 80x24. V1 has no
+structured graph browser, participant stance registry or formal tree
+authoring. Its persistent workspace, literal response editor, visible local
+controls and forecast/result comparison ARE required from p1-p2. No typed
+commands are needed inside this session.
+$ reason-commons new forge --store ./forge-v1 --speaker Sam
+EVENT start r0000
+
+SCREEN M01 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0000 saved | Start | Focus: Response                          |
++------------------------------------------------------------------------------+
+| Goal unknown | Safeguards unknown | No test                                  |
++------------------------------------------------------------------------------+
+| What is happening, and what would count as better?                           |
+| You can begin in ordinary words. Unknown measures can stay open.             |
+|                                                                              |
+| [How this works]  [Open a case]                                              |
+| Send asks the consultant. Browsing and saved explanations stay local.        |
+| Enter adds a line. Tab to Send, then Enter sends once.                       |
+| All typing, including 5, ?, q and punctuation, is literal in Response.       |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam enters: Goal: >=90% of October due orders on time, original
+promised dates; review October 30. September 32/50 = 64%. Protect overtime
+<=20h each week and defects <=2% of inspected units each week. These are my
+reported records. Tab to Send, Enter.
+EVENT semantic in001 r0001 question001
+
+SCREEN M02 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0001 saved | Choose a test | Focus: Response                  |
++------------------------------------------------------------------------------+
+| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
++------------------------------------------------------------------------------+
+| SUCCESS / >=90% October due orders on original dates; Oct 30 review          |
+| BASELINE / September 32/50 = 64%, reported by Sam                            |
+| Protect overtime <=20h EACH week; defects <=2% inspected units/week.         |
+| Other people's agreement and authority remain unknown.                       |
+|                                                                              |
+| DECISION / What change can you authorize and observe?                        |
+| Choose a small trial with an original forecast we can review later.          |
+| [Goal]  [Reported sources]  [Explain this]  [Other moves]                    |
+|                                                                              |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam types a draft "5 requests?" then opens Explain this (local). The
+explanation says: A bounded trial and prospective forecast let you compare
+results later, while protecting overtime and defects. The question asks for
+work you can authorize. Esc restores the same question, draft and cursor; no
+call. Sam replaces the draft and sends:
+I have authority to name a triage owner and backup before Oct 5. Rehearse two
+requests; both roles must explain response and escalation before start. Pilot
+daily triage Oct 5-16; review Oct 19. Predict delivery >=80%, urgent
+acknowledgement >=95% within 24h. Retain overtime/defect bounds. Record
+original dates, mix, suppliers and rule use. Stop expansion on any breach. If
+either role cannot explain escalation, resolve that before start. Urgent
+fulfillment is a separate unknown.
+EVENT semantic in002 r0002 question002
+
+SCREEN M03 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0002 saved | Prepare P1@1 | Focus: Response                   |
++------------------------------------------------------------------------------+
+| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
++------------------------------------------------------------------------------+
+| P1@1 ORIGINAL / saved before results / Oct 5-16; review Oct 19               |
+| Forecast: delivery >=80%; urgent acknowledgement >=95% within 24h.           |
+| Protect overtime <=20h EACH week; defects <=2% inspected units/week.         |
+| Owner and stop authority: Sam declares both; no expansion on breach.         |
+| ACTION: name owner/backup and rehearse two requests before Oct 5.            |
+| EXPECTED STATE: both roles can explain response and escalation.              |
+| Execution: NOT STARTED | expected state: UNKNOWN                             |
+| No reminder scheduled. Urgent-need fulfillment: UNKNOWN.                     |
+| DECISION / What happens when you perform this preparation?                   |
+| [Original forecast]  [Action]  [Observation fields]  [Sources]               |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam answers: I named owner and backup today. Rehearsal has not
+happened; I do not know whether they can explain the rule.
+EVENT semantic in003 r0003 question003
+
+SCREEN M04 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0003 saved | Observe the result | Focus: Response             |
++------------------------------------------------------------------------------+
+| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
++------------------------------------------------------------------------------+
+| PREPARATION / reported by Sam                                                |
+| +-- ACTION ---------------------+ +-- EXPECTED STATE --------------------+   |
+| | Roles named: COMPLETED        | | Rule understood: UNKNOWN             |   |
+| +-------------------------------+ +--------------------------------------+   |
+| Action completed; result awaiting observation.                               |
+| Naming roles does not establish understanding or better delivery.            |
+| P1 original forecast and G1 goal are unchanged.                              |
+| DECISION / Does rehearsal establish readiness before the pilot?              |
+| What did both roles demonstrate?                                             |
+| [P1 forecast]  [Reported sources]  [History]                                 |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save
+and quit. Local export and cursor save, no call.
+$ reason-commons resume ./forge-v1
+M04 is restored at r0003, the question. Goal, safeguards and P1 remain pinned;
+preparation state still unobserved. No consultant call.
+ACTION: Sam submits: Both roles correctly explained response and escalation in
+the two rehearsals. Pilot then ran as planned. Fifty due orders, 40 on time.
+Overtime 18h then 19h; defects 1/50 then 0/50 inspected units. Urgent
+acknowledgements 18/20 within 24h. Original dates unchanged; similar mix but
+steadier suppliers. This does not isolate triage as cause.
+EVENT semantic in004 r0004 question004
+
+SCREEN M05 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0004 saved | Review P1 | Focus: Response                      |
++------------------------------------------------------------------------------+
+| ! Acknowledgement BREACH 90% <95% | Goal >=90% remains unmet                 |
++------------------------------------------------------------------------------+
+| ! Urgent acknowledgement BREACH: 18/20 = 90%, original bound >=95%           |
+| MEASURE             ORIGINAL             REPORTED RESULT                     |
+| Delivery            >=80%                40/50 = 80% supported               |
+| Acknowledgement     >=95% within 24h     18/20 = 90% BREACH                  |
+| Overtime EACH week  <=20h                 18h; 19h within bound              |
+| Defects EACH week   <=2% inspected units  1/50 = 2%; 0/50 = 0%               |
+| G1 goal >=90% remains unmet. Supplier changes limit attribution.             |
+| Rehearsal state: met by report. Original P1 unchanged; do not expand.        |
+| DECISION / What delayed the two acknowledgements?                            |
+| [Original forecast]  [Source report]  [Other moves]                          |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam answers: They waited for supplier dates. The owner thought the
+first response must promise a final date. We can acknowledge receipt before
+that date is known.
+EVENT semantic in005 r0005 question005
+
+SCREEN M06 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0005 saved | Adapt the trial | Focus: Response                |
++------------------------------------------------------------------------------+
+| ! P1 acknowledgement breach retained | Follow-up proposed                    |
++------------------------------------------------------------------------------+
+| RECOMMENDATION / separate receipt acknowledgement from date commitment       |
+| Expected effect: supplier uncertainty no longer blocks acknowledgement.      |
+| Need: respond promptly without inventing a delivery promise.                 |
+| Keep the prior protections; measure urgent-need fulfillment separately.      |
+| No numeric fulfillment bound has been agreed.                                |
+| P1 breach remains; original forecast unchanged; no causal proof.             |
+| DECISION / Name follow-up owner, forecast, window and stopping response.     |
+| [Draft follow-up]  [Original P1]  [Ask a different question]                 |
+|                                                                              |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam answers: I will run the follow-up Oct 20-30; review Oct 30.
+Acknowledge receipt within 24h without waiting for supplier dates. Predict
+delivery >=80% and acknowledgement >=95%/24h. Retain overtime <=20h each week
+and defects <=2% weekly; record mix, suppliers, rule use and whether urgent
+needs were served. Stop expansion and escalate an unserved need or safeguard
+breach to me.
+EVENT semantic in006 r0006 question006
+
+SCREEN M07 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0006 saved | Follow-up saved | Focus: Response                |
++------------------------------------------------------------------------------+
+| P1 breach retained | P2 committed | Goal >=90% remains unmet                 |
++------------------------------------------------------------------------------+
+| P2@1 prospective / Sam's explicit bounded commitment / Oct 20-30             |
+| Review Oct 30; no reminder scheduled.                                        |
+| Predict delivery >=80%; acknowledgement >=95% within 24h.                    |
+| Protect overtime <=20h each week; defects <=2% inspected units/week.         |
+| Record whether urgent needs were served; numeric bound remains UNKNOWN.      |
+| Escalate unserved need or breach to Sam; no expansion before review.         |
+| P1 original prediction and 90% BREACH remain unchanged.                      |
+| G1 >=90% remains unmet; P2 effects not observed.                             |
+| NEXT / Run bounded P2, then return with observations.                        |
+| [P2 forecast]  [P1 outcome]  [Goal]  [History]                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Actions > Export portable case > ./forge-v1-after-review.reasoncase;
+Actions > Save and quit. No call.
+CONSULTANT CALLS 6: in001 through in006.
+6 reasoning revisions = 6 semantic commits + 0 structured local decisions.
+
