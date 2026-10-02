@@ -14,6 +14,7 @@ SCREEN M01 80x24
 +------------------------------------------------------------------------------+
 | Goal unknown | Safeguards unknown | No test                                  |
 +------------------------------------------------------------------------------+
+| Welcome to Reason Commons.                                                   |
 | What is happening, and what would count as better?                           |
 | You can begin in ordinary words. Unknown measures can stay open.             |
 |                                                                              |
@@ -21,7 +22,6 @@ SCREEN M01 80x24
 | Send asks the consultant. Browsing and saved explanations stay local.        |
 | Enter adds a line. Tab to Send, then Enter sends once.                       |
 | All typing, including 5, ?, q and punctuation, is literal in Response.       |
-|                                                                              |
 |                                                                              |
 |                                                                              |
 |                                                                              |
@@ -66,11 +66,41 @@ SCREEN M02 80x24
 | Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
 +------------------------------------------------------------------------------+
 
-ACTION: Sam types a draft "5 requests?" then opens Explain this (local). The
-explanation says: A bounded trial and prospective forecast let you compare
-results later, while protecting overtime and defects. The question asks for
-work you can authorize. Esc restores the same question, draft and cursor; no
-call. Sam replaces the draft and sends:
+ACTION: Sam types a draft "5 requests?", then Tabs to Other moves and presses
+Enter. This menu keeps the question and draft. No consultant call has been
+made.
+
+SCREEN M02A 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0001 saved | Other moves | Focus: Other moves                 |
++------------------------------------------------------------------------------+
+| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
++------------------------------------------------------------------------------+
+| Choose a route. Nothing is sent until you activate an item.                  |
+|                                                                              |
+| > Understand why this question    LOCAL: saved explanation                   |
+|   Inspect goal and safeguards     LOCAL: saved records                       |
+|   Help plan an observation        ASKS CONSULTANT                            |
+|   Give direct advice              ASKS CONSULTANT                            |
+|   Ask a different question        ASKS CONSULTANT                            |
+|   Leave this question open        LOCAL: retains draft                       |
+|                                                                              |
+| Arrows select; Enter activates. Esc returns without a choice.                |
+| Your draft stays attributed to Sam and the current question.                 |
++------------------------------------------------------------------------------+
+| Live: Choose a test | Draft retained                                         |
+| 5 requests?                                                                  |
+|                                                                              |
+| [Return to question]  [Help]  [Views]  [Actions]                             |
++------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions   |
++------------------------------------------------------------------------------+
+
+ACTION: Sam activates the selected Understand why this question item. The
+local Explain this view says: A bounded trial and prospective forecast let you
+compare results later, while protecting overtime and defects. The question
+asks for work you can authorize. Esc restores the same question, draft and
+cursor; no call. Sam replaces the draft and sends:
 I have authority to name a triage owner and backup before Oct 5. Rehearse two
 requests; both roles must explain response and escalation before start. Pilot
 daily triage Oct 5-16; review Oct 19. Predict delivery >=80%, urgent
@@ -139,8 +169,9 @@ SCREEN M04 80x24
 ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save
 and quit. Local export and cursor save, no call.
 $ reason-commons resume ./forge-v1
-M04 is restored at r0003, the question. Goal, safeguards and P1 remain pinned;
-preparation state still unobserved. No consultant call.
+M04 is restored at r0003 with Observe the result as the current question.
+Goal, safeguards and P1 remain pinned; preparation state still unobserved. No
+consultant call.
 ACTION: Sam submits: Both roles correctly explained response and escalation in
 the two rehearsals. Pilot then ran as planned. Fifty due orders, 40 on time.
 Overtime 18h then 19h; defects 1/50 then 0/50 inspected units. Urgent

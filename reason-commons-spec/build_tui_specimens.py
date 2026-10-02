@@ -56,6 +56,38 @@ def cloud_diagram():
     return '\n'.join('        '+''.join(row).rstrip() for row in cells).rstrip()
 
 
+def joint_inference_diagram(compact=False):
+    """Equal-width proposition boxes and ports for the complete L3 inference."""
+    w = 73
+    inner = w - 4
+    premises = [
+        'Validation is interrupted and must be repeated for this change.',
+        'Net unrecovered recheck time exceeds slack before release cutoff.',
+        'No eligible later release occurs before its three-day deadline.',
+    ]
+    rows = ['+' + '-- ALL / L3@1 '.ljust(w-2, '-') + '+']
+    for premise in premises:
+        assert len(premise) <= inner-4
+        if compact:
+            rows.append('| ' + premise.ljust(w-4) + ' |')
+        else:
+            rows.extend(['| +' + '-'*(inner-2) + '+ |',
+                         '| | ' + premise.ljust(inner-4) + ' | |',
+                         '| +' + '-'*(inner-2) + '+ |'])
+    port = w//2
+    rows.append('+' + '-'*(port-1) + '+' + '-'*(w-port-2) + '+')
+    rows.extend([' '*port + '| L3: hypothesis', ' '*port + 'v'])
+    label = 'This standard change misses the 3-day target'
+    ow = len(label)+4
+    left = port-ow//2
+    top = list('+'+'-'*(ow-2)+'+')
+    top[ow//2] = '+'
+    rows.extend([' '*left + ''.join(top),
+                 ' '*left + '| '+label+' |',
+                 ' '*left + '+'+'-'*(ow-2)+'+'])
+    return '\n'.join('        '+row for row in rows)
+
+
 def prose(text, width=118):
     return '\n'.join(fill(p, width=width) if p else '' for p in text.strip().split('\n')) + '\n\n'
 
@@ -221,27 +253,12 @@ EVENT semantic in004 r0004 question004
         CURRENT REALITY / Payments standard changes / proposed, partial
         Read down: every premise inside ALL belongs to ONE inference.
 
-        +-- ALL / L3@1 ---------------------------------------------------------+
-        | +------------------------------------------------------------------+ |
-        | | Validation is interrupted and must be repeated for this change.  | |
-        | +------------------------------------------------------------------+ |
-        | +------------------------------------------------------------------+ |
-        | | Net unrecovered recheck time exceeds slack before release cutoff. | |
-        | +------------------------------------------------------------------+ |
-        | +------------------------------------------------------------------+ |
-        | | No eligible later release occurs before its three-day deadline.         | |
-        | +------------------------------------------------------------------+ |
-        +---------------------------------+-------------------------------------+
-                                          | L3: hypothesis
-                                          v
-                  +----------------------------------------------+
-                  | This standard change misses the 3-day target |
-                  +----------------------------------------------+
+        __JOINT_INFERENCE__
         Spare capacity could defeat premise 2; another timely release defeats premise 3.
         Missing evidence: dated interruptions, rechecks, slack and release windows.
         Could the threatened release date instead be causing the escalation?
         [Expand reasoning]  [Compare directions]  [Explain ALL]
-        '''))
+        '''.replace('        __JOINT_INFERENCE__', joint_inference_diagram())))
     add(prose('''ACTION: Maya types the start of an answer, "Could delay already exist?", then Tabs to Expand reasoning and opens it. Her draft is checkpointed. The larger map and its right-hand inspector use the same r0004, selected L3@1 and exact premises. This is optional inspection, not another answer or consultant call.
 '''))
     add(frame('S05A', 'r0004', 'Reasoning / Explore L3@1', '''
@@ -305,7 +322,7 @@ EVENT semantic in004 r0004 question004
         buttons='[Return to question]  [Actual sources]  [Actions]'))
     add(prose('''ACTION: Esc returns to the question and its retained draft. The following switch opens Leo's separate response to the question; Maya's unsent text remains labeled for its original question and actor even after a new response arrives.
 '''))
-    add(prose('''ACTION: Maya chooses Actions > Switch speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers in Response: Threatened dates may cause escalation. Interruptions could amplify an existing delay rather than start it. Your wording represents my objection, but I dispute the claim that interruptions are the main cause.
+    add(prose('''ACTION: Maya chooses Actions > Change speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers in Response: Threatened dates may cause escalation. Interruptions could amplify an existing delay rather than start it. Your wording represents my objection, but I dispute the claim that interruptions are the main cause.
 EVENT semantic in005 r0005 question005
 '''))
     add(frame('S06', 'r0005', 'question005 / Compare explanations', '''
@@ -345,14 +362,14 @@ EVENT semantic in005 r0005 question005
 
         Saving wording never changes belief. Saving belief never commits a test.
         No substantive choice is preselected. Space selects a focused radio.
-        [Save wording]  [Save belief]  [Choose test - none yet]  [Cancel]
+        [Save position - local]  [Choose test - none yet]  [Cancel]
         ''', speaker='Leo', focus='Wording', live='question005', view='Reasoning'))
-    add(prose('''ACTION: Leo selects Accurate in Wording and activates Save wording.
+    add(prose('''ACTION: Leo selects only Accurate in Wording and activates Save position.
 EVENT local r0006 target=L3@1 dimension=representation value=accurate actor=Leo
-ACTION: In the same panel he selects Disputed in Belief and activates Save belief.
+ACTION: In the same panel he selects only Disputed in Belief and activates Save position.
 EVENT local r0007 target=L3@1 dimension=belief value=disputed actor=Leo
 Receipt: r0007 saved. Leo: wording accurate; belief disputed on L3@1. Reliance unrecorded. No consultant calls. Esc returns to the question with the response draft intact.
-ACTION: Actions > Switch speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers before the next release window. With a large queue, standard work waits longer. But hotfixes also tend to arrive when the queue is already bad, so that comparison does not isolate the cause.
+ACTION: Actions > Change speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers before the next release window. With a large queue, standard work waits longer. But hotfixes also tend to arrive when the queue is already bad, so that comparison does not isolate the cause.
 EVENT semantic in006 r0008 question006
 '''))
     add(frame('S08', 'r0008', 'question006 / Keep the qualification visible', '''
@@ -683,24 +700,15 @@ EVENT semantic in015 r0018 question015
         NEXT / Run this bounded follow-up; return with comparable observations.
         [Original P1 + outcome]  [P2 forecast]  [Open issues]  [History]
         ''', speaker='Leo', summary='P1 breach retained | P2@1 committed by Leo | System goal not yet demonstrated'))
-    add(prose('''ACTION: Leo opens History, selects r0016, then Return to question. The selected revision is historical; the live response target stays the question. Actions > Consultant calls shows 15 completed semantic calls. All inspection, navigation, preference changes, export, quit and resume made zero calls. The three structured local decisions created revisions without consultant responses.
+    add(prose('''ACTION: Leo opens History, selects r0016, then Return to question. The selected revision is historical; the live response target stays Follow-up saved. Actions > Consultant calls shows 15 completed semantic calls. All inspection, navigation, preference changes, export, quit and resume made zero calls. The three structured local decisions created revisions without consultant responses.
 The next two screens demonstrate resize of saved L3@1 at r0018, with the question and its draft retained. They are the SAME inference as S05; the current breach/dispute remain visible. They are not new sessions or additional calls.
 '''))
-    add(frame('S23', 'r0018', 'L3@1', '''
-        +-- ALL / one proposed inference --------------------------+
-        | Validation interrupted; additional rechecks required for this change|
-        | Net unrecovered recheck time exceeds slack before release cutoff        |
-        | No eligible later release before its three-day deadline  |
-        +----------------------------+-----------------------------+
-                                     | L3 hypothesis
-                                     v
-        +---------------------------------------------------------+
-        | Standard change misses its three-business-day target     |
-        +---------------------------------------------------------+
-        H2: delay may cause escalation. [Compare] [Evidence]
-        ''', width=80, height=24, nav=False, focus='L3', live='question015', speaker='Leo',
+    add(frame('S23', 'r0018', 'L3@1',
+        '        L3 hypothesis / Leo DISPUTES / H2 reversal also unresolved\n' +
+        joint_inference_diagram(compact=True),
+        width=80, height=24, nav=False, focus='L3', live='question015', speaker='Leo',
         summary='P1 breach retained | L3 disputed | Goal >=80% not demonstrated',
-        buttons='[Evidence]  [Compare]  [Return]', footer='Tab controls  Enter open  Esc back  F1 Help  Actions'))
+        buttons='[Evidence]  [Compare H2]  [Return]', footer='Tab controls  Enter open  Esc back  F1 Help  Actions'))
     add(frame('S24', 'r0018', 'L3', '''
         L3 hypothesis; Leo disputes it.
         IF ALL (3 premises):
@@ -743,6 +751,7 @@ EVENT start r0000
                      summary=kw.pop('summary', 'Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%'),
                      buttons='[Send]  [Explain this]  [Other moves]  [Views]  [Actions]', **kw)
     out.append(s('M01', 'r0000', 'Start', '''
+        Welcome to Reason Commons.
         What is happening, and what would count as better?
         You can begin in ordinary words. Unknown measures can stay open.
 
@@ -764,7 +773,25 @@ EVENT semantic in001 r0001 question001
         Choose a small trial with an original forecast we can review later.
         [Goal]  [Reported sources]  [Explain this]  [Other moves]
         ''', live='question001'))
-    out.append(prose80('''ACTION: Sam types a draft "5 requests?" then opens Explain this (local). The explanation says: A bounded trial and prospective forecast let you compare results later, while protecting overtime and defects. The question asks for work you can authorize. Esc restores the same question, draft and cursor; no call. Sam replaces the draft and sends:
+    out.append(prose80('''ACTION: Sam types a draft "5 requests?", then Tabs to Other moves and presses Enter. This menu keeps the question and draft. No consultant call has been made.
+'''))
+    out.append(frame('M02A', 'r0001', 'Other moves', '''
+        Choose a route. Nothing is sent until you activate an item.
+
+        > Understand why this question    LOCAL: saved explanation
+          Inspect goal and safeguards     LOCAL: saved records
+          Help plan an observation        ASKS CONSULTANT
+          Give direct advice              ASKS CONSULTANT
+          Ask a different question        ASKS CONSULTANT
+          Leave this question open        LOCAL: retains draft
+
+        Arrows select; Enter activates. Esc returns without a choice.
+        Your draft stays attributed to Sam and the current question.
+        ''', width=80, height=24, nav=False, speaker='Sam', case='forge',
+        focus='Other moves', live='question001', draft='5 requests?',
+        summary='Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%',
+        buttons='[Return to question]  [Help]  [Views]  [Actions]'))
+    out.append(prose80('''ACTION: Sam activates the selected Understand why this question item. The local Explain this view says: A bounded trial and prospective forecast let you compare results later, while protecting overtime and defects. The question asks for work you can authorize. Esc restores the same question, draft and cursor; no call. Sam replaces the draft and sends:
 I have authority to name a triage owner and backup before Oct 5. Rehearse two requests; both roles must explain response and escalation before start. Pilot daily triage Oct 5-16; review Oct 19. Predict delivery >=80%, urgent acknowledgement >=95% within 24h. Retain overtime/defect bounds. Record original dates, mix, suppliers and rule use. Stop expansion on any breach. If either role cannot explain escalation, resolve that before start. Urgent fulfillment is a separate unknown.
 EVENT semantic in002 r0002 question002
 '''))
@@ -797,7 +824,7 @@ EVENT semantic in003 r0003 question003
         ''', live='question003'))
     out.append(prose80('''ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save and quit. Local export and cursor save, no call.
 $ reason-commons resume ./forge-v1
-M04 is restored at r0003, the question. Goal, safeguards and P1 remain pinned; preparation state still unobserved. No consultant call.
+M04 is restored at r0003 with Observe the result as the current question. Goal, safeguards and P1 remain pinned; preparation state still unobserved. No consultant call.
 ACTION: Sam submits: Both roles correctly explained response and escalation in the two rehearsals. Pilot then ran as planned. Fifty due orders, 40 on time. Overtime 18h then 19h; defects 1/50 then 0/50 inspected units. Urgent acknowledgements 18/20 within 24h. Original dates unchanged; similar mix but steadier suppliers. This does not isolate triage as cause.
 EVENT semantic in004 r0004 question004
 '''))
@@ -892,7 +919,7 @@ EVENT semantic in001 r0001 question001
         What information and accuracy would support that decision?
         [Compare versions]  [Review Cloud]  [Review future]  [Review prerequisite]
         '''))
-    out.append(prose('''ACTION: Sam opens Compare versions, then Esc. Same the question, draft and scroll restored; no call. He submits: Sponsor held the authority meeting and named owner/backup. Record T1 completed. We have not checked that roles understand escalation or can apply the admission rule.
+    out.append(prose('''ACTION: Sam opens Compare versions, then Esc. Same question, draft and scroll restored; no call. He submits: Sponsor held the authority meeting and named owner/backup. Record T1 completed. We have not checked that roles understand escalation or can apply the admission rule.
 EVENT semantic in002 r0002 question002
 '''))
     out.append(s('R03', 'r0002', 'question002 / Observe what the action achieved', '''

@@ -206,5 +206,5 @@ canvas supplies orientation, scrutiny and alternatives.
 
 Every Gherkin human interaction uses these controls. The ordered presentation
 in [accessibility.md](accessibility.md) changes layout and announcement policy,
-not actions or literal-input routing. No `--plain` mode, colon-command grammar,
-phrase router or Actions > Command field is part of this product.
+not actions or literal-input routing. No linear REPL, colon-command grammar,
+phrase router or command-entry field is part of this product.

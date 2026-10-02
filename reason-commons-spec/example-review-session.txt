@@ -94,9 +94,9 @@ SCREEN R02 120x40
 | Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
 +----------------------------------------------------------------------------------------------------------------------+
 
-ACTION: Sam opens Compare versions, then Esc. Same the question, draft and scroll restored; no call. He submits:
-Sponsor held the authority meeting and named owner/backup. Record T1 completed. We have not checked that roles
-understand escalation or can apply the admission rule.
+ACTION: Sam opens Compare versions, then Esc. Same question, draft and scroll restored; no call. He submits: Sponsor
+held the authority meeting and named owner/backup. Record T1 completed. We have not checked that roles understand
+escalation or can apply the admission rule.
 EVENT semantic in002 r0002 question002
 
 SCREEN R03 120x40

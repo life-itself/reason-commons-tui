@@ -1,45 +1,48 @@
 # Reason Commons specification bundle
 
 Reason Commons is a persistent terminal reasoning workspace from its first usable
-release. Start with [the replacement TUI transcript](example-tui-session.txt),
-then [the main specification](reason-commons-specification.md), section 0.
-[TUI-DESIGN.md](../TUI-DESIGN.md) fixes the design direction and
-[tui-reasoning-design.md](tui-reasoning-design.md) specifies rendering and input.
-These are integrated requirements, not optional future proposals.
+release. The proposed executable is `reason-commons`. This repository contains
+specifications and authored specimens, not an implemented application.
 
-The transcript follows the fictional Payments deployment case from first use
-through causal scrutiny, a scoped conflict, beneficial/adverse predictions,
-preparation, a bounded pilot, a breached safeguard and a revised follow-up.
-Its 120×40 screens use the room for boxes, complete ALL boundaries, both Cloud
-sides and selected-object inspection. 80×24 and 40×24 views retain the logic.
+Start with [the v1 TUI journey](example-mvp-session.txt) for the release target,
+or [the complete visual reasoning journey](example-tui-session.txt) for the
+cumulative roadmap. Read [the main specification](reason-commons-specification.md),
+[TUI-DESIGN.md](../TUI-DESIGN.md) and
+[the rendering contract](tui-reasoning-design.md) before implementation.
 
-V1 ships p0-p2: durable case, persistent TUI and complete goal/action/review
-loop for one operator. It does not need formal graph authoring or group stances.
-[The v1 session](example-mvp-session.txt) demonstrates that smaller scope with
-visible controls and an original-forecast/outcome table, not typed commands.
-The shell remains for launch, resume and offline automation; explicit `--plain`
-selects the linear accessibility/compatibility presentation.
+The Payments journey follows goal definition, causal scrutiny, a scoped conflict,
+beneficial/adverse forecasts, preparation, a bounded test, a breached safeguard
+and a revised follow-up. The 120x40 canvas makes room for readable boxes, complete
+ALL boundaries, both Cloud sides and selected-object evidence. The 80x24 and
+40x24 views preserve the same logic. Every scene replaces the prior scene in one
+persistent application; ACTION annotations describe keys and contributions.
+
+V1 ships p0-p2: a durable case, persistent workspace and a complete goal/action/
+review loop for one operator. Structured graphs and group positions arrive later.
+The shell launches/resumes and provides offline utilities. The
+[accessible ordered presentation](accessibility.md) shares the same labeled
+actions, literal editor, selection and deliberate submission. No interactive
+command language or alternate shell conversation defines ordinary work.
+Users work with questions, reports, relationships, goals, tests, actions and
+reviews. Internal consultant records do not become numbered stationery objects.
 
 - 16 jobs to be done with observable signals and traceability.
 - 11 `.feature` files: 127 named scenarios/outlines, expanding to 157 cases.
-- V1: 64 scenarios and 86 expanded cases across p0-p2, including workspace,
-  input/focus, recovery and readable review. Counts are acceptance work, not
-  a feature count.
-- Later p3-p5: 63 scenarios and 71 expanded cases for causal models, facilitated
-  positions/Cloud, full tools and cross-tool review.
-- `cli-wireframes.txt`: 35 ASCII views of record payloads/optional plain output;
-  9 are
-  v1 views. These <=76-column fragments have no authority over TUI layout.
-- `example-tui-session.txt`: the canonical cumulative p5 specimen, 15 consultant
-  calls and 18 revisions. It replaces the shell transcript in spec section 9.
-- `example-mvp-session.txt`: v1 specimen, 6 calls and 6 revisions, 80×24.
-- `example-review-session.txt`: independent p5 correction/review specimen,
-  3 calls and 3 revisions; before/after and dependent reviews remain visible.
-- `example-shell-session.txt`: compatibility pointer to the new transcript.
-- `build_tui_specimens.py`: deterministic authoring helper for the 37 ASCII frames;
-  it is not a TUI application or a causal layout engine.
-- `delivery-phases.json`: phase dependencies, explicit v1 IDs, artifact profiles
-  and session ledgers. `check_bundle.py` validates and synchronizes the bundle.
+- V1: 64 scenarios and 86 expanded cases across p0-p2.
+- Later p3-p5: 63 scenarios and 71 expanded cases.
+- 38 ASCII screens across three synchronized TUI specimens.
+- `example-mvp-session.txt`: v1, 6 consultant calls and 6 revisions, 80x24;
+  embedded first in specification section 8.
+- `example-tui-session.txt`: cumulative p5, 15 calls and 18 revisions;
+  the canonical full journey in section 9.
+- `example-review-session.txt`: p5 correction/review, 3 calls and 3 revisions;
+  before/after formulations and dependent reviews in section 10.
+- `build_tui_specimens.py`: deterministic screen authoring helper; not a runnable
+  TUI or a causal layout engine.
+- `delivery-phases.json`: phase dependencies, v1 IDs, actual screen identities,
+  interface policy and session ledgers.
+- `check_bundle.py`: validates/synchronizes artifacts and rejects reintroduced
+  legacy branding, stationery labels, command routing and numbered UI exchanges.
 
 ## Development sequence
 
@@ -52,9 +55,9 @@ selects the linear accessibility/compatibility presentation.
 | p4 | Facilitated positions and Cloud | 16 | 16 |
 | p5 | Full tools and cross-tool review | 18 | 24 |
 
-Scenario-local phase, release and evaluation tags select acceptance sets, not
-runtime stages. [Delivery gates](delivery-phases.md) require actual terminal,
-semantic and participant evaluation. Build cumulatively; ship v1 after p2.
+Scenario-local tags select acceptance sets, not mandatory runtime stages.
+[Delivery gates](delivery-phases.md) require actual terminal, semantic and
+participant evaluation. Build cumulatively; ship v1 after p2.
 
 ```sh
 python3 reason-commons-spec/build_tui_specimens.py
@@ -64,13 +67,9 @@ python3 reason-commons-spec/check_bundle.py --select through-p4 --list
 python3 -m unittest discover -s reason-commons-spec -p 'test_*.py'
 ```
 
-Edit the builder's authored copy to revise screen content, rebuild specimens,
-then synchronize the main spec. Other features/fragments can be edited directly
-before `--sync`. The checker verifies frame geometry, ASCII, event/call/revision
-ledgers, tags, profiles, outline rows, traceability, envelopes and appendices.
-It does not run product behavior or validate consulting quality, accessibility,
-learnability or lovability. This repository is a specification, not a runnable
-product; future Gherkin step definitions and prototype evaluation remain work.
-
-[interface-improvement-plan.md](interface-improvement-plan.md) retains historical
-rationale. Its older release boundary is superseded by the current contract.
+Edit the builder's authored copy, rebuild specimens, then synchronize the spec.
+Features and supporting contracts are edited directly. The checker verifies
+geometry, ASCII, exact screen identities, event/call/revision ledgers, tags,
+profiles, outline rows, traceability, envelopes and embedded copies. Its regression
+tests exercise document safeguards. They do not run application behavior, prove
+consulting quality or establish accessibility, learnability or lovability.

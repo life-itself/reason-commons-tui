@@ -136,13 +136,32 @@ def appendix():
     for path in sorted((ROOT / 'features').glob('*.feature')):
         sections.append(f'### {path.name}\n\n```gherkin\n{path.read_text().rstrip()}\n```\n\n')
     for title, name in [
-        ('## 8. Record fragments for optional plain presentation', 'cli-wireframes.txt'),
+        ('## 8. V1 TUI goal action review session', 'example-mvp-session.txt'),
         ('## 9. Complete illustrative roadmap TUI session', 'example-tui-session.txt'),
-        ('## 10. V1 TUI goal action review session', 'example-mvp-session.txt'),
-        ('## 11. TUI cross-tool correction and action review', 'example-review-session.txt'),
+        ('## 10. TUI cross-tool correction and action review', 'example-review-session.txt'),
     ]:
         sections.append(f'{title}\n\n```text\n{(ROOT / name).read_text().rstrip()}\n```\n\n')
+    sections.append('## 11. Accessible ordered presentation\n\n' +
+                    (ROOT / 'accessibility.md').read_text().rstrip() + '\n')
     return ''.join(sections).rstrip() + '\n'
+
+
+def validate_interface_language(text):
+    """Guard retired product vocabulary and independently specified command UI.
+
+    Literal command-looking response text is permitted: it must not acquire
+    an action grammar. This is an editorial guard, not a proof of usability.
+    """
+    errors = []
+    if re.search(r'\b(?:cardroom|cards?)\b|\.cardcase\b', text, re.I):
+        errors.append('retired brand or stationery metaphor')
+    if '--plain' in text or 'Actions > Command' in text:
+        errors.append('alternate interactive command surface')
+    if re.search(r'\b(?:enters?|activates?|selects?)\s+["`]:[a-z]', text, re.I):
+        errors.append('human scenario routed through a colon command')
+    if re.search(r'`:(?:connections|changes|model|stance|rely|restore|choose|say|compose)\b', text):
+        errors.append('specified interactive colon-command grammar')
+    return errors
 
 
 def validate_tui_frames(text, max_width):
@@ -166,6 +185,8 @@ def validate_tui_frames(text, max_width):
         block = lines[index+1:index+height+1]
         if len(block) != height or any(len(line) != width or not line.isascii() for line in block):
             errors.append(f'{sid}: frame geometry or ASCII differs')
+        if any(re.search(r'\b(?:interventions?|question\d{3}|c\d{3})\b', line, re.I) for line in block):
+            errors.append(f'{sid}: internal consulting unit leaked into user-facing UI')
         if block and (not block[0].startswith('+') or not block[-1].startswith('+')):
             errors.append(f'{sid}: missing enclosing frame')
         if not any('Focus:' in line or '| F:' in line for line in block[:3]):
@@ -175,12 +196,12 @@ def validate_tui_frames(text, max_width):
 
 def validate_tui_ledger(text, config):
     errors = []
-    semantic = re.findall(r'^EVENT semantic in(\d{3}) r(\d{4}) c(\d{3})$', text, re.M)
+    semantic = re.findall(r'^EVENT semantic in(\d{3}) r(\d{4}) question(\d{3})$', text, re.M)
     local = re.findall(r'^EVENT local r(\d{4}) target=(\S+) dimension=(\S+) value=(\S+) actor=(\S+)$', text, re.M)
     calls, revisions = config['calls'], config['revisions']
     expected = list(range(1, calls+1))
     if [int(x[0]) for x in semantic] != expected or [int(x[2]) for x in semantic] != expected:
-        errors.append('input/intervention sequence differs from consultant call count')
+        errors.append('input/question sequence differs from consultant call count')
     commits = [int(x) for x in re.findall(r'^EVENT (?:start|local|semantic in\d{3}) r(\d{4})\b', text, re.M)]
     if commits != list(range(revisions+1)):
         errors.append(f'revision sequence differs: {commits}')
@@ -238,25 +259,30 @@ def check(selection='all', list_selected=False):
     for lo, hi in re.findall(r'S(\d+)–S(\d+)', trace):
         covered.update(range(int(lo), int(hi)+1))
     require(covered == {int(s['id'][1:]) for s in scenarios if s['id']}, 'Traceability ranges differ from scenario IDs')
-    wire = (ROOT / 'cli-wireframes.txt').read_text()
-    view_scopes = dict(re.findall(r'^(V\d+) - [^\n]+\nScope: @(p\d+) @(?:v1|later)$', wire, re.M))
-    views = re.findall(r'^(V\d+) - ', wire, re.M)
-    require(len(views) == len(set(views)) and set(views) == set(manifest['views']), 'View IDs differ from manifest')
-    require(view_scopes == manifest['views'], 'View profiles differ from manifest')
-    releases = {p['id']:p['release'] for p in manifest['phases']}
-    for view, phase, release in re.findall(r'^(V\d+) - [^\n]+\nScope: @(p\d+) @(v1|later)$', wire, re.M):
-        require(releases.get(phase) == release, f'{view}: view phase/release conflict')
-    for name in ['cli-wireframes.txt', *manifest['sessions']]:
+    require(manifest.get('interface') == {
+        'product': 'Reason Commons', 'executable': 'reason-commons',
+        'default': 'persistent_tui', 'alternate': 'accessible_ordered_text',
+        'interactive_command_language': False, 'user_facing_intervention_ids': False},
+        'Interface policy differs from the canonical workspace contract')
+    require(set(manifest['screens']) == set(manifest['sessions']), 'Screen/session manifest differs')
+    screen_count = 0
+    for name, config in manifest['sessions'].items():
         text = (ROOT / name).read_text()
+        ids = re.findall(r'^SCREEN (\w+) ', text, re.M)
+        require(ids == manifest['screens'].get(name), f'{name}: exact screen identities/order differ')
+        screen_count += len(ids)
         for number, line in enumerate(text.splitlines(), 1):
             require(line.isascii(), f'{name}:{number}: non-ASCII terminal output')
-            limit = 76 if name == 'cli-wireframes.txt' else manifest['sessions'][name]['width']
-            require(len(line) <= limit, f'{name}:{number}: exceeds {limit} columns ({len(line)})')
-    for view in ('V14', 'V35'):
-        block = re.search(r'^' + view + r' - [^\n]+\n(.*?)(?=^V\d+ - |\Z)', wire, re.M | re.S)
-        require(block is not None and all(len(line)<=40 for line in block[1].splitlines()), f'{view}: narrow output exceeds 40 columns')
-    for token in ['5 options', 'bare 5 always']:
-        require(token not in spec, f'Obsolete numeric routing: {token}')
+            require(len(line) <= config['width'], f'{name}:{number}: exceeds {config["width"]} columns')
+    active_sources = [ROOT / 'README.md', ROOT.parent / 'README.md', ROOT.parent / 'TUI-DESIGN.md',
+                      ROOT / 'reason-commons-specification.md', ROOT / 'tui-reasoning-design.md',
+                      ROOT / 'delivery-phases.md', ROOT / 'interface-improvement-plan.md',
+                      ROOT / 'accessibility.md', *features, *[ROOT / n for n in manifest['sessions']]]
+    for path in active_sources:
+        for issue in validate_interface_language(path.read_text()):
+            require(False, f'{path.name}: {issue}')
+    for old_name in ['cli-wireframes.txt', 'example-shell-session.txt']:
+        require(not (ROOT / old_name).exists(), f'Superseded interactive artifact reintroduced: {old_name}')
     envelopes = re.findall(r'```json\n(.*?)\n```', contract, re.S)
     require(bool(envelopes), 'Response envelopes missing')
     for envelope in envelopes:
@@ -269,6 +295,7 @@ def check(selection='all', list_selected=False):
                 require(obj['intervention']['goal_ref'] == 'G1@1' and 'diagram' not in obj['intervention'], 'V1 envelope requires a goal purpose and no diagram')
         except (json.JSONDecodeError, KeyError) as exc:
             errors.append(f'Response envelope invalid: {exc}')
+    releases = {phase['id']: phase['release'] for phase in manifest['phases']}
     for name, config in manifest['sessions'].items():
         require(config['profile'] in releases, f'{name}: unknown session profile')
         check_session(name, config, require)
@@ -276,12 +303,10 @@ def check(selection='all', list_selected=False):
     cases = sum(s['cases'] for s in scenarios)
     require(f'{len(features)} `.feature` files' in readme and f'{len(scenarios)} named' in readme and f'{cases} cases' in readme,
             'README feature/scenario/case counts differ')
-    require(f'{len(views)} ASCII views' in readme, 'README view count differs')
+    require(f'{screen_count} ASCII screens' in readme, 'README screen count differs')
     v1 = [s for s in scenarios if s['release'] == 'v1']
     require(f"V1: {len(v1)} scenarios and {sum(s['cases'] for s in v1)} expanded cases" in readme,
             'README v1 counts differ')
-    v1_views = sum(releases[phase] == 'v1' for phase in view_scopes.values())
-    require(f'{v1_views} are\n  v1 views' in readme, 'README v1 view count differs')
     phase_rows = {phase: (int(count), int(expanded)) for phase, count, expanded in
                   re.findall(r'^\| (p\d+) \| [^|]+\| (\d+) \| (\d+) \|$', readme, re.M)}
     for phase in releases:
@@ -297,7 +322,7 @@ def check(selection='all', list_selected=False):
         print('\n'.join('FAIL: ' + error for error in errors), file=sys.stderr)
         return 1
     print(f'PASS: {len(features)} features; {len(scenarios)} scenarios; {cases} expanded cases; '
-          f'{len(views)} record views; synchronized artifacts; delivery tags/profiles; ASCII frames; response envelopes; '
+          f'{screen_count} TUI screens; synchronized artifacts; delivery tags/profiles; ASCII frames; response envelopes; '
           f'{len(manifest["sessions"])} TUI session ledgers.')
     print(f'Selected {selection}: {len(selected)} scenarios; {sum(s["cases"] for s in selected)} expanded cases.')
     if list_selected:

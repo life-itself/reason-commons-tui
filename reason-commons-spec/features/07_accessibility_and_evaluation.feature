@@ -50,6 +50,6 @@ Feature: Make the interface legible and the consultant evaluable
     Given a group corrects two causal links and completes a pilot review
     When the case progress view is opened
     Then it reports the corrections, evidence obtained, decisions, and reviewed predictions
-    And it does not score agreement, intervention count, or WIP depletion as success
+    And it does not score agreement, reply count, or WIP depletion as success
     And learning measures require an actual reasoning task or later unaided performance
 

@@ -43,8 +43,8 @@ observations, and decide what to do next. One operator uses a persistent TUI wit
 attributed notes, visible local controls and a consultant. Formal graph authoring and group stance
 work are later capabilities. Unknown facts and authority remain explicit.
 
-This section controls the release scope of every later requirement, command,
-state field, wireframe, and example. Sections 1-4 and 6a describe the cumulative
+This section controls the release scope of every later requirement, action,
+state field, screen and example. Sections 1-4 and 6a describe the cumulative
 product contract. They do not require every described capability in v1.
 [delivery-phases.md](delivery-phases.md) defines the increment and gate for
 each phase; [delivery-phases.json](delivery-phases.json) locks scenario and
@@ -172,8 +172,8 @@ revision and the live response target. Pending work has a separate label.
 
 The persistent workspace uses compact pinned context. Show the complete goal, horizon,
 protected conditions, and active test boundaries on startup/resume, whenever
-those fields change, and through the visible Goal and Case context controls. The current question must also repeat any
-condition, baseline, target, or uncertainty that materially changes its answer,
+those fields change, and through the visible Goal and Case context controls. The current
+question must also repeat any condition, baseline, target, or uncertainty that materially changes its answer,
 even if it was displayed earlier. A saved case with an unknown goal displays
 "goal provisional" or "goal unknown" until the goal is defined.
 
@@ -181,8 +181,8 @@ Unresolved breaches and storage/provider failures take precedence over routine
 focus in every affected view: name the breached condition and current value,
 or distinguish retained input from uncommitted reasoning. Case context also
 shows full model/WIP status, attribution, response target, and pending inputs.
-Actions > Display > Expanded repeats this context; Compact is the default. Both are persisted cursor preferences, with no reasoning
-revision or consultant call. Display density cannot hide an active breach.
+Actions > Display > Expanded repeats this context; Compact is the default. Both are persisted cursor
+preferences, with no reasoning revision or consultant call. Display density cannot hide an active breach.
 
 Context is physically pinned in the default TUI: case/save/actor/view/focus
 header, a short goal/safeguard band, and footer controls. Expand the task region
@@ -1059,8 +1059,8 @@ recorded rescue views. Report access, reasoning, transfer, implementation, and
 goal attainment separately. A small usability round cannot establish causal
 effects of the interface on organizational results. (Sections 7–10.)
 
-The following sections embed the canonical feature files, wireframes, and worked
-session. Run `python3 reason-commons-spec/check_bundle.py` to verify synchronization
+The following sections embed the canonical feature files, full-screen specimens, and accessible
+presentation. Run `python3 reason-commons-spec/check_bundle.py` to verify synchronization
 and structural consistency. This check does not execute the application or establish usability.
 
 
@@ -1103,4 +1103,3026 @@ it does not run the application, prove causal reasoning, certify accessibility
 or establish learnability. Actual terminal and first-time participant checks
 remain release requirements.
 
+## 7. Full Gherkin acceptance specifications
 
+### 01_goals_and_guidance.feature
+
+```gherkin
+@J01 @J02 @J03 @J04
+Feature: Help a group make its next reasoning move
+  The group does the consequential thinking; the consultant supplies structure,
+  feedback, and a useful next question or recommendation.
+
+  Background:
+    Given a writable case store
+    And an available consultant adapter
+
+  @S01 @p2 @v1 @semantic
+  Scenario: Begin with a situation rather than a TOC questionnaire
+    Given a new case with no agreed goal
+    When Sam submits "Late deliveries, changing priorities, overtime, and falling morale"
+    Then the input is preserved with Sam's declared attribution
+    And one prominent question asks what meaningful progress would look like and what must be protected
+    And the visible context labels the goal as provisional
+    And the effects remain attributed notes with no invented relationships
+
+  @S02 @p2 @v1 @semantic
+  Scenario: Record a goal without inventing agreement or measures
+    Given Sam proposes "At least 90% of orders on time by October 30"
+    When the consultant creates the next useful response
+    Then the goal records Sam as its source
+    And absent baseline, scope, and protected conditions are shown as unknown
+    And no other participant is recorded as agreeing
+    And the next prompt addresses the most consequential missing item
+
+  @S03 @p2 @v1 @automated
+  Scenario: Show one recommended move and keep other paths available
+    Given a bounded test proposal whose observation criterion is unknown
+    When its current question is rendered
+    Then exactly one primary prompt is visually distinguished from its decision context
+    And the prompt asks the operator to supply the observation criterion
+    And alternatives are available through visible "Other moves" controls
+    And the foreground does not include an unsolicited TOC lesson
+
+  @S04 @p2 @v1 @automated
+  Scenario: Keep the information that changes the answer beside the question
+    Given the current question concerns a pilot that may increase overtime
+    And the case protects "Overtime at most 20 hours per week"
+    When the pilot workspace is rendered
+    Then the consequential goal and protected condition appear beside the question
+    And compact status shows current focus, revision, and save status
+    And an estimate is not relabeled as a measurement
+    And the pilot workspace shows the relevant baseline and period
+
+  @S05 @p3 @later @semantic
+  Scenario: Change coaching style without forcing a discovery exercise
+    Given the group has a working causal hypothesis
+    When Sam activates Actions > Coaching > Direct advice
+    And submits "Give us two concrete ways to test this"
+    Then the preference change makes no consultant call
+    And the semantic request produces ranked, concrete tests with tradeoffs
+    And the group is not required to answer another Socratic question first
+
+  @S06 @p2 @v1 @semantic
+  Scenario: Treat an unclear or uncomfortable question as useful input
+    Given a current question asks why Sales "disrupts" production
+    When Priya submits "That wording blames us and does not fit what happens"
+    Then the consultant preserves the correction
+    And the next question uses neutral language about the scheduling mechanism
+    And no record treats the correction as assent or irrational resistance
+```
+
+### 02_navigation_and_routing.feature
+
+```gherkin
+@J05 @J06 @J16
+Feature: Navigate without asking the consultant to think
+  Retrieval is local. Explicit structured decisions may also be local.
+  Focus determines whether a key edits, filters, selects or activates a control.
+  Response text is literal and reaches the consultant only through Send.
+
+  Background:
+    Given the persistent TUI workspace is active
+    And case "forge" at revision 10 with current question "Choose a test"
+    And History contains the earlier questions "Define success" and "Inspect the baseline"
+    And the consultant call counter is 8
+
+  @S07 @p1 @v1 @automated
+  Scenario Outline: Open a stored view using its visible control
+    When the participant activates "<control>" using Tab and Enter
+    Then the view "<view>" is rendered from stored state
+    And the consultant call counter remains 8
+    And the reasoning revision remains 10
+
+    Examples:
+      | control                          | view                           |
+      | Other moves                      | alternatives for this question |
+      | History                          | questions and event history    |
+      | Explain this                     | authored rationale             |
+      | History > Define success         | archived Define success        |
+      | History > Inspect the baseline   | archived Inspect the baseline  |
+      | Help                             | control help                   |
+      | Actions > Consultant calls       | adapter call count             |
+
+  @S08 @p1 @v1 @automated
+  Scenario: Send a numeric answer from the literal editor
+    Given Response owns focus
+    When the participant types "5" then activates Send
+    Then exactly one consultant request contains the literal answer "5"
+    And neither the alternatives nor a historical question opens
+
+  @S09 @p1 @v1 @automated
+  Scenario: Send text resembling a shortcut without an escape command
+    Given Response owns focus
+    When Sam types "q" then activates Send
+    Then exactly one consultant request contains the literal answer "q"
+    And the session does not quit
+
+  @S10 @p1 @v1 @automated
+  Scenario: Keep a misspelled action filter local
+    Given Actions filter owns focus
+    When Sam types "histroy"
+    Then the interface shows no match with Clear filter and Back controls
+    And no consultant call or reasoning revision is created
+    And the filter and current response draft are retained
+
+  @S11 @p1 @v1 @automated
+  Scenario: Keep the current question stable while browsing
+    When Sam opens History > Define success and presses Esc
+    Then the previous view and draft are restored
+    And the live response target remains "Choose a test"
+    And quoting the historical question in Response does not change that target
+
+  @S12 @p1 @v1 @automated
+  Scenario: Distinguish a stored view from another consultant move
+    Given Other moves contains Inspect rationale and Ask another question
+    When Sam opens Other moves
+    Then Inspect rationale says "local; opens saved explanation"
+    And Ask another question says "asks consultant"
+    When Sam selects Inspect rationale and presses Enter
+    Then no consultant request is made
+    When Sam returns and activates Ask another question
+    Then one request contains the stored intent and current response target
+
+  @S13 @p1 @v1 @automated
+  Scenario: Explain the question through public supporting material
+    Given the current question has stored rationale and evidence references
+    When Sam activates Explain this
+    Then the rationale and referenced reports are displayed
+    And the view makes no claim to expose a private model thought trace
+    And Esc restores the originating view and draft
+
+  @S90 @p3 @later @automated
+  Scenario Outline: Open a structured reasoning view locally after the causal release
+    Given the causal delivery profile and stored records for "<control>"
+    When the participant activates "<control>"
+    Then the view "<view>" is rendered from stored state
+    And the consultant call counter remains 8
+    And the reasoning revision remains 10
+
+    Examples:
+      | control                        | view                  |
+      | Reasoning                      | partial working model |
+      | Unlinked                       | unlinked reports      |
+      | Reasoning > Assumptions         | assumptions           |
+```
+
+### 03_model_and_wip.feature
+
+```gherkin
+@J07 @J08 @J10
+Feature: Earn coherence without manufacturing certainty
+  Model membership and support are separate attributes.
+  Disconnected contributions stay visible in WIP.
+
+  @S14 @p3 @later @semantic
+  Scenario: Keep a relevant observation outside the graph until connected
+    Given a partial model of priority changes and late orders
+    When Sam submits "Suppliers are often late and new hires take weeks to become productive"
+    Then both contributions receive stable WIP identifiers and source references
+    And the existing causal graph is not given invented arrows
+    And the receipt reports "2 reports retained in Unlinked"
+    And one prominent question offers a useful move on the current focus
+
+  @S15 @p3 @later @semantic
+  Scenario: Promote a WIP item through an explicit causal formulation
+    Given "W1" says "Orders finish late"
+    And "W2" says "Priorities change during the week"
+    When Sam submits "Changing priorities contributes to late orders when unfinished work is high because active jobs are interrupted"
+    Then the model contains the reported propositions and hypothesized relationships
+    And the joint causes are represented with an AND group
+    And W1 and W2 remain retrievable through their original source records
+    And the new relationships are not labeled empirically established
+
+  @S16 @p3 @later @automated
+  Scenario: Show a diagram only when it earns its space
+    Given two conditions jointly lead to one reported effect
+    When a question asks whether either condition alone is enough
+    Then a diagram shows the two conditions, an AND junction, and the effect
+    And uncertain links are marked and explained in text
+    And the workspace includes only the mechanism needed for the question
+    And no decisive condition is omitted to meet a node-count target
+
+  @S17 @p2 @v1 @automated
+  Scenario: Show no diagram for a question it would not clarify
+    Given the next useful move is to name an experiment owner
+    When the question is rendered
+    Then it asks for the owner without a decorative causal diagram
+
+  @S18 @p3 @later @semantic
+  Scenario: Preserve contradictory claims instead of resolving them silently
+    Given L3 claims that interrupted jobs contribute to late completion
+    When Priya submits "Priority changes may follow threatened dates rather than cause them"
+    Then the alternative is stored with Priya's attribution
+    And L3 can remain in the working model while disputed
+    And the next question requests evidence that could distinguish the directions
+    And neither participant's claim is overwritten
+
+  @S19 @p3 @later @automated
+  Scenario: Capture literally without interpretation
+    Given a current question and 2 WIP items
+    When Sam activates Actions > Capture report, types "Morale feels worse after the second shift" and saves locally
+    Then the exact text is added as an unclassified WIP item
+    And the reasoning revision advances once
+    And the consultant call count does not change
+    And the current question remains the response target
+
+  @S20 @p3 @later @automated
+  Scenario: Connect known objects locally when the human supplies every relation field
+    Given W1 and W2 are unconnected reported observations
+    When Sam selects the two reports and activates Add relationship
+    And supplies input Priorities change, output Orders finish late, condition "high WIP" and basis Hypothesis
+    And activates Save relationship - local
+    Then a human-authored conditional hypothesis is recorded
+    And the items are included in the model through that relationship
+    And the original wording, attribution, and earlier revision remain available
+    And no consultant call or claim of validation is made
+
+  @S21 @p3 @later @semantic
+  Scenario: Do not infer a merge from similar wording
+    Given W4 says "Morale is falling"
+    When another participant captures "People seem discouraged"
+    Then both source records are preserved
+    And a possible duplicate may be suggested on the next semantic turn
+    And merging requires an explicit decision about the intended meaning
+
+  @S22 @p3 @later @semantic
+  Scenario: Challenge a constraint hypothesis at the system level
+    Given a large production queue and low on-time delivery
+    When Sam submits "The largest queue must be our constraint"
+    Then the consultant asks what improving that queue would change in the chosen goal and horizon
+    And it requests evidence about effective capacity, load, and downstream absorption when relevant
+    And a queue alone is not stored as a confirmed system constraint
+
+  @S23 @p3 @later @semantic
+  Scenario: Preserve units, periods, and denominators
+    Given a baseline of 32 on-time orders out of 50 orders due in September
+    When Sam reports "20 completed orders this week proves we improved"
+    Then the receipt retains the new report with its period
+    And the consultant asks for orders due and on-time completions for a comparable cohort
+    And the old baseline is not replaced with an incomparable percentage
+```
+
+### 04_group_and_conflict.feature
+
+```gherkin
+@J09 @J11
+Feature: Represent a group's positions and conflicts faithfully
+
+  @S24 @p4 @later @automated
+  Scenario: Distinguish a faithful representation from belief
+    Given L3 version 1 is a disputed causal hypothesis
+    When Priya selects L3 version 1, opens Record position, chooses only Wording Accurate and saves
+    Then her representation stance is recorded for that exact formulation
+    And her belief remains disputed
+    And other participants' stances remain unknown
+
+  @S25 @p4 @later @automated
+  Scenario: Reliance on a test does not establish belief or consensus
+    Given pilot P1 version 1 has a prospective prediction
+    When Sam selects pilot P1 version 1, opens Record decision, chooses Will run this bounded test and saves
+    Then Sam's willingness to run that bounded pilot is recorded
+    And no group's unanimous assent is inferred
+    And disputed causal claims remain disputed
+
+  @S26 @p4 @later @semantic
+  Scenario: Attribute reported positions without claiming direct assent
+    When Sam submits "Priya thinks the model is wrong"
+    Then the source is Sam's report of Priya's position
+    And Priya is not marked as directly endorsing a stance
+
+  @S27 @p4 @later @automated
+  Scenario: Do not carry agreement onto a substantively changed formulation
+    Given Priya marked L3 version 1 as an accurate representation
+    When the condition and effect of L3 are substantively revised
+    Then the new formulation has a new version
+    And the old stance remains attached to version 1
+    And Priya's stance on the new version is unknown
+
+  @S28 @p4 @later @semantic
+  Scenario: Represent a conflict as legitimate needs and incompatible actions
+    Given Sales wants responsiveness and Production wants dependable execution
+    When the group explains why Sales changes the committed plan and Production freezes it
+    Then a partial Cloud shows their shared objective and both needs
+    And the conflicting actions are "Change the committed plan now" and "Keep the committed plan unchanged"
+    And the assumptions making those actions seem necessary are inspectable
+    And neither need is described as the obstacle to be defeated
+
+  @S29 @p4 @later @semantic
+  Scenario: Respect a real incompatibility
+    Given two obligations require the same exclusive resource at the same time
+    And no workable alternate arrangement is known
+    When the group asks to resolve the conflict
+    Then the consultant can describe the unresolved tradeoff and decision owner
+    And it does not assert that every conflict has an evaporating solution
+```
+
+### 05_experiments_and_review.feature
+
+```gherkin
+@J10 @J11 @J12 @J13
+Feature: Turn a defensible next move into learning
+
+  @S30 @p2 @v1 @semantic
+  Scenario: Test before completing every Thinking Process tree
+    Given two plausible explanations would lead to the same low-cost bounded test
+    When the group asks what to do next
+    Then the consultant may recommend that test with the uncertainty visible
+    And completing a CRT, Cloud, FRT, PRT, and Transition Tree is not a prerequisite
+
+  @S31 @p5 @later @semantic
+  Scenario: Inspect a consequential adverse effect
+    Given the group proposes freezing the plan while reserving urgent capacity
+    When the consultant evaluates the proposal
+    Then a partial future model marks its effects as predictions
+    And the most consequential credible negative branch is shown
+    And the next prompt asks for a prevention or stopping condition
+
+  @S32 @p2 @v1 @automated
+  Scenario: Record a prospective pilot with enough detail to review
+    Given the group has supplied a baseline and a proposed bounded change
+    When Sam commits to a pilot
+    Then the pilot records the following review fields:
+      | field                  |
+      | owner and scope        |
+      | intervention and dose  |
+      | baseline and cohort    |
+      | exact prediction       |
+      | measurement method     |
+      | observation window     |
+      | protected conditions   |
+      | stopping conditions    |
+      | alternative explanation|
+      | review date            |
+    And unknown fields remain visibly unknown
+    And the prediction is versioned before the outcome is supplied
+
+  @S33 @p5 @later @semantic
+  Scenario: Convert an implementation obstacle into a necessary intermediate objective
+    Given the pilot cannot begin because no one owns urgent-request triage
+    When the group examines the obstacle
+    Then the workspace identifies "Every urgent request has an accountable triage owner" as a necessary condition
+    And a next action names an owner and timing if supplied
+    And "Solve triage" alone is not presented as an executable plan
+
+  @S34 @p2 @v1 @semantic
+  Scenario: Show the original prediction before interpreting a result
+    Given pilot P1 predicted at least 80% on-time completion
+    And its original responsiveness guardrail was at least 95% acknowledged within 24 hours
+    When Sam reports 40 of 50 on time and 18 of 20 timely acknowledgements
+    Then the review compares 80% with the unchanged delivery prediction
+    And it compares 90% with the unchanged 95% responsiveness guardrail
+    And the forecast is supported on delivery while the guardrail is breached
+    And the next move addresses the breach before expansion
+
+  @S35 @p2 @v1 @semantic
+  Scenario: Improvement is not proof of a unique cause
+    Given a pilot improved delivery while changing both release rules and urgent-request handling
+    When the result is reviewed
+    Then the result can support the bounded intervention
+    And the causal explanation remains non-unique
+    And supplier timing and order mix are checked as relevant alternatives
+
+  @S36 @p2 @v1 @semantic
+  Scenario Outline: Classify a review according to what actually happened
+    Given a pilot with an unchanged prospective prediction
+    And the review evidence is "<evidence>"
+    When the group submits the outcome
+    Then the affected prediction is classified as "<classification>"
+    And the original forecast and source reports remain available
+
+    Examples:
+      | evidence                                          | classification         |
+      | planned dose, comparable measures, target reached  | supported prediction   |
+      | planned dose, comparable measures, target missed   | contradicted prediction|
+      | the intervention never started                    | implementation failure |
+      | the outcome denominator is unknown                | inconclusive           |
+
+  @S37 @p2 @v1 @automated
+  Scenario: A review date is not a scheduled automation
+    Given a pilot has a review date of October 19
+    When the pilot is saved
+    Then the view says "Review October 19; no reminder scheduled"
+    And no calendar event, message, background job, or external action is created
+
+  @S38 @p3 @later @semantic
+  Scenario: Recheck the constraint after improvement
+    Given a bounded change improves delivery without proving the previous diagnosis
+    When the group decides its next step
+    Then the consultant asks what now limits the goal in the remaining horizon
+    And it preserves useful practices while questioning any that no longer serve the goal
+```
+
+### 06_persistence_and_recovery.feature
+
+```gherkin
+@J14 @J15
+Feature: Preserve the case across sessions and failures
+  Successful reasoning transactions produce complete immutable-by-policy YAML
+  revisions. Navigation and drafts use a separate resumable cursor checkpoint.
+
+  @S39 @p0 @v1 @automated
+  Scenario: Resume without reconstructing the consultation
+    Given a saved case with a current question, attributed notes, a bounded test, and an answer draft
+    When the participant quits and resumes the same case in a new process
+    Then the same reasoning revision, response target, view cursor, and draft are restored
+    And the goal, notes, test, and last prediction are unchanged
+    And resumption makes no consultant call
+
+  @S40 @p0 @v1 @automated
+  Scenario: Save every complete reasoning update without overwriting earlier revisions
+    Given committed revision 13
+    When a valid semantic response is committed
+    Then a complete revision 14 is available with parent 13 and source input references
+    And revision 13 remains byte-for-byte unchanged
+    And the intervention and its supported goal, note, or test updates appear together
+    And "saved" is shown only after the local commit succeeds
+
+  @S41 @p3 @later @automated
+  Scenario: Keep inspection read-only and rollback explicit
+    Given revision 14 is current and revision 3 exists
+    When Sam selects revision 3 in History and opens it
+    Then revision 3 is displayed as historical and read-only
+    And the case remains at revision 14
+    When Sam activates Restore reasoning, reviews source revision 3 and activates Append restored reasoning
+    Then a new revision 15 reproduces revision 3's reasoning state
+    And it records both revision 14 as parent and revision 3 as restored source
+    And revision 14 is retained
+
+  @S42 @p0 @v1 @automated
+  Scenario: Export a portable handoff independent of provider conversation memory
+    Given a saved case containing interventions, sources, attributed notes, a goal, and a bounded test
+    When Sam exports a ".reasoncase" bundle and imports it into a fresh process
+    Then stable identifiers and revision ancestry are preserved
+    And all referenced source records and the original prediction can be inspected offline
+    And no hidden provider conversation is required
+    And the imported case opens without a consultant call
+
+  @S43 @p0 @v1 @automated
+  Scenario: Recover from a provider failure without losing or duplicating input
+    Given Sam's input has been stored under request "in014"
+    When the consultant adapter times out
+    Then the current question and committed reasoning revision remain unchanged
+    And "Input retained; consultant unavailable" is displayed with a visible Retry retained input control
+    When Sam retries "in014" successfully
+    Then the accepted response creates exactly one committed intervention and one revision
+    And the failed attempt is preserved separately from reasoning revisions
+
+  @S44 @p0 @v1 @automated
+  Scenario: Reject an invalid response without applying a partial update
+    Given a stored semantic input and current revision 14
+    When the adapter returns an unknown goal reference or an ownership claim without cited explicit input
+    Then no intervention or case update is committed
+    And the input and failure receipt remain available
+    And a local recovery message explains the next available action
+
+  @S45 @p0 @v1 @automated
+  Scenario: A save failure never looks like a saved case
+    Given the case store cannot complete a durable write
+    When the participant submits an answer
+    Then "not saved" is visible
+    And no consultant call begins if the raw input cannot first be retained
+    And the text remains in the editor or memory while the process is open
+    And the participant can copy it or choose a writable export destination
+
+  @S46 @p0 @v1 @automated
+  Scenario: Detect stale work instead of silently overwriting another update
+    Given an adapter request was based on revision 14
+    And the case has advanced to revision 15
+    When that adapter response arrives
+    Then it is not applied to revision 15
+    And the receipt offers a re-evaluation against the current revision
+    And no last-write-wins merge is performed
+
+  @S47 @p1 @v1 @automated
+  Scenario: Keep offline navigation useful
+    Given a saved case and an unavailable consultant adapter
+    When Sam opens options, rationale, history, or the bounded test
+    Then every stored view works without the adapter
+    And semantic work is clearly pending until an adapter is available
+
+  @S48 @p0 @v1 @automated
+  Scenario: Ordinary dated files do not imply tamper-proof evidence
+    Given the store uses YAML revisions and content hashes
+    When Sam opens storage help
+    Then it explains that the app never overwrites committed revisions
+    And it does not claim protection from an owner editing files outside the app
+```
+
+### 07_accessibility_and_evaluation.feature
+
+```gherkin
+@J03 @J15 @J16
+Feature: Make the interface legible and the consultant evaluable
+
+  @S49 @p1 @v1 @automated
+  Scenario: Retain critical context on a narrow terminal
+    Given the accessible ordered text presentation in a terminal 40 columns wide and 16 rows high
+    When a test review is rendered
+    Then compact status shows focus, revision, and save status
+    And the question shows its consequential goal and protected condition
+    And the Case context control exposes complete current context locally
+    And lines wrap without horizontal scrolling
+    And additional content is explicitly paged
+    And "NEXT", uncertainty, and control labels do not depend on color
+
+  @S50 @p3 @later @automated
+  Scenario: Explain a graph through equivalent prose
+    Given an AND relationship from N1 and N4 to N3
+    When Sam activates Reasoning > Read as text
+    Then the output says both conditions must hold in the hypothesis
+    And the same identifiers, conditions, and epistemic statuses remain available
+
+  @S51 @p1 @v1 @automated
+  Scenario: Preserve a multiline draft across navigation
+    Given Sam is composing a multiline answer with an embedded command-looking line
+    When Sam opens history and then returns to the editor
+    Then the exact draft is retained
+    And its embedded line has not been executed as a command
+    And submission invokes the consultant only once
+
+  @S52 @p2 @v1 @semantic
+  Scenario Outline: Evaluate realistic semantic input by invariants rather than exact prose
+    Given a documented case fixture and a live question
+    When the participant submits "<input>"
+    Then all contributed information is accounted for in the receipt
+    And no unsupported causal certainty, identity verification, or group assent is invented
+    And exactly one next move or a justified stopping point is prominent
+    And any recorded update retains source references
+
+    Examples:
+      | input                                             |
+      | I don't know                                      |
+      | We cannot possibly do that                        |
+      | Here are twelve more problems                     |
+      | Your question is wrong                            |
+      | Sales is lazy and Production never listens         |
+      | Five possible causes, two observations, one demand |
+
+  @S53 @p3 @later @automated
+  Scenario: Measure useful progress without rewarding agreement
+    Given a group corrects two causal links and completes a pilot review
+    When the case progress view is opened
+    Then it reports the corrections, evidence obtained, decisions, and reviewed predictions
+    And it does not score agreement, reply count, or WIP depletion as success
+    And learning measures require an actual reasoning task or later unaided performance
+```
+
+### 08_human_interface.feature
+
+```gherkin
+@J02 @J05 @J06 @J09 @J14 @J15 @J16
+Feature: Make rigorous local work discoverable through workspace controls
+  All human workflows use visible controls and exact stored targets.
+  Menus use selection and activation; editors and filters keep text literal.
+  No alternate interactive command grammar can satisfy these scenarios.
+
+  @S54 @p1 @v1 @automated
+  Scenario Outline: Send numeric answers without selecting a menu item
+    Given Response owns focus on a current question
+    When Sam types "<answer>" then activates Send
+    Then exactly one consultant request preserves the literal answer "<answer>"
+    And no historical question or alternatives view opens
+
+    Examples:
+      | answer |
+      | 1      |
+      | 5      |
+      | 17     |
+
+  @S55 @p1 @v1 @automated
+  Scenario: Activate a selected local alternative from its stored mapping
+    Given Other moves is focused for "Choose a test"
+    And its selected Inspect evidence item binds to this question's saved sources
+    When Sam presses Enter
+    Then stored evidence is shown locally
+    And the live question, revision and consultant call count are unchanged
+
+  @S56 @p1 @v1 @automated
+  Scenario: Request a labeled consultant alternative once
+    Given Other moves shows Ask another question labeled "asks consultant"
+    When Sam selects that item with arrows and presses Enter
+    Then one consultant request contains the stored intent and response target
+    And there is no second confirmation for the same explicit request
+
+  @S57 @p1 @v1 @automated
+  Scenario: Keep an unmatched menu filter local
+    Given Other moves filter owns focus and none of its labels contains "5"
+    When Sam types "5" and presses Enter
+    Then no item is activated and No matches appears with Clear filter and Back
+    And no consultant request, case update or revision is created
+    And the response draft is retained
+
+  @S58 @p1 @v1 @automated
+  Scenario: Leave alternatives and send a literal numeric answer
+    Given Other moves is open for "Choose a test"
+    When Sam presses Esc, focuses Response, types "5" and activates Send
+    Then exactly one semantic request contains "5"
+    And it answers "Choose a test" without recording a menu decision
+
+  @S59 @p4 @later @automated
+  Scenario: Record an exact position using independent visible fields
+    Given Priya is the declared speaker and L3 version 1 is selected
+    When Priya activates Record position
+    Then the exact formulation, conditions, actor and independent fields are shown
+    And no substantive value is preselected or recorded
+    When Priya selects Wording Accurate and Belief Disputed then activates Save position
+    Then one atomic revision records both values on L3 version 1
+    And reliance, other actors and the live question are unchanged
+    And the receipt says "no consultant call"
+
+  @S60 @p4 @later @automated
+  Scenario: A wording objection is distinct from rejecting causal truth
+    Given L3 version 1 is selected and Sam's belief is unknown
+    When Sam opens Record position, selects only Wording Inaccurate and saves
+    Then only representation inaccurate is recorded
+    And Return to question offers a literal response for replacement wording
+    And the interface does not invent wording or change belief
+
+  @S61 @p4 @later @automated
+  Scenario: Cancel a position form without changing reasoning
+    Given a position form and a retained response draft
+    When Sam activates Cancel or presses Esc
+    Then the prior view and exact draft are restored
+    And no stance, revision or consultant call is created
+
+  @S62 @p4 @later @automated
+  Scenario: Ask for an explicit target from a multi-object view
+    Given the reasoning view contains several links and none is selected
+    When Sam activates Record position from Actions
+    Then a local target picker shows readable relationship labels and scope
+    And no link is selected from creation order or semantic similarity
+    And no stance or consultant call occurs before explicit selection
+
+  @S63 @p1 @v1 @automated
+  Scenario: Reject a stale menu before applying a decision
+    Given Other moves is bound to "Choose a test" at revision 10
+    And the case advances to revision 11 with a different current question
+    When Sam activates the old selected item
+    Then the old choice is not dispatched against either question
+    And current choices are redisplayed with a stale-menu notice
+    And selecting again is required before dispatch
+
+  @S64 @p4 @later @automated
+  Scenario: Invalidate an actor-bound position form on speaker change
+    Given Sam has an open position form
+    When the operator activates Actions > Change speaker > Priya
+    Then the form is invalidated and redisplayed for Priya with no substantive preselection
+    And no Sam decision or draft is attributed to Priya
+
+  @S65 @p3 @later @automated
+  Scenario: Object evidence remains local and exact
+    Given an object detail view selects L3 version 1
+    When Sam activates Evidence
+    Then evidence for L3 version 1 is rendered from stored records
+    And Details identifies the exact same version and source references
+    And neither action creates a call or reasoning revision
+
+  @S66 @p4 @later @automated
+  Scenario: Keep a historical target distinct from the live one
+    Given Sam is inspecting L3 version 1 and version 2 is current
+    When Sam activates Record position
+    Then the form labels version 1 as a historical formulation
+    And a selected stance attaches only to version 1
+    And Response still answers the current question
+
+  @S67 @p1 @v1 @automated
+  Scenario: Keep substantive prose literal even when it resembles an action
+    Given Response owns focus
+    When Sam types "I disagree because overtime worsens" then activates Send
+    Then one semantic request preserves the entire statement
+    And no local parser infers representation, belief or reliance
+
+  @S68 @p1 @v1 @automated
+  Scenario: Compress routine context and repeat consequential changes
+    Given Compact display and an unchanged goal and protections
+    When Sam opens Explain this and returns to the current question
+    Then the pinned header shows case, revision, save status, speaker and focus
+    And complete unchanged context is not duplicated inside each view
+    And the goal and consequential safeguard band remain pinned
+    When the goal changes or Sam activates Goal or Case context
+    Then complete goal, horizon, protections, test boundaries and response target appear
+    And requesting context makes no consultant call
+
+  @S69 @p1 @v1 @automated
+  Scenario: Keep a consequential breach visible while browsing
+    Given urgent acknowledgement is 90 percent against a 95 percent guardrail
+    When Sam opens History, test sources or Other moves in Compact display
+    Then the unresolved breach and both values remain visible
+    And a delivery success marker does not obscure the breach
+
+  @S70 @p1 @v1 @automated
+  Scenario: Revalidate a restored menu before activation
+    Given a checkpoint contains Other moves, focus, display preference, operator and draft
+    When a fresh process resumes the case
+    Then it restores and validates the menu bindings
+    And it shows complete startup context and labeled choices before accepting activation
+    And no reasoning revision or consultant call occurs
+
+  @S71 @p4 @later @automated
+  Scenario: Reveal precision without changing the domain model
+    Given a readable reasoning view with IDs omitted by default
+    When Sam activates Details
+    Then exact IDs, versions, sources and view-scoped action IDs appear
+    And propositions, support, selection and response target are unchanged
+    And Search and Help use stored context without a provider call
+
+  @S72 @p1 @v1 @automated
+  Scenario Outline: Keep offline shell utilities free of interactive furniture
+    Given a saved valid case and unavailable provider
+    When the shell command "<command>" is invoked
+    Then it exits 0 without a provider call
+    And stdout contains only "<output>"
+    And diagnostics if any go to stderr
+
+    Examples:
+      | command                                       | output                    |
+      | reason-commons --help                          | requested help            |
+      | reason-commons --version                       | version                   |
+      | reason-commons inspect case.reasoncase --json   | one versioned JSON object |
+      | reason-commons history case.reasoncase --json   | one versioned JSON object |
+
+  @S73 @p1 @v1 @usability
+  Scenario: Evaluate first-hour use through visible controls
+    Given five first-time participants and a fake-consultant fixture
+    When they attempt the documented first-hour tasks without a manual
+    Then individual completion, time, repair, help and routing errors are recorded
+    And at least four complete core tasks within 15 minutes without moderator instructions
+    And all predict the local or consultant consequence before selecting an action
+    And any accidental call, wrong test version or lost draft fails the proposed release gate
+    And no numerical usability rating is inferred from these results
+```
+
+### 09_visual_reasoning.feature
+
+```gherkin
+@J03 @J07 @J10 @J11 @J12 @J13 @J16
+Feature: Support the next reasoning operation across every Thinking Process
+  Readability and visual fluency do not establish truth or understanding.
+
+  @S74 @p3 @later @semantic
+  Scenario: Preserve premises while leaving the inference to participants
+    Given two agreed premises and an unarticulated mechanism
+    When the consultant composes a question with visible premises to reason from
+    Then the needed premises are visible and the mechanism is asked for
+    And the renderer does not invent an arrow to fill the gap
+    And the workspace identifies the decision the reasoning serves
+
+  @S75 @p5 @later @automated
+  Scenario: Expand scope when the current question needs interacting branches
+    Given a proposed change may improve delivery and harm responsiveness
+    When the current question is whether to run the pilot
+    Then both relevant paths and decisive conditions are available together
+    And a node-count heuristic does not remove a protection or alternative
+    And a narrow terminal uses an aligned comparison or ordered text
+
+  @S76 @p3 @later @automated
+  Scenario: Distinguish attention from support and node evidence from link evidence
+    Given two measured propositions joined by a hypothetical causal relation
+    When that relation is focused in the model
+    Then selection indicates only attention
+    And the relation remains explicitly hypothetical despite measured endpoints
+    And its evidence and dissent are independently inspectable
+
+  @S77 @p3 @later @automated
+  Scenario: Preserve location and uncertainty when collapsing a partial model
+    Given a branch has a decisive AND condition and participant dissent
+    When the renderer produces a partial view
+    Then the view labels its boundary and local expansion route
+    And the decisive condition and dissent remain visible if needed for the question
+    And a summary retains references to the original claims
+    And expanding stored branches makes no consultant call
+
+  @S78 @p5 @later @automated
+  Scenario: Test necessity without implying sufficiency in a goal map
+    Given the goal requires a dependable plan and available materials
+    When the question examines the plan requirement
+    Then the relation says "requires" rather than using a causal connector
+    And it asks whether the goal can occur without this condition in the stated scope
+    And the view states that this requirement alone does not establish the goal
+
+  @S79 @p3 @later @semantic
+  Scenario: Inspect a CRT conjunction with a meaningful counterexample
+    Given priority changes and high unfinished work jointly predict interruptions
+    And the lateness link requires inability to recover before promised dates
+    When the participant challenges the interruption-to-lateness claim
+    Then the recovery condition appears beside that relation
+    And a test considers whether all stated conditions hold
+    And removing one route does not imply all lateness disappears
+
+  @S80 @p3 @later @automated
+  Scenario: Separate feedback episodes from circular justification
+    Given earlier lateness may trigger later requests and further interruptions
+    When the feedback view is shown
+    Then successive episodes or relevant delays are labeled
+    And layout does not imply known duration, strength, or proof
+    And a static tree is not presented as a quantitative simulation
+
+  @S81 @p4 @later @semantic
+  Scenario: Preserve legitimate needs while questioning Cloud assumptions
+    Given Sam reports Sales and Production needs and incompatible actions
+    When a Cloud asks whether responsiveness requires immediate plan change
+    Then the shared objective and both needs remain accessible with equal visual treatment
+    And the arrow says "requires?" with scope and time of incompatibility
+    And reported positions are not upgraded to direct endorsement
+    And questioning necessity does not mean rejecting the need
+
+  @S82 @p5 @later @semantic
+  Scenario: Treat FRT branches as conditional prospective predictions
+    Given a proposal freezes commitments and reserves urgent slots
+    When the future view predicts fewer interruptions and better delivery
+    Then predicted effects are distinguished from reported starting conditions
+    And available material and recovery capacity remain visible where decisive
+    And a new-case prediction includes alternatives and measurement scope
+    And no original forecast is rewritten when results arrive
+
+  @S83 @p5 @later @semantic
+  Scenario: Test a negative branch and the adequacy of its safeguard
+    Given urgent capacity may be insufficient for actual urgent needs
+    When the proposed safeguard measures acknowledgement within 24 hours
+    Then the view distinguishes acknowledgement from fulfilment of the need
+    And it names the triggering condition, threatened protection, and stop owner if known
+    And the prevention remains a proposal until its effect is evidenced
+
+  @S84 @p5 @later @semantic
+  Scenario: Convert a PRT obstacle into a state before naming the action
+    Given no one owns urgent-request triage and this blocks the pilot
+    When a prerequisite view is composed
+    Then the obstacle and necessary state are shown distinctly
+    And "Every urgent request has an accountable triage owner" is not itself marked executable
+    And owner, authority, and timing remain unknown until explicitly supplied
+    And independent prerequisites are not forced into a serial chain
+
+  @S85 @p5 @later @semantic
+  Scenario: Explain a Transition Tree action through condition and expected effect
+    Given an urgent request has arrived and a daily triage owner is assigned
+    When the action is to acknowledge receipt and state when a final answer will arrive
+    Then the starting conditions, action, and expected effect are visible
+    And supplier uncertainty need not imply inability to acknowledge receipt
+    And completed action fidelity is recorded separately from timely acknowledgement
+    And the step identifies a contingency if the expected effect does not occur
+
+  @S86 @p3 @later @automated
+  Scenario: Compare rival accounts without making geometry an evidence score
+    Given scheduling and supplier accounts can both lead to lateness
+    When the stored comparison view is opened
+    Then both use aligned outcome wording, scope, and readable labels
+    And actual evidence differences are explicit beside each account
+    And prospective discriminating observations are inspectable
+    And equal layout implies neither equal support nor mutual exclusivity
+
+  @S87 @p5 @later @automated
+  Scenario Outline: Preserve each representation's logic in accessible text
+    Given a stored "<representation>" view with consequential uncertainty
+    When Sam selects its text equivalent on a 40-column terminal
+    Then the output preserves "<relation>" plus scope, conditions, and dissent
+    And the same exact formulations remain accessible through details
+    And reading and paging make no consultant call
+
+    Examples:
+      | representation | relation                                    |
+      | goal map       | necessity without individual sufficiency    |
+      | CRT            | joint causes and recovery condition         |
+      | Cloud          | needs, actions, and necessity assumptions   |
+      | FRT            | intervention and predicted consequences     |
+      | negative branch| trigger, harm, prevention, and stop rule     |
+      | PRT            | obstacle and required intermediate state    |
+      | Transition Tree| condition, action, and expected effect      |
+
+  @S88 @p5 @later @usability
+  Scenario: Measure understanding separately from recognition and agreement
+    Given a participant fluently repeats a displayed model
+    When its learning effect is evaluated
+    Then a task asks for a mechanism, condition, rival prediction, or changed-case action
+    And aided performance is distinguished from unaided or delayed transfer
+    And a defensible correction can score higher than repeating the consultant
+    And confidence, satisfaction, implementation, and goal outcomes are recorded separately
+
+  @S89 @p3 @later @semantic
+  Scenario: Change support or stop when more drawing would not help the decision
+    Given repeated premise recovery suggests a possible reference problem
+    When the consultant shows the needed fragment and checks the next operation
+    Then the benefit is assessed from the participant's actual reasoning
+    And hesitation alone is not recorded as overload
+    And a failed repair can lead to explaining, seeking facts, pausing, or addressing a concern
+    And unresolved detail is retained when it would not change the next decision
+```
+
+### 10_goal_progress_and_delivery.feature
+
+```gherkin
+@J01 @J02 @J03 @J06 @J07 @J09 @J11 @J12 @J13 @J14 @J15 @J16
+Feature: Connect reasoning to goal progress within the delivered scope
+  The selected delivery profile limits controls, fixtures, and adapter updates.
+  Later models remain specified without becoming requirements for v1.
+
+  @S91 @p5 @later @automated
+  Scenario: Preserve every delivered reasoning type in a portable handoff
+    Given a full-tools case with traceability, reviews, stances, and all six models
+    When the operator exports and imports the case offline
+    Then exact versions and every typed relationship remain inspectable
+    And review needs, open questions, observation criteria, and cursor are retained
+    And no provider conversation is required
+
+  @S92 @p3 @later @automated
+  Scenario: Keep structured causal navigation useful offline
+    Given a causal-profile case and an unavailable consultant
+    When the operator opens the model, WIP, assumptions, or stored comparison
+    Then each supported view is reconstructed from stored records
+    And no inference or discriminating prediction is invented
+    And no consultant call or reasoning revision is created
+
+  @S93 @p2 @v1 @automated
+  Scenario: Show the decision and goal served by the live question
+    Given a stored intervention with purpose, decision, and goal version G1 version 1
+    When the current question is rendered
+    Then the decision purpose is readable beside its one primary prompt
+    And the rationale links the task to that exact goal formulation
+    And a provisional goal remains labeled provisional
+
+  @S94 @p2 @v1 @automated
+  Scenario: Leave a question open and return without reconstructing it
+    Given a live question and an answer draft
+    When the operator opens history and returns with Esc
+    Then the open question, response target, and exact draft are restored
+    And inspection creates no reasoning revision or consultant call
+
+  @S95 @p2 @v1 @automated
+  Scenario: Revisit test relevance when its referenced goal changes
+    Given test P1 version 1 explicitly serves goal G1 version 1
+    When goal G1 receives a substantively different version 2
+    Then P1 retains its original prediction and goal reference
+    And its relevance to the current goal is marked review needed
+    And the next test decision shows that review need
+    And neither the old result nor the participants' positions are rewritten
+
+  @S96 @p3 @later @automated
+  Scenario: Inspect a typed goal connection without inventing a mechanism
+    Given a reported unwanted effect linked to a goal criterion by "violates"
+    And its proposed causal explanation remains incomplete
+    When the stored goal-connection view is opened
+    Then "violates" is presented as traceability rather than a causal arrow
+    And missing connections and unresolved effects are named
+    And a new connection requiring judgment is a labeled consultant option
+    And browsing makes no consultant call
+
+  @S97 @p5 @later @automated
+  Scenario: Trace a change through distinct reasoning and implementation roles
+    Given stored links from a goal through a CRT, Cloud, FRT, PRT, and action
+    When the goal-connection view is opened
+    Then each link names its causal, necessity, conflict, or traceability meaning
+    And operating, conflict, and implementation objectives remain distinguishable
+    And a present observation and future prediction remain separate records
+    And unresolved unwanted effects and safeguards remain visible
+
+  @S98 @p3 @later @automated
+  Scenario: A revised premise requests review of its known dependent reasoning
+    Given L2's reviewed formulation references premise N1 version 1
+    When N1 receives a substantively revised version 2
+    Then the change view shows old wording, new wording, source, and reason
+    And L2 retains its original wording with a review-needed record
+    And prior support is shown as applying to the older premise
+    And support or rejection does not propagate automatically
+    And unrelated semantic consequences are not claimed to be discovered
+
+  @S99 @p4 @later @automated
+  Scenario: Resolve a review without transferring another participant's belief
+    Given a revised relationship and Priya's stance on its earlier formulation
+    When Sam explicitly records a bounded decision under the remaining uncertainty
+    Then Sam's decision cites the current formulation and unresolved review
+    And Priya's earlier stance stays attached to its original version
+    And Priya's current belief is unknown until she supplies it
+
+  @S100 @p5 @later @semantic
+  Scenario: A same-setup counterexample changes the questions across tools
+    Given a CRT explanation that every sequence insertion adds setup time
+    And the Cloud, FRT, and PRT contain explicitly linked dependent proposals
+    When a participant supplies a credible same-setup counterexample
+    Then the proposed revision qualifies the relevant CRT relationship
+    And the Cloud's unchanged-sequence assumption is requested for review
+    And the admission rule and setup-information requirement are requested for review
+    And the late-order observation is not erased
+    And no operational improvement is inferred from the model correction
+
+  @S101 @p2 @v1 @automated
+  Scenario: Complete an action without claiming its expected effect occurred
+    Given a test action with an expected intermediate state and observation criterion
+    When the operator explicitly records that the action was completed
+    Then execution is completed and expected-effect attainment remains unknown
+    And the receipt says "Action completed; result awaiting observation"
+    And neither the prediction nor the system goal is marked achieved
+
+  @S102 @p2 @v1 @semantic
+  Scenario: Turn a recommendation into an immediate action with an observation
+    Given a proposed bounded change and unknown decision authority
+    When the operator asks what to do next
+    Then the recommendation identifies starting conditions, need, action, and expected effect
+    And owner, authority, timing, observation criterion, and contingency are explicit or unknown
+    And it asks for the most consequential missing item
+    And a drawn or saved action does not create a real-world assignment
+
+  @S103 @p5 @later @automated
+  Scenario: Keep attained prerequisites distinct from executable readiness
+    Given two independent intermediate objectives with attainment criteria
+    And both are necessary before a supervised pilot
+    When both states have cited observations satisfying their criteria
+    Then the pilot is labeled "prerequisites met"
+    And the objectives remain parallel rather than ordered by entry time
+    And missing resources, authority, or sufficient action steps remain unknown
+    And the pilot is not labeled ready solely from its dependency graph
+
+  @S104 @p2 @v1 @semantic
+  Scenario: Distinguish a supported pilot target from achievement of the goal
+    Given the goal is 90 percent on-time delivery
+    And a bounded pilot prospectively predicts 80 percent
+    When comparable results show 40 of 50 orders on time
+    Then the pilot target is supported and the 90 percent goal remains unmet
+    And the review shows protected conditions and implementation fidelity separately
+    And a next decision addresses remaining goal progress and relevant uncertainty
+
+  @S105 @p2 @v1 @semantic
+  Scenario: Check whether the measured safeguard covers the protected need
+    Given urgent responsiveness matters and only acknowledgement is measured
+    When the operator asks whether timely acknowledgements establish fulfillment
+    Then acknowledgement and fulfillment are distinguished
+    And a fulfillment measure, acceptable bound, method, and authority are requested as needed
+    And missing values remain unknown rather than receiving invented defaults
+    And no breach is hidden by delivery success
+
+  @S106 @p5 @later @automated
+  Scenario: Share a requirement without confusing necessity with attainment
+    Given a necessary condition supports two critical success factors
+    When the goal overview and focused requirement are opened
+    Then both appearances reference the same versioned condition
+    And the critical success factors and supporting requirements are distinguished
+    And current attainment is separate from its necessity warrant
+    And meeting the requirement does not establish sufficiency for the goal
+
+  @S107 @p1 @v1 @automated
+  Scenario Outline: Refuse a restored out-of-profile action locally
+    Given the v1 delivery profile and a retained response draft
+    And a stale cursor or action reference requests "<action>"
+    When the workspace revalidates that action reference
+    Then a local notice says the action belongs to a later delivery profile
+    And Help, navigation and Actions omit it as an available operation
+    And no consultant call, revision or draft loss occurs
+
+    Examples:
+      | action              |
+      | Explore causal model|
+      | Record position     |
+      | Record test reliance|
+      | Restore reasoning   |
+
+  @S108 @p0 @v1 @automated
+  Scenario: Reject an adapter update outside the delivered schema
+    Given the v1 schema allows only goal, note, intervention, test, action, observation, and bounded review records
+    When an adapter proposal includes a relationship graph or structured stance update
+    Then the entire proposal is rejected before commit
+    And the raw input and failure receipt remain available
+    And later fields are not silently stored or partially applied
+
+  @S109 @p5 @later @usability
+  Scenario: Change medium when narrow output cannot support the comparison
+    Given a decision requires simultaneous review of interacting future branches
+    When ordered 40-column records do not let a participant make the comparison
+    Then a wider read-only export or another medium is offered
+    And decisive qualifications are not shortened away
+    And the failed narrow comparison and rescue are recorded in evaluation
+
+  @S110 @p1 @v1 @automated
+  Scenario: Do not advertise an out-of-profile option from an adapter
+    Given a v1 semantic response contains an option opening a Cloud view
+    When the response is validated
+    Then the proposal is rejected with a local unsupported-action receipt
+    And the input, live response target, and prior revision remain intact
+    And no menu exposes the unavailable option
+
+  @S111 @p2 @v1 @usability
+  Scenario: Evaluate the complete goal action review loop without a tree lesson
+    Given first-time participants and a v1 fixture with a fake consultant
+    When they define success, inspect the purpose, record a test, resume, and review results
+    Then they identify the next action, authority, observation, and stopping condition
+    And they distinguish action execution, intermediate effect, pilot result, and goal attainment
+    And completion, reference repairs, missed conditions, and reasoning are reported individually
+    And no TOC vocabulary lesson or complete tree is required
+
+  @S112 @p5 @later @usability
+  Scenario: Evaluate design hypotheses without confusing navigation with improvement
+    Given predeclared rubrics and distinct comparable cases
+    When joint-premise, goal-connection, and revision-review displays are compared
+    Then prompts and evidence access are held comparable for each design claim
+    And order, experience, rescue views, and consequential failures are recorded
+    And defensible alternative answers are accepted
+    And access, reasoning, learning, implementation, and goal results are reported separately
+
+  @S113 @p1 @v1 @automated
+  Scenario: Cancel an options menu and retain the question and draft
+    Given a displayed options menu and an answer draft
+    When the operator activates Cancel or presses Esc
+    Then the prior view, open question, and exact draft are restored
+    And no revision or consultant call is created
+```
+
+### 11_tui_workspace.feature
+
+```gherkin
+@J02 @J03 @J05 @J06 @J07 @J09 @J12 @J13 @J14 @J15 @J16
+Feature: Work in a persistent terminal workspace from the first usable release
+  These are default TUI requirements, required in both standard and accessible presentations.
+  Screen specimens specify visible behavior; a runtime and participant protocol
+  are required to exercise them. Structural document checks cannot pass them.
+
+  @S114 @p1 @v1 @automated
+  Scenario: Launch the persistent workspace by default
+    Given interactive terminal input and output at 120 columns by 40 rows
+    When the operator launches a new case without a presentation flag
+    Then the full-screen workspace shows the question, response editor, destinations and footer
+    And save status, declared operator and focused control remain visible
+    And no tour or command syntax is required to answer or leave
+
+  @S115 @p1 @v1 @automated
+  Scenario: Treat all printable response text literally and submit deliberately
+    Given the response editor is focused on current question "Choose a test"
+    When the operator types or pastes "5 ? q / :options" and presses Enter
+    Then those characters and the newline are retained in the draft
+    And no navigation, quit, stance or consultant request occurs
+    When the operator Tabs to Send and presses Enter
+    Then exactly one request preserves the full literal draft for "Choose a test"
+
+  @S116 @p1 @v1 @automated
+  Scenario: Restore the question and exact draft after optional inspection
+    Given a partially edited response with caret position and current question "Choose a test"
+    When the operator opens Explain this and a stored source then returns with Esc
+    Then the originating view, selection, semantic scroll anchor and draft caret are restored
+    And the live response target remains "Choose a test"
+    And no case revision or consultant call is created
+
+  @S117 @p1 @v1 @automated
+  Scenario: Keep the first-release workspace usable at minimum terminal size
+    Given a v1 goal and test with a material safeguard at 120 columns by 40 rows
+    When the terminal resizes to 80 columns by 24 rows and back
+    Then the question, safeguard, response and footer remain reachable and readable
+    And hidden auxiliary panes have a visible Views destination
+    And the draft, target, focus and selected exact record survive without restart
+
+  @S118 @p1 @v1 @automated
+  Scenario: Complete a consultant response without stealing inspection focus
+    Given a durably retained submission and pending consultant request
+    And the operator has selected a source in History
+    When a valid next response completes
+    Then an Answer ready notice is visible without changing the selected source or focus
+    And returning to Next presents the committed next question
+    And no second request or duplicate commit occurs
+
+  @S119 @p1 @v1 @automated
+  Scenario: Expose every required action without recalled commands
+    Given the default TUI and focused response editor
+    When the operator reaches Actions or Help using Tab and Enter
+    Then the displayed controls identify valid actions and local or consultant consequences
+    And stored explanation, sources, history, export and Save and quit have control paths
+    And Help for controls is distinct from Explain this for reasoning
+
+  @S120 @p1 @v1 @automated
+  Scenario: Recover a failed request while retaining the workspace
+    Given a retained response draft and provider failure after input retention
+    When the operator opens the failure receipt and retries the retained input
+    Then the receipt distinguishes input retained from uncommitted reasoning
+    And retry uses the same request identity and applies at most once
+    And view state, draft provenance and the correct live target remain recoverable
+
+  @S121 @p2 @v1 @automated
+  Scenario: Compare the original pilot forecast with outcomes inside the workspace
+    Given an original pilot delivery forecast of 80 percent and acknowledgement bound of 95 percent
+    And reported delivery is 80 percent and acknowledgement is 90 percent
+    When the review screen is rendered
+    Then original forecast and actual result are aligned by measure with scope and denominators
+    And the acknowledgement breach remains visible despite delivery success
+    And action execution, observed effects and the 90 percent system goal are distinct
+
+  @S122 @p2 @v1 @semantic
+  Scenario: Keep immature cohort outcomes pending at a review date
+    Given a rolling October 1 through 30 cohort with a three-business-day outcome window
+    When the operator reviews it on October 30 with final outcomes still immature
+    Then the review retains the original forecast and labels those outcomes pending
+    And it requests complete follow-up before claiming goal attainment
+    And missing observations are not treated as failures or successes
+
+  @S123 @p3 @later @automated
+  Scenario: Render a joint causal inference with complete readable boundaries
+    Given L3 has three joint premises including net unrecovered recheck time exceeding slack before release cutoff
+    When the causal fragment is rendered
+    Then all three premises are enclosed or joined by one explicit ALL operator
+    And exactly one labeled hypothesis output terminates at its conclusion
+    And independent alternative routes do not become extra members of that ALL
+
+  @S124 @p3 @later @automated
+  Scenario: Inspect one exact relation without losing the broader map
+    Given a stored branch index and causal map at 120 columns by 40 rows
+    When the operator selects L3 version 1
+    Then the inspector shows its complete scope, inputs, output, warrant, sources and objections
+    And occurrence evidence for nodes is not represented as proof of L3
+    And selection is distinct from focus, support and endorsement
+
+  @S125 @p3 @later @automated
+  Scenario: Replace a narrow drawing with complete relation sentences
+    Given L3 version 1 is disputed and has three joint premises
+    When its view resizes through 120 by 40, 80 by 24 and 40 by 24
+    Then the same exact premises, negations, conclusion, dispute and live target are retained
+    And the narrow view says IF ALL and THEN instead of clipping node labels
+    And no decisive premise remains collapsed while endorsement is requested
+
+  @S126 @p4 @later @automated
+  Scenario: Keep positions independent and drafts attributed when speakers change
+    Given Maya has an unsent response and a position form for L3 version 1
+    When the operator switches the declared speaker to Leo
+    Then Maya's draft remains attributed to Maya and cannot be submitted as Leo's answer
+    And the actor-bound position form is invalidated and redisplayed for Leo
+    And wording, belief and exact-test reliance have independent controls with no substantive preselection
+    And no assent, belief, reliance or consensus is inferred from the switch
+
+  @S127 @p5 @later @automated
+  Scenario: Display cross-tool consequences without converting trace references into causes
+    Given a corrected claim has exact registered dependencies in Cloud, FRT and PRT records
+    When the correction is inspected in the workspace
+    Then before and after versions are aligned and each registered dependency says review needed
+    And trace links name their dependency meaning and are excluded from causal traversal
+    And historical positions, prior observations and action execution remain on their original records
+    And the view does not claim the dependency list exhausts real-world consequences
+```
+
+## 8. V1 TUI goal action review session
+
+```text
+REASON COMMONS / FIRST-RELEASE TUI JOURNEY
+Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
+Fictional Forge case; not implemented software. Frames are 80x24. V1 has no
+structured graph browser, participant stance registry or formal tree
+authoring. Its persistent workspace, literal response editor, visible local
+controls and forecast/result comparison ARE required from p1-p2. No typed
+commands are needed inside this session.
+$ reason-commons new forge --store ./forge-v1 --speaker Sam
+EVENT start r0000
+
+SCREEN M01 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0000 saved | Start | Focus: Response                          |
++------------------------------------------------------------------------------+
+| Goal unknown | Safeguards unknown | No test                                  |
++------------------------------------------------------------------------------+
+| Welcome to Reason Commons.                                                   |
+| What is happening, and what would count as better?                           |
+| You can begin in ordinary words. Unknown measures can stay open.             |
+|                                                                              |
+| [How this works]  [Open a case]                                              |
+| Send asks the consultant. Browsing and saved explanations stay local.        |
+| Enter adds a line. Tab to Send, then Enter sends once.                       |
+| All typing, including 5, ?, q and punctuation, is literal in Response.       |
+|                                                                              |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam enters: Goal: >=90% of October due orders on time, original
+promised dates; review October 30. September 32/50 = 64%. Protect overtime
+<=20h each week and defects <=2% of inspected units each week. These are my
+reported records. Tab to Send, Enter.
+EVENT semantic in001 r0001 question001
+
+SCREEN M02 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0001 saved | Choose a test | Focus: Response                  |
++------------------------------------------------------------------------------+
+| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
++------------------------------------------------------------------------------+
+| SUCCESS / >=90% October due orders on original dates; Oct 30 review          |
+| BASELINE / September 32/50 = 64%, reported by Sam                            |
+| Protect overtime <=20h EACH week; defects <=2% inspected units/week.         |
+| Other people's agreement and authority remain unknown.                       |
+|                                                                              |
+| DECISION / What change can you authorize and observe?                        |
+| Choose a small trial with an original forecast we can review later.          |
+| [Goal]  [Reported sources]  [Explain this]  [Other moves]                    |
+|                                                                              |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam types a draft "5 requests?", then Tabs to Other moves and presses
+Enter. This menu keeps the question and draft. No consultant call has been
+made.
+
+SCREEN M02A 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0001 saved | Other moves | Focus: Other moves                 |
++------------------------------------------------------------------------------+
+| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
++------------------------------------------------------------------------------+
+| Choose a route. Nothing is sent until you activate an item.                  |
+|                                                                              |
+| > Understand why this question    LOCAL: saved explanation                   |
+|   Inspect goal and safeguards     LOCAL: saved records                       |
+|   Help plan an observation        ASKS CONSULTANT                            |
+|   Give direct advice              ASKS CONSULTANT                            |
+|   Ask a different question        ASKS CONSULTANT                            |
+|   Leave this question open        LOCAL: retains draft                       |
+|                                                                              |
+| Arrows select; Enter activates. Esc returns without a choice.                |
+| Your draft stays attributed to Sam and the current question.                 |
++------------------------------------------------------------------------------+
+| Live: Choose a test | Draft retained                                         |
+| 5 requests?                                                                  |
+|                                                                              |
+| [Return to question]  [Help]  [Views]  [Actions]                             |
++------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions   |
++------------------------------------------------------------------------------+
+
+ACTION: Sam activates the selected Understand why this question item. The
+local Explain this view says: A bounded trial and prospective forecast let you
+compare results later, while protecting overtime and defects. The question
+asks for work you can authorize. Esc restores the same question, draft and
+cursor; no call. Sam replaces the draft and sends:
+I have authority to name a triage owner and backup before Oct 5. Rehearse two
+requests; both roles must explain response and escalation before start. Pilot
+daily triage Oct 5-16; review Oct 19. Predict delivery >=80%, urgent
+acknowledgement >=95% within 24h. Retain overtime/defect bounds. Record
+original dates, mix, suppliers and rule use. Stop expansion on any breach. If
+either role cannot explain escalation, resolve that before start. Urgent
+fulfillment is a separate unknown.
+EVENT semantic in002 r0002 question002
+
+SCREEN M03 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0002 saved | Prepare P1@1 | Focus: Response                   |
++------------------------------------------------------------------------------+
+| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
++------------------------------------------------------------------------------+
+| P1@1 ORIGINAL / saved before results / Oct 5-16; review Oct 19               |
+| Forecast: delivery >=80%; urgent acknowledgement >=95% within 24h.           |
+| Protect overtime <=20h EACH week; defects <=2% inspected units/week.         |
+| Owner and stop authority: Sam declares both; no expansion on breach.         |
+| ACTION: name owner/backup and rehearse two requests before Oct 5.            |
+| EXPECTED STATE: both roles can explain response and escalation.              |
+| Execution: NOT STARTED | expected state: UNKNOWN                             |
+| No reminder scheduled. Urgent-need fulfillment: UNKNOWN.                     |
+| DECISION / What happens when you perform this preparation?                   |
+| [Original forecast]  [Action]  [Observation fields]  [Sources]               |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam answers: I named owner and backup today. Rehearsal has not
+happened; I do not know whether they can explain the rule.
+EVENT semantic in003 r0003 question003
+
+SCREEN M04 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0003 saved | Observe the result | Focus: Response             |
++------------------------------------------------------------------------------+
+| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
++------------------------------------------------------------------------------+
+| PREPARATION / reported by Sam                                                |
+| +-- ACTION ---------------------+ +-- EXPECTED STATE --------------------+   |
+| | Roles named: COMPLETED        | | Rule understood: UNKNOWN             |   |
+| +-------------------------------+ +--------------------------------------+   |
+| Action completed; result awaiting observation.                               |
+| Naming roles does not establish understanding or better delivery.            |
+| P1 original forecast and G1 goal are unchanged.                              |
+| DECISION / Does rehearsal establish readiness before the pilot?              |
+| What did both roles demonstrate?                                             |
+| [P1 forecast]  [Reported sources]  [History]                                 |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save
+and quit. Local export and cursor save, no call.
+$ reason-commons resume ./forge-v1
+M04 is restored at r0003 with Observe the result as the current question.
+Goal, safeguards and P1 remain pinned; preparation state still unobserved. No
+consultant call.
+ACTION: Sam submits: Both roles correctly explained response and escalation in
+the two rehearsals. Pilot then ran as planned. Fifty due orders, 40 on time.
+Overtime 18h then 19h; defects 1/50 then 0/50 inspected units. Urgent
+acknowledgements 18/20 within 24h. Original dates unchanged; similar mix but
+steadier suppliers. This does not isolate triage as cause.
+EVENT semantic in004 r0004 question004
+
+SCREEN M05 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0004 saved | Review P1 | Focus: Response                      |
++------------------------------------------------------------------------------+
+| ! Acknowledgement BREACH 90% <95% | Goal >=90% remains unmet                 |
++------------------------------------------------------------------------------+
+| ! Urgent acknowledgement BREACH: 18/20 = 90%, original bound >=95%           |
+| MEASURE             ORIGINAL             REPORTED RESULT                     |
+| Delivery            >=80%                40/50 = 80% supported               |
+| Acknowledgement     >=95% within 24h     18/20 = 90% BREACH                  |
+| Overtime EACH week  <=20h                 18h; 19h within bound              |
+| Defects EACH week   <=2% inspected units  1/50 = 2%; 0/50 = 0%               |
+| G1 goal >=90% remains unmet. Supplier changes limit attribution.             |
+| Rehearsal state: met by report. Original P1 unchanged; do not expand.        |
+| DECISION / What delayed the two acknowledgements?                            |
+| [Original forecast]  [Source report]  [Other moves]                          |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam answers: They waited for supplier dates. The owner thought the
+first response must promise a final date. We can acknowledge receipt before
+that date is known.
+EVENT semantic in005 r0005 question005
+
+SCREEN M06 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0005 saved | Adapt the trial | Focus: Response                |
++------------------------------------------------------------------------------+
+| ! P1 acknowledgement breach retained | Follow-up proposed                    |
++------------------------------------------------------------------------------+
+| RECOMMENDATION / separate receipt acknowledgement from date commitment       |
+| Expected effect: supplier uncertainty no longer blocks acknowledgement.      |
+| Need: respond promptly without inventing a delivery promise.                 |
+| Keep the prior protections; measure urgent-need fulfillment separately.      |
+| No numeric fulfillment bound has been agreed.                                |
+| P1 breach remains; original forecast unchanged; no causal proof.             |
+| DECISION / Name follow-up owner, forecast, window and stopping response.     |
+| [Draft follow-up]  [Original P1]  [Ask a different question]                 |
+|                                                                              |
+|                                                                              |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Sam answers: I will run the follow-up Oct 20-30; review Oct 30.
+Acknowledge receipt within 24h without waiting for supplier dates. Predict
+delivery >=80% and acknowledgement >=95%/24h. Retain overtime <=20h each week
+and defects <=2% weekly; record mix, suppliers, rule use and whether urgent
+needs were served. Stop expansion and escalate an unserved need or safeguard
+breach to me.
+EVENT semantic in006 r0006 question006
+
+SCREEN M07 80x24
++------------------------------------------------------------------------------+
+| forge | Sam | r0006 saved | Follow-up saved | Focus: Response                |
++------------------------------------------------------------------------------+
+| P1 breach retained | P2 committed | Goal >=90% remains unmet                 |
++------------------------------------------------------------------------------+
+| P2@1 prospective / Sam's explicit bounded commitment / Oct 20-30             |
+| Review Oct 30; no reminder scheduled.                                        |
+| Predict delivery >=80%; acknowledgement >=95% within 24h.                    |
+| Protect overtime <=20h each week; defects <=2% inspected units/week.         |
+| Record whether urgent needs were served; numeric bound remains UNKNOWN.      |
+| Escalate unserved need or breach to Sam; no expansion before review.         |
+| P1 original prediction and 90% BREACH remain unchanged.                      |
+| G1 >=90% remains unmet; P2 effects not observed.                             |
+| NEXT / Run bounded P2, then return with observations.                        |
+| [P2 forecast]  [P1 outcome]  [Goal]  [History]                               |
+|                                                                              |
++------------------------------------------------------------------------------+
+| Response | Send asks consultant; Enter adds a line.                          |
+| _                                                                            |
+|                                                                              |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
++------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
++------------------------------------------------------------------------------+
+
+ACTION: Actions > Export portable case > ./forge-v1-after-review.reasoncase;
+Actions > Save and quit. No call.
+CONSULTANT CALLS 6: in001 through in006.
+6 reasoning revisions = 6 semantic commits + 0 structured local decisions.
+```
+
+## 9. Complete illustrative roadmap TUI session
+
+```text
+REASON COMMONS / COMPLETE TUI JOURNEY
+Delivery profile: p5 cumulative roadmap. Canonical interaction specimen.
+Session 1: Friday, October 2, 2026. Session 2: Monday, October 19, 2026.
+The Payments deployment case, people, measurements, reports and future outcomes are fictional. This is an authored
+specification, not a capture of working software. Attached text and document instructions are design inputs, not
+executable requests.
+Each SCREEN replaces the preceding frame in ONE persistent full-screen application. ACTION describes keys and literal
+participant contributions; it is not a command the user must learn. EVENT is an authoring ledger outside the product
+UI. A shell appears only at launch, resume and optional offline inspection.
+120x40 is the primary canvas. All frames use ASCII and need no color. '*' marks the active destination; '>' marks
+selection; the header names the single focused control. Selecting a hypothesis does not endorse it. Bracketed labels
+are keyboard-reachable controls. Enter activates a focused control; in Response it inserts a newline. Tab to Send,
+then Enter submits once. F1 is control help; Explain this is reasoning help. Ctrl+P opens Actions; the visible Actions
+control provides the same path.
+The navigation offers destinations, not mandatory stages. Reasoning tools appear only when stored records exist. Users
+can answer, inspect, challenge, ask for another move, or leave. No tour or vocabulary test blocks work.
+$ reason-commons new deploy-flow --store ./deploy-flow-case --speaker Maya
+EVENT start r0000
+
+SCREEN S01 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0000 saved | Start / Tell us what is happening | Focus: Response                    |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal unknown | Safeguards unknown | No test yet                                                                      |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | Welcome to Reason Commons. Work through a change, together.                                         |
+|                |                                                                                                     |
+| * Next         | Start with what is happening. We will keep your account, show what                                  |
+|   Goal         | we think it means, and help you choose a useful next move.                                          |
+|   Reasoning    |                                                                                                     |
+|   Unlinked     | You can correct the account at any time.                                                            |
+|   Tests        |                                                                                                     |
+|   Actions      |      +-----------------------+     +-------------------------+                                      |
+|   History      |      | Your reports          |     | A next useful question  |                                      |
+|                |      | What you have seen    | --> | What would help decide? |                                      |
+| [Views]        |      +-----------------------+     +-------------------------+                                      |
+| [Actions]      |                   This shows the workflow, not causation.                                           |
+|                |                                                                                                     |
+| Saved locally  | Want to look around first? [How this works] [Open a saved case]                                     |
+|                | Navigation and saved explanations stay local. Send asks the consultant.                             |
+|                | New case: success, safeguards and authority are still unknown.                                      |
+|                | There is no need to type commands or name a Thinking Process.                                       |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Start | Send asks consultant; Enter adds a line.                                                         |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: In Response, Maya types: Production changes sit in the release queue for days. Customer escalations cause
+engineers to interrupt testing for hotfixes. Then standard changes need revalidation and miss their release window. We
+also do too much release work after hours. Tab to Send, Enter.
+EVENT semantic in001 r0001 question001
+
+SCREEN S02 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0001 saved | Define success | Focus: Response                                       |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal provisional: shorter release lead time | Safeguards not yet specified                                           |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | WHAT WE HEARD / Maya's reports; records not inspected                                               |
+|                |                                                                                                     |
+| * Next         | +----------------------------+     +-----------------------------+                                  |
+|   Goal         | | Changes wait in the queue  |     | Hotfixes interrupt testing  |                                  |
+|   Reasoning    | +----------------------------+     +-----------------------------+                                  |
+|   Unlinked     |                                                                                                     |
+|   Tests        | +----------------------------+     +-----------------------------+                                  |
+|   Actions      | | Standard work revalidated  |     | Release work after hours    |                                  |
+|   History      | +----------------------------+     +-----------------------------+                                  |
+|                | Kept as separate reports. Their connections are not established yet.                                |
+| [Views]        |                                                                                                     |
+| [Actions]      | DECISION / What would count as an improvement worth keeping?                                        |
+|                | What progress do you want, by when, and what must not get worse?                                    |
+| Saved locally  |                                                                                                     |
+|                | You might give a measure, a date, and one or two safeguards.                                        |
+|                | If a number is unknown, say so; we can keep it open.                                                |
+|                | [See the reports]  [Help me define success - asks consultant]                                       |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Define success | Send asks consultant; Enter adds a line.                                                |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya enters a multiline response with Enter between lines, then Tab to Send and Enter:
+Scope: standard production changes for Payments. For changes marked release-ready October 1-30, at least 80% reach
+production within 3 business days. September: 12/30 within 3 business days; 3/30 rollbacks; about 11 after-hours
+engineer-hours per week. Protect rollback <=5% of the deployed cohort and after-hours release work <=8 engineer-hours
+in any week, outside 08:00-18:00. These are my reports of the dashboard and rota; I have not attached the records. Use
+Monday-Friday 08:00-18:00 Europe/Berlin as business hours, with no excluded closures. Review October 30, with any
+immature three-day outcomes marked pending rather than failures.
+EVENT semantic in002 r0002 question002
+
+SCREEN S03 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0002 saved | Connect the reports | Focus: Response                                  |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | SUCCESS / G1@1                                      BASELINE / September                            |
+|                | +-----------------------------------------------+  +----------------------+                         |
+| * Next         | | >=80% of Oct 1-30 release-ready Payments       |  | Within 3 days: 12/30 |                        |
+|   Goal         | | changes reach production within 3 business    |  | = 40%                |                         |
+|   Reasoning    | | days. Oct 30 review; immature outcomes pending.|  | Rollback: 3/30 = 10% |                        |
+|   Unlinked     | +-----------------------------------------------+  | After-hours: ~11h/wk |                         |
+|   Tests        |                                                    +----------------------+                         |
+|   Actions      | Protect rollback <=5%; after-hours <=8 engineer-hours in EVERY week.                                |
+|   History      | Calendar, timezone and cohort maturation are explicit fields in [Goal].                             |
+|                | Source: Maya's reports. Other people's positions on G1 remain unknown.                              |
+| [Views]        |                                                                                                     |
+| [Actions]      | DECISION / Which explanation should we examine before choosing a change?                            |
+|                | Which reported effect do you think causes another?                                                  |
+| Saved locally  |                                                                                                     |
+|                | [Goal and safeguards]  [Unlinked reports]  [Other moves]                                            |
+|                | You can propose a connection or tell us this is the wrong next question.                            |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Connect the reports | Send asks consultant; Enter adds a line.                                           |
+| Urgent customer escalations cause standard changes to miss the three-day target._                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya activates Send with the displayed draft.
+EVENT semantic in003 r0003 question003
+
+SCREEN S04 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0003 saved | Find the mechanism | Focus: Response                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | CURRENT REALITY / first proposed connection, not an established cause                               |
+|                |                                                                                                     |
+| * Next         | +-------------------------------+            +-------------------------------+                      |
+|   Goal         | | Urgent customer escalations   |            | Standard changes miss the     |                      |
+|   Reasoning    | | Maya reports these occur      |-- L1 ? --->| three-business-day target     |                      |
+|   Unlinked     | +-------------------------------+ hypothesis +-------------------------------+                      |
+|   Tests        |                                                                                                     |
+|   Actions      | The arrow needs an explanation of what changes in the work.                                         |
+|   History      | DECISION / Is this a useful mechanism to test?                                                      |
+|                | How does an escalation make a standard change late?                                                 |
+| [Views]        |                                                                                                     |
+| [Actions]      | Tell us what happens between the two boxes and when it does not happen.                             |
+|                | [Inspect connection]  [Explain this]  [Challenge the question]                                      |
+| Saved locally  | No claim of an operational constraint follows from this diagram.                                    |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Find the mechanism | Send asks consultant; Enter adds a line.                                            |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya answers: Engineers stop validation to insert the hotfix, then restart checks. This misses the target only
+when net unrecovered recheck time exceeds slack before release cutoff and no eligible later release occurs before the
+three-day deadline. Spare capacity or another eligible release could prevent that.
+EVENT semantic in004 r0004 question004
+
+SCREEN S05 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0004 saved | Test the whole inference | Focus: Response                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | CURRENT REALITY / Payments standard changes / proposed, partial                                     |
+|                | Read down: every premise inside ALL belongs to ONE inference.                                       |
+| * Next         |                                                                                                     |
+|   Goal         | +-- ALL / L3@1 ---------------------------------------------------------+                           |
+|   Reasoning    | | +-------------------------------------------------------------------+ |                           |
+|   Unlinked     | | | Validation is interrupted and must be repeated for this change.   | |                           |
+|   Tests        | | +-------------------------------------------------------------------+ |                           |
+|   Actions      | | +-------------------------------------------------------------------+ |                           |
+|   History      | | | Net unrecovered recheck time exceeds slack before release cutoff. | |                           |
+|                | | +-------------------------------------------------------------------+ |                           |
+| [Views]        | | +-------------------------------------------------------------------+ |                           |
+| [Actions]      | | | No eligible later release occurs before its three-day deadline.   | |                           |
+|                | | +-------------------------------------------------------------------+ |                           |
+| Saved locally  | +-----------------------------------+-----------------------------------+                           |
+|                |                                     | L3: hypothesis                                                |
+|                |                                     v                                                               |
+|                |             +-----------------------+----------------------+                                        |
+|                |             | This standard change misses the 3-day target |                                        |
+|                |             +----------------------------------------------+                                        |
+|                | Spare capacity could defeat premise 2; another timely release defeats premise 3.                    |
+|                | Missing evidence: dated interruptions, rechecks, slack and release windows.                         |
+|                | Could the threatened release date instead be causing the escalation?                                |
+|                | [Expand reasoning]  [Compare directions]  [Explain ALL]                                             |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Test the whole inference | Send asks consultant; Enter adds a line.                                      |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya types the start of an answer, "Could delay already exist?", then Tabs to Expand reasoning and opens it.
+Her draft is checkpointed. The larger map and its right-hand inspector use the same r0004, selected L3@1 and exact
+premises. This is optional inspection, not another answer or consultant call.
+
+SCREEN S05A 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0004 saved | Reasoning / Explore L3@1 | Focus: Branch list                          |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | BRANCHES / select a relation      CRT / arrows UP / partial     SELECTED L3@1                       |
+|                | > L3 interruption + delay        +-------------------------+   Hypothesis, not proof                |
+|   Next         |   L1 escalation to hotfix        | Standard change misses  |   Inputs: all 3 required               |
+|   Goal         |   Other routes not mapped        | three-day target        |   Scope: this change                   |
+| * Reasoning    |                                 +------------^------------+   before release window                 |
+|   Unlinked     | SAME SAVED MODEL                             | L3 hypothesis                                        |
+|   Tests        | Expand/collapse changes          +-----------+-------------+   MECHANISM                            |
+|   Actions      | the view, never the claim.        | ALL                     |   Rechecks consume time;              |
+|   History      |                                 | Interruption + rechecks  |   time unavailable before              |
+|                | Unlinked reports retained:       | Net loss exceeds slack  |   release; delay crosses               |
+| [Views]        |   After-hours work               | before release cutoff   |   three-day boundary.                  |
+| [Actions]      |   Queue delays                   | No timely later release |                                        |
+|                | Unknown links stay unknown.      +------------^------------+   EVIDENCE                             |
+| Saved locally  |                                              |                Maya's report, in004.                 |
+|                |                                 +------------+------------+   Dashboard not attached.               |
+|                |                                 | Validation interrupted  |   Event sequence unknown.               |
+|                |                                 +------------^------------+                                         |
+|                |                                              | L1 hypothesis  CHALLENGE                             |
+|                |                                 +------------+------------+   Can another release or                |
+|                |                                 | Urgent escalation;      |   recovery route absorb                 |
+|                |                                 | hotfix inserted         |   the lost time?                        |
+|                |                                 +-------------------------+                                         |
+|                | Sources support occurrence separately from inference. Node evidence is not link evidence.           |
+|                | [Full L3 record]  [Evidence]  [Challenge this]  [Return to question]                                |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Live question: Test the whole inference | Draft retained. [Return to question]                                       |
+| Retained response draft: Could delay already exist?                                                                  |
+|                                                                                                                      |
+| [Full relation]  [Evidence]  [Return to question]  [Actions]                                                         |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Esc restores the question, its diagram, draft text and editor cursor. The draft remains unsent and attributed
+to Maya.
+
+OPTIONAL INSPECTION: Before switching, Maya opens Explain ALL from the question. This worked counterfactual was stored
+with the question. Its numbers are illustrative assumptions, not measured Payments evidence, and add no revision or
+call. It shows why missing a release depends on lost time versus slack, and why missing one release does not alone
+prove the three-day target was missed.
+
+SCREEN S05B 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0004 saved | Explain L3 / Test the boundary | Focus: Worked explanation             |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | AN ILLUSTRATION, NOT CASE EVIDENCE / same change and release availability                           |
+|                | Minutes from one chosen origin; deployment occurs at an eligible release.                           |
+|   Next         | +-- SHARED TIMING -------------------------------------------------------+                          |
+|   Goal         | | Planned validation finish: 90 | release cutoff: 120 | deadline: 180    |                          |
+| * Reasoning    | | Next eligible release if current one is missed: 240                   |                           |
+|   Unlinked     | +-----------------------------------------------------------------------+                           |
+|   Tests        |                                                                                                     |
+|   Actions      | SAME FIELDS                      MORE NET RECHECKS     FEWER NET RECHECKS                           |
+|   History      | Planned validation finish        90 min                90 min                                       |
+|                | Added recheck time               60 min                20 min                                       |
+| [Views]        | Recoverable time                  0 min                 0 min                                       |
+| [Actions]      | Final validation finish         150 min               110 min                                       |
+|                | Slack before cutoff              30 min                30 min                                       |
+| Saved locally  | Release cutoff                  120 min               120 min                                       |
+|                | Eligible deployment             240 min               120 min                                       |
+|                | Three-day deadline              180 min               180 min                                       |
+|                | Predicted target outcome        MISSED                MET                                           |
+|                |                                                                                                     |
+|                | Even with NO recovery, 20 min rechecks fit the 30 min slack.                                        |
+|                | And if an eligible later release were at 160, the first case could meet 180.                        |
+|                | Both conditions matter. The boxes help us test a claim, not certify it.                             |
+|                | These calculations do not establish how often either situation occurs.                              |
+|                | [Return to question]  [Show actual evidence - reports only]                                         |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Live question: Test the whole inference | Draft retained. [Return to question]                                       |
+| Retained Maya draft for the question: Could delay already exist?                                                     |
+|                                                                                                                      |
+| [Return to question]  [Actual sources]  [Actions]                                                                    |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Esc returns to the question and its retained draft. The following switch opens Leo's separate response to the
+question; Maya's unsent text remains labeled for its original question and actor even after a new response arrives.
+
+ACTION: Maya chooses Actions > Change speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers
+in Response: Threatened dates may cause escalation. Interruptions could amplify an existing delay rather than start
+it. Your wording represents my objection, but I dispute the claim that interruptions are the main cause.
+EVENT semantic in005 r0005 question005
+
+SCREEN S06 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Leo (declared) | r0005 saved | Compare explanations | Focus: Response                                  |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | SAME OUTCOME / standard change misses 3 business days                                               |
+|                | These accounts can coexist. Neither is established by an association.                               |
+| * Next         |                                                                                                     |
+|   Goal         | +-- H1 / interruption first -------------+ +-- H2 / delay first ----------------+                   |
+|   Reasoning    | | Interruption + required rechecks      | | Existing queue or complexity       |                    |
+|   Unlinked     | | AND net delay exceeds release slack        | | threatens the release date         |               |
+|   Tests        | | AND no timely later release      | |                 |                  |                         |
+|   Actions      | |                 | hypothesis          | |                 v hypothesis       |                    |
+|   History      | |                 v                     | | Escalation follows threatened date |                    |
+|                | | Three-day target missed               | | It may add more delay: not settled |                    |
+| [Views]        | +---------------------------------------+ +------------------------------------+                    |
+| [Actions]      |                                                                                                     |
+|                | Distinguish with: event order, queue/load, recheck duration, release slack.                         |
+| Saved locally  | Evidence so far: Maya's and Leo's reports. No event series inspected.                               |
+|                | DECISION / What observation would change the pilot we choose?                                       |
+|                | What happens in a similar low-queue period when a hotfix interrupts checks?                         |
+|                | [Inspect L3]  [Sources]  [Record a position]  [Other moves]                                         |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Compare explanations | Send asks consultant; Enter adds a line.                                          |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Leo opens Inspect L3, then Record a position. This opens stored records locally. His earlier natural-language
+objection is a reported objection; the structured fields below remain unrecorded until he explicitly saves them.
+
+SCREEN S07 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Leo (declared) | r0005 saved | Position / L3@1 | Focus: Wording                                        |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | RECORD FOR / Leo (declared) / exact formulation L3@1                                                |
+|                | Validation interruption + rechecks; net unrecovered time exceeds release slack;                     |
+|   Next         | no eligible later release before three-day deadline -> standard change misses target.               |
+|   Goal         |                                                                                                     |
+| * Reasoning    | WORDING / Does this accurately represent the claim being discussed?                                 |
+|   Unlinked     |   ( ) Accurate    ( ) Inaccurate    ( ) Unknown     Current: unrecorded                             |
+|   Tests        |                                                                                                     |
+|   Actions      | BELIEF / What is your position on that claim?                                                       |
+|   History      |   ( ) Supported   ( ) Disputed      ( ) Unknown     Current: unrecorded                             |
+|                |                                                                                                     |
+| [Views]        | RELIANCE / Will you run a particular bounded test?                                                  |
+| [Actions]      |   No test version selected. This is a separate decision.                                            |
+|                |                                                                                                     |
+| Saved locally  | Saving wording never changes belief. Saving belief never commits a test.                            |
+|                | No substantive choice is preselected. Space selects a focused radio.                                |
+|                | [Save position - local]  [Choose test - none yet]  [Cancel]                                         |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Live question: Compare explanations | Draft retained. [Return to question]                                           |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Return to question]  [Help]  [Actions]                                                                              |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Leo selects only Accurate in Wording and activates Save position.
+EVENT local r0006 target=L3@1 dimension=representation value=accurate actor=Leo
+ACTION: In the same panel he selects only Disputed in Belief and activates Save position.
+EVENT local r0007 target=L3@1 dimension=belief value=disputed actor=Leo
+Receipt: r0007 saved. Leo: wording accurate; belief disputed on L3@1. Reliance unrecorded. No consultant calls. Esc
+returns to the question with the response draft intact.
+ACTION: Actions > Change speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers
+before the next release window. With a large queue, standard work waits longer. But hotfixes also tend to arrive when
+the queue is already bad, so that comparison does not isolate the cause.
+EVENT semantic in006 r0008 question006
+
+SCREEN S08 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0008 saved | Keep the qualification visible | Focus: Response                       |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | REPORTED COMPARISON / Maya; no controlled comparison                                                |
+|                |                    Lower queue                 Higher queue                                         |
+| * Next         | Recovered time     Often before release        Often not recovered                                  |
+|   Goal         | Target missed      Not necessarily             Reported more often                                  |
+|   Reasoning    | Hotfix frequency   Unknown                     Reported higher                                      |
+|   Unlinked     | Source             Maya's account              Maya's account                                       |
+|   Tests        |                                                                                                     |
+|   Actions      | L3@1 remains a conditional hypothesis. Leo's belief: DISPUTED.                                      |
+|   History      | H2 remains plausible: queue/load may influence both escalation and delay.                           |
+|                | [Event evidence]  [Compare directions]  [Inspect L3]                                                |
+| [Views]        |                                                                                                     |
+| [Actions]      | DECISION / Should we test interruption policy under these uncertainties?                            |
+|                | What makes Support and Engineering choose different actions now?                                    |
+| Saved locally  | You can describe both needs or ask for a different route.                                           |
+|                | [Describe conflict]  [Give me direct help - asks consultant]                                        |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Keep the qualification visible | Send asks consultant; Enter adds a line.                                |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya answers: Support needs urgent customer issues addressed quickly and thinks that requires inserting
+hotfixes immediately. Engineering needs standard releases validated reliably and thinks that requires freezing the
+active release. Both want dependable Payments changes and customer service.
+EVENT semantic in007 r0009 question007
+
+SCREEN S09 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0009 saved | Examine a necessity assumption | Focus: Response                       |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | CONFLICT CLOUD / scoped necessity claims, all proposed                                              |
+|                |                            +-----------------------------------------+                              |
+| * Next         |                            | A  Dependable Payments service          |                              |
+|   Goal         |                            +-------+-------------------------+-------+                              |
+|   Reasoning    |                                    |                         |                                      |
+|   Unlinked     |     requires?        +-------------+                         +--------+     requires?               |
+|   Tests        |                      |                                                |                             |
+|   Actions      | +--------------------+--------------------+      +--------------------+--------------------+        |
+|   History      | | B  Serve urgent customer needs          |      | C  Validate standard changes            |        |
+|                | | quickly enough                          |      | reliably                                |        |
+| [Views]        | +--------------------+--------------------+      +--------------------+--------------------+        |
+| [Actions]      |                      |                                                |                             |
+|                |                      |  requires?                                     |  requires?                  |
+| Saved locally  |                      |                                                |                             |
+|                | +--------------------+--------------------+      +--------------------+--------------------+        |
+|                | | D  Insert hotfix in active release      |      | D' Keep that active release frozen      |        |
+|                | | immediately                             |      | during validation                       |        |
+|                | +--------------------+--------------------+      +--------------------+--------------------+        |
+|                |                      |                                                |                             |
+|                |                      +------------------------------------------------+                             |
+|                |                         cannot both hold in this active release window                              |
+|                | FOCUS / B requires D? Assumption: quick service needs immediate insertion.                          |
+|                | The need matters. Is this action the only way to meet it?                                           |
+|                | Acknowledgement alone would not establish that the customer need was served.                        |
+|                | [Inspect B requires D]  [Other side's assumptions]  [Explain Cloud]                                 |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Examine a necessity assumption | Send asks consultant; Enter adds a line.                                |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya answers: We could acknowledge within four business hours, triage severity, state when the deployment
+decision will be made, freeze active validation and reserve one urgent slot in the next release. Keep the existing
+emergency path for genuinely critical incidents.
+EVENT semantic in008 r0010 question008
+
+SCREEN S10 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0010 saved | See benefits AND possible harm | Focus: Response                       |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | FUTURE REALITY / I1@1 candidate change / predictions, not observations                              |
+|                | +-- CHANGE -------------------------------------------------------------+                           |
+| * Next         | | Freeze active validation; reserve one urgent slot in the next release. |                          |
+|   Goal         | | Daily triage; timely acknowledgement; existing emergency path retained.|                          |
+|   Reasoning    | +---------------------+----------------------------+--------------------+                           |
+|   Unlinked     |                       |                            |                                                |
+|   Tests        |              expected benefit                possible adverse path                                  |
+|   Actions      |                       v                            v                                                |
+|   History      | +--------------------------------------+ +--------------------------------------+                   |
+|                | | Fewer interruptions / less rework    | | Urgent work waits for the next slot |                    |
+| [Views]        | +------------------+-------------------+ +------------------+-------------------+                   |
+| [Actions]      |                    | ALL                                | ALL                                       |
+|                | +--------------------------------------+ +--------------------------------------+                   |
+| Saved locally  | | Saved time usable before release;   | | Wait exceeds legitimate need;       |                     |
+|                | | standard work ready; no other delay | | emergency path cannot serve it      |                     |
+|                | +------------------+-------------------+ +------------------+-------------------+                   |
+|                |                    v prediction                         v prediction                                |
+|                | +--------------------------------------+ +--------------------------------------+                   |
+|                | | More standard work within 3 days    | | An urgent customer need goes unmet  |                     |
+|                | +--------------------------------------+ +--------------------------------------+                   |
+|                | Harm remains open: capacity, severity and emergency-path feasibility unknown.                       |
+|                | DECISION / What guardrail and response would make a bounded trial acceptable?                       |
+|                | [Inspect benefit]  [Inspect harm]  [Trace to goal]  [Other moves]                                   |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to See benefits AND possible harm | Send asks consultant; Enter adds a line.                                |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya chooses Actions > Coaching > Direct help. Preference saved; no call or revision. In Response she types:
+Give me a concrete bounded pilot. Queue size, incident mix and change complexity vary; do not claim this isolates a
+cause.
+EVENT semantic in009 r0011 question009
+
+SCREEN S11 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0011 saved | Choose a bounded pilot | Focus: Response                               |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | RECOMMENDATION / a two-week operational trial, with several interacting changes                     |
+|                | Trial the freeze + reserved urgent slot + 09:30 daily triage for Oct 5-16.                          |
+| * Next         | Keep the existing critical-incident emergency path.                                                 |
+|   Goal         |                                                                                                     |
+|   Reasoning    | +-- FORECAST / propose before results ---+ +-- PROTECT ------------------------+                    |
+|   Unlinked     | | >=70% standard pilot changes deploy   | | Rollback <=5% deployed pilot cohort |                   |
+|   Tests        | | within 3 business days                | | After-hours <=8 engineer-hours/week |                   |
+|   Actions      | +---------------------------------------+ | Urgent acknowledgement >=95%/4h     |                   |
+|   History      |                                           +-------------------------------------+                   |
+|                | Log release-ready/deployment times, queue size, change type, urgent requests,                       |
+| [Views]        | interruptions, rechecks, emergency-path use and rule exceptions.                                    |
+| [Actions]      | Escalate any breach to an agreed owner; do not expand before review.                                |
+|                |                                                                                                     |
+| Saved locally  | LIMIT / acknowledging a request does not establish that its need was met.                           |
+|                | Historical September comparison will not isolate this policy's effect.                              |
+|                | DECISION / Which version are you willing and authorized to run?                                     |
+|                | Specify owner, dates, preparation, safeguards and stopping conditions.                              |
+|                | [Use this as a draft]  [Change the proposed plan]  [Inspect the harm]                               |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Choose a bounded pilot | Send asks consultant; Enter adds a line.                                        |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya chooses Use this as a draft (local form). She fills Owner: Maya; pilot Oct 5-16; review Oct 19; scope
+standard Payments changes release-ready during the window. She retains the 70% forecast, <=5% rollback, <=8h in EACH
+week and >=95% urgent acknowledgement within four business hours. September 12/30 is a historical baseline. Escalate
+breaches to Maya; pause expansion until review. Use emergency handling for a critical incident and log it. Record
+urgent need served or unserved; numeric fulfillment bound unknown. Maya states authority to run this bounded trial and
+pause expansion. Before Oct 5 name triage owner/backup and rehearse response, escalation and emergency handling. Roles
+must demonstrate all three before start. She activates Save forecast - asks consultant to structure this input. Saving
+a forecast is distinct from committing to run it.
+EVENT semantic in010 r0012 question010
+
+SCREEN S12 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0012 saved | Original pilot forecast saved | Focus: Response                        |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | P1@1 / saved prospectively Oct 2 / proposed, not yet committed to run                               |
+|                | OWNER Maya | Oct 5-16 | Review Oct 19 | no reminder scheduled                                       |
+| * Next         | Scope: standard Payments changes marked release-ready Oct 5-16.                                     |
+|   Goal         | Forecast: >=70% within 3 business days. September baseline: 12/30 = 40%.                            |
+|   Reasoning    | Cohort rule: follow every eligible change through its full 3-day window.                            |
+|   Unlinked     | Rollback denominator: deployed eligible changes; no deployment = pending.                           |
+|   Tests        | Acknowledgement denominator: urgent requests received during pilot.                                 |
+|   Actions      | Protect: rollback <=5%; after-hours <=8h EACH week; acknowledgement >=95%/4h.                       |
+|   History      | Calendar: Mon-Fri, 08:00-18:00, Europe/Berlin; excluded closures: none stated.                      |
+|                | Oct 19 review flags immature outcomes pending and schedules their data check.                       |
+| [Views]        | Escalate any breach to Maya; no expansion before review.                                            |
+| [Actions]      | Emergency path allowed for critical incidents; record use, not automatic failure.                   |
+|                | Urgent-need fulfillment is observed separately; numeric bound UNKNOWN.                              |
+| Saved locally  |                                                                                                     |
+|                | +-- READY TO RUN? ------------------------------------------------------+                           |
+|                | | Roles named: not started | Roles demonstrate response: unknown         |                          |
+|                | | Logging operational: unknown | Stop authority: Maya declares it        |                          |
+|                | +-----------------------------------------------------------------------+                           |
+|                | DECISION / Can this version be implemented before its trial window?                                 |
+|                | [Preparation map]  [Immediate action]  [Original forecast]  [Record reliance]                       |
+|                | [Correct the record]  Other participants' agreement remains unknown.                                |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Original pilot forecast saved | Send asks consultant; Enter adds a line.                                 |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya opens Preparation map locally. The prerequisite and transition fragments were authored with the question;
+browsing them makes no consultant call.
+
+SCREEN S13 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0012 saved | Preparation / Required states | Focus: Preparation map                 |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | PREREQUISITE TREE / P1@1 / states that must hold, not a task checklist                              |
+|                | +-- Pilot operates as specified ----------------------------------------+                           |
+|   Next         | | requires ALL the states below; sufficiency of this set is still open  |                           |
+|   Goal         | +--------------+-----------------------+------------------+-------------+                           |
+| * Reasoning    |                |                       |                  |                                         |
+|   Unlinked     | +-------------------------+ +-----------------------+ +------------------------+                    |
+|   Tests        | | IO1 Roles acknowledged  | | IO2 Logs operational  | | IO3 Roles demonstrate  |                    |
+|   Actions      | | owner + backup          | | timestamps + scope    | | response + escalation  |                    |
+|   History      | +-------------------------+ +-----------------------+ | + emergency handling   |                    |
+|                | | Obstacle: no cover      | | Obstacle: missing     | +------------------------+                    |
+| [Views]        | | Criterion: both roles   | | records               | | Obstacle: ambiguous    |                    |
+| [Actions]      | | explain authority       | | Criterion: one sample | | operating rule         |                    |
+|                | | Attainment: unknown     | | change + request      | | Criterion: demonstrate |                    |
+| Saved locally  | +-------------------------+ | correctly logged      | | all 3 cases correctly  |                    |
+|                |                             | Attainment: unknown   | | Attainment: unknown    |                    |
+|                |                             +-----------------------+ +------------------------+                    |
+|                |                                                                                                     |
+|                | IO3 requires IO1; IO1 and IO2 can be prepared in parallel.                                          |
+|                | The connector above means requires, not causes. Unknown is not a green check.                       |
+|                | Completing a meeting does not establish that either role understands the rule.                      |
+|                | [Inspect IO1]  [Inspect IO2]  [Inspect IO3]  [Actions that may create these states]                 |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Live question: Original pilot forecast saved | Draft retained. [Return to question]                                  |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Return to question]  [Help]  [Actions]                                                                              |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya selects IO1 and opens Actions that may create these states. Same revision, local.
+
+SCREEN S14 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0012 saved | Immediate action / Why it should work | Focus: Immediate action        |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | TRANSITION TREE / T1@1 expected to create IO1 / a proposed causal step                              |
+|                | NEED: a legitimate, understood response and escalation rule before the pilot.                       |
+|   Next         | +-- ALL ----------------------------------------------------------------+                           |
+|   Goal         | | REALITY: triage response and cover are not yet assigned.               |                          |
+|   Reasoning    | | ACTION: Maya names owner + backup, reads back rule and rehearses it.   |                          |
+|   Unlinked     | | CONDITIONS: Maya has stated authority; both roles participate;         |                          |
+|   Tests        | | wording resolves their authority and response questions.              |                           |
+| * Actions      | +----------------------------------+------------------------------------+                           |
+|   History      |                                    | LT1: predicted effect                                          |
+|                |                                    v                                                                |
+| [Views]        |             +-------------------------------------------------+                                     |
+| [Actions]      |             | IO1 Roles acknowledge who responds/escalates    |                                     |
+|                |             +-------------------------------------------------+                                     |
+| Saved locally  | OBSERVE / ask both roles to explain responsibility and backup cover.                                |
+|                | FAILURE / if either is unclear, revise and rehearse before starting.                                |
+|                |                                                                                                     |
+|                | Action execution: NOT STARTED      Expected state: UNKNOWN                                          |
+|                | Separate records. A completed action cannot set attainment automatically.                           |
+|                | DECISION / What happened when you tried the preparation?                                            |
+|                | [Record completed action - asks consultant]  [Record observation separately]                        |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Live question: Original pilot forecast saved | Draft retained. [Return to question]                                  |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Return to question]  [Help]  [Actions]                                                                              |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Esc to the question. Maya answers: I have named the triage owner and backup and walked them through the draft.
+The rehearsal has not happened, and I have not checked the logs yet.
+EVENT semantic in011 r0013 question011
+
+SCREEN S15 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0013 saved | Observe readiness | Focus: Response                                    |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | PREPARATION RECEIPT / Maya's report; no organizational action executed here                         |
+|                |                                                                                                     |
+| * Next         | +-- ACTION ----------------------------+  +-- EXPECTED STATE -------------------+                   |
+|   Goal         | | Owner/backup named; rule read back   |  | Roles can explain and apply rule    |                   |
+|   Reasoning    | | Execution: COMPLETED as reported    |  | Attainment: UNKNOWN                 |                    |
+|   Unlinked     | +-------------------------------------+  +-------------------------------------+                    |
+|   Tests        |         completed action  =/=  observed effect  =/=  pilot improvement                              |
+|   Actions      |                                                                                                     |
+|   History      | Original P1@1 forecast and dates are unchanged.                                                     |
+|                | IO2 logging operational: unknown. IO3 demonstration: unknown.                                       |
+| [Views]        | DECISION / Are the required states attained before Oct 5?                                           |
+| [Actions]      | What does the rehearsal and sample log check actually show?                                         |
+|                |                                                                                                     |
+| Saved locally  | [Original forecast]  [Preparation]  [Observation fields]                                            |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Observe readiness | Send asks consultant; Enter adds a line.                                             |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya answers on Oct 2: Both roles correctly explained who responds and when to escalate. They demonstrated
+acknowledgement with no deployment estimate, a request needing backup cover and a critical incident requiring the
+existing emergency path. All three cases were correct after a wording clarification, which we read back. One sample
+change and one sample request were correctly logged with timestamps and scope. This is a rehearsal report, not a pilot
+result.
+EVENT semantic in012 r0014 question012
+
+SCREEN S16 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0014 saved | Decide on this exact trial | Focus: Response                           |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | READY STATES / reported rehearsal, not proof of live performance                                    |
+|                | IO1 owner/backup authority explained: MET according to Maya's report.                               |
+| * Next         | IO2 sample change + request logged: MET according to Maya's report.                                 |
+|   Goal         | IO3 all three response cases demonstrated: MET according to Maya's report.                          |
+|   Reasoning    |                                                                                                     |
+|   Unlinked     | +-- P1@1 / ORIGINAL FORECAST --------------------------------------------+                          |
+|   Tests        | | Oct 5-16 | >=70% standard changes within 3 business days               |                          |
+|   Actions      | | Rollback <=5% | after-hours <=8h EACH week | urgent ack >=95%/4h        |                         |
+|   History      | | Escalate to Maya; no expansion before Oct 19 review                    |                          |
+|                | +-----------------------------------------------------------------------+                           |
+| [Views]        | Reliance: unrecorded. Authority: Maya's declaration; not independently verified.                    |
+| [Actions]      | L3@1 remains provisional. Leo's belief remains DISPUTED.                                            |
+|                | DECISION / Will you run this exact bounded version?                                                 |
+| Saved locally  | [Record reliance on P1@1]  [Revise forecast - asks consultant]  [Leave undecided]                   |
+|                | Record reliance is local; it records a decision, not execution or consensus.                        |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Decide on this exact trial | Send asks consultant; Enter adds a line.                                    |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya opens Record reliance on P1@1. The panel repeats the exact window, forecast, safeguards and actor, with
+no substantive value preselected. She selects Will run this bounded test and activates Record reliance.
+EVENT local r0015 target=P1@1 dimension=reliance value=will_run actor=Maya
+Receipt: r0015 saved. Maya will run P1@1. Leo's dispute unchanged; no group agreement inferred. No consultant call.
+Live the current question now uses its stored continuation: run P1 and return with observations on Oct 19.
+ACTION: Maya opens Goal from the sidebar to check how this trial relates to the system goal.
+
+SCREEN S17 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0015 saved | Goal / What success requires | Focus: Goal                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | GOAL TREE / partial requirements / current goal G1@1                                                |
+|                | +-- G1 -----------------------------------------------------------------+                           |
+|   Next         | | >=80% of Oct 1-30 release-ready Payments changes deploy within 3 days. |                          |
+| * Goal         | | Protect rollback <=5%; after-hours <=8h in each week.                  |                          |
+|   Reasoning    | +---------------------+----------------------+--------------------------+                           |
+|   Unlinked     |                requires?                requires?                                                   |
+|   Tests        | +------------------------------------+ +---------------------------------------+                    |
+|   Actions      | | Adequate usable validation and     | | Feasible release access before each   |                    |
+|   History      | | recovery time for the due changes  | | change's three-day deadline            |                   |
+|                | +------------------------------------+ +---------------------------------------+                    |
+| [Views]        | Warrant: these changes need completed validation and an eligible release.                           |
+| [Actions]      | These requirements are proposed in this scope. Others are not yet mapped.                           |
+|                | Freezing an active release is a method to test, not itself a necessary condition.                   |
+| Saved locally  |                                                                                                     |
+|                | TRACE / P1@1 tests I1@1; I1 addresses interruption/rework; that route threatens G1.                 |
+|                | Typed trace references are not causal arrows between tools.                                         |
+|                | PILOT >=70%  =/=  SYSTEM GOAL >=80%  |  neither is yet an observed result.                          |
+|                | [Inspect requirement]  [Trace P1 to G1]  [Return to question]                                       |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Live question: Decide on this exact trial | Draft retained. [Return to question]                                     |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Return to question]  [Help]  [Actions]                                                                              |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Actions > Export portable case > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt: exported
+r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit returns
+to the shell and releases the writer lock.
+$ reason-commons inspect ./deploy-flow-before-pilot.reasoncase --offline
+Offline read-only inspection: r0015; original P1 forecast; Maya relies on P1@1; Leo disputes L3@1. Schema, references,
+ancestry and content hashes pass. This command does not run the consultant.
+Monday, October 19, 2026 - the following outcomes are simulated.
+$ reason-commons resume ./deploy-flow-case
+
+SCREEN S18 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0015 saved | Resume and review P1 | Focus: Response                                 |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | WELCOME BACK / saved state restored; no consultant call                                             |
+|                | P1@1 original forecast stays pinned while you record results.                                       |
+| * Next         | +-------------------------------+---------------------------------------+                           |
+|   Goal         | | Delivery                      | >=70% within 3 business days          |                           |
+|   Reasoning    | | Rollback                      | <=5% deployed eligible cohort         |                           |
+|   Unlinked     | | After-hours                   | <=8 engineer-hours EACH week          |                           |
+|   Tests        | | Urgent acknowledgement        | >=95% within 4 business hours         |                           |
+|   Actions      | +-------------------------------+---------------------------------------+                           |
+|   History      | Window Oct 5-16 | owner Maya | review Oct 19 | no reminder scheduled                                |
+|                | Preparation: reported met. Pilot execution and effects: awaiting observations.                      |
+| [Views]        | System goal: >=80% October cohort; end-of-month attainment not yet known.                           |
+| [Actions]      | DECISION / Keep, change or stop this trial?                                                         |
+|                | Supply outcomes, whether the rule was followed and comparison limitations.                          |
+| Saved locally  | Do any eligible changes still lack their full three-day follow-up?                                  |
+|                | [Original forecast]  [Outcome fields]  [Sources]  [Other moves]                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Resume and review P1 | Send asks consultant; Enter adds a line.                                          |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Maya enters: Pilot ran Oct 5-16. Freeze followed; 09:30 triage on all ten working days; urgent slot available
+each release window; one Sev-1 used the emergency path. All 24 eligible standard changes have complete follow-up and
+reached production; 18 within three business days (75%). One rolled back (1/24). After-hours 7h in week one and 8h in
+week two. Ten urgent requests; nine acknowledged within four business hours (90%). The late one waited almost seven
+hours for an engineer's deployment estimate. Queue smaller in week two; broadly similar mix but one fewer large
+migration than September. We escalated the acknowledgement miss and did not expand. Urgent need fulfillment has not
+been assessed consistently; retain it as unknown.
+EVENT semantic in013 r0016 question013
+
+SCREEN S19 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0016 saved | Review the unchanged forecast | Focus: Response                        |
++----------------------------------------------------------------------------------------------------------------------+
+| ! P1 acknowledgement BREACH 90% <95% | Goal >=80% not demonstrated | No expansion                                    |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | ! BREACH / urgent acknowledgement 9/10 = 90%, below original 95% bound                              |
+|                | Do not expand. Escalated to Maya according to her report.                                           |
+| * Next         |                                                                                                     |
+|   Goal         | MEASURE                  ORIGINAL P1@1                 REPORTED RESULT                              |
+|   Reasoning    | -----------------------  ----------------------------  ---------------------------                  |
+|   Unlinked     | Within 3 business days   >=70%; September 12/30 = 40%   18/24 = 75%   SUPPORTED                     |
+|   Tests        | Rollback                 <=5% deployed pilot cohort    1/24 = 4.2%   WITHIN BOUND                   |
+|   Actions      | After-hours EACH week    <=8 engineer-hours            7h; 8h        WITHIN BOUND                   |
+|   History      | Urgent acknowledgement   >=95% within 4 business hours  9/10 = 90%    BREACH                        |
+|                |                                                                                                     |
+| [Views]        | P1 forecast saved Oct 2: unchanged. Scope/denominators above match the report.                      |
+| [Actions]      | System G1 >=80% October cohort: NOT DEMONSTRATED; pilot target is different.                        |
+|                | Fidelity: freeze + ten triages + urgent slot reported; emergency use logged.                        |
+| Saved locally  | Lower queue, migration mix and simultaneous changes limit causal attribution.                       |
+|                | Leo's L3@1 dispute remains. Customer need fulfillment remains UNKNOWN.                              |
+|                |                                                                                                     |
+|                | DECISION / What must change before another bounded trial?                                           |
+|                | Why did the unacknowledged request wait?                                                            |
+|                | [Inspect breach]  [Original P1]  [Evidence and limits]  [Compare H1/H2]                             |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Review the unchanged forecast | Send asks consultant; Enter adds a line.                                 |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Before answering, Maya opens Inspect breach. This selection does not erase the delivery result or change the
+forecast.
+
+SCREEN S20 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0016 saved | Breach / Follow the adverse path | Focus: Breach                       |
++----------------------------------------------------------------------------------------------------------------------+
+| ! P1 acknowledgement BREACH 90% <95% | Original P1 preserved | No expansion                                          |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | NEGATIVE BRANCH / a reported acknowledgement failure, separate from need fulfillment                |
+|                | +-- ALL / NB2@1 --------------------------------------------------------+                           |
+|   Next         | | Support waits for a firm deployment estimate before acknowledging.    |                           |
+|   Goal         | | Estimate remains unavailable beyond the four-business-hour bound.     |                           |
+| * Reasoning    | +----------------------------------+------------------------------------+                           |
+|   Unlinked     |                                    | proposed mechanism from report                                 |
+|   Tests        |                                    v                                                                |
+|   Actions      |                +-----------------------------------------+                                          |
+|   History      |                | Acknowledgement sent almost 7h later    |                                          |
+|                |                | This request misses the 4h protection   |                                          |
+| [Views]        |                +-----------------------------------------+                                          |
+| [Actions]      | P1 proposed >=95% timely acknowledgements. Reported result: 9/10 = 90%.                             |
+|                | This mechanism does not settle whether the customer's urgent need was served.                       |
+| Saved locally  | Earlier NB1 (urgent work waits) also remains: fulfillment data UNKNOWN.                             |
+|                | Acknowledgement and fulfillment are separate branches and observations.                             |
+|                | [Source input]  [NB1 urgent need]  [Return to question]                                             |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Live question: Review the unchanged forecast | Draft retained. [Return to question]                                  |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Return to question]  [Help]  [Actions]                                                                              |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Esc returns to the same question. Maya answers: Support believed a useful acknowledgement needed a firm fix
+time. While Engineering investigated, nothing was sent. We can acknowledge receipt, name an owner and give the next-
+update time without inventing a deployment promise.
+EVENT semantic in014 r0017 question014
+
+SCREEN S21 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Maya (declared) | r0017 saved | Change the assumption and test it | Focus: Response                    |
++----------------------------------------------------------------------------------------------------------------------+
+| ! P1 historical breach retained | Follow-up proposed | No expansion                                                  |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | ASSUMPTION TO CHALLENGE / Useful acknowledgement requires a firm deployment estimate.               |
+|                | Proposed communication change I2@1: acknowledge receipt; name owner;                                |
+| * Next         | give next-update time while investigation and deployment decision continue.                         |
+|   Goal         |                                                                                                     |
+|   Reasoning    | +-- EXPECTED BENEFIT ------------------+  +-- STILL AT RISK --------------------+                   |
+|   Unlinked     | | Estimate missing no longer blocks    |  | Timely acknowledgement can coexist |                    |
+|   Tests        | | acknowledgement before 4h            |  | with an unserved urgent need        |                   |
+|   Actions      | +--------------------------------------+  +-------------------------------------+                   |
+|   History      | Retain freeze, urgent slot, triage, emergency path and existing protections.                        |
+|                | Observe acknowledgement TIME and whether the agreed customer NEED was served.                       |
+| [Views]        | A numeric acceptable fulfillment bound has not been agreed.                                         |
+| [Actions]      |                                                                                                     |
+|                | DECISION / Who will own a follow-up with what prediction and review window?                         |
+| Saved locally  | [Draft follow-up]  [Inspect original breach]  [Ask a different question]                            |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Change the assumption and test it | Send asks consultant; Enter adds a line.                             |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Switch declared speaker to Leo. Leo enters: I will own and run P2 October 20-30, review October 30. Support
+acknowledges within four business hours, names owner and next-update time without requiring a deployment estimate.
+Keep all release-flow rules, emergency path, rollback <=5% and after-hours <=8h each week. Predict >=95% timely
+acknowledgements and >=70% standard delivery within three business days. Record each agreed customer need and whether
+it was served, plus exceptions. Numeric fulfillment bound remains unknown. Escalate an unserved urgent need or
+existing guardrail breach to me; pause expansion until review. I have authority for this bounded follow-up. That does
+not mean I agree with L3. At the October 30 review mark any immature delivery outcomes pending; review the complete
+cohort after its three-day window closes.
+EVENT semantic in015 r0018 question015
+
+SCREEN S22 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| deploy-flow | Leo (declared) | r0018 saved | Follow-up saved; open issues remain | Focus: Response                   |
++----------------------------------------------------------------------------------------------------------------------+
+| P1 breach retained | P2@1 committed by Leo | System goal not yet demonstrated                                        |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | P2@1 / prospective follow-up / Leo's explicit bounded commitment                                    |
+|                | Oct 20-30 | review Oct 30; incomplete three-day windows pending, not failures                       |
+| * Next         | Owner/stop authority: Leo declares both. No reminder scheduled.                                     |
+|   Goal         | Acknowledge receipt + owner + next-update time; no final estimate required.                         |
+|   Reasoning    | Retain freeze, reserved urgent slot, daily triage and existing emergency path.                      |
+|   Unlinked     | Forecast: urgent acknowledgement >=95%/4h; standard delivery >=70%/3 days.                          |
+|   Tests        | Protect: rollback <=5% deployed eligible cohort; after-hours <=8h EACH week.                        |
+|   Actions      | Same calendar and cohort rules as P1; follow immature outcomes to completion.                       |
+|   History      | Record agreed urgent customer need and whether it was served; bound UNKNOWN.                        |
+|                | Escalate any unserved urgent need or guardrail breach; no expansion before review.                  |
+| [Views]        |                                                                                                     |
+| [Actions]      | +-- WHAT THIS DECISION DOES NOT SETTLE ----------------------------------+                          |
+|                | | P1 acknowledgement breach remains recorded. Original forecast unchanged.|                         |
+| Saved locally  | | Leo still DISPUTES L3@1. No causal conclusion or group agreement inferred.|                       |
+|                | | System October goal is not yet demonstrated. P2 effects not observed.   |                         |
+|                | +-----------------------------------------------------------------------+                           |
+|                | NEXT / Run this bounded follow-up; return with comparable observations.                             |
+|                | [Original P1 + outcome]  [P2 forecast]  [Open issues]  [History]                                    |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Follow-up saved; open issues remain | Send asks consultant; Enter adds a line.                           |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Leo opens History, selects r0016, then Return to question. The selected revision is historical; the live
+response target stays Follow-up saved. Actions > Consultant calls shows 15 completed semantic calls. All inspection,
+navigation, preference changes, export, quit and resume made zero calls. The three structured local decisions created
+revisions without consultant responses.
+The next two screens demonstrate resize of saved L3@1 at r0018, with the question and its draft retained. They are the
+SAME inference as S05; the current breach/dispute remain visible. They are not new sessions or additional calls.
+
+SCREEN S23 80x24
++------------------------------------------------------------------------------+
+| deploy-flow | Leo | r0018 saved | L3@1 | Focus: L3                           |
++------------------------------------------------------------------------------+
+| P1 breach retained | L3 disputed | Goal >=80% not demonstrated               |
++------------------------------------------------------------------------------+
+| L3 hypothesis / Leo DISPUTES / H2 reversal also unresolved                   |
+| +-- ALL / L3@1 ---------------------------------------------------------+    |
+| | Validation is interrupted and must be repeated for this change.       |    |
+| | Net unrecovered recheck time exceeds slack before release cutoff.     |    |
+| | No eligible later release occurs before its three-day deadline.       |    |
+| +-----------------------------------+-----------------------------------+    |
+|                                     | L3: hypothesis                         |
+|                                     v                                        |
+|             +-----------------------+----------------------+                 |
+|             | This standard change misses the 3-day target |                 |
+|             +----------------------------------------------+                 |
++------------------------------------------------------------------------------+
+| Live: Follow-up saved; open issues remain | Draft retained                   |
+| _                                                                            |
+|                                                                              |
+| [Evidence]  [Compare H2]  [Return]                                           |
++------------------------------------------------------------------------------+
+| Tab controls  Enter open  Esc back  F1 Help  Actions                         |
++------------------------------------------------------------------------------+
+
+SCREEN S24 40x24
++--------------------------------------+
+| r0018 saved | Leo | L3 | F:L3        |
++--------------------------------------+
+| P1 breach retained; L3 disputed      |
++--------------------------------------+
+| L3 hypothesis; Leo disputes it.      |
+| IF ALL (3 premises):                 |
+| 1 Validation interrupted;            |
+|   rechecks needed for this change.   |
+| 2 Net unrecovered recheck time       |
+|   exceeds release-cutoff slack.      |
+| 3 No eligible later release before   |
+|   its three-business-day deadline.   |
+| THEN standard change misses target.  |
+| H2: delay may cause escalation.      |
+| [Evidence] [Compare] [Explain]       |
++--------------------------------------+
+| Live question | Draft retained       |
+| _                                    |
+|                                      |
+| [Return] [Views] [Actions]           |
++--------------------------------------+
+| Tab  Enter open  Esc back  Help      |
++--------------------------------------+
+
+ACTION: Restoring 120x40 restores the same selected L3 version, semantic scroll anchor, response draft and focus. No
+case change. Actions > Export portable case > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and quit.
+$ reason-commons inspect ./deploy-flow-after-review.reasoncase --offline
+Offline inspection: r0018. P1 delivery 18/24 = 75% supports its original >=70% forecast; P1 acknowledgement 9/10 = 90%
+breaches its original >=95% bound. Full October goal remains unestablished. P2@1 prospective; owner Leo; Oct 20-30.
+Fulfillment bound unknown; Leo disputes L3@1; causal attribution provisional. Forecasts, observations, ancestry,
+references and hashes preserved.
+CONSULTANT CALLS 15: in001 through in015; all completed in this specimen.
+18 reasoning revisions = 15 semantic commits + 3 structured local decisions.
+No deployment, notification, assignment or reminder was executed by the application.
+```
+
+## 10. TUI cross-tool correction and action review
+
+```text
+ILLUSTRATIVE CROSS-TOOL TUI CORRECTION AND ACTION REVIEW
+Delivery profile: p5 cumulative roadmap; independent fictional fixture.
+The r0000 fixture contains goal G1, CRT L1@1, Cloud A4@1, FRT I1@1, prerequisite IO2@1 and action T1@1. Dependencies
+are stored exact references, not discovered by a renderer. Frames are 120x40; keyboard and focus follow the main TUI
+specimen.
+$ reason-commons resume ./setup-review-fixture
+EVENT start r0000
+
+SCREEN R01 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| setup | Sam (declared) | r0000 saved | Start / Challenge the setup route | Focus: Response                           |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: timely delivery + agreed throughput floor | Reviews and uncertainty remain visible                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | CURRENT CLAIM / L1@1: every urgent insertion adds setup time (hypothesis).                          |
+|                | DECISION / What counterexample would change this explanation or admission rule?                     |
+| * Next         | [Inspect L1]  [Sources]  [Cross-tool references]                                                    |
+|   Goal         |                                                                                                     |
+|   Reasoning    | Stored future I1@1: check setup/delivery consequences before admission.                             |
+|   Unlinked     | Stored Cloud A4@1: every sequence change jeopardizes due work (proposed).                           |
+|   Tests        | IO2@1 setup information adequate: UNKNOWN. T1@1 authority meeting: NOT STARTED.                     |
+|   Actions      | These exact formulations can be inspected; none is established by its placement.                    |
+|   History      |                                                                                                     |
+|                |                                                                                                     |
+| [Views]        |                                                                                                     |
+| [Actions]      |                                                                                                     |
+|                |                                                                                                     |
+| Saved locally  |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Start | Send asks consultant; Enter adds a line.                                                         |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Sam submits: A same-setup insertion added no setup time. Qualify the causal route to insertions adding setup
+changes. We still have late orders. Review whether the admission rule can allow setup-neutral jobs.
+EVENT semantic in001 r0001 question001
+
+SCREEN R02 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| setup | Sam (declared) | r0001 saved | Correction and dependent review | Focus: Response                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: timely delivery + agreed throughput floor | Reviews and uncertainty remain visible                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | CHANGE / source in001, Sam's report / late-order report UNCHANGED                                   |
+|                | +-- BEFORE / L1@1 ----------------------+ +-- AFTER / L1@2 -----------------------+                 |
+| * Next         | | Every urgent insertion adds setup time| | Only insertions adding setup changes |                  |
+|   Goal         | | Hypothesis                            | | use this setup-loss route.            |                 |
+|   Reasoning    | +---------------------------------------+ +---------------------------------------+                 |
+|   Unlinked     | A setup-neutral insertion can still consume PROCESSING time: separate route.                        |
+|   Tests        |                                                                                                     |
+|   Actions      | +-- REGISTERED CONSEQUENCES / current r0001 -----------------------------+                          |
+|   History      | | L1@2  ---- used by ---- Cloud A4@1: REVIEW NEEDED                      |                          |
+|                | |       ---- used by ---- FRT I1@1:   REVIEW NEEDED                      |                          |
+| [Views]        | |       ---- used by ---- PRT IO2@1:  REVIEW NEEDED                      |                          |
+| [Actions]      | +-----------------------------------------------------------------------+                           |
+|                | Trace labels are dependencies, not causal arrows. List is not exhaustive reality.                   |
+| Saved locally  | Past reviews remain on OLD versions. No belief, assent or test reliance transfers.                  |
+|                | T1 execution unchanged; pilot effects UNOBSERVED; no delivery gain established.                     |
+|                | DECISION / Can admission distinguish setup-neutral work AND its processing load?                    |
+|                | What information and accuracy would support that decision?                                          |
+|                | [Compare versions]  [Review Cloud]  [Review future]  [Review prerequisite]                          |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Correction and dependent review | Send asks consultant; Enter adds a line.                               |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Sam opens Compare versions, then Esc. Same question, draft and scroll restored; no call. He submits: Sponsor
+held the authority meeting and named owner/backup. Record T1 completed. We have not checked that roles understand
+escalation or can apply the admission rule.
+EVENT semantic in002 r0002 question002
+
+SCREEN R03 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| setup | Sam (declared) | r0002 saved | Observe what the action achieved | Focus: Response                            |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: timely delivery + agreed throughput floor | Reviews and uncertainty remain visible                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | ACTION T1@1 / reported by Sam                                                                       |
+|                | +------------------------------------+  +---------------------------------------+                   |
+| * Next         | | Meeting and naming: COMPLETED     |  | Roles acknowledge authority: UNKNOWN |                     |
+|   Goal         | +------------------------------------+  +---------------------------------------+                   |
+|   Reasoning    | Completion cannot set the expected state automatically.                                             |
+|   Unlinked     | Observe: both roles explain response, escalation and backup cover.                                  |
+|   Tests        | If either fails: clarify authority and rehearse; retain the failure record.                         |
+|   Actions      |                                                                                                     |
+|   History      | Setup-information adequacy remains UNKNOWN. Registered reviews remain open.                         |
+|                | DECISION / What did the roles demonstrate rather than merely attend?                                |
+| [Views]        | [Observation fields]  [Action rationale]  [Open dependent reviews]                                  |
+| [Actions]      |                                                                                                     |
+|                |                                                                                                     |
+| Saved locally  |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Observe what the action achieved | Send asks consultant; Enter adds a line.                              |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Sam submits: Both roles explained escalation correctly in rehearsal. I will run a small supervised test under
+my stated authority while setup accuracy remains uncertain. Retain that uncertainty and admission-rule review; do not
+expand on this rehearsal alone.
+EVENT semantic in003 r0003 question003
+
+SCREEN R04 120x40
++----------------------------------------------------------------------------------------------------------------------+
+| setup | Sam (declared) | r0003 saved | Bounded decision under uncertainty | Focus: Response                          |
++----------------------------------------------------------------------------------------------------------------------+
+| Goal: timely delivery + agreed throughput floor | Reviews and uncertainty remain visible                             |
++----------------------------------------------------------------------------------------------------------------------+
+| Reason Commons | Authority state: MET according to reported rehearsal; real pilot UNOBSERVED.                        |
+|                | Sam's explicit bounded intention recorded; authority is his declaration.                            |
+| * Next         | Setup accuracy: UNKNOWN. Admission-rule and dependent reviews: OPEN.                                |
+|   Goal         | Original claims, observations and positions remain attached to their versions.                      |
+|   Reasoning    | No belief or consensus inferred from the willingness to test.                                       |
+|   Unlinked     |                                                                                                     |
+|   Tests        | DECISION / Is the accuracy criterion adequate for this supervised trial?                            |
+|   Actions      | Specify accuracy criterion, scope and stopping observation before operation.                        |
+|   History      | A willingness to test has not filled these missing conditions.                                      |
+|                | [Unresolved reviews]  [Original forecast]  [Exact versions]                                         |
+| [Views]        |                                                                                                     |
+| [Actions]      |                                                                                                     |
+|                |                                                                                                     |
+| Saved locally  |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
+|                |                                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Response to Bounded decision under uncertainty | Send asks consultant; Enter adds a line.                            |
+| _                                                                                                                    |
+|                                                                                                                      |
+| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+
+ACTION: Actions > Consultant calls, then Save and quit. Local.
+CONSULTANT CALLS 3: in001 through in003.
+3 reasoning revisions = 3 semantic commits + 0 structured local decisions.
+```
+
+## 11. Accessible ordered presentation
+
+# Accessible ordered presentation
+
+Reason Commons has one set of human actions. The default is the spatial TUI;
+`reason-commons new` or `resume` with `--accessible` selects ordered text for a
+reader that cannot use alternate-screen redrawing. This is a presentation of
+the same workspace, with the same records, explicit submission, attribution,
+version validation and recovery. It has no command prompt or phrase parser.
+
+Use a stable reading order: case/save/actor/view/focus, urgent status, decision,
+complete question and relevant context, reasoning as relation sentences or an
+aligned table, local evidence/actions, Response, Send, other destinations.
+Describe each control by label, role, consequence and current focus. Announce
+focus changes and important new status once. Never announce each animation or
+reprint the entire case on every keystroke. Append an explicit replacement section
+on meaningful view changes; identify superseded sections so scrollback is not
+mistaken for current state. An optional Repeat current view control is local.
+
+For example, the same pilot review can read in this order:
+
+```text
+Reason Commons | forge | Sam (declared) | r0004 saved
+Review P1 | Focus: Review results
+Attention: urgent acknowledgement 90% against original >=95%: BREACH.
+Decision: adapt the trial; expansion remains stopped.
+Delivery: original >=80%; reported 40/50 = 80%. Pilot target supported.
+System goal: >=90%; remains unmet.
+Evidence: participant report; supplier comparability uncertain.
+Controls: Inspect sources (local), Explain this (local), Return to question.
+Response editor: retained draft; Enter adds a line.
+Send (asks consultant), Other moves, Views, Actions, Help.
+```
+
+Tab/Shift+Tab moves to labeled controls, arrows select list entries, Enter/Space
+activates them, and Esc returns while retaining the draft. Printable keys edit
+Response or an explicitly focused filter. Enter in Response adds a newline;
+only activating Send submits. Focus announcements must distinguish the editor
+from Send. Multiline text needs no escape syntax. Selecting a list item and
+activating it remains distinct from typing a number as an answer. This keyboard
+model also works without color, cursor-addressed panels or Unicode borders.
+
+Read graphs as exact typed relations: all joint premises, output, conditions,
+scope, warrant, support, disagreement and alternative routes. A relation sentence
+may occupy several sections; explicitly mark continuation and keep premises
+reachable before judgment. Historical wording and current response target remain
+distinct. Compare original forecasts with results using labeled rows when aligned
+columns are unsuitable. Never reduce an adverse path to a success-only summary.
+
+At less than 40x24 retain state and offer resize or this ordered presentation.
+S49 covers narrow ordered context; S50 equivalent relation text; S51 drafts;
+S54-S71 focus/selection/target behavior; S115-S120 deliberate submission, restoration
+and recovery. The participant gates in delivery-phases.md include assistive
+technology users. These requirements need implementation and actual reader tests;
+a text specimen or passing document check is not evidence of accessibility.

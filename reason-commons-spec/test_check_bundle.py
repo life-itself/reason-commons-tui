@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 
 from check_bundle import (parse_scenarios, select_scenarios, validate_scope,
-                          validate_tui_frames, validate_tui_ledger)
+                          validate_tui_frames, validate_tui_ledger, validate_interface_language)
 
 VALID = '''@J01
 Feature: Fixture
@@ -117,13 +117,72 @@ class TuiSpecimenChecks(unittest.TestCase):
         self.assertTrue(any('duplicate' in e for e in validate_tui_frames(modified, 120)))
 
     def test_missing_and_duplicate_semantic_commits_are_rejected(self):
-        event = 'EVENT semantic in006 r0008 c006'
+        event = 'EVENT semantic in006 r0008 question006'
         self.assertTrue(validate_tui_ledger(self.text.replace(event, ''), self.config))
         self.assertTrue(validate_tui_ledger(self.text.replace(event, event+'\n'+event), self.config))
 
     def test_local_decision_requires_exact_version(self):
         modified = self.text.replace('target=L3@1 dimension=belief', 'target=L3 dimension=belief')
         self.assertTrue(any('exact-version' in e for e in validate_tui_ledger(modified, self.config)))
+
+
+class InterfaceContractChecks(unittest.TestCase):
+    def test_retired_brand_and_stationery_terms_are_rejected(self):
+        for text in ['Cardroom', 'Open card 17', 'Browse cards', 'case.cardcase']:
+            with self.subTest(text=text):
+                self.assertTrue(validate_interface_language(text))
+
+    def test_parallel_command_ui_is_rejected(self):
+        for text in ['Launch with --plain', 'Actions > Command',
+                     'When Sam enters ":stance belief disputed"',
+                     'Use `:connections [ID]` to inspect']:
+            with self.subTest(text=text):
+                self.assertTrue(validate_interface_language(text))
+
+    def test_literal_editor_text_and_offline_utilities_are_permitted(self):
+        self.assertEqual(validate_interface_language(
+            'Type "5 ? q / :options" in Response; Enter adds a line. '
+            'reason-commons inspect case.reasoncase --json'), [])
+
+    def test_internal_intervention_schema_is_permitted(self):
+        self.assertEqual(validate_interface_language('Internal `intervention` records store the response.'), [])
+
+    def test_internal_unit_cannot_leak_into_a_frame(self):
+        root = Path(__file__).parent
+        text = (root / 'example-tui-session.txt').read_text()
+        modified = text.replace('Define success', 'c001 / success', 1)
+        self.assertTrue(any('leaked' in e for e in validate_tui_frames(modified, 120)))
+
+
+class ReasoningDiagramChecks(unittest.TestCase):
+    def test_resize_keeps_the_exact_joint_premises(self):
+        from build_tui_specimens import joint_inference_diagram
+        full = joint_inference_diagram()
+        compact = joint_inference_diagram(compact=True)
+        for premise in [
+            'Validation is interrupted and must be repeated for this change.',
+            'Net unrecovered recheck time exceeds slack before release cutoff.',
+            'No eligible later release occurs before its three-day deadline.',
+        ]:
+            self.assertEqual(full.count(premise), 1)
+            self.assertEqual(compact.count(premise), 1)
+        self.assertIn('ALL / L3@1', full)
+        self.assertIn('ALL / L3@1', compact)
+
+    def test_joint_output_terminates_at_matching_boundary_ports(self):
+        from build_tui_specimens import joint_inference_diagram
+        for compact in [False, True]:
+            rows = joint_inference_diagram(compact=compact).splitlines()
+            arrow = next(i for i, row in enumerate(rows) if row.strip() == 'v')
+            column = rows[arrow].index('v')
+            self.assertEqual(rows[arrow-2][column], '+')
+            self.assertEqual(rows[arrow-1][column], '|')
+            self.assertEqual(rows[arrow+1][column], '+')
+            # Every premise sits inside the same continuous ALL boundary.
+            outer_width = len(rows[0])
+            for row in rows[1:arrow-2]:
+                self.assertEqual(len(row), outer_width)
+                self.assertTrue(row.endswith('|'))
 
 
 if __name__ == '__main__':

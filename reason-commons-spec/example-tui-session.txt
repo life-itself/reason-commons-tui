@@ -217,21 +217,21 @@ SCREEN S05 120x40
 |                | Read down: every premise inside ALL belongs to ONE inference.                                       |
 | * Next         |                                                                                                     |
 |   Goal         | +-- ALL / L3@1 ---------------------------------------------------------+                           |
-|   Reasoning    | | +------------------------------------------------------------------+ |                            |
-|   Unlinked     | | | Validation is interrupted and must be repeated for this change.  | |                            |
-|   Tests        | | +------------------------------------------------------------------+ |                            |
-|   Actions      | | +------------------------------------------------------------------+ |                            |
+|   Reasoning    | | +-------------------------------------------------------------------+ |                           |
+|   Unlinked     | | | Validation is interrupted and must be repeated for this change.   | |                           |
+|   Tests        | | +-------------------------------------------------------------------+ |                           |
+|   Actions      | | +-------------------------------------------------------------------+ |                           |
 |   History      | | | Net unrecovered recheck time exceeds slack before release cutoff. | |                           |
-|                | | +------------------------------------------------------------------+ |                            |
-| [Views]        | | +------------------------------------------------------------------+ |                            |
-| [Actions]      | | | No eligible later release occurs before its three-day deadline.         | |                     |
-|                | | +------------------------------------------------------------------+ |                            |
-| Saved locally  | +---------------------------------+-------------------------------------+                           |
-|                |                                   | L3: hypothesis                                                  |
-|                |                                   v                                                                 |
-|                |           +----------------------------------------------+                                          |
-|                |           | This standard change misses the 3-day target |                                          |
-|                |           +----------------------------------------------+                                          |
+|                | | +-------------------------------------------------------------------+ |                           |
+| [Views]        | | +-------------------------------------------------------------------+ |                           |
+| [Actions]      | | | No eligible later release occurs before its three-day deadline.   | |                           |
+|                | | +-------------------------------------------------------------------+ |                           |
+| Saved locally  | +-----------------------------------+-----------------------------------+                           |
+|                |                                     | L3: hypothesis                                                |
+|                |                                     v                                                               |
+|                |             +-----------------------+----------------------+                                        |
+|                |             | This standard change misses the 3-day target |                                        |
+|                |             +----------------------------------------------+                                        |
 |                | Spare capacity could defeat premise 2; another timely release defeats premise 3.                    |
 |                | Missing evidence: dated interruptions, rechecks, slack and release windows.                         |
 |                | Could the threatened release date instead be causing the escalation?                                |
@@ -348,7 +348,7 @@ SCREEN S05B 120x40
 ACTION: Esc returns to the question and its retained draft. The following switch opens Leo's separate response to the
 question; Maya's unsent text remains labeled for its original question and actor even after a new response arrives.
 
-ACTION: Maya chooses Actions > Switch speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers
+ACTION: Maya chooses Actions > Change speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers
 in Response: Threatened dates may cause escalation. Interruptions could amplify an existing delay rather than start
 it. Your wording represents my objection, but I dispute the claim that interruptions are the main cause.
 EVENT semantic in005 r0005 question005
@@ -419,7 +419,7 @@ SCREEN S07 120x40
 |                |                                                                                                     |
 | Saved locally  | Saving wording never changes belief. Saving belief never commits a test.                            |
 |                | No substantive choice is preselected. Space selects a focused radio.                                |
-|                | [Save wording]  [Save belief]  [Choose test - none yet]  [Cancel]                                   |
+|                | [Save position - local]  [Choose test - none yet]  [Cancel]                                         |
 |                |                                                                                                     |
 |                |                                                                                                     |
 |                |                                                                                                     |
@@ -440,13 +440,13 @@ SCREEN S07 120x40
 | Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
 +----------------------------------------------------------------------------------------------------------------------+
 
-ACTION: Leo selects Accurate in Wording and activates Save wording.
+ACTION: Leo selects only Accurate in Wording and activates Save position.
 EVENT local r0006 target=L3@1 dimension=representation value=accurate actor=Leo
-ACTION: In the same panel he selects Disputed in Belief and activates Save belief.
+ACTION: In the same panel he selects only Disputed in Belief and activates Save position.
 EVENT local r0007 target=L3@1 dimension=belief value=disputed actor=Leo
 Receipt: r0007 saved. Leo: wording accurate; belief disputed on L3@1. Reliance unrecorded. No consultant calls. Esc
 returns to the question with the response draft intact.
-ACTION: Actions > Switch speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers
+ACTION: Actions > Change speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers
 before the next release window. With a large queue, standard work waits longer. But hotfixes also tend to arrive when
 the queue is already bad, so that comparison does not isolate the cause.
 EVENT semantic in006 r0008 question006
@@ -1166,7 +1166,7 @@ SCREEN S22 120x40
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Leo opens History, selects r0016, then Return to question. The selected revision is historical; the live
-response target stays the question. Actions > Consultant calls shows 15 completed semantic calls. All inspection,
+response target stays Follow-up saved. Actions > Consultant calls shows 15 completed semantic calls. All inspection,
 navigation, preference changes, export, quit and resume made zero calls. The three structured local decisions created
 revisions without consultant responses.
 The next two screens demonstrate resize of saved L3@1 at r0018, with the question and its draft retained. They are the
@@ -1178,22 +1178,22 @@ SCREEN S23 80x24
 +------------------------------------------------------------------------------+
 | P1 breach retained | L3 disputed | Goal >=80% not demonstrated               |
 +------------------------------------------------------------------------------+
-| +-- ALL / one proposed inference --------------------------+                 |
-| | Validation interrupted; additional rechecks required for this change|      |
-| | Net unrecovered recheck time exceeds slack before release cutoff        |  |
-| | No eligible later release before its three-day deadline  |                 |
-| +----------------------------+-----------------------------+                 |
-|                              | L3 hypothesis                                 |
-|                              v                                               |
-| +---------------------------------------------------------+                  |
-| | Standard change misses its three-business-day target     |                 |
-| +---------------------------------------------------------+                  |
-| H2: delay may cause escalation. [Compare] [Evidence]                         |
+| L3 hypothesis / Leo DISPUTES / H2 reversal also unresolved                   |
+| +-- ALL / L3@1 ---------------------------------------------------------+    |
+| | Validation is interrupted and must be repeated for this change.       |    |
+| | Net unrecovered recheck time exceeds slack before release cutoff.     |    |
+| | No eligible later release occurs before its three-day deadline.       |    |
+| +-----------------------------------+-----------------------------------+    |
+|                                     | L3: hypothesis                         |
+|                                     v                                        |
+|             +-----------------------+----------------------+                 |
+|             | This standard change misses the 3-day target |                 |
+|             +----------------------------------------------+                 |
 +------------------------------------------------------------------------------+
 | Live: Follow-up saved; open issues remain | Draft retained                   |
 | _                                                                            |
 |                                                                              |
-| [Evidence]  [Compare]  [Return]                                              |
+| [Evidence]  [Compare H2]  [Return]                                           |
 +------------------------------------------------------------------------------+
 | Tab controls  Enter open  Esc back  F1 Help  Actions                         |
 +------------------------------------------------------------------------------+
