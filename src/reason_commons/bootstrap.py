@@ -17,10 +17,13 @@ def configured_consultant(provider=None, model=None, base_url=None):
     if provider == "lm-studio":
         from reason_commons.adapters.lm_studio import LMStudioConsultant
         return LMStudioConsultant.from_env(model=model, base_url=base_url)
+    if provider == "guided":
+        from reason_commons.adapters.guided import GuidedConsultant
+        return GuidedConsultant()
     if provider == "anthropic":
         from reason_commons.adapters.anthropic import AnthropicConsultant
         return AnthropicConsultant.from_env(model=model, base_url=base_url)
-    raise ValueError("Choose provider lm-studio or anthropic")
+    raise ValueError("Choose provider guided, lm-studio or anthropic")
 
 
 def create_case(path, name="Untitled case", consultant=None, timezone="Europe/Berlin", clock=None):

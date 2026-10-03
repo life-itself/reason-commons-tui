@@ -2,8 +2,18 @@
 
 A persistent terminal workspace that helps people reason through shared goals,
 problems, changes and results. The **p0 durable case engine is implemented**.
-The persistent TUI is p1; the complete first-release goal–action–review loop is
-p2. Authored interface specimens describe those subsequent increments.
+A first personal-use slice of the p1 TUI is available; the complete
+first-release goal–action–review loop is p2. Authored interface specimens
+describe those subsequent increments.
+
+**To open the workspace**, see [Running the TUI](docs/tui.md):
+
+```sh
+python3 -m pip install -e '.[tui]'
+reason-commons tui ~/ReasonCommons/my-first-goal
+```
+
+It works offline with a built-in guide; Anthropic or LM Studio are optional.
 
 The [architecture](ARCHITECTURE.md) explains the domain/application/adapter
 boundaries and how BDD and replaceable skills use the same application surface.
