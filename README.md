@@ -83,7 +83,8 @@ More on how to read each tree: [the six trees, explained](docs/the-trees.md).
 
 ## In the app: trees that grow as you talk
 
-The app's **Trees** view draws all six trees. They grow from the conversation: tell
+The app's **Trees** view (Ctrl+T) draws the six trees one at a time; Ctrl+N
+moves to the next tree, and after the sixth shows all six together. They grow from the conversation: tell
 the consultant what causes a problem, which conflict keeps you stuck, what stands
 in the way or what you plan to do, and it records each statement in its tree,
 linked to the others, in your own words. Ask it to reword or drop something and the

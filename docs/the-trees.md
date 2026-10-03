@@ -14,7 +14,7 @@ Labels in the pictures are shortened; the guide has the full wording, evidence a
 open questions for every box.
 
 > **In the app.** These pictures illustrate the method. The app's **Trees** view
-> draws the same six trees as indented outlines, from what you and the consultant
+> (Ctrl+T, then Ctrl+N for the next tree) draws the same six trees as indented outlines, from what you and the consultant
 > record as you talk, or from an `.ltp.yaml` file you bring in. The finished example
 > in the app carries this whole analysis. Joint causes (several causes that only work
 > together) and rival explanations arrive later, as the

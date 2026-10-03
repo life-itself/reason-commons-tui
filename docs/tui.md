@@ -22,6 +22,8 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Ctrl+S, or Tab to **Send** then Enter | Send your answer |
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the answer box to browse; your text stays |
+| Ctrl+T | Open the trees; press again to go back to the current question |
+| Ctrl+N | Next tree: the six trees one at a time, then all six together |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations, or ask the consultant for advice or a different question |
 | **Views** | Switch view (also the list on the left) |
@@ -51,8 +53,11 @@ safeguards, review date, stop condition).
 
 ## The trees
 
-The Trees view shows the Goal, Current Reality, Evaporating Cloud, Future Reality,
-Prerequisite and Transition Trees, one below the other. Each statement shows its
+Ctrl+T opens the Trees view and shows one tree at a time: Goal, Current Reality,
+Evaporating Cloud, Future Reality, Prerequisite or Transition. Ctrl+N moves to the
+next one, and after the Transition Tree shows all six together; the line at the top
+says which tree is on screen and how many statements each holds. The app remembers
+the tree you last looked at. Ctrl+T again takes you back to the current question. Each statement shows its
 role (for example ROOT CAUSE or OBSTACLE) and, where recorded, whether it is a
 hypothesis or a report. Branches read top down: "needs", "because", "overcomes",
 "produced by". A statement reached twice is drawn once and then referred to.
@@ -74,7 +79,7 @@ is kept as a note.
 | `reason-commons export FOLDER FILE` | Write a portable `.reasoncase` copy |
 | `reason-commons import FILE --store FOLDER` | Continue from a copy in a new folder |
 | `reason-commons show FOLDER_OR_FILE` | Print a goal without opening the workspace |
-| `reason-commons trees FOLDER` | Draw the goal's trees; `--import FILE` brings trees in from an `.ltp.yaml` file, `--export FILE` writes them out |
+| `reason-commons trees FOLDER` | Draw the goal's trees; `--import FILE` brings trees in from an `.ltp.yaml` file, `--export FILE` writes them out; `--tree current_reality` draws just one |
 | `reason-commons --version` | Show the version |
 
 `tui` and `resume` also take `--speaker NAME` (the name recorded with your

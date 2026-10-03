@@ -137,5 +137,7 @@ def test_command_line_draws_imports_and_exports(tmp_path, source):
     drawing = cli("trees", case, "--width", "80").stdout
     assert "Goal Tree" in drawing and "└─ needs ─ CRITICAL SUCCESS FACTOR" in drawing
     assert "Current Reality Tree" in cli("show", case, "--view", "trees").stdout
+    only = cli("trees", case, "--tree", "current_reality").stdout
+    assert "Current Reality Tree" in only and "Goal Tree" not in only
     assert cli("trees", case, "--export", tmp_path / "out.ltp.yaml").returncode == 0
     assert yaml.safe_load((tmp_path / "out.ltp.yaml").read_text())["ltp"]["schema_version"] == "1.0"

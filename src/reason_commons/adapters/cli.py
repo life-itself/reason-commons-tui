@@ -76,6 +76,8 @@ def main(argv=None):
     trees_file.add_argument("--export", dest="export_file", metavar="FILE", help="Write the trees to a new LTP file")
     trees.add_argument("--speaker", help="Your name as recorded with an import (default: $USER)")
     trees.add_argument("--width", type=int, default=100, help="Drawing width in columns")
+    trees.add_argument("--tree", choices=["goal", "current_reality", "conflict", "future_reality", "prerequisite",
+                                          "transition"], help="Draw only this tree")
     imported = commands.add_parser("import", help="Validate and import into a new editable store")
     imported.add_argument("bundle")
     imported.add_argument("--store", required=True)
@@ -161,7 +163,7 @@ def main(argv=None):
                     summary = export_trees(workspace, args.export_file)
                     print(f"Wrote {summary['claims']} statements and {summary['links']} links to {args.export_file}")
                 else:
-                    print(plain(trees_lines(workspace["trees"], args.width)), end="")
+                    print(plain(trees_lines(workspace["trees"], args.width, only=args.tree)), end="")
         elif args.command == "import":
             with import_case(args.bundle, args.store) as app:
                 print(json.dumps(app.inspect(), ensure_ascii=False))

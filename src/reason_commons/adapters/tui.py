@@ -28,6 +28,7 @@ from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, trees_lines
 
 
 PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claude", "lm-studio": "LM Studio (local)"}
+TREE_ORDER = list(TREE_TITLES)
 VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"), ("actions", "Actions"),
                ("reasoning", "Everything"), ("sources", "Your words"), ("history", "History")]
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
@@ -67,8 +68,9 @@ Everything is saved in the case folder as you go. Closing the app keeps your dra
 
 ## The trees
 
-The **Trees** view draws the six thinking-process trees: Goal, Current Reality,
-Evaporating Cloud, Future Reality, Prerequisite and Transition. They grow as you
+The **Trees** view (Ctrl+T) draws the six thinking-process trees, one at a
+time: Goal, Current Reality, Evaporating Cloud, Future Reality, Prerequisite and
+Transition. Ctrl+N moves to the next tree, and after the sixth shows all six together. They grow as you
 talk: tell the consultant what causes a problem, what conflict keeps you stuck,
 what stands in the way or what you plan to do, and it records each statement in
 its tree, linked to the others. Ask it to reword or drop something and the tree
@@ -87,6 +89,8 @@ consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
 | Ctrl+S, or Tab to **Send** then Enter | Send your answer |
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the editor to browse; your text stays |
+| Ctrl+T | Open the trees; press again to go back to the current question |
+| Ctrl+N | Next tree: the six trees one at a time, then all six together |
 | Ctrl+P | Actions: export, retry, change consultant, quit |
 | F1 | This help |
 | Ctrl+Q | Save and quit |
@@ -234,6 +238,8 @@ class ReasonCommonsApp(App):
     BINDINGS = [
         Binding("ctrl+s", "send", "Send", priority=True),
         Binding("escape", "browse", "Browse", show=False),
+        Binding("ctrl+t", "trees", "Trees", priority=True),
+        Binding("ctrl+n", "next_tree", "Next tree", priority=True),
         Binding("f1", "help", "Help"),
         Binding("ctrl+q", "quit", "Save & quit", priority=True),
     ]
@@ -245,6 +251,8 @@ class ReasonCommonsApp(App):
         self.case = open_application(consultant_factory(provider))
         self.view_name, self.explain, self.busy = "next", False, False
         self.workspace_value, self._restoring, self._save_timer = None, False, None
+        # Which tree the Trees view shows: one of TREE_ORDER, "all", or None until first chosen.
+        self.tree_choice = None
 
     # ----- layout -------------------------------------------------------
     def compose(self) -> ComposeResult:
@@ -278,6 +286,8 @@ class ReasonCommonsApp(App):
             editor.load_text(cursor["draft"])
             editor.cursor_location = caret_location(cursor["draft"], cursor.get("caret", len(cursor["draft"])))
             self._restoring = False
+        if (cursor.get("display") or {}).get("tree") in TREE_ORDER + ["all"]:
+            self.tree_choice = cursor["display"]["tree"]
         if cursor.get("view") in dict(VIEW_LABELS) and cursor["view"] != "next":
             self.show_view(cursor["view"])
         self.query_one("#editor").focus()
@@ -420,15 +430,20 @@ class ReasonCommonsApp(App):
                           "> " + md(source["text"] or "(empty)").replace("\n", "  \n> "), ""]
             return "\n".join(lines) if sources else "\n".join(lines + ["Nothing written yet."])
         if view == "trees":
-            count = sum(len(t["claims"]) for t in w["trees"])
-            if not count:
+            if not any(t["claims"] for t in w["trees"]):
                 lines.append("No trees yet. They grow as you talk: tell the consultant what causes the problem, "
                              "what conflict keeps you stuck, what stands in the way, or what you plan to do. "
                              "Or bring in trees you already have: Ctrl+P, **Import trees**.")
             else:
-                lines.append(f"{count} statements in {sum(1 for t in w['trees'] if t['claims'])} trees, as recorded. "
-                             "Each branch says how a statement relates to the one above it. "
-                             "Ctrl+P, **Export trees** writes them to an `.ltp.yaml` file.")
+                shown = self.shown_tree()
+                tabs = []
+                for tree in w["trees"]:
+                    label = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])})"
+                    tabs.append(f"**▸ {label}**" if tree["tree"] == shown else label)
+                tabs.append("**▸ All six**" if shown == "all" else "All six")
+                lines += [" · ".join(tabs), "",
+                          "_**Ctrl+N** next tree · **Ctrl+T** back to the question · Ctrl+P **Export trees** "
+                          "writes an `.ltp.yaml` file_"]
             return "\n".join(lines)
         if view == "tests":
             if not w["comparisons"]:
@@ -459,11 +474,19 @@ class ReasonCommonsApp(App):
         """The six trees, drawn from the recorded claims and links, coloured by role."""
         width = max(40, self.query_one("#main").size.width - 6)
         text = Text()
-        for line in trees_lines(self.workspace_value["trees"], width):
+        shown = self.shown_tree()
+        for line in trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown):
             for part, style in line:
                 text.append(part, style=style or None)
             text.append("\n")
         return text
+
+    def shown_tree(self):
+        """The tree on screen: the last one chosen, else the first that has statements."""
+        if self.tree_choice:
+            return self.tree_choice
+        trees = (self.workspace_value or {}).get("trees") or []
+        return next((t["tree"] for t in trees if t["claims"]), TREE_ORDER[0])
 
     def show_view(self, name):
         self.view_name = name
@@ -512,6 +535,21 @@ class ReasonCommonsApp(App):
 
     def action_help(self):
         self.push_screen(HelpScreen())
+
+    def show_tree(self, key):
+        self.tree_choice = key
+        self.show_view("trees")
+
+    def action_trees(self):
+        """Ctrl+T: open the Trees view, or go back to the current question from it."""
+        self.show_view("next" if self.view_name == "trees" else "trees")
+
+    def action_next_tree(self):
+        """Ctrl+N: show the next tree (the six in turn, then all six together)."""
+        if self.view_name == "trees":
+            order = TREE_ORDER + ["all"]
+            self.tree_choice = order[(order.index(self.shown_tree()) + 1) % len(order)]
+        self.show_view("trees")
 
     def action_explain(self):
         if self.view_name != "next":
@@ -621,7 +659,8 @@ class ReasonCommonsApp(App):
             result = self.case.checkpoint({
                 "view": self.view_name, "focus": "response" if editor.has_focus else "browse",
                 "draft": draft, "caret": caret_index(draft, editor.cursor_location), "speaker": self.speaker,
-                "response_target": target["response_target"], "base_revision": target["base_revision"]})
+                "response_target": target["response_target"], "base_revision": target["base_revision"],
+                "display": {"tree": self.shown_tree()}})
         except Exception:
             return
         if result["status"] != "saved":
@@ -643,6 +682,10 @@ class ReasonCommonsApp(App):
         for key, label in VIEW_LABELS:
             yield SystemCommand(f"View: {label}", "Local view, no consultant call",
                                 lambda key=key: self.show_view(key))
+        for key in TREE_ORDER + ["all"]:
+            label = TREE_TITLES[key][0] if key in TREE_TITLES else "All six trees"
+            yield SystemCommand(f"Tree: {label}", "Show this tree in the Trees view (Ctrl+N cycles)",
+                                lambda key=key: self.show_tree(key))
         yield SystemCommand("Export case", "Write a portable .reasoncase copy", self.action_export)
         yield SystemCommand("Import trees", "Bring in trees from an .ltp.yaml file", self.action_import_trees)
         yield SystemCommand("Export trees", "Write the trees to an .ltp.yaml file", self.action_export_trees)

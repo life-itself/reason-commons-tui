@@ -178,7 +178,10 @@ withdrawn claim. S108 now names these typed records in its allowed schema; it
 still rejects untyped graphs and stances.
 
 `workspace` returns the current trees (`project_trees`); the TUI's Trees view, the
-`trees` command and `show --view trees` draw them with `adapters/trees.py`.
+`trees` command and `show --view trees` draw them with `adapters/trees.py`. The
+TUI shows one tree at a time (Ctrl+T opens the view, Ctrl+N steps to the next tree
+or all six); which tree is shown is presentation state, kept in the cursor's
+`display` field like the view, and `trees --tree NAME` gives the same choice.
 `adapters/ltp_trees.py` brings LTP files in through `add_source` and `submit` with
 a deterministic one-use proposal adapter (no model call), keeps what the trees
 cannot hold as notes, and writes the trees back out. The consultant prompt and
