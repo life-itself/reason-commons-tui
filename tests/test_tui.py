@@ -88,3 +88,80 @@ def test_unavailable_consultant_retains_input_and_offers_retry(tmp_path):
             await pilot.pause()
             assert app.workspace_value["revision"] == 1 and not app.retryable()
     asyncio.run(run())
+
+
+def test_goals_home_lists_goals_newest_first_and_skips_other_folders(tmp_path):
+    from reason_commons.adapters.tui import find_goals
+    class Fixed:
+        def __init__(self, value):
+            self.value = value
+
+        def now(self):
+            return self.value
+    create_case(tmp_path / "a-older", "Older goal", clock=Fixed("2026-10-01T08:00:00+00:00")).close()
+    create_case(tmp_path / "b-newer", "Newer goal", clock=Fixed("2026-10-02T08:00:00+00:00")).close()
+    (tmp_path / "notes").mkdir()
+    (tmp_path / "exports").mkdir()
+    goals = find_goals(tmp_path)
+    assert [goal["name"] for goal in goals] == ["Newer goal", "Older goal"]
+    assert find_goals(tmp_path / "missing") == []
+
+
+def test_goal_folders_are_readable_and_unique(tmp_path):
+    from reason_commons.adapters.tui import goal_folder
+    assert goal_folder(tmp_path, "Sleep better, 4 nights!").name == "sleep-better-4-nights"
+    (tmp_path / "sleep-better").mkdir()
+    assert goal_folder(tmp_path, "Sleep better").name == "sleep-better-2"
+    assert goal_folder(tmp_path, "???").name == "goal"
+    assert goal_folder(tmp_path, "Exports").name == "exports-goal"
+
+
+def test_goals_home_starts_a_new_goal_or_opens_an_existing_one(tmp_path):
+    from reason_commons.adapters.tui import GoalsApp
+    create_case(tmp_path / "running", "Running").close()
+
+    async def start_new():
+        app = GoalsApp(tmp_path)
+        async with app.run_test(size=(80, 24)) as pilot:
+            app.query_one("#goals").highlighted = 0
+            await pilot.press("enter")
+            await pilot.pause()
+            await pilot.press(*"Sleep better")
+            await pilot.press("enter")
+            await pilot.pause()
+        return app.return_value
+
+    async def open_existing():
+        app = GoalsApp(tmp_path)
+        async with app.run_test(size=(80, 24)) as pilot:
+            await pilot.pause()
+            await pilot.press("enter")
+            await pilot.pause()
+        return app.return_value
+
+    created = asyncio.run(start_new())
+    assert created == tmp_path / "sleep-better"
+    with open_case(created, writable=False) as app:
+        assert app.inspect()["case"]["name"] == "Sleep better"
+    assert asyncio.run(open_existing()) in {tmp_path / "running", tmp_path / "sleep-better"}
+
+
+def test_header_says_saved_without_engine_revision(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Plain").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            return str(app.query_one("#status").render())
+    status = asyncio.run(run())
+    assert "Saved" in status and "r0" not in status
+
+
+def test_bare_command_without_a_terminal_prints_everyday_help():
+    from tests.support import cli
+    result = cli()
+    assert result.returncode == 0 and result.stderr == ""
+    assert "everyday use" in result.stdout and "advanced" in result.stdout
+    assert "receipts" not in result.stdout.split("advanced")[0]

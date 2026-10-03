@@ -69,7 +69,9 @@ shared exact-target transaction validator. No stance/reliance choice is preselec
 speakers retains drafts by actor and question and invalidates actor-bound decision forms.
 
 The shell provides launch, resume and offline utilities. `new`/`resume` open
-the workspace. `--accessible` selects ordered text with the same labeled
+the workspace. Plain `reason-commons` in a terminal opens a goals home
+list (open one, or start a new goal by name) before the workspace; it adds no
+command language. `--accessible` selects ordered text with the same labeled
 controls, literal editor, explicit submission and exact targets; see
 [accessibility.md](reason-commons-spec/accessibility.md). There is no separate
 interactive command language. `TERM=dumb` offers ordered text; non-TTY input

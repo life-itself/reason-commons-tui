@@ -8,6 +8,7 @@ which view is shown; it defines no reasoning or persistence rules.
 
 from datetime import date
 import os
+import re
 from pathlib import Path
 
 from rich.markup import escape
@@ -222,7 +223,7 @@ class ReasonCommonsApp(App):
         question = (w["question"] or {}).get("data", {})
         step = question.get("decision") or ("Start" if not w["question"] else "Next question")
         consultant = PROVIDERS.get(self.provider, self.provider)
-        state = "asking the consultant..." if self.busy else f"r{w['revision']} saved"
+        state = "asking the consultant..." if self.busy else "Saved"
         self.query_one("#status", Static).update(
             f"[b]{escape(w['case_name'])}[/b]  |  {escape(self.speaker)}  |  {state}  |  "
             f"{escape(step)}  |  {escape(consultant)}")
@@ -475,7 +476,7 @@ class ReasonCommonsApp(App):
                 editor.clear()
             self.explain = False
             self.view_name = "next" if text is not None or self.view_name == "next" else self.view_name
-            self.notify(f"Saved as revision {result['revision']}.")
+            self.notify("Saved.")
         elif result.get("input_retained"):
             if sent:
                 editor.clear()  # the words are retained in the case; Retry reuses them
@@ -574,6 +575,130 @@ class ReasonCommonsApp(App):
 
     def on_unmount(self):
         self.case.close()
+
+
+def goals_home():
+    """The folder that holds your goals: REASON_COMMONS_HOME, otherwise ~/ReasonCommons."""
+    return Path(os.path.expanduser(os.environ.get("REASON_COMMONS_HOME") or "~/ReasonCommons")).resolve()
+
+
+def find_goals(root):
+    """Case folders directly under root, most recently changed first. Unreadable folders are skipped."""
+    from reason_commons.bootstrap import open_case
+    goals = []
+    for path in sorted(Path(root).iterdir()) if Path(root).is_dir() else []:
+        if not path.is_dir() or path.name.startswith(".") or path.name == "exports":
+            continue
+        try:
+            with open_case(path, writable=False) as app:
+                case = app.inspect()["case"]
+                question = (app.workspace()["question"] or {}).get("data", {})
+        except Exception:
+            continue
+        goals.append({"path": path, "name": case["name"], "changed": case["timestamp"],
+                      "step": question.get("decision") or "Start"})
+    return sorted(goals, key=lambda goal: goal["changed"], reverse=True)
+
+
+def goal_folder(root, name):
+    """A new folder name for a goal: letters, digits and hyphens, unique under root."""
+    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:60].strip("-") or "goal"
+    if slug == "exports":
+        slug = "exports-goal"
+    candidate, number = Path(root) / slug, 2
+    while candidate.exists():
+        candidate, number = Path(root) / f"{slug}-{number}", number + 1
+    return candidate
+
+
+class NewGoalScreen(ModalScreen):
+    BINDINGS = [Binding("escape", "dismiss", "Back")]
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="dialog"):
+            yield Label("What would you like to call this goal?", classes="dialog-title")
+            yield Input(placeholder="for example: Sleep better, Ship the payments change", id="goal-name")
+            yield Label("A short name is enough; you describe the goal inside. Enter starts, Esc goes back.",
+                        classes="hint")
+
+    @on(Input.Submitted)
+    def submitted(self, event):
+        self.dismiss(event.value.strip() or None)
+
+
+class GoalsApp(App):
+    """Home screen: pick one of your goals or start a new one. Returns the chosen folder."""
+
+    TITLE = "Reason Commons"
+    ENABLE_COMMAND_PALETTE = False
+    CSS = ReasonCommonsApp.CSS + """
+    #home { padding: 1 2; }
+    #home-title { text-style: bold; color: $accent; }
+    #home-intro { margin: 1 0; }
+    #goals { height: auto; max-height: 1fr; border: round $accent; }
+    """
+    BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help")]
+
+    def __init__(self, root, list_goals=find_goals, create=None):
+        super().__init__()
+        self.root, self._list = Path(root), list_goals
+        self._create = create or self._create_case
+        self.goals = []
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="home"):
+            yield Static("Reason Commons", id="home-title")
+            yield Static(id="home-intro")
+            yield OptionList(id="goals")
+            yield Label("Arrows choose, Enter opens. F1 explains the loop. Ctrl+Q quits.", classes="hint")
+        yield Footer()
+
+    def on_mount(self):
+        self.goals = self._list(self.root)
+        intro = ("Make progress on a goal that matters, one small loop at a time: "
+                 "goal → test with a forecast → action → observation → review.")
+        if not self.goals:
+            intro += "\n\nYou have no goals yet. Start one below; it is saved as you go."
+        self.query_one("#home-intro", Static).update(intro)
+        options = [Option("+ Start a new goal", id="new")]
+        for index, goal in enumerate(self.goals):
+            label = f"{goal['name']}   ·   {goal['step']}   ·   {str(goal['changed'])[:10]}"
+            options.append(Option(escape(label), id=str(index)))
+        goals = self.query_one("#goals", OptionList)
+        goals.add_options(options)
+        goals.highlighted = 1 if self.goals else 0
+        goals.focus()
+
+    @on(OptionList.OptionSelected, "#goals")
+    def chosen(self, event):
+        if event.option.id != "new":
+            self.exit(self.goals[int(event.option.id)]["path"])
+            return
+
+        def named(name):
+            if name:
+                try:
+                    self.exit(self._create(name))
+                except Exception as exc:
+                    self.notify(f"Could not start the goal: {exc}", severity="error", timeout=8)
+        self.push_screen(NewGoalScreen(), named)
+
+    def _create_case(self, name):
+        from reason_commons.bootstrap import create_case
+        self.root.mkdir(parents=True, exist_ok=True)
+        path = goal_folder(self.root, name)
+        create_case(path, name).close()
+        return path
+
+    def action_help(self):
+        self.push_screen(HelpScreen())
+
+
+def run_home(speaker=None, provider=None, model=None, base_url=None):
+    """Show your goals, then open the chosen one in the workspace."""
+    store = GoalsApp(goals_home()).run()
+    if store is not None:
+        run(store, speaker=speaker, provider=provider, model=model, base_url=base_url)
 
 
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None):

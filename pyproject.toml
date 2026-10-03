@@ -5,13 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "reason-commons"
 version = "0.1.0"
-description = "A durable reasoning case engine"
+description = "A calm terminal workspace for making progress on a goal, one small loop at a time"
 requires-python = ">=3.9"
-dependencies = ["PyYAML>=6,<7"]
+dependencies = ["PyYAML>=6,<7", "textual>=1.0"]
 
 [project.optional-dependencies]
 test = ["behave>=1.3,<2", "pytest>=8,<9", "jsonschema>=4,<5"]
-tui = ["textual>=1.0"]
+tui = []  # kept so older install commands still work; Textual is now a core dependency
 mcp = ["mcp>=1.26,<2; python_version >= '3.10'"]
 
 [project.scripts]
