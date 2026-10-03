@@ -61,6 +61,10 @@ async def render(folder):
     create_case(folder / "new", "my-first-goal").close()
     await shoot(workspace(folder / "new"), "welcome", (120, 36))
     await shoot(workspace(goals / "sleep-better"), "in-progress", (120, 36))
+    for name, count in (("tutorial-measure", 1), ("tutorial-forecast", 4), ("tutorial-review", 9)):
+        step = build_sample(folder / name, answers=ANSWERS[:count], view="next", name="In bed by 23:00",
+                            clock=FixedClock("2026-10-05T20:00:00+00:00"))
+        await shoot(workspace(step), name, (120, 36))
     finished = build_sample(folder / "finished", name="In bed by 23:00", clock=FixedClock("2026-10-12T09:00:00+00:00"))
     await shoot(workspace(finished), "forecast-vs-result", (120, 36))
 

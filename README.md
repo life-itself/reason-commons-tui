@@ -75,9 +75,11 @@ Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
 
 ## Where next
 
-- [Using the workspace](docs/tui.md): keys, views, consultants, where your data lives.
-- [Use a local model with LM Studio](docs/lm-studio.md).
-- [Use Reason Commons from an AI agent](docs/skill-use.md).
+- [Tutorial: your first loop](docs/tutorial.md), step by step with pictures.
+- [Use Claude or a local model](docs/use-a-model.md) and [back up, share and move goals](docs/back-up-and-share.md).
+- [Workspace reference](docs/tui.md): keys, views, commands and settings.
+- [The loop, explained](docs/the-loop.md): why each step is there.
+- [All documentation](docs/README.md), including using Reason Commons from an AI agent.
 - Questions or ideas: [open an issue](https://github.com/life-itself/reason-commons-tui/issues).
 
 ## Status

@@ -1,95 +1,96 @@
-# Running the Reason Commons workspace (TUI)
+# Workspace reference
 
-The workspace is a terminal app for working on one goal with the Reason Commons
-loop: **goal → test with a forecast → action → observation → review**. Everything
-is saved in a case folder as you type, so you can quit and resume at any time.
+Facts to look up while you work. To learn the workspace step by step, follow the
+[tutorial](tutorial.md); to install it, see the [README](../README.md#try-it).
 
-This is a first, personal-use slice of p1. It is not the complete p1 contract
-(see "What is not in this slice" below).
+## The screen
 
-## Run it on a Mac
+| Part | What it shows |
+| --- | --- |
+| Top line | The goal's name, your name, whether everything is saved, the current step and the consultant |
+| Pinned line | Your goal, safeguards and current test with its forecast |
+| Loop line | Goal → Test + forecast → Action → Observe → Review; ✓ marks finished steps and > the current one |
+| Middle | The current question and what it builds on, or the view you chose |
+| Views list | On terminals 100 columns or wider; otherwise use **Views** |
+| Answer box | Your answer; all typing is literal, including `?`, `q` and numbers |
 
-Install [uv](https://docs.astral.sh/uv/) once (`curl -LsSf https://astral.sh/uv/install.sh | sh`
-or `brew install uv`), open a new Terminal window, then:
+## Keys and controls
 
-```sh
-uv tool install git+https://github.com/life-itself/reason-commons-tui
-reason-commons
-```
+| Key or control | What it does |
+| --- | --- |
+| Enter | New line in your answer |
+| Ctrl+S, or Tab to **Send** then Enter | Send your answer |
+| Tab / Shift+Tab | Move between controls |
+| Esc | Leave the answer box to browse; your text stays |
+| **Explain this** | Why the current question matters (saved, no consultant call) |
+| **Other moves** | Local explanations, or ask the consultant for advice or a different question |
+| **Views** | Switch view (also the list on the left) |
+| Ctrl+P (**Actions**) | Export, retry, change consultant, views, help, quit |
+| F1 | Help |
+| Ctrl+Q | Save your draft and quit |
 
-uv brings its own Python. If macOS offers to install the command line developer
-tools (for git), accept. If `reason-commons` is not found, run `uv tool update-shell`
-and open a new window. Update with `uv tool upgrade reason-commons`.
+On the goals list: arrows choose, Enter opens, F1 shows help, Ctrl+Q quits.
 
-`reason-commons` opens your goals: pick one with the arrows and Enter, or choose
-**Start a new goal** and give it a short name. To see a whole loop before starting your own,
-choose **Look around a finished example first**: a fictional goal walked through
-goal, test, action, observation and review. Nothing you do there is kept. Goals live in `~/ReasonCommons`, one
-folder each (set `REASON_COMMONS_HOME` to keep them elsewhere). Everything is saved
-as you type, including an unsent draft, so the next `reason-commons` takes you back
-to where you left off.
+## Views
 
-To keep a goal in a folder of your own choosing, give the folder:
-`reason-commons tui ~/Projects/payments-goal` creates or opens it, and
-`reason-commons resume <folder>` opens it but never creates one.
+Browsing views never calls the consultant.
 
-Options: `--speaker "David"` sets the name recorded with your answers (default:
-your login name), `--name "Running"` names a new goal created by `tui <folder>`
-(default: the folder name).
+| View | Shows |
+| --- | --- |
+| Next step | The current question and what it builds on |
+| Goal | Goal, measure and safeguards |
+| Tests | Each test with its original forecast next to the reported result, and reviews |
+| Actions | Planned actions |
+| Everything | All saved records |
+| Your words | Your answers, exactly as written |
+| History | Every saved revision with its time |
 
-To work on Reason Commons itself instead, clone the repository and install it
-into a virtual environment with `python3 -m pip install -e '.[test]'` (upgrade pip
-first on macOS); see [Contributing](../CONTRIBUTING.md).
-
-## Choosing a consultant
-
-| Consultant | How to choose it | Needs |
-| --- | --- | --- |
-| Built-in guide (default) | nothing to do, or `--provider guided` | nothing; works offline |
-| Anthropic Claude | `--provider anthropic` | `export ANTHROPIC_API_KEY=...` before starting |
-| LM Studio | `--provider lm-studio` | a local LM Studio server, see [lm-studio.md](lm-studio.md) |
-
-The **built-in guide** asks the loop's questions in a fixed order and records your
-literal words. It cannot give advice or rephrase. An AI consultant adapts its
-questions, notices what is missing and can give direct advice (Other moves).
-You can switch at any time with **Ctrl+P → Consultant: ...**; the case keeps
-going from where it is. `REASON_COMMONS_PROVIDER=anthropic` makes a choice the
-default. Optional: `REASON_COMMONS_ANTHROPIC_MODEL` picks a different Claude model.
-
-If a consultant cannot be reached, your answer is still saved. A **Retry** button
-appears; it asks again with the saved answer (for example after switching to
-another consultant).
-
-## Using the workspace
-
-- The top line shows the goal, your name, whether everything is saved, the current
-  step and the consultant. The line below pins your goal, safeguards and current
-  test. Under it, the loop (Goal, Test + forecast, Action, Observe, Review) marks
-  finished steps with ✓ and the current one with >.
-- The middle shows the current question and what it builds on. The left list
-  (on wide terminals) or **Views** switches to Goal, Tests (original forecast next
-  to the reported result), Actions, Everything, Your words and History.
-  Browsing never calls the consultant.
-- Type your answer in the box at the bottom. **Enter** adds a line; **Ctrl+S**, or
-  Tab to **Send** and Enter, sends it. All typing is literal.
-- **Explain this** shows why the question matters. **Other moves** offers local
-  explanations and consultant requests (advice, a different question).
-- **Ctrl+P** (Actions) has export, retry, consultant choice, help and quit.
-  **F1** shows help. **Ctrl+Q** saves your draft and quits.
-
-With the built-in guide, empty answers skip optional questions (measure,
+With the built-in guide, an empty answer skips an optional question (measure,
 safeguards, review date, stop condition).
 
-## Your data
+## Commands
 
-Each case is a plain folder of YAML files (`~/ReasonCommons/my-first-goal` above).
-`reason-commons show <folder>` prints it without opening the workspace, and
-Ctrl+P → Export case writes a portable `.reasoncase` file. Only one workspace
-can edit a case at a time.
+| Command | What it does |
+| --- | --- |
+| `reason-commons` | Show your goals; open one, start one or look at a finished example |
+| `reason-commons tui FOLDER` | Open a goal in that folder, creating it if needed |
+| `reason-commons resume FOLDER` | Open an existing goal; never creates one |
+| `reason-commons export FOLDER FILE` | Write a portable `.reasoncase` copy |
+| `reason-commons import FILE --store FOLDER` | Continue from a copy in a new folder |
+| `reason-commons show FOLDER_OR_FILE` | Print a goal without opening the workspace |
+| `reason-commons --version` | Show the version |
 
-## What is not in this slice
+`tui` and `resume` also take `--speaker NAME` (the name recorded with your
+answers; default: your login name), `--provider guided|anthropic|lm-studio`,
+`--model` and `--base-url`. `tui` takes `--name` for a new goal's name. Commands
+for scripts and AI agents are listed by `reason-commons --help`.
 
-Polished 80×24 layout specimens, the `--accessible` ordered-text mode, speaker
-switching, source attachment from the TUI, the measured usability study, and the
-p2 consulting-quality gates. Those remain as specified in
-[TUI-DESIGN.md](../TUI-DESIGN.md) and the delivery manifest.
+## Settings
+
+Set these in your shell, for example in `~/.zshrc` on a Mac.
+
+| Variable | Effect | Default |
+| --- | --- | --- |
+| `REASON_COMMONS_HOME` | Folder that holds your goals | `~/ReasonCommons` |
+| `REASON_COMMONS_PROVIDER` | Consultant at start: `guided`, `anthropic` or `lm-studio` | `guided` |
+| `REASON_COMMONS_SPEAKER` | Name recorded with your answers | your login name |
+| `ANTHROPIC_API_KEY` | Key for Claude | none |
+| `REASON_COMMONS_ANTHROPIC_MODEL` | Claude model ID | `claude-sonnet-5-5` |
+| `REASON_COMMONS_LM_STUDIO_URL` | LM Studio server address | `http://127.0.0.1:1234/v1` |
+| `REASON_COMMONS_LM_STUDIO_MODEL` | LM Studio model ID | the only loaded model |
+| `LM_STUDIO_API_TOKEN` | LM Studio token, if your server needs one | none |
+
+Keys and server addresses are never written into your goals or exports.
+
+## The goal folder
+
+Each goal is a folder of plain YAML files, saved as you type: revisions, your
+inputs, consultant attempts and the workspace position (view and unsent draft). A
+lock file lets only one workspace edit a goal at a time. Treat the folder as a
+whole; use export and import rather than editing files by hand.
+
+## Not in this version yet
+
+An accessible plain-text mode (`--accessible`), switching between several people
+in one goal, attaching sources from the workspace, and richer reasoning maps. They
+are specified in [TUI-DESIGN.md](../TUI-DESIGN.md).
