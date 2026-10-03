@@ -109,6 +109,9 @@ loop, together with her group's whole analysis. Press **Ctrl+T**: the Trees view
 opens, and the line at the top lists all six trees and how many statements each
 holds. Press **Ctrl+N** until the Transition Tree is on screen. Its third action,
 a next step from a public contact into a first practice, is the test Mira just ran.
+This is the moment to look: the trees show which actions nobody has tested yet,
+and which cause or assumption a surprising result calls into question. That is
+where the next loop comes from.
 
 ![The Trees view showing the Transition Tree: each action with what we expect to see and why it must change; the line at the top lists all six trees with their sizes](images/tutorial-trees.png)
 

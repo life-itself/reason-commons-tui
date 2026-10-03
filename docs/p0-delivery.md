@@ -198,3 +198,6 @@ The user docs now cover the trees: the tutorial ends in the example's Transition
 Tree (`tutorial-trees.png`), `use-a-model.md` explains growing trees in
 conversation, `back-up-and-share.md` covers `.ltp.yaml` import/export and the
 `trees` command, and `skill-use.md` lists the `trees` view.
+The README and `the-trees.md` also explain why to open the Trees view and how
+(Ctrl+T, Ctrl+N, import/export), with a Current Reality Tree screenshot
+(`trees-current-reality.png`).
