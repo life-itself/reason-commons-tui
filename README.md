@@ -9,6 +9,7 @@ describe those subsequent increments.
 **To open the workspace**, see [Running the TUI](docs/tui.md):
 
 ```sh
+python3 -m pip install --upgrade pip
 python3 -m pip install -e '.[tui]'
 reason-commons tui ~/ReasonCommons/my-first-goal
 ```
