@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 682" width="1060" height="682" role="img" aria-label="Current Reality Tree. Why are we not there yet? What causes what we see? Symptom: The group is busy, yet lasting adoption stays low. Symptom: Core organisers are overloaded and risk burnout. Symptom: Others admire the work but don&#x27;t reproduce it. Symptom: Pockets are hard to form and stay fragile. Symptom: Many resonate, but few enter sustained practice. Symptom: Newcomers don&#x27;t know the next step. Root cause · likely constraint: No reliable path from interest to practice. Root cause: Progress is not defined in a way people accept. Root cause: No agreed way to check and revise the map. Root cause: No regular rhythm of practice, action and learning.">
+<title>Current Reality Tree: Why are we not there yet? What causes what we see?</title>
+<style>
+  .k-constraint { --c: #cf222e; }
+  .k-root { --c: #cf222e; }
+  .k-symptom { --c: #bc4c00; }
+  .box { fill: var(--c); fill-opacity: .07; stroke: var(--c); stroke-width: 1.5; }
+  .k-constraint .box, .k-next .box { stroke-width: 3; }
+  .kind { font: 600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; letter-spacing: .06em; fill: var(--c); }
+  .text { font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .title { font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .question { font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #424a53; }
+  .note { font: italic 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .edge { fill: none; stroke: #8b949e; stroke-width: 1.5; }
+  .dashed { stroke-dasharray: 6 4; }
+  .conflict { stroke: #cf222e; stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .risk { stroke: #cf222e; stroke-dasharray: 6 4; }
+  #a path { fill: #8b949e; } #r path { fill: #cf222e; }
+  @media (prefers-color-scheme: dark) {
+    .k-constraint { --c: #f85149; } .k-root { --c: #f85149; } .k-symptom { --c: #f0883e; }
+    .text, .title { fill: #e6edf3; } .question { fill: #c9d1d9; } .note { fill: #9198a1; }
+    .conflict, .risk { stroke: #f85149; } #r path { fill: #f85149; }
+  }
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="title" x="24" y="36">Current Reality Tree</text>
+<text class="question" x="24" y="60">Why are we not there yet? What causes what we see?</text>
+<text class="note" x="1036" y="36" text-anchor="end">arrows: causes</text>
+<path class="edge" d="M142.0 552.0 C142.0 544.0 142.0 544.0 142.0 536.0" marker-end="url(#a)"/>
+<path class="edge" d="M142.0 458.0 C142.0 450.0 142.0 450.0 142.0 442.0" marker-end="url(#a)"/>
+<path class="edge" d="M142.0 364.0 C142.0 309.0 142.0 309.0 142.0 254.0" marker-end="url(#a)"/>
+<path class="edge" d="M142.0 364.0 C142.0 356.0 400.0 356.0 400.0 348.0" marker-end="url(#a)"/>
+<path class="edge" d="M400.0 270.0 C400.0 262.0 400.0 262.0 400.0 254.0" marker-end="url(#a)"/>
+<path class="edge" d="M400.0 176.0 C400.0 168.0 529.0 168.0 529.0 160.0" marker-end="url(#a)"/>
+<path class="edge" d="M658.0 458.0 C658.0 450.0 658.0 450.0 658.0 442.0" marker-end="url(#a)"/>
+<path class="edge" d="M658.0 364.0 C658.0 262.0 529.0 262.0 529.0 160.0" marker-end="url(#a)"/>
+<path class="edge" d="M916.0 364.0 C916.0 262.0 529.0 262.0 529.0 160.0" marker-end="url(#a)"/>
+<g class="k-symptom">
+<rect class="box" x="394.0" y="86" width="270" height="70" rx="9"/>
+<text class="kind" x="406.0" y="106">SYMPTOM</text>
+<text class="text" x="406.0" y="128">The group is busy, yet lasting</text>
+<text class="text" x="406.0" y="146">adoption stays low</text>
+</g>
+<g class="k-symptom">
+<rect class="box" x="24" y="180" width="236" height="70" rx="9"/>
+<text class="kind" x="36" y="200">SYMPTOM</text>
+<text class="text" x="36" y="222">Core organisers are</text>
+<text class="text" x="36" y="240">overloaded and risk burnout</text>
+</g>
+<g class="k-symptom">
+<rect class="box" x="282" y="180" width="236" height="70" rx="9"/>
+<text class="kind" x="294" y="200">SYMPTOM</text>
+<text class="text" x="294" y="222">Others admire the work but</text>
+<text class="text" x="294" y="240">don&#x27;t reproduce it</text>
+</g>
+<g class="k-symptom">
+<rect class="box" x="282" y="274" width="236" height="70" rx="9"/>
+<text class="kind" x="294" y="294">SYMPTOM</text>
+<text class="text" x="294" y="316">Pockets are hard to form and</text>
+<text class="text" x="294" y="334">stay fragile</text>
+</g>
+<g class="k-symptom">
+<rect class="box" x="24" y="368" width="236" height="70" rx="9"/>
+<text class="kind" x="36" y="388">SYMPTOM</text>
+<text class="text" x="36" y="410">Many resonate, but few enter</text>
+<text class="text" x="36" y="428">sustained practice</text>
+</g>
+<g class="k-symptom">
+<rect class="box" x="24" y="462" width="236" height="70" rx="9"/>
+<text class="kind" x="36" y="482">SYMPTOM</text>
+<text class="text" x="36" y="504">Newcomers don&#x27;t know the</text>
+<text class="text" x="36" y="522">next step</text>
+</g>
+<g class="k-constraint">
+<rect class="box" x="24" y="556" width="236" height="70" rx="9"/>
+<text class="kind" x="36" y="576">ROOT CAUSE · LIKELY CONSTRAINT</text>
+<text class="text" x="36" y="598">No reliable path from</text>
+<text class="text" x="36" y="616">interest to practice</text>
+</g>
+<g class="k-root">
+<rect class="box" x="540" y="368" width="236" height="70" rx="9"/>
+<text class="kind" x="552" y="388">ROOT CAUSE</text>
+<text class="text" x="552" y="410">Progress is not defined in a</text>
+<text class="text" x="552" y="428">way people accept</text>
+</g>
+<g class="k-root">
+<rect class="box" x="540" y="462" width="236" height="70" rx="9"/>
+<text class="kind" x="552" y="482">ROOT CAUSE</text>
+<text class="text" x="552" y="504">No agreed way to check and</text>
+<text class="text" x="552" y="522">revise the map</text>
+</g>
+<g class="k-root">
+<rect class="box" x="798" y="368" width="236" height="88" rx="9"/>
+<text class="kind" x="810" y="388">ROOT CAUSE</text>
+<text class="text" x="810" y="410">No regular rhythm of</text>
+<text class="text" x="810" y="428">practice, action and</text>
+<text class="text" x="810" y="446">learning</text>
+</g>
+<text class="note" x="540" y="580" text-anchor="start">Every symptom here is provisional: the group has not</text>
+<text class="note" x="540" y="600" text-anchor="start">yet checked it against lived experience.</text>
+<text class="note" x="24" y="664">Second Renaissance example, from reasoncommons/ltp/03-current-reality-tree.md (labels shortened)</text>
+</svg>

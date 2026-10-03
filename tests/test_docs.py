@@ -25,3 +25,10 @@ def test_readme_pictures_are_committed():
     pictures = re.findall(r"!\[[^\]]+\]\((docs/images/[^)]+)\)", readme)
     assert len(pictures) >= 4
     assert all((ROOT / picture).stat().st_size > 1000 for picture in pictures)
+
+
+def test_readme_shows_all_six_trees():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for tree in ("goal-tree", "current-reality-tree", "evaporating-cloud", "future-reality-tree",
+                 "prerequisite-tree", "transition-tree"):
+        assert f"](docs/images/trees/{tree}.svg)" in readme

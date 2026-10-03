@@ -160,3 +160,8 @@ step screenshots (`tutorial.md`), how-to guides (`use-a-model.md`,
 `back-up-and-share.md`, `skill-use.md`), a reference (`tui.md`) and an explanation
 (`the-loop.md`). They describe shipped behaviour only; no new scenario is claimed.
 
+The README and docs now illustrate the six LTP trees with the Second Renaissance
+analysis from the reasoncommons guide (`docs/the-trees.md`, pictures drawn by
+`scripts/draw_trees.py`), and the finished example is one of its Transition Tree
+actions. The pictures are labelled as illustrations: the app still draws only
+explicit record references, and the typed trees remain p3–p5 work.

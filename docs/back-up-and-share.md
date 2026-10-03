@@ -7,13 +7,13 @@ per goal.
 
 In the workspace, press **Ctrl+P** and choose **Export case**. Reason Commons
 suggests a file next to the goal's folder, such as
-`~/ReasonCommons/in-bed-by-23-00-2026-10-12.reasoncase`; press Enter to write it.
+`~/ReasonCommons/first-practice-2026-11-09.reasoncase`; press Enter to write it.
 Use a new file name each time.
 
 From the command line:
 
 ```sh
-reason-commons export ~/ReasonCommons/in-bed-by-23-00 ~/Desktop/in-bed.reasoncase
+reason-commons export ~/ReasonCommons/first-practice ~/Desktop/first-practice.reasoncase
 ```
 
 A `.reasoncase` file is a complete, portable copy: send it, keep it or archive it.
@@ -21,7 +21,7 @@ A `.reasoncase` file is a complete, portable copy: send it, keep it or archive i
 ## Look inside a copy without changing it
 
 ```sh
-reason-commons show ~/Desktop/in-bed.reasoncase
+reason-commons show ~/Desktop/first-practice.reasoncase
 ```
 
 ## Continue from a copy
@@ -29,7 +29,7 @@ reason-commons show ~/Desktop/in-bed.reasoncase
 Import it into a new folder, then open that folder:
 
 ```sh
-reason-commons import ~/Desktop/in-bed.reasoncase --store ~/ReasonCommons/in-bed-copy
+reason-commons import ~/Desktop/first-practice.reasoncase --store ~/ReasonCommons/first-practice-copy
 reason-commons
 ```
 

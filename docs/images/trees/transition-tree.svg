@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 518" width="1020" height="518" role="img" aria-label="Transition Tree. What exactly do we do, and what should we see when it works? Action · do this first: Hold one time-boxed, stewarded review of the goal, the symptoms and the likely constraint. What we expect to see: A dated model: what is confirmed, what is disputed, who stewards it. Intermediate objective: A provisional shared model. Action: Draft one mixed-method definition of lasting adoption. What we expect to see: One measure that can be tested, not treated as the truth. Intermediate objective: A progress measure is agreed. Action: Prototype one clear next step from an open evening to a first practice. What we expect to see: Where people accept, decline, pause or leave, recorded without pressure. Intermediate objective: A consent-based entry path. Action: Run one short recurring-practice group. What we expect to see: Evidence about retention, practice and safety. Intermediate objective: Recurring practice.">
+<title>Transition Tree: What exactly do we do, and what should we see when it works?</title>
+<style>
+  .k-action { --c: #8250df; }
+  .k-io { --c: #0969da; }
+  .k-next { --c: #8250df; }
+  .k-seen { --c: #1a7f37; }
+  .box { fill: var(--c); fill-opacity: .07; stroke: var(--c); stroke-width: 1.5; }
+  .k-constraint .box, .k-next .box { stroke-width: 3; }
+  .kind { font: 600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; letter-spacing: .06em; fill: var(--c); }
+  .text { font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .title { font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .question { font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #424a53; }
+  .note { font: italic 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .edge { fill: none; stroke: #8b949e; stroke-width: 1.5; }
+  .dashed { stroke-dasharray: 6 4; }
+  .conflict { stroke: #cf222e; stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .risk { stroke: #cf222e; stroke-dasharray: 6 4; }
+  #a path { fill: #8b949e; } #r path { fill: #cf222e; }
+  @media (prefers-color-scheme: dark) {
+    .k-action { --c: #ab7df8; } .k-io { --c: #4493f8; } .k-next { --c: #ab7df8; } .k-seen { --c: #3fb950; }
+    .text, .title { fill: #e6edf3; } .question { fill: #c9d1d9; } .note { fill: #9198a1; }
+    .conflict, .risk { stroke: #f85149; } #r path { fill: #f85149; }
+  }
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="title" x="24" y="36">Transition Tree</text>
+<text class="question" x="24" y="60">What exactly do we do, and what should we see when it works?</text>
+<text class="note" x="996" y="36" text-anchor="end">arrows: should produce · achieves</text>
+<path class="edge" d="M358.0 130.0 C375.0 130.0 375.0 121.0 392.0 121.0" marker-end="url(#a)"/>
+<path class="edge" d="M730.0 121.0 C747.0 121.0 747.0 112.0 764.0 112.0" marker-end="url(#a)"/>
+<path class="edge" d="M358.0 235.0 C375.0 235.0 375.0 235.0 392.0 235.0" marker-end="url(#a)"/>
+<path class="edge" d="M730.0 235.0 C747.0 235.0 747.0 235.0 764.0 235.0" marker-end="url(#a)"/>
+<path class="edge" d="M358.0 331.0 C375.0 331.0 375.0 331.0 392.0 331.0" marker-end="url(#a)"/>
+<path class="edge" d="M730.0 331.0 C747.0 331.0 747.0 322.0 764.0 322.0" marker-end="url(#a)"/>
+<path class="edge" d="M358.0 418.0 C375.0 418.0 375.0 427.0 392.0 427.0" marker-end="url(#a)"/>
+<path class="edge" d="M730.0 427.0 C747.0 427.0 747.0 418.0 764.0 418.0" marker-end="url(#a)"/>
+<g class="k-next">
+<rect class="box" x="24" y="86" width="330" height="88" rx="9"/>
+<text class="kind" x="36" y="106">ACTION · DO THIS FIRST</text>
+<text class="text" x="36" y="128">Hold one time-boxed, stewarded review of</text>
+<text class="text" x="36" y="146">the goal, the symptoms and the likely</text>
+<text class="text" x="36" y="164">constraint</text>
+</g>
+<g class="k-seen">
+<rect class="box" x="396" y="86" width="330" height="70" rx="9"/>
+<text class="kind" x="408" y="106">WHAT WE EXPECT TO SEE</text>
+<text class="text" x="408" y="128">A dated model: what is confirmed, what</text>
+<text class="text" x="408" y="146">is disputed, who stewards it</text>
+</g>
+<g class="k-io">
+<rect class="box" x="768" y="86" width="228" height="52" rx="9"/>
+<text class="kind" x="780" y="106">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="780" y="128">A provisional shared model</text>
+</g>
+<g class="k-action">
+<rect class="box" x="24" y="200" width="330" height="70" rx="9"/>
+<text class="kind" x="36" y="220">ACTION</text>
+<text class="text" x="36" y="242">Draft one mixed-method definition of</text>
+<text class="text" x="36" y="260">lasting adoption</text>
+</g>
+<g class="k-seen">
+<rect class="box" x="396" y="200" width="330" height="70" rx="9"/>
+<text class="kind" x="408" y="220">WHAT WE EXPECT TO SEE</text>
+<text class="text" x="408" y="242">One measure that can be tested, not</text>
+<text class="text" x="408" y="260">treated as the truth</text>
+</g>
+<g class="k-io">
+<rect class="box" x="768" y="200" width="228" height="70" rx="9"/>
+<text class="kind" x="780" y="220">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="780" y="242">A progress measure is</text>
+<text class="text" x="780" y="260">agreed</text>
+</g>
+<g class="k-action">
+<rect class="box" x="24" y="296" width="330" height="70" rx="9"/>
+<text class="kind" x="36" y="316">ACTION</text>
+<text class="text" x="36" y="338">Prototype one clear next step from an</text>
+<text class="text" x="36" y="356">open evening to a first practice</text>
+</g>
+<g class="k-seen">
+<rect class="box" x="396" y="296" width="330" height="70" rx="9"/>
+<text class="kind" x="408" y="316">WHAT WE EXPECT TO SEE</text>
+<text class="text" x="408" y="338">Where people accept, decline, pause or</text>
+<text class="text" x="408" y="356">leave, recorded without pressure</text>
+</g>
+<g class="k-io">
+<rect class="box" x="768" y="296" width="228" height="52" rx="9"/>
+<text class="kind" x="780" y="316">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="780" y="338">A consent-based entry path</text>
+</g>
+<g class="k-action">
+<rect class="box" x="24" y="392" width="330" height="52" rx="9"/>
+<text class="kind" x="36" y="412">ACTION</text>
+<text class="text" x="36" y="434">Run one short recurring-practice group</text>
+</g>
+<g class="k-seen">
+<rect class="box" x="396" y="392" width="330" height="70" rx="9"/>
+<text class="kind" x="408" y="412">WHAT WE EXPECT TO SEE</text>
+<text class="text" x="408" y="434">Evidence about retention, practice and</text>
+<text class="text" x="408" y="452">safety</text>
+</g>
+<g class="k-io">
+<rect class="box" x="768" y="392" width="228" height="52" rx="9"/>
+<text class="kind" x="780" y="412">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="780" y="434">Recurring practice</text>
+</g>
+<text class="note" x="24" y="474" text-anchor="start">Each action is a small test with a forecast. That part is what the app runs today.</text>
+<text class="note" x="24" y="500">Second Renaissance example, from reasoncommons/ltp/07-transition-tree.md (labels shortened)</text>
+</svg>

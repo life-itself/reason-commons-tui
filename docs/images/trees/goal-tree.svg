@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1056 498" width="1056" height="498" role="img" aria-label="Goal Tree. What must be true for us to reach the goal? Goal: A wiser, weller, regenerative civilisation, co-initiated consciously. Critical success factor: People durably embody wiser views, values and practices. Critical success factor: The group learns and revises its strategy from evidence and objections. Critical success factor: Proven practices settle in pockets and can be passed on. Necessary condition: A clear path from first contact to lasting practice. Necessary condition: Practices can be repeated at deeper levels. Necessary condition: Progress is defined without reducing it to activity counts. Necessary condition: Strategy maps are living, challengeable commons. Necessary condition: Contributors grow into facilitators and stewards. Necessary condition: Dense practice groups get support and stay outward- facing.">
+<title>Goal Tree: What must be true for us to reach the goal?</title>
+<style>
+  .k-csf { --c: #1a7f37; }
+  .k-goal { --c: #1a7f37; }
+  .k-nc { --c: #1a7f37; }
+  .box { fill: var(--c); fill-opacity: .07; stroke: var(--c); stroke-width: 1.5; }
+  .k-constraint .box, .k-next .box { stroke-width: 3; }
+  .kind { font: 600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; letter-spacing: .06em; fill: var(--c); }
+  .text { font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .title { font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .question { font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #424a53; }
+  .note { font: italic 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .edge { fill: none; stroke: #8b949e; stroke-width: 1.5; }
+  .dashed { stroke-dasharray: 6 4; }
+  .conflict { stroke: #cf222e; stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .risk { stroke: #cf222e; stroke-dasharray: 6 4; }
+  #a path { fill: #8b949e; } #r path { fill: #cf222e; }
+  @media (prefers-color-scheme: dark) {
+    .k-csf { --c: #3fb950; } .k-goal { --c: #3fb950; } .k-nc { --c: #3fb950; }
+    .text, .title { fill: #e6edf3; } .question { fill: #c9d1d9; } .note { fill: #9198a1; }
+    .conflict, .risk { stroke: #f85149; } #r path { fill: #f85149; }
+  }
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="title" x="24" y="36">Goal Tree</text>
+<text class="question" x="24" y="60">What must be true for us to reach the goal?</text>
+<text class="note" x="1032" y="36" text-anchor="end">arrows: is necessary for</text>
+<path class="edge" d="M188.0 206.0 C188.0 183.0 528.0 183.0 528.0 160.0" marker-end="url(#a)"/>
+<path class="edge" d="M528.0 206.0 C528.0 183.0 528.0 183.0 528.0 160.0" marker-end="url(#a)"/>
+<path class="edge" d="M868.0 206.0 C868.0 183.0 528.0 183.0 528.0 160.0" marker-end="url(#a)"/>
+<path class="edge" d="M103.0 332.0 C103.0 308.0 188.0 308.0 188.0 284.0" marker-end="url(#a)"/>
+<path class="edge" d="M273.0 332.0 C273.0 308.0 188.0 308.0 188.0 284.0" marker-end="url(#a)"/>
+<path class="edge" d="M443.0 332.0 C443.0 317.0 528.0 317.0 528.0 302.0" marker-end="url(#a)"/>
+<path class="edge" d="M613.0 332.0 C613.0 317.0 528.0 317.0 528.0 302.0" marker-end="url(#a)"/>
+<path class="edge" d="M783.0 332.0 C783.0 308.0 868.0 308.0 868.0 284.0" marker-end="url(#a)"/>
+<path class="edge" d="M953.0 332.0 C953.0 308.0 868.0 308.0 868.0 284.0" marker-end="url(#a)"/>
+<g class="k-goal">
+<rect class="box" x="348.0" y="86" width="360" height="70" rx="9"/>
+<text class="kind" x="360.0" y="106">GOAL</text>
+<text class="text" x="360.0" y="128">A wiser, weller, regenerative</text>
+<text class="text" x="360.0" y="146">civilisation, co-initiated consciously</text>
+</g>
+<g class="k-csf">
+<rect class="box" x="38.0" y="210" width="300" height="70" rx="9"/>
+<text class="kind" x="50.0" y="230">CRITICAL SUCCESS FACTOR</text>
+<text class="text" x="50.0" y="252">People durably embody wiser views,</text>
+<text class="text" x="50.0" y="270">values and practices</text>
+</g>
+<g class="k-csf">
+<rect class="box" x="378.0" y="210" width="300" height="88" rx="9"/>
+<text class="kind" x="390.0" y="230">CRITICAL SUCCESS FACTOR</text>
+<text class="text" x="390.0" y="252">The group learns and revises its</text>
+<text class="text" x="390.0" y="270">strategy from evidence and</text>
+<text class="text" x="390.0" y="288">objections</text>
+</g>
+<g class="k-csf">
+<rect class="box" x="718.0" y="210" width="300" height="70" rx="9"/>
+<text class="kind" x="730.0" y="230">CRITICAL SUCCESS FACTOR</text>
+<text class="text" x="730.0" y="252">Proven practices settle in pockets</text>
+<text class="text" x="730.0" y="270">and can be passed on</text>
+</g>
+<g class="k-nc">
+<rect class="box" x="24" y="336" width="158" height="88" rx="9"/>
+<text class="kind" x="36" y="356">NECESSARY CONDITION</text>
+<text class="text" x="36" y="378">A clear path from</text>
+<text class="text" x="36" y="396">first contact to</text>
+<text class="text" x="36" y="414">lasting practice</text>
+</g>
+<g class="k-nc">
+<rect class="box" x="194" y="336" width="158" height="88" rx="9"/>
+<text class="kind" x="206" y="356">NECESSARY CONDITION</text>
+<text class="text" x="206" y="378">Practices can be</text>
+<text class="text" x="206" y="396">repeated at deeper</text>
+<text class="text" x="206" y="414">levels</text>
+</g>
+<g class="k-nc">
+<rect class="box" x="364" y="336" width="158" height="88" rx="9"/>
+<text class="kind" x="376" y="356">NECESSARY CONDITION</text>
+<text class="text" x="376" y="378">Progress is defined</text>
+<text class="text" x="376" y="396">without reducing it</text>
+<text class="text" x="376" y="414">to activity counts</text>
+</g>
+<g class="k-nc">
+<rect class="box" x="534" y="336" width="158" height="106" rx="9"/>
+<text class="kind" x="546" y="356">NECESSARY CONDITION</text>
+<text class="text" x="546" y="378">Strategy maps are</text>
+<text class="text" x="546" y="396">living,</text>
+<text class="text" x="546" y="414">challengeable</text>
+<text class="text" x="546" y="432">commons</text>
+</g>
+<g class="k-nc">
+<rect class="box" x="704" y="336" width="158" height="88" rx="9"/>
+<text class="kind" x="716" y="356">NECESSARY CONDITION</text>
+<text class="text" x="716" y="378">Contributors grow</text>
+<text class="text" x="716" y="396">into facilitators</text>
+<text class="text" x="716" y="414">and stewards</text>
+</g>
+<g class="k-nc">
+<rect class="box" x="874" y="336" width="158" height="106" rx="9"/>
+<text class="kind" x="886" y="356">NECESSARY CONDITION</text>
+<text class="text" x="886" y="378">Dense practice</text>
+<text class="text" x="886" y="396">groups get support</text>
+<text class="text" x="886" y="414">and stay outward-</text>
+<text class="text" x="886" y="432">facing</text>
+</g>
+<text class="note" x="24" y="480">Second Renaissance example, from reasoncommons/ltp/02-goal-tree.md (labels shortened)</text>
+</svg>

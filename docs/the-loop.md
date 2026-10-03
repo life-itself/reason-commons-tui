@@ -1,8 +1,10 @@
 # The loop, explained
 
-Reason Commons is built around one small loop: **goal → test with a forecast →
-action → observation → review**, then again. This page explains why each step is
-there. To try it, follow the [tutorial](tutorial.md).
+Reason Commons works today through one small loop: **goal → test with a forecast →
+action → observation → review**, then again. In the method's terms, each loop
+tests one action from a Transition Tree, the last of [the six trees](the-trees.md).
+This page explains why each step is there. To try it, follow the
+[tutorial](tutorial.md).
 
 ![The loop: 1 Goal, 2 Test + forecast, 3 Action, 4 Observe, 5 Review, then again](images/loop.svg)
 
@@ -23,8 +25,8 @@ That is why the review always puts your original words in front of you.
 
 ## Why safeguards
 
-Progress on one thing can quietly cost another: sleep at the expense of time with
-a partner, speed at the expense of quality. Safeguards name what must not get
+Progress on one thing can quietly cost another: a movement's reach at the expense
+of trust, a team's speed at the expense of quality. Safeguards name what must not get
 worse, and the review checks them first, so a gain bought with hidden damage is
 caught early.
 

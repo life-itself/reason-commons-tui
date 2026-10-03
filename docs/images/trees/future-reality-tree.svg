@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1068 662" width="1068" height="662" role="img" aria-label="Future Reality Tree. If we make these changes, do they lead to the goal? What could go wrong? Goal: Wiser, weller, regenerative civilisation. Desired effect: Verified lasting adoption grows. Desired effect: Real change is told apart from busyness. Desired effect: More people sustain practice. Desired effect: Leadership capacity grows. Desired effect: Stable pockets form. Desired effect: Mature practices can be reproduced. Change we make: Steward and revise the trees. Change we make: Mixed-method progress measure. Change we make: A practice, action and learning rhythm. Change we make: Transparent, consent-based entry path. Change we make: Graduated stewardship. Change we make: Dense, outward- facing pockets. Change we make: Maturity-rated replication library. Negative branch: Counting replaces real change. Negative branch: People feel funnelled; trust falls.">
+<title>Future Reality Tree: If we make these changes, do they lead to the goal? What could go wrong?</title>
+<style>
+  .k-effect { --c: #1a7f37; }
+  .k-goal { --c: #1a7f37; }
+  .k-injection { --c: #0969da; }
+  .k-risk { --c: #cf222e; }
+  .box { fill: var(--c); fill-opacity: .07; stroke: var(--c); stroke-width: 1.5; }
+  .k-constraint .box, .k-next .box { stroke-width: 3; }
+  .kind { font: 600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; letter-spacing: .06em; fill: var(--c); }
+  .text { font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .title { font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .question { font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #424a53; }
+  .note { font: italic 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .edge { fill: none; stroke: #8b949e; stroke-width: 1.5; }
+  .dashed { stroke-dasharray: 6 4; }
+  .conflict { stroke: #cf222e; stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .risk { stroke: #cf222e; stroke-dasharray: 6 4; }
+  #a path { fill: #8b949e; } #r path { fill: #cf222e; }
+  @media (prefers-color-scheme: dark) {
+    .k-effect { --c: #3fb950; } .k-goal { --c: #3fb950; } .k-injection { --c: #4493f8; } .k-risk { --c: #f85149; }
+    .text, .title { fill: #e6edf3; } .question { fill: #c9d1d9; } .note { fill: #9198a1; }
+    .conflict, .risk { stroke: #f85149; } #r path { fill: #f85149; }
+  }
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="title" x="24" y="36">Future Reality Tree</text>
+<text class="question" x="24" y="60">If we make these changes, do they lead to the goal? What could go wrong?</text>
+<text class="note" x="1044" y="36" text-anchor="end">arrows: leads to</text>
+<path class="edge" d="M312.0 270.0 C388.0 270.0 388.0 261.0 464.0 261.0" marker-end="url(#a)"/>
+<path class="edge" d="M608.0 261.0 C610.0 261.0 610.0 261.0 612.0 261.0" marker-end="url(#a)"/>
+<path class="edge" d="M756.0 261.0 C758.0 261.0 758.0 261.0 760.0 261.0" marker-end="url(#a)"/>
+<path class="edge" d="M904.0 261.0 C906.0 261.0 906.0 270.0 908.0 270.0" marker-end="url(#a)"/>
+<path class="edge" d="M980.0 222.0 C980.0 191.0 980.0 191.0 980.0 160.0" marker-end="url(#a)"/>
+<path class="edge" d="M908.0 121.0 C816.0 121.0 816.0 121.0 724.0 121.0" marker-end="url(#a)"/>
+<path class="edge" d="M92.0 376.0 C92.0 347.0 240.0 347.0 240.0 318.0" marker-end="url(#a)"/>
+<path class="edge" d="M240.0 376.0 C240.0 347.0 240.0 347.0 240.0 318.0" marker-end="url(#a)"/>
+<path class="edge" d="M388.0 376.0 C388.0 347.0 240.0 347.0 240.0 318.0" marker-end="url(#a)"/>
+<path class="edge" d="M536.0 376.0 C536.0 338.0 536.0 338.0 536.0 300.0" marker-end="url(#a)"/>
+<path class="edge" d="M684.0 376.0 C684.0 338.0 684.0 338.0 684.0 300.0" marker-end="url(#a)"/>
+<path class="edge" d="M832.0 376.0 C832.0 338.0 832.0 338.0 832.0 300.0" marker-end="url(#a)"/>
+<path class="edge" d="M980.0 376.0 C980.0 347.0 980.0 347.0 980.0 318.0" marker-end="url(#a)"/>
+<path class="edge risk" d="M240.0 454.0 C240.0 493.0 166.0 493.0 166.0 532.0" marker-end="url(#r)"/>
+<text class="note" x="211.0" y="497.0">may cause</text>
+<path class="edge risk" d="M536.0 472.0 C536.0 502.0 610.0 502.0 610.0 532.0" marker-end="url(#r)"/>
+<text class="note" x="581.0" y="506.0">may cause</text>
+<g class="k-goal">
+<rect class="box" x="500.0" y="86" width="220" height="70" rx="9"/>
+<text class="kind" x="512.0" y="106">GOAL</text>
+<text class="text" x="512.0" y="128">Wiser, weller,</text>
+<text class="text" x="512.0" y="146">regenerative civilisation</text>
+</g>
+<g class="k-effect">
+<rect class="box" x="912" y="86" width="136" height="70" rx="9"/>
+<text class="kind" x="924" y="106">DESIRED EFFECT</text>
+<text class="text" x="924" y="128">Verified lasting</text>
+<text class="text" x="924" y="146">adoption grows</text>
+</g>
+<g class="k-effect">
+<rect class="box" x="172" y="226" width="136" height="88" rx="9"/>
+<text class="kind" x="184" y="246">DESIRED EFFECT</text>
+<text class="text" x="184" y="268">Real change is</text>
+<text class="text" x="184" y="286">told apart from</text>
+<text class="text" x="184" y="304">busyness</text>
+</g>
+<g class="k-effect">
+<rect class="box" x="468" y="226" width="136" height="70" rx="9"/>
+<text class="kind" x="480" y="246">DESIRED EFFECT</text>
+<text class="text" x="480" y="268">More people</text>
+<text class="text" x="480" y="286">sustain practice</text>
+</g>
+<g class="k-effect">
+<rect class="box" x="616" y="226" width="136" height="70" rx="9"/>
+<text class="kind" x="628" y="246">DESIRED EFFECT</text>
+<text class="text" x="628" y="268">Leadership</text>
+<text class="text" x="628" y="286">capacity grows</text>
+</g>
+<g class="k-effect">
+<rect class="box" x="764" y="226" width="136" height="70" rx="9"/>
+<text class="kind" x="776" y="246">DESIRED EFFECT</text>
+<text class="text" x="776" y="268">Stable pockets</text>
+<text class="text" x="776" y="286">form</text>
+</g>
+<g class="k-effect">
+<rect class="box" x="912" y="226" width="136" height="88" rx="9"/>
+<text class="kind" x="924" y="246">DESIRED EFFECT</text>
+<text class="text" x="924" y="268">Mature practices</text>
+<text class="text" x="924" y="286">can be</text>
+<text class="text" x="924" y="304">reproduced</text>
+</g>
+<g class="k-injection">
+<rect class="box" x="24" y="380" width="136" height="70" rx="9"/>
+<text class="kind" x="36" y="400">CHANGE WE MAKE</text>
+<text class="text" x="36" y="422">Steward and</text>
+<text class="text" x="36" y="440">revise the trees</text>
+</g>
+<g class="k-injection">
+<rect class="box" x="172" y="380" width="136" height="70" rx="9"/>
+<text class="kind" x="184" y="400">CHANGE WE MAKE</text>
+<text class="text" x="184" y="422">Mixed-method</text>
+<text class="text" x="184" y="440">progress measure</text>
+</g>
+<g class="k-injection">
+<rect class="box" x="320" y="380" width="136" height="88" rx="9"/>
+<text class="kind" x="332" y="400">CHANGE WE MAKE</text>
+<text class="text" x="332" y="422">A practice,</text>
+<text class="text" x="332" y="440">action and</text>
+<text class="text" x="332" y="458">learning rhythm</text>
+</g>
+<g class="k-injection">
+<rect class="box" x="468" y="380" width="136" height="88" rx="9"/>
+<text class="kind" x="480" y="400">CHANGE WE MAKE</text>
+<text class="text" x="480" y="422">Transparent,</text>
+<text class="text" x="480" y="440">consent-based</text>
+<text class="text" x="480" y="458">entry path</text>
+</g>
+<g class="k-injection">
+<rect class="box" x="616" y="380" width="136" height="70" rx="9"/>
+<text class="kind" x="628" y="400">CHANGE WE MAKE</text>
+<text class="text" x="628" y="422">Graduated</text>
+<text class="text" x="628" y="440">stewardship</text>
+</g>
+<g class="k-injection">
+<rect class="box" x="764" y="380" width="136" height="70" rx="9"/>
+<text class="kind" x="776" y="400">CHANGE WE MAKE</text>
+<text class="text" x="776" y="422">Dense, outward-</text>
+<text class="text" x="776" y="440">facing pockets</text>
+</g>
+<g class="k-injection">
+<rect class="box" x="912" y="380" width="136" height="88" rx="9"/>
+<text class="kind" x="924" y="400">CHANGE WE MAKE</text>
+<text class="text" x="924" y="422">Maturity-rated</text>
+<text class="text" x="924" y="440">replication</text>
+<text class="text" x="924" y="458">library</text>
+</g>
+<g class="k-risk">
+<rect class="box" x="56.0" y="536" width="220" height="70" rx="9"/>
+<text class="kind" x="68.0" y="556">NEGATIVE BRANCH</text>
+<text class="text" x="68.0" y="578">Counting replaces real</text>
+<text class="text" x="68.0" y="596">change</text>
+</g>
+<g class="k-risk">
+<rect class="box" x="500.0" y="536" width="220" height="70" rx="9"/>
+<text class="kind" x="512.0" y="556">NEGATIVE BRANCH</text>
+<text class="text" x="512.0" y="578">People feel funnelled;</text>
+<text class="text" x="512.0" y="596">trust falls</text>
+</g>
+<text class="note" x="752" y="556" text-anchor="start">Each risk gets a trim:</text>
+<text class="note" x="752" y="576" text-anchor="start">mixed evidence and peer review;</text>
+<text class="note" x="752" y="596" text-anchor="start">free choice and easy exit.</text>
+<text class="note" x="24" y="644">Second Renaissance example, from reasoncommons/ltp/05-future-reality-tree.md (labels shortened)</text>
+</svg>

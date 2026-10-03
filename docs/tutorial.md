@@ -6,18 +6,22 @@ test itself runs in your real life for as long as you choose. You need nothing b
 Reason Commons itself ([install it](../README.md#try-it)); the built-in guide works
 offline.
 
-We follow Sam, whose goal is to get to bed earlier. Use your own goal if you have
-one, or copy Sam's answers to get a feel for it first.
+We follow Mira, who organises open evenings for a Second Renaissance group. Many
+people come once and are inspired, but few find their way into regular practice.
+Mira takes one action from the group's [Transition Tree](the-trees.md#transition-tree-what-exactly-do-we-do)
+and tests it: a clear next step from an open evening to a first practice. Use your
+own goal if you have one, or copy Mira's answers to get a feel for it first.
 
 ## 1. Start a goal
 
 Run `reason-commons`, choose **Start a new goal** and give it a short name, such as
-"In bed by 23:00". The workspace opens with one question.
+"From open evening to first practice". The workspace opens with one question.
 
-Type in the box at the bottom. **Enter** starts a new line; **Ctrl+S** sends. Sam
+Type in the box at the bottom. **Enter** starts a new line; **Ctrl+S** sends. Mira
 writes:
 
-> Be in bed by 23:00 more often, so I wake up rested.
+> Newcomers at our open evenings find a clear, no-pressure next step into a first
+> practice session, so interest turns into sustained practice.
 
 Ordinary words are enough. You can correct anything later.
 
@@ -28,22 +32,26 @@ date make progress visible. Leave it empty if you don't know yet.
 
 ![The guide asks how you will know it got better; the loop line marks Goal as current](images/tutorial-measure.png)
 
-Sam answers with a measure and a target, and then, to the next question, two
-safeguards: things that must not suffer while chasing the goal.
+Mira answers with a measure and a target, and then, to the next question, two
+safeguards: things that must not suffer while chasing the goal. The group's
+Future Reality Tree warned that a pushy entry path would cost trust, so that
+becomes the first safeguard.
 
-> Nights a week in bed by 23:00 (sleep log): now 1 of 7, aiming for 4 of 7 by 31 October.
+> Newcomers at a first practice within 3 weeks (sign-up sheet): now 2 of 30,
+> aiming for 8 of 30 by 30 November.
 
-> Evenings with my partner
-> My morning run
+> Nobody feels recruited or pressured
+> Organisers' hours stay as they are
 
 Notice the line under the pinned goal: it marks where you are in the loop.
 
 ## 3. Choose one small test and forecast it
 
-Next comes one change you can make yourself. Keep it small enough to try this week.
-Sam picks:
+Next comes one change you can make yourself. Keep it small enough to try soon.
+Mira picks:
 
-> No screens after 22:15; the phone charges in the kitchen.
+> End each open evening with one clear invitation: the date of a first practice,
+> what it asks of you, and that no is a fine answer.
 
 Then the most important question: **what do you expect to happen?** Write it down
 now, with a number if you can. This original forecast is saved before any result
@@ -51,19 +59,20 @@ exists, and it never changes.
 
 ![The guide asks for a forecast; Goal is ticked and Test + forecast is current](images/tutorial-forecast.png)
 
-> 4 of 7 nights in bed by 23:00 in the first week
+> 6 of 30 newcomers come to a first practice within 3 weeks
 
 The guide also asks when you will look at the result and what would make you stop
-early. Both are optional; Sam answers "Sunday, 12 October" and "Stop if I lie awake
-for more than an hour on three nights."
+early. Both are optional; Mira answers "Sunday, 9 November" and "Stop if anyone
+tells us they felt pushed."
 
 ## 4. Plan the action
 
 Name the very next thing you will do, and when:
 
-> Tonight at 22:15: put the phone on the kitchen charger and set a reminder.
+> Thursday 16 October: I give the invitation in the last ten minutes and hand out a
+> card with the date and an easy way to say no.
 
-Now quit with **Ctrl+Q** and live your week. Everything is saved, including any
+Now quit with **Ctrl+Q** and carry it out. Everything is saved, including any
 half-written answer.
 
 ## 5. Report what actually happened
@@ -73,8 +82,9 @@ what actually happened. Report what you observed, separately from what you hoped
 
 ![The guide asks what actually happened; Goal, Test and Action are ticked and Observe is current](images/in-progress.png)
 
-> 5 of 7 nights in bed by 23:00 (sleep log). Two nights I read until 23:30.
-> Evenings with my partner felt calmer; I ran every morning as usual.
+> 9 of 31 newcomers came to a first practice within 3 weeks (sign-up sheet).
+> Nobody said they felt pushed; two said the card helped them decide. Organiser
+> hours were the same.
 
 ## 6. Review against your forecast
 
@@ -83,19 +93,21 @@ your safeguards first, then decide: keep, adjust or drop the change.
 
 ![The review question quotes the original forecast and asks to keep, adjust or drop](images/tutorial-review.png)
 
-> Keep it. I forecast 4 of 7 and got 5 of 7, and both safeguards held.
-> Next I will try the same on weekends.
+> Keep it. I forecast 6 of 30 and got 9 of 31, and both safeguards held.
+> Next I will test whether people come back for a second session.
 
 Open **Tests** (in the list on the left, or **Views**) to see the forecast and the
 result side by side:
 
-![The Tests view shows the forecast, 4 of 7 nights, next to the result, 5 of 7 nights](images/forecast-vs-result.png)
+![The Tests view shows the forecast, 6 of 30 newcomers, next to the result, 9 of 31](images/forecast-vs-result.png)
 
 ## What you have now
 
 A goal with a measure and safeguards, a test whose forecast you could not quietly
 rewrite, an honest observation and a decision you can explain. The guide now asks
-for the next small change, so the next loop starts from what you learned.
+for the next small change, so the next loop starts from what you learned. For
+Mira's group, the result is also evidence for the trees: it supports the Current
+Reality Tree's guess that the missing next step was a real cause.
 
 Next: read [the loop, explained](the-loop.md) to see why each step is there, or
 [use Claude](use-a-model.md) for a consultant that adapts its questions and can
