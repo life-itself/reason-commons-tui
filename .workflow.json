@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "implemented_milestone": "p0",
+  "data_profile": "p2",
+  "context_map": {
+    "contexts": [
+      {
+        "name": "Reasoning Case",
+        "path": "src/reason_commons/domain",
+        "language": "src/reason_commons/domain/CONTEXT.md"
+      }
+    ],
+    "edges": []
+  },
+  "ownership": {
+    "domain": [
+      "src/reason_commons/domain/**"
+    ],
+    "application": [
+      "src/reason_commons/application/**"
+    ],
+    "adapters": [
+      "src/reason_commons/adapters/**"
+    ],
+    "composition": [
+      "src/reason_commons/bootstrap.py"
+    ],
+    "acceptance_contract": [
+      "reason-commons-spec/features/**",
+      "reason-commons-spec/delivery-phases.json"
+    ],
+    "procedures": [
+      "skills/**"
+    ]
+  },
+  "dependency_rules": {
+    "domain": [
+      "standard_library"
+    ],
+    "application": [
+      "standard_library",
+      "domain"
+    ],
+    "adapters": [
+      "application",
+      "domain",
+      "composition",
+      "external_libraries"
+    ]
+  },
+  "published_contracts": [
+    "src/reason_commons/application/ports.py",
+    "src/reason_commons/application/service.py",
+    "src/reason_commons/domain/contract.py",
+    "src/reason_commons/application/presentation.py"
+  ],
+  "interface_guarantees": {
+    "semantic_parity": {
+      "capability_surface": "CaseCapabilities",
+      "presentation_only_use_cases": [
+        "checkpoint"
+      ],
+      "session_lifecycle": [
+        "close"
+      ]
+    },
+    "projection_not_authority": {
+      "authoritative_boundary": "CaseApplication",
+      "interface_owned_state": [
+        "focus",
+        "viewport",
+        "expansion",
+        "caret"
+      ],
+      "interface_owned_domain_rules": false,
+      "shared_projection": "CaseCapabilities.workspace"
+    }
+  },
+  "required_checks": [
+    "python3 scripts/check_p0.py"
+  ],
+  "acceptance_changes": "Preserve existing scenarios unless the user explicitly authorizes specification changes."
+}

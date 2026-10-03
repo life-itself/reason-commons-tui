@@ -25,13 +25,16 @@ from reason_commons.domain.model import (InvalidCase, Snapshot, StaleWork, requi
 
 MAX_FILE = 16 * 1024 * 1024
 MAX_BUNDLE = 256 * 1024 * 1024
-PATH_PATTERN = re.compile(r"(?:manifest\.yaml|cursor\.yaml|revisions/\d{6,}\.yaml|"
-                          r"inputs/in\d{6,}\.yaml|attempts/in\d{6,}-\d{3,}-(?:start|response|result-\d+)\.yaml|"
+PATH_PATTERN = re.compile(r"(?:manifest\.yaml|cursor\.yaml|allocations\.yaml|revisions/\d{6,}\.yaml|"
+                          r"inputs/in\d{3,}\.yaml|attempts/in\d{3,}-\d{3,}-(?:start|response|result-\d+)\.yaml|"
                           r"sources/s[0-9a-f]{32}\.yaml)")
 
 
 def encoded(value: dict) -> bytes:
-    return yaml.safe_dump(value, sort_keys=True, allow_unicode=True).encode("utf-8")
+    try:
+        return yaml.safe_dump(value, sort_keys=True, allow_unicode=True).encode("utf-8")
+    except (yaml.YAMLError, TypeError, ValueError, RecursionError) as exc:
+        raise StoreError("Record cannot be serialized as safe YAML") from exc
 
 
 def digest(content: bytes) -> str:
@@ -69,6 +72,14 @@ def sync_directory(path: Path):
         os.fsync(descriptor)
     finally:
         os.close(descriptor)
+
+
+def sync_file(path: Path):
+    try:
+        with path.open("rb") as stream:
+            os.fsync(stream.fileno())
+    except OSError as exc:
+        raise StoreError(f"Cannot confirm durability of {path.name}") from exc
 
 
 def atomic_write(path: Path, content: bytes, immutable: bool = False):
@@ -138,6 +149,7 @@ class FileCaseStore:
             content = encoded(initial.to_dict())
             atomic_write(root / "revisions/000000.yaml", content, immutable=True)
             atomic_write(root / "cursor.yaml", wrapped({}))
+            atomic_write(root / "allocations.yaml", wrapped({"revision": 0, "counters": {}}))
             atomic_write(root / "manifest.yaml", encoded({"schema_version": "1", "delivery_profile": "p2",
                          "case_id": initial.value["case_id"], "current_revision": 0,
                          "revisions": {0: digest(content)}}))
@@ -220,6 +232,10 @@ class FileCaseStore:
                     base = next((s for s in history if s.revision == source["base_revision"]), None)
                     require(base is not None and source["response_target"] == base.target, "Invalid input target")
             self.cursor()
+            allocations = self._allocations()
+            require(allocations["revision"] >= history[-1].revision and
+                    all(allocations["counters"].get(k, 0) >= v for k, v in history[-1].value["counters"].items()),
+                    "Allocation ledger precedes committed state")
             for path in (self.root / "attempts").glob("*.yaml"):
                 require(PATH_PATTERN.fullmatch(path.relative_to(self.root).as_posix()), "Invalid attempt path")
                 value = read_wrapped(path)
@@ -237,11 +253,16 @@ class FileCaseStore:
             # Time is not semantic identity. A repeated submit may have a new timestamp.
             if {k: v for k, v in old.items() if k != "timestamp"} != {k: v for k, v in value.items() if k != "timestamp"}:
                 raise StoreError("Request identity is already bound to a different input")
+            sync_file(path)
+            try:
+                sync_directory(path.parent)
+            except OSError as exc:
+                raise StoreError("Input durability is unconfirmed") from exc
             return
         atomic_write(path, wrapped(value), immutable=True)
 
     def input(self, request_id):
-        if not isinstance(request_id, str) or not re.fullmatch(r"in\d{6,}", request_id):
+        if not isinstance(request_id, str) or not re.fullmatch(r"in\d{3,}", request_id):
             raise InvalidCase("Invalid request ID")
         value = read_wrapped(self.root / "inputs" / f"{request_id}.yaml")
         validate_input(value)
@@ -254,10 +275,19 @@ class FileCaseStore:
     def next_revision(self):
         # Orphans reserve IDs but are not part of published history.
         numbers = [int(p.stem) for p in (self.root / "revisions").glob("*.yaml") if p.stem.isdigit()]
-        return max(numbers, default=0) + 1
+        return max([self._allocations()["revision"]] + numbers) + 1
+
+    def _allocations(self):
+        from reason_commons.domain.model import PREFIXES
+        value = read_wrapped(self.root / "allocations.yaml")
+        shape(value, {"revision", "counters"}, {"revision", "counters"}, "allocation ledger")
+        require(type(value["revision"]) is int and value["revision"] >= 0, "Invalid allocated revision")
+        require(isinstance(value["counters"], dict) and set(value["counters"]) <= set(PREFIXES) and
+                all(type(v) is int and v >= 0 for v in value["counters"].values()), "Invalid allocated IDs")
+        return value
 
     def reserved_counters(self):
-        counters = {}
+        counters = self._allocations()["counters"]
         for path in (self.root / "revisions").glob("*.yaml"):
             value = read_yaml(path)
             for key, count in value.get("counters", {}).items():
@@ -275,6 +305,11 @@ class FileCaseStore:
     def start_attempt(self, request_id):
         self._editing()
         self.input(request_id)
+        sync_file(self.root / "inputs" / f"{request_id}.yaml")
+        try:
+            sync_directory(self.root / "inputs")
+        except OSError as exc:
+            raise StoreError("Input durability is unconfirmed") from exc
         attempts = self.attempts(request_id)
         number = max((a["attempt"] for a in attempts), default=0) + 1
         atomic_write(self.root / "attempts" / f"{request_id}-{number:03d}-start.yaml",
@@ -307,7 +342,11 @@ class FileCaseStore:
                      wrapped(value), immutable=True)
 
     def attempts(self, request_id):
-        return [read_wrapped(p) for p in sorted((self.root / "attempts").glob(f"{request_id}-*.yaml"))]
+        def order(path):
+            parts = path.stem.split("-")
+            phase = {"start": 0, "response": 1, "result": 2}[parts[2]]
+            return int(parts[1]), phase, int(parts[3]) if phase == 2 else 0
+        return [read_wrapped(p) for p in sorted((self.root / "attempts").glob(f"{request_id}-*.yaml"), key=order)]
 
     def commit(self, snapshot, expected_revision):
         self._editing()
@@ -315,6 +354,10 @@ class FileCaseStore:
         if manifest["current_revision"] != expected_revision:
             raise StaleWork("Case advanced before publication")
         validate_ancestry(self.history() + [snapshot], self.sources())
+        # Persist reservations before writing a candidate snapshot. Export/import
+        # preserves these even when a crash leaves an unpublished candidate.
+        atomic_write(self.root / "allocations.yaml", wrapped({"revision": snapshot.revision,
+                     "counters": snapshot.value["counters"]}))
         content = encoded(snapshot.to_dict())
         atomic_write(self.root / "revisions" / f"{snapshot.revision:06d}.yaml", content, immutable=True)
         manifest["revisions"][snapshot.revision] = digest(content)
@@ -330,7 +373,19 @@ class FileCaseStore:
                      "sha256": digest(content)}), immutable=True)
         return source_id
 
-    def export(self, destination):
+    def confirm_durable(self):
+        self._editing()
+        manifest = self._manifest()
+        sync_file(self.root / "revisions" / f"{manifest['current_revision']:06d}.yaml")
+        sync_file(self.root / "manifest.yaml")
+        sync_file(self.root / "allocations.yaml")
+        try:
+            sync_directory(self.root / "revisions")
+            sync_directory(self.root)
+        except OSError as exc:
+            raise StoreError("Publication durability is unconfirmed") from exc
+
+    def export(self, destination, cursor_override=None):
         self._editing()  # hold the writer lock across a consistent export
         self.validate()
         destination = Path(destination)
@@ -340,13 +395,17 @@ class FileCaseStore:
         try:
             os.close(descriptor)
             manifest = self._manifest()
-            paths = [self.root / "manifest.yaml", self.root / "cursor.yaml"]
+            paths = [self.root / "manifest.yaml", self.root / "cursor.yaml", self.root / "allocations.yaml"]
             paths += [self.root / "revisions" / f"{r:06d}.yaml" for r in manifest["revisions"]]
             for directory in ("inputs", "attempts", "sources"):
                 paths += sorted((self.root / directory).glob("*.yaml"))
             with zipfile.ZipFile(temporary, "w", zipfile.ZIP_DEFLATED) as archive:
                 for path in paths:
-                    archive.write(path, path.relative_to(self.root).as_posix())
+                    name = path.relative_to(self.root).as_posix()
+                    if name == "cursor.yaml" and cursor_override is not None:
+                        archive.writestr(name, wrapped(cursor_override))
+                    else:
+                        archive.write(path, name)
             with open(temporary, "rb") as stream:
                 os.fsync(stream.fileno())
             os.link(temporary, destination)  # do not clobber a handoff
@@ -364,20 +423,7 @@ class FileCaseStore:
         try:
             with tempfile.TemporaryDirectory(prefix=".reason-import-", dir=destination.parent) as temporary:
                 staging = Path(temporary)
-                for directory in ("revisions", "inputs", "attempts", "sources"):
-                    (staging / directory).mkdir()
-                with zipfile.ZipFile(archive_path) as archive:
-                    members = archive.infolist()
-                    require(len(members) <= 10000 and sum(m.file_size for m in members) <= MAX_BUNDLE,
-                            "Bundle exceeds import limit")
-                    names = set()
-                    for member in members:
-                        require(PATH_PATTERN.fullmatch(member.filename) is not None and member.filename not in names,
-                                "Unsupported or duplicate bundle path")
-                        require(member.file_size <= MAX_FILE and (member.external_attr >> 16) & 0o170000 != 0o120000,
-                                "Oversized record or symlink")
-                        names.add(member.filename)
-                        atomic_write(staging / member.filename, archive.read(member), immutable=True)
+                extract_bundle(archive_path, staging)
                 staged = cls(staging, writable=False)  # all hashes/schema/references before publication
                 staged.close()
                 # mkdir reserves the destination; a concurrent importer cannot overwrite it.
@@ -394,3 +440,40 @@ class FileCaseStore:
         except (OSError, zipfile.BadZipFile, InvalidCase, RuntimeError) as exc:
             raise StoreError("Bundle could not be validated or imported") from exc
 
+
+def extract_bundle(archive_path, staging):
+    """Validated temporary materialization shared by import and read-only inspection."""
+    for directory in ("revisions", "inputs", "attempts", "sources"):
+        (staging / directory).mkdir()
+    with zipfile.ZipFile(archive_path) as archive:
+        members = archive.infolist()
+        require(len(members) <= 10000 and sum(m.file_size for m in members) <= MAX_BUNDLE,
+                "Bundle exceeds import limit")
+        names = set()
+        for member in members:
+            require(PATH_PATTERN.fullmatch(member.filename) is not None and member.filename not in names,
+                    "Unsupported or duplicate bundle path")
+            require(member.file_size <= MAX_FILE and (member.external_attr >> 16) & 0o170000 != 0o120000,
+                    "Oversized record or symlink")
+            names.add(member.filename)
+            atomic_write(staging / member.filename, archive.read(member), immutable=True)
+
+
+class ArchiveCaseStore(FileCaseStore):
+    """Read-only archive view; no editable case is imported and no lock is created."""
+
+    def __init__(self, archive_path):
+        self._temporary = tempfile.TemporaryDirectory(prefix="reason-inspect-")
+        try:
+            staging = Path(self._temporary.name)
+            extract_bundle(archive_path, staging)
+            super().__init__(staging, writable=False)
+        except Exception as exc:
+            self._temporary.cleanup()
+            if isinstance(exc, (OSError, zipfile.BadZipFile, InvalidCase, RuntimeError)):
+                raise StoreError("Bundle could not be validated for inspection") from exc
+            raise
+
+    def close(self):
+        super().close()
+        self._temporary.cleanup()

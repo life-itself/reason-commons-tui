@@ -1,0 +1,60 @@
+{
+  "base_revision": 4,
+  "delivery_profile": "p2",
+  "intervention": {
+    "kind": "question",
+    "options": [
+      {
+        "action": {
+          "intent": "explain_observation",
+          "type": "consult"
+        },
+        "id": "review_test_results",
+        "label": "Review Test Results and Next Steps"
+      }
+    ],
+    "primary_prompt": "Thank you for providing the results of the two-week pilot. The observed performance was 40 of 50 Payments orders on time (80%), meeting the success criterion for timeliness. However, urgent requests were acknowledged at 18 of 20 (90%), which did not meet the pilot's success criterion of at least 95%. Given these results, what is your assessment regarding the need to expand this approach or if further adjustments are needed before scaling up?",
+    "purpose": "To formally record the observed results of the pilot test and to guide the participant on whether the performance warrants expansion or continuation, addressing their question about scaling up.",
+    "rationale": "The participant is providing the first set of observed results from the short-term pilot test (daily priority queue) proposed in N2@1 and I3@1. These results must be formally recorded as Observations, allowing for a bounded review of the test's performance against its success criteria. The current intervention (I4@1) was a 'stop' point awaiting these results, and the arrival of this data necessitates moving to a review phase. The observed metrics (40/50 on time, 18/20 acknowledged) must be compared against the test's success criteria (at least 80% on time, at least 95% acknowledged). The comparison reveals that the observed performance meets the 'on time' criterion (40/50 = 80%) but falls short of the 'urgent request acknowledged' criterion (18/20 = 90%, which is below the required 95%). The participant's question ('Should we expand?') requires a response that addresses the observed performance, compares it to the goal/test criteria, and guides the next decision regarding expansion or continuation."
+  },
+  "proposed_updates": [
+    {
+      "data": {
+        "measure": "40 of 50 Payments pilot orders on time",
+        "period": "two-week review",
+        "test_ref": null,
+        "value": "80%"
+      },
+      "operation": "record_observation",
+      "source_refs": [
+        "in000005"
+      ],
+      "temporary_id": "temp_obs1"
+    },
+    {
+      "data": {
+        "measure": "18 of 20 urgent requests acknowledged within 24 hours",
+        "period": "two-week review",
+        "test_ref": null,
+        "value": "90%"
+      },
+      "operation": "record_observation",
+      "source_refs": [
+        "in000005"
+      ],
+      "temporary_id": "temp_obs2"
+    },
+    {
+      "data": {
+        "text": "Supplier reliability and order mix also changed. (in000005)"
+      },
+      "operation": "record_note",
+      "source_refs": [
+        "in000005"
+      ],
+      "temporary_id": "temp_note1"
+    }
+  ],
+  "request_id": "in000005",
+  "schema_version": "1"
+}

@@ -1,0 +1,262 @@
+# Validation of the implemented slice
+
+The p0 application/DDD boundary has a deterministic acceptance gate. A local
+model and an agent are separate replaceable adapters with separate evaluations.
+None of these evaluations constitutes the p1/p2 or first-time participant gate.
+The existing [delivery contract](../reason-commons-spec/delivery-phases.md)
+defines those additional requirements.
+
+## Repeatable checks
+
+```sh
+python3 scripts/check_p0.py
+python3 scripts/evaluate_lm_studio.py \
+  --model google/gemma-4-e4b --suite all --repeat 2 \
+  --output .evaluation-runs/my-model-check
+```
+
+Use a new output path. The live harness uses synthetic contributions, creates
+disposable durable cases, and leaves the server running. It makes no downloads
+and sends nothing to a hosted fallback. It reads the optional API token from
+the environment; tokens are not written into evidence. `--suite semantic`,
+`agent` or `recovery` runs one part, and `--case` selects a semantic fixture.
+Each generation is attempted once; a failure remains evidence. The recovery
+suite deliberately performs explicitly identified retries.
+
+Reports contain configuration, native loaded-model/context metadata where
+available, versioned and hashed frozen consulting/context resources, inputs,
+receipts, resulting records, restart checks, and exported `.reasoncase` files.
+JSON evidence and readable Markdown are checkpointed after each semantic turn.
+Interrupted or aborted runs remain incomplete. The large disposable evidence
+directory is ignored by Git; reviewed conclusions belong in this document.
+
+| Evaluation | What it establishes | What remains separate |
+|---|---|---|
+| Original p0 Gherkin | Retention, validation, durability, retry and portability through application use cases | Model quality and human interface behavior |
+| HTTP protocol fixtures | Structured payloads, namespaces, malformed/truncated replies, credentials, redirects and model replacement | Real-server implementation and model behavior |
+| Live semantic fixtures | Actual multi-turn proposals and saved/rejected results against authored situations | Attributed assessment of the complete professional rubric |
+| Live skill agent | A real model executes the actual Markdown skill through bounded capability tools | The authored downstream consultant isolates procedure from consulting quality |
+| Real-server recovery | Timeout, unavailable model, token truncation, oversized context, restart/retry, client-process interruption | Server shutdown/unload and concurrent external users |
+
+The semantic fixtures cover a situation → goal → prospective pilot → action →
+outcome sequence, attributed correction/uncertainty, a guardrail review, and an
+unimplemented/inconclusive review. They link to original scenario identities;
+they do **not** cover every p2 scenario or outline row. Required record kinds,
+immutable history, exact source/target retention, provider outcomes and restart
+are mechanically checked. Judging neutrality, causal restraint, decision
+usefulness, and whether the protection breach is properly addressed requires
+reviewing the recorded proposals. A keyword count or the same model grading its
+own response cannot pass that gate.
+
+The live agent is offered only the capabilities authorized by this procedure,
+not storage, shell or file tools. Every requested call, including blocked calls,
+is recorded. Evaluation checks inspect → retain → consult, literal multiline
+text and declared speaker, failed-retention stopping, no automatic retry,
+explicit retry identity and published effects. Host permissions protect the
+case, but a blocked request remains a failed agent evaluation. Finishing a chat
+or claiming success cannot publish a case revision.
+
+Recovery probes use real local HTTP responses. One additional test injects a
+storage commit fault *after* a real received proposal; restart must apply that
+same proposal with zero further inferences. Another kills only a disposable
+client while it is entering the real provider call, then reopens and retries
+the retained request. It does not kill LM Studio. The harness does not unload
+a model or stop a server that might be serving another application.
+
+## Attributed semantic review
+
+```sh
+python3 scripts/review_evaluation.py .evaluation-runs/my-model-check/report.json \
+  --output .evaluation-runs/my-model-check/review.json
+# Fill reviewer, role, date and each decision with cited run/turn evidence.
+python3 scripts/review_evaluation.py .evaluation-runs/my-model-check/report.json \
+  --review .evaluation-runs/my-model-check/review.json \
+  --output .evaluation-runs/my-model-check/reviewed.json
+```
+
+Reviews are bound to the SHA-256 of the completed evidence report. Changed
+reports, rewritten criteria, missing decisions or unsupported pass/fail entries
+are rejected. Pending criteria and failures remain visible. A completed review
+of these fixtures still cannot approve the unimplemented TUI or substitute for
+five real first-time participants and assistive-technology testing.
+
+## Findings on 2 October 2026
+
+The final provider-free gate passes **110 implementation tests**, **23 specification
+regressions** and **all nine original p0 scenarios (50 steps)**. The verified-model
+real-server recovery suite passes **37/37 checks**, covering timeout, nonexistent
+model selection, truncation, context overflow, cached-response recovery and a
+killed client. No feature text was changed.
+
+Evidence is retained in these workspace directories:
+
+| Evidence | Result |
+|---|---|
+| `.evaluation-runs/2026-10-02-semantic/` | Four semantic fixtures repeated twice; failures and an attributed developer review retained |
+| `.evaluation-runs/2026-10-02-agent/` | Original skill repeated twice; incomplete submission and malformed tool/final responses exposed |
+| `.evaluation-runs/2026-10-02-refined/` | Six correction/uncertainty turns saved; both normal agent submissions completed; one empty agent final response flagged |
+| `.evaluation-runs/2026-10-02-recovery-verified/` | 37/37 real recovery checks pass after model-identity repair |
+| `.evaluation-runs/2026-10-02-final-loop/` | Full loop repeated with the model/skill repairs; missing pilot/action/review records still block approval |
+| `.evaluation-runs/2026-10-02-final-review/` | Final adapter publishes exact-test-linked observations; a missing review still fails the authored expectation |
+
+The refined skill's eight cases complete the required capability traces and
+effects; seven also finish with a valid final explanation. The other run ends
+with an empty model reply after correctly stopping on failed retention. This is
+recorded as a failed agent response, not a saved case or a silently repeated
+consultation.
+
+The initial measured run reproduced the earlier semantic gap and additionally
+used an input identity as a case-context formulation reference. The application
+rejected the whole proposal, retaining input and the prior state. Subsequent
+prompt changes ask about success and protections, explicitly account for
+contributions as sourced records, and separate source/formulation namespaces.
+The provider contract guides those namespaces and meaningful-input accounting;
+the domain remains the validator. The adapter freezes and hashes its resources
+so editing a prompt during a session cannot change its recorded policy silently.
+
+Regression testing also caught shared mutable arrays in the schema projection:
+refining source constraints could accidentally refine goal protections.
+Independent array schemas and a specific regression test repair this defect.
+
+Real recovery testing uncovered a server fallback: a request naming a
+nonexistent model returned a completion whose `model` was
+`google/gemma-4-e4b`. The adapter now verifies the configured model against the
+[server's advertised model list](https://lmstudio.ai/docs/developer/openai-compat/models)
+before generation and requires the response model to match. A nonexistent model
+cannot publish a revision under false provenance. Response mismatch, missing
+identity and later explicit recovery have dedicated HTTP regressions.
+
+The final-loop replay exposed one domain defect: required test references
+accepted null, so orphan observations could be published. Required goal/test
+relationships now require nonempty exact references in both the domain validator
+and its generated schema. The same correction rejects null defining statements,
+note text, measurement/value and review assessment. Optional baseline, scope and other missing context can
+remain unknown. A captured real negative proposal is checked through application
+use cases, demonstrating all-or-nothing rejection while retaining the input.
+The earlier synthetic trace preserves the defect as historical evidence; it is
+not a valid current-format handoff. No production case was used in these tests.
+
+Live Gemma results still vary. Some valid proposals omit a provisional goal,
+prospective pilot, action or review, while describing those concepts in prose.
+In a seeded review the model computed 80% delivery and 90% acknowledgement but
+asked about expansion without prominently addressing the 95% protection breach.
+Valid JSON and durable publication therefore remain insufficient for approval.
+The complete v1 semantic gate is **not passed**.
+
+P1's persistent workspace/action bindings and p2's complete loop, goal version
+transitions, local action completion, complete acceptance coverage and participant
+study remain implementation/release work. The current runtime is the p0 slice;
+its data profile name `p2` does not imply that the later phase is delivered.
+
+## Usable skill entry points — 3 October 2026
+
+[Skill usage](skill-use.md) now covers real-case contribution/retry commands,
+offline receipts, an optional bounded local model agent, and a project-scoped
+Codex MCP connection. The single procedure resource ships in the wheel and is
+discovered through repository symlinks; an isolated wheel installation verified
+its references and server construction outside the checkout.
+
+The latest complete gate passes **129 implementation tests** with the optional
+MCP SDK on Python 3.12, **23 specification regressions**, and **all nine original
+p0 BDD scenarios (50 steps)**. Python 3.9 passes 128 implementation tests with
+the one optional-SDK transport test skipped, plus the same specification/BDD
+checks. Both runs retain the original scenario selection and feature text.
+
+The added adapter tests exercise actual command subprocesses and an official SDK
+stdio client: exact multiline text and attribution, independent consultation,
+restart, explicit retry, idempotency, failed retention, incomplete/false agent
+claims, case-root boundaries, source/export operations and preserved consulting
+intents. Model/schema fixtures prove integration behavior, not semantic quality.
+
+Live evidence is retained in `.evaluation-runs/2026-10-03-skill-entry/`:
+
+| Evidence | Outcome |
+|---|---|
+| `agent-simple.json` | Gemma executes inspect → retain → consult against a real consultant, publishes revision 1, and finishes the procedure |
+| `reopened.json`, `already-applied.json` | A fresh process reads revision 1; retrying the applied identity makes no new consultation |
+| `mcp-live.json` | Actual stdio MCP contribution calls the real model, saves revision 1, restarts and confirms idempotent retry |
+| `procedure-failure.json`, `procedure-recovery.json` | Default procedure retains input before an unavailable model call; explicit retry with Gemma saves the same identity at revision 1 |
+| `agent.json`, `agent-verified.json` | Gemma tries to shorten prefixed literal text; the host blocks the change, including with an exact-value tool schema |
+| `failure.json`, `retry.json` | A second retained input survives provider failure and a subsequent invalid proposal; original published history remains unchanged |
+| `check-p0.log`, `check-p0-python39.log` | Complete regression/BDD results on both supported environments |
+
+Because the orchestration model can still change tool arguments, the normal
+command defaults to the existing deterministic procedure driver. `--runner
+agent` is an explicit experimental selection; no failure silently switches
+runners or repeats semantic requests. Application publication status and agent
+completion are reported independently. This delivers the own-case skill entry
+point, not the unfinished TUI or a passed v1 semantic quality gate.
+
+
+## Conversational interface verification on 3 October 2026
+
+The complete gate passes **147 implementation tests**, **23 specification
+regressions**, all **nine original p0 scenarios (50 steps)** and **seven new
+conversation scenarios (30 steps)**. On Python 3.9 it passes 146 tests with the
+optional MCP SDK transport test skipped; both Gherkin suites and the 23
+specification checks still pass. Original feature text and phase membership are
+unchanged. The gate now rejects skipped, undefined or missing conversation cases
+as well as missing p0 coverage.
+
+Conversation acceptance runs through application use cases: open without
+inference, retain literal attributed replies against the displayed question,
+resume/explain/inspect offline, reject stale replies, deliberately choose an
+alternative consulting intent, compare original forecasts with observations and
+safeguards, inspect historical state, and project only explicit record links.
+Adapter tests compare CLI and MCP workspace data/renderings, use the official SDK
+stdio transport, check numeric receipt ordering, preserve unknowns and escape
+untrusted diagram labels. Model prose cannot change the renderer's save status.
+
+Synthetic evidence is retained under
+`.evaluation-runs/2026-10-03-conversation/`:
+
+- `live-turn-1.json` and `live-turn-2.json`: two actual Gemma consultations save
+  revisions 1 and 2 (14.3s and 17.6s), retain literal input and reopen identically.
+  The second goal leaves scope/measure/horizon/protections as unstructured wording;
+  the view correctly shows those structured fields as not recorded. This is
+  interface/adapter evidence, not a passed semantic-quality review.
+- `authored-workspace.json` and `.md`: a deterministic four-turn fixture shows
+  the original 80%/95% forecast, reported 80%/90% outcomes, the recorded safeguard
+  breach, work completed and expected attainment unknown.
+- `authored-diagram.svg`, `.png` and `diagram-check.json`: generated reference
+  graphs parse and render in a real Chromium browser with Mermaid 11.12.0.
+  Quoted/markup-containing stored labels remain literal text with no added nodes
+  or executable scripts. Graphs use the documented [Mermaid flowchart syntax](https://mermaid.js.org/syntax/flowchart.html).
+
+The existing `my-case` was inspected read-only; its revision 1 was not resubmitted
+or modified. It has a note and question without graph references, so no diagram
+is invented. The packaged skill now presents a continuing conversation over the
+shared workspace; a fresh Codex chat must load the updated MCP tool catalog.
+The persistent TUI, later typed causal/conflict graphs, full v1 consulting quality
+and participant/assistive-technology release gates remain outstanding.
+
+
+The updated wheel also built in an isolated build environment and passed an
+installed-package check outside the checkout: the shared workspace, renderers,
+MCP schemas and packaged conversational skill are available. The official-SDK
+client read `my-case` through the actual stdio server and confirmed every case
+file's SHA-256 remained unchanged (`own-case-read-check.json`).
+
+
+## Legacy LTP continuation conversion
+
+`adapters/ltp_conversion.py` and `scripts/convert_ltp_case.py` convert a validated
+LTP 1.0 document offline through normal create/attach/submit/export capabilities.
+The single designated root becomes a native goal; legacy entities, designations,
+relationships, assumptions and assessments remain labeled source-report notes,
+with original bytes and an ID mapping retained in the portable bundle. Ownership,
+observed status, action completion, native graph semantics and historical
+application revisions are not inferred. Duplicate keys/IDs, dangling references,
+ambiguous goals, unsupported schemas/change logs and existing destinations are
+rejected before publication.
+
+The next/explain projection now uses the intervention's saved relevant context;
+full reasoning remains available locally. This avoids presenting the entire
+import archive as the next conversational turn. Twelve conversion tests exercise
+source/provenance preservation, historical qualifications, unknowns, immutable
+continuation, portability, focused reads and rejection boundaries. The actual
+Rufus–David source produced a validated native baseline; a disposable portable
+copy accepted a follow-up with an authored consultant, preserving revision 1.
+Live consultation on the full imported case requires adequate model context: the
+local Gemma was loaded at 8,192 tokens during conversion. No model inference or
+model reconfiguration was used to convert it.

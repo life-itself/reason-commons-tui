@@ -2,7 +2,8 @@ from copy import deepcopy
 from typing import Optional
 
 from reason_commons.domain.model import InvalidCase, StaleWork, validate_input
-from reason_commons.application.ports import CaseStore, Clock, Consultant, StoreError
+from reason_commons.application.ports import (CaseStore, Clock, Consultant,
+                                              ConsultantResponseError, StoreError)
 
 
 STORAGE_HELP = (
@@ -15,6 +16,8 @@ STORAGE_HELP = (
 class CaseApplication:
     """One writer session; synchronous use cases can run in a future TUI worker.
 
+    Interfaces project state and invoke these use cases; they own no reasoning,
+    consulting or persistence rules. Skills share the semantic capability surface.
     The application never trusts a skill to enforce case rules. Failed input
     retention leaves a copy in this session so an adapter can keep its editor.
     """
@@ -43,6 +46,38 @@ class CaseApplication:
     def history(self) -> dict:
         return {"schema_version": "1", "revisions": [s.to_dict() for s in self._store.history()]}
 
+    def workspace(self, view: str = "next", revision: Optional[int] = None,
+                  selection: Optional[str] = None) -> dict:
+        """Read one frozen presentation model, locally, without changing state."""
+        from reason_commons.application.presentation import project_workspace
+        current = self._store.current()
+        if revision is not None and (type(revision) is not int or revision < 0):
+            raise InvalidCase("Revision must be a nonnegative integer")
+        snapshots = self._store.history() if revision is not None or view == "history" else []
+        snapshot = current
+        if revision is not None:
+            snapshot = next((s for s in snapshots if s.revision == revision and s.revision <= current.revision), None)
+            if snapshot is None:
+                raise InvalidCase("Revision is not in this case's published history")
+        sources = self._store.sources()
+        pending = []
+        for value in sources.values():
+            request_id = value.get("request_id")
+            if request_id and request_id not in current.value["applied_requests"]:
+                attempts = self._store.attempts(request_id)
+                # File ordering is not attempt ordering (start sorts after result).
+                # Preserve audit details in receipts; present only status here.
+                latest = max((a.get("attempt", 0) for a in attempts), default=0)
+                receipts = [a for a in attempts if a.get("attempt") == latest and "status" in a
+                            and a["status"] != "started"]
+                pending.append({"input": deepcopy(value), "attempt": latest,
+                                "status": receipts[-1]["status"] if receipts else
+                                "started" if latest else "input_retained"})
+        history = [{"revision": s.revision, "parent": s.value["parent"], "timestamp": s.value["timestamp"],
+                    "current_target": s.target} for s in snapshots if s.revision <= current.revision]
+        return project_workspace(snapshot, sources, view=view, selection=selection, live_revision=current.revision,
+                                 cursor=self._store.cursor(), history=history, pending=pending)
+
     def sources(self) -> dict:
         return {"schema_version": "1", "sources": deepcopy(self._store.sources())}
 
@@ -50,7 +85,7 @@ class CaseApplication:
         # Presentation schema stays separate from reasoning and can grow in p1.
         from reason_commons.domain.model import shape, require
         shape(cursor, {"view", "focus", "selection", "scroll_anchor", "draft", "caret", "speaker",
-                       "response_target", "base_revision", "display", "menu"},
+                       "response_target", "base_revision", "display", "menu", "save_status"},
               {"view", "focus", "draft", "caret", "speaker", "response_target", "base_revision"}, "cursor")
         require(isinstance(cursor["draft"], str) and type(cursor["caret"]) is int and
                 0 <= cursor["caret"] <= len(cursor["draft"]), "Invalid draft/caret")
@@ -103,6 +138,11 @@ class CaseApplication:
         value = self._store.input(request_id)
         current = self._store.current()
         if request_id in current.value["applied_requests"]:
+            try:
+                self._store.confirm_durable()
+            except StoreError:
+                return self._failure(request_id, "not_saved", "not saved; publication durability unconfirmed",
+                                     ["retry_retained_input"], persist=False)
             return {"status": "saved", "request_id": request_id, "revision": current.revision,
                     "already_applied": True}
         if value["base_revision"] != current.revision or value["response_target"] != current.target:
@@ -122,6 +162,9 @@ class CaseApplication:
             try:
                 proposal = self._consultant.propose({"input": deepcopy(value), "case": current.to_dict(),
                                                     "sources": deepcopy(self._store.sources())})
+            except ConsultantResponseError:
+                return self._failure(request_id, "rejected", "Input retained; invalid structured response rejected",
+                                     ["inspect_failure", "reevaluate_current_revision"], attempt)
             except Exception:
                 # Provider exception text can include credentials; retain category only.
                 return self._failure(request_id, "unavailable", "Input retained; consultant unavailable",
@@ -173,8 +216,17 @@ class CaseApplication:
         return self._store.add_source(name, content, speaker)
 
     def export(self, destination: str):
-        self._store.export(destination)
+        recovery_cursor = None
+        if self.unsaved_input is not None:
+            recovery = self.unsaved_input
+            recovery_cursor = self._store.cursor()
+            recovery_cursor.update(view=recovery.get("view", "next"), focus="response",
+                                   draft=recovery.get("text", recovery.get("draft", "")),
+                                   speaker=recovery["speaker"], response_target=recovery["response_target"],
+                                   base_revision=recovery["base_revision"])
+            recovery_cursor["caret"] = len(recovery_cursor["draft"])
+            recovery_cursor["save_status"] = "input_not_retained"
+        self._store.export(destination, cursor_override=recovery_cursor)
 
     def storage_help(self) -> str:
         return STORAGE_HELP
-

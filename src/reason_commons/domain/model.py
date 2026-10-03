@@ -32,8 +32,20 @@ REQUIRED = {"goal": {"statement"}, "note": {"text"},
             "action": {"statement", "test_ref"},
             "observation": {"test_ref", "measure", "value"},
             "review": {"test_ref", "assessment"}}
+REQUIRED_REFERENCES = {"test": {"goal_ref"}, "action": {"test_ref"},
+                       "observation": {"test_ref"}, "review": {"test_ref"}}
+# A record needs its defining text and relationships. Scope and supplementary
+# context can explicitly remain unknown; an unformed claim belongs in a note.
+REQUIRED_TEXT = {kind: fields - {"scope", "forecast"} for kind, fields in REQUIRED.items()}
 INTERVENTION_FIELDS = {"kind", "goal_ref", "purpose", "decision", "primary_prompt",
                        "rationale", "required_context_refs", "options"}
+INTERVENTION_REQUIRED = {"kind", "purpose", "primary_prompt", "rationale"}
+INTERVENTION_KINDS = {"question", "recommendation", "stop"}
+FORECAST_FIELDS = {"measure", "expected", "scope", "denominator", "period", "bound"}
+FORECAST_REQUIRED = {"measure", "expected", "scope", "denominator"}
+ENUM_FIELDS = {"basis": {"hypothesis", "participant_report", "observed"},
+               "execution": {"unknown", "planned", "completed", "blocked"},
+               "expected_state_attainment": {"unknown", "pending", "met", "not_met"}}
 VIEW_TARGETS = {"goal", "history", "sources", "current_question"}
 CONSULT_INTENTS = {"another_question", "direct_advice", "explain_observation"}
 
@@ -60,12 +72,13 @@ def string_list(value: Any, label: str) -> None:
 
 def validate_value(kind: str, data: dict) -> None:
     shape(data, FIELDS[kind], REQUIRED[kind], kind)
+    for field in REQUIRED_TEXT[kind]:
+        text(data[field], field)
     for key, value in data.items():
         if key == "forecast":
             require(isinstance(value, list) and bool(value), "A test needs a prospective forecast")
             for measure in value:
-                shape(measure, {"measure", "expected", "scope", "denominator", "period", "bound"},
-                      {"measure", "expected", "scope", "denominator"}, "forecast measure")
+                shape(measure, FORECAST_FIELDS, FORECAST_REQUIRED, "forecast measure")
                 for field, content in measure.items():
                     if content is not None:
                         text(content, field)
@@ -73,17 +86,14 @@ def validate_value(kind: str, data: dict) -> None:
             string_list(value, key)
         elif value is not None:
             text(value, key)
-    if "basis" in data:
-        require(data["basis"] in {"hypothesis", "participant_report", "observed"}, "Unknown evidence basis")
-    if "execution" in data:
-        require(data["execution"] in {"unknown", "planned", "completed", "blocked"}, "Unknown execution state")
-    if "expected_state_attainment" in data:
-        require(data["expected_state_attainment"] in {"unknown", "pending", "met", "not_met"}, "Unknown attainment")
+    for field, values in ENUM_FIELDS.items():
+        if field in data:
+            require(data[field] in values, f"Unknown {field}")
 
 
 def validate_intervention(data: dict, records: Mapping[str, dict]) -> None:
-    shape(data, INTERVENTION_FIELDS, {"kind", "purpose", "primary_prompt", "rationale"}, "intervention")
-    require(data["kind"] in {"question", "recommendation", "stop"}, "Unknown intervention kind")
+    shape(data, INTERVENTION_FIELDS, INTERVENTION_REQUIRED, "intervention")
+    require(data["kind"] in INTERVENTION_KINDS, "Unknown intervention kind")
     for key in ("purpose", "primary_prompt", "rationale"):
         text(data[key], key)
     if "decision" in data:
@@ -130,7 +140,7 @@ def validate_input(value: dict) -> None:
           {"schema_version", "request_id", "base_revision", "response_target", "text", "speaker",
            "intent", "declarations", "timestamp", "timezone"}, "input")
     require(value["schema_version"] == SCHEMA, "Unsupported input schema")
-    require(bool(re.fullmatch(r"in\d{6,}", value["request_id"])), "Invalid request ID")
+    require(bool(re.fullmatch(r"in\d{3,}", value["request_id"])), "Invalid request ID")
     require(type(value["base_revision"]) is int and value["base_revision"] >= 0, "Invalid input revision")
     require(value["response_target"] is None or isinstance(value["response_target"], str), "Invalid target")
     require(isinstance(value["text"], str), "Input text must be literal text")
@@ -316,6 +326,16 @@ def validate_ancestry(history: Sequence[Snapshot], sources: Mapping[str, dict]) 
             require(all(new.get(ref) == record for ref, record in old.items()), "Committed records were rewritten")
             require(set(previous.value["applied_requests"]) < set(snapshot.value["applied_requests"]),
                     "Revision must add an applied request")
+            added = set(snapshot.value["applied_requests"]) - set(previous.value["applied_requests"])
+            require(len(added) == 1, "A consulting revision applies exactly one request")
+            request = sources[next(iter(added))]
+            require(request["base_revision"] == previous.revision and request["response_target"] == previous.target,
+                    "Applied input has the wrong revision or response target")
+            require(snapshot.target not in old and new[snapshot.target]["source_refs"] == [request["request_id"]],
+                    "A consulting revision must publish its sourced next intervention")
+            require(set(snapshot.value["adapter_versions"]) == set(snapshot.value["applied_requests"]) and
+                    all(snapshot.value["adapter_versions"].get(k) == v
+                        for k, v in previous.value["adapter_versions"].items()), "Adapter provenance changed")
             require(all(snapshot.value["counters"].get(k, 0) >= v for k, v in previous.value["counters"].items()),
                     "Allocation ledger moved backwards")
         previous = snapshot
