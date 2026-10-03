@@ -165,3 +165,56 @@ def test_bare_command_without_a_terminal_prints_everyday_help():
     assert result.returncode == 0 and result.stderr == ""
     assert "everyday use" in result.stdout and "advanced" in result.stdout
     assert "receipts" not in result.stdout.split("advanced")[0]
+
+
+def test_loop_line_marks_done_and_current_steps():
+    from reason_commons.adapters.tui import loop_line, loop_stage
+    assert loop_stage(None) == "goal"
+    assert loop_stage({"data": {"purpose": "guided:test_forecast"}}) == "test"
+    assert loop_stage({"data": {"decision": "Review against the forecast"}}) == "review"
+    assert loop_stage({"data": {"decision": "Something else entirely"}}) is None
+    line = loop_line("action")
+    assert "✓ Goal" in line and "✓ Test + forecast" in line and "> Action" in line and "✓ Observe" not in line
+    assert ">" not in loop_line(None).replace("→", "")
+
+
+def test_welcome_draws_the_loop_and_the_strip_follows_progress(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Welcome").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(80, 24)) as pilot:
+            await pilot.pause()
+            assert "One small test" in app.render_next()
+            assert "> Goal" in str(app.query_one("#loop").render())
+            for answer in ("Sleep better", "", "", "Phone in the kitchen"):
+                await send(app, pilot, answer)
+            assert "> Test + forecast" in str(app.query_one("#loop").render())
+            assert "One small test" not in app.render_next()
+    asyncio.run(run())
+
+
+def test_example_goal_is_a_finished_loop(tmp_path):
+    from reason_commons.adapters.sample import ANSWERS, build_sample
+    path = build_sample(tmp_path / "example")
+    with open_case(path, writable=False) as app:
+        workspace = app.workspace()
+        kinds = {record["kind"] for record in app.inspect()["case"]["records"]}
+        assert app.inspect()["cursor"]["view"] == "tests"
+    assert workspace["revision"] == len(ANSWERS)
+    assert {"goal", "test", "action", "observation"} <= kinds
+    assert workspace["question"]["data"]["purpose"] == "guided:test_change"
+
+
+def test_goals_home_offers_the_example(tmp_path):
+    from reason_commons.adapters.tui import SAMPLE, GoalsApp
+
+    async def run():
+        app = GoalsApp(tmp_path)
+        async with app.run_test(size=(80, 24)) as pilot:
+            app.query_one("#goals").highlighted = 1
+            await pilot.press("enter")
+            await pilot.pause()
+        return app.return_value
+    assert asyncio.run(run()) == SAMPLE

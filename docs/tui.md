@@ -22,7 +22,9 @@ tools (for git), accept. If `reason-commons` is not found, run `uv tool update-s
 and open a new window. Update with `uv tool upgrade reason-commons`.
 
 `reason-commons` opens your goals: pick one with the arrows and Enter, or choose
-**Start a new goal** and give it a short name. Goals live in `~/ReasonCommons`, one
+**Start a new goal** and give it a short name. To see a whole loop before starting your own,
+choose **Look around a finished example first**: a fictional goal walked through
+goal, test, action, observation and review. Nothing you do there is kept. Goals live in `~/ReasonCommons`, one
 folder each (set `REASON_COMMONS_HOME` to keep them elsewhere). Everything is saved
 as you type, including an unsent draft, so the next `reason-commons` takes you back
 to where you left off.
@@ -60,8 +62,10 @@ another consultant).
 
 ## Using the workspace
 
-- The top line shows the case, your name, the saved revision, the current step and
-  the consultant. The line below pins your goal, safeguards and current test.
+- The top line shows the goal, your name, whether everything is saved, the current
+  step and the consultant. The line below pins your goal, safeguards and current
+  test. Under it, the loop (Goal, Test + forecast, Action, Observe, Review) marks
+  finished steps with ✓ and the current one with >.
 - The middle shows the current question and what it builds on. The left list
   (on wide terminals) or **Views** switches to Goal, Tests (original forecast next
   to the reported result), Actions, Everything, Your words and History.
