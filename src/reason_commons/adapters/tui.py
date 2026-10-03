@@ -671,7 +671,7 @@ class NewGoalScreen(ModalScreen):
     def compose(self) -> ComposeResult:
         with Vertical(id="dialog"):
             yield Label("What would you like to call this goal?", classes="dialog-title")
-            yield Input(placeholder="for example: Sleep better, Ship the payments change", id="goal-name")
+            yield Input(placeholder="for example: A clear next step after open evenings", id="goal-name")
             yield Label("A short name is enough; you describe the goal inside. Enter starts, Esc goes back.",
                         classes="hint")
 

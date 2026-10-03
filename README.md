@@ -1,39 +1,127 @@
 # Reason Commons
 
-**Make real progress on a goal that matters, one small, honest experiment at a time.**
+**See a hard problem whole, as connected trees, then change it one honest test at a time.**
 
-Reason Commons is a calm workspace in your terminal. It helps you say what you
-want, try one small change, write down what you expect *before* it happens, and
-then look at what really happened. It works offline, and it keeps your own words.
+Reason Commons is a calm workspace for reasoning about change: what you are aiming
+for, what is really in the way, which conflict keeps you stuck and what to try next.
+It is built on the **Logical Thinking Process** from the Theory of Constraints, a
+method that lays out that reasoning as six connected trees instead of long prose.
+Today it runs in your terminal, offline, and keeps your own words.
 
-![A goal in progress: the loop line shows Goal, Test and Action done and Observe as the current step; the workspace asks what actually happened](docs/images/in-progress.png)
+Throughout this page we use one real case: the **Second Renaissance**, a movement
+that wants to help bring about a wiser, more regenerative culture. Its own documents
+were analysed tree by tree in the
+[Reason Commons guide](https://github.com/life-itself/reasoncommons/tree/main/ltp);
+the pictures below are drawn from that analysis.
 
-## How it works
+## Six questions, six trees
+
+Every real change has to answer six questions. Each tree answers one, and each
+connects to the next.
+
+| Question | Tree |
+| --- | --- |
+| What must be true for us to reach the goal? | [Goal Tree](#goal-tree) |
+| Why are we not there yet? | [Current Reality Tree](#current-reality-tree) |
+| What conflict keeps us stuck? | [Evaporating Cloud](#evaporating-cloud) |
+| If we change this, will it work, and what could go wrong? | [Future Reality Tree](#future-reality-tree) |
+| What stands in the way, and what comes first? | [Prerequisite Tree](#prerequisite-tree) |
+| What exactly do we do next? | [Transition Tree](#transition-tree) |
+
+The first three are a **tree of change**: where we want to be, and why we are not
+there. The last three are a **tree of action**: what to do about it, in order.
+
+### Goal Tree
+
+The movement's goal is vast. The Goal Tree breaks it into three critical success
+factors and six necessary conditions, so any small step can be checked against the
+whole.
+
+![Goal Tree: the goal, a wiser, weller, regenerative civilisation, rests on three critical success factors (durable embodiment, learning and revision, transmissible pockets), each resting on two necessary conditions](docs/images/trees/goal-tree.svg)
+
+### Current Reality Tree
+
+Many people resonate with the Second Renaissance, yet few enter sustained practice.
+Following the symptoms down from effect to cause leads to one likely constraint:
+there is no reliable path from interest to practice.
+
+![Current Reality Tree: the root cause "no reliable path from interest to practice" leads to newcomers not knowing the next step, few sustained practitioners, organiser overload, fragile pockets and weak replication; three more root causes feed the top symptom, a busy group with low lasting adoption](docs/images/trees/current-reality-tree.svg)
+
+### Evaporating Cloud
+
+The group feels pulled two ways: act like a movement to be visible, or like a
+monastery to be embodied. Both needs are real. The cloud brings out the hidden
+assumption that both draw on the same scarce organisers, and questioning it opens
+a way out.
+
+![Evaporating Cloud: "act like a movement now" serves the need to be visible and "act like a monastery or lab now" serves the need to be embodied; both needs serve durable cultural transformation, but the two actions conflict; the change that dissolves the conflict is a broad public invitation built around deep, protected practice pockets](docs/images/trees/evaporating-cloud.svg)
+
+### Future Reality Tree
+
+Before committing, check that the proposed changes really lead to the goal, and
+what they might break. Two risks show up, reductive metrics and a manipulative
+funnel, and each gets a trim.
+
+![Future Reality Tree: seven changes lead through five desired effects to verified lasting adoption and the goal; two negative branches, counting replacing real change and people feeling funnelled, hang off two of the changes](docs/images/trees/future-reality-tree.svg)
+
+### Prerequisite Tree
+
+Seven obstacles stand between today and scaling through depth. Each is overcome by
+an intermediate objective, in order. The first is to agree how the model itself
+gets checked.
+
+![Prerequisite Tree: seven obstacles, each overcome by an intermediate objective, stacked in order from "a stewarded model, accepted for provisional use" up to "a maturity-rated, adaptable practice library", which leads to scaling through depth](docs/images/trees/prerequisite-tree.svg)
+
+### Transition Tree
+
+Concrete actions, each with what you expect to see when it works. The first is one
+time-boxed review of the whole model.
+
+![Transition Tree: four actions, each with what we expect to see and the objective it achieves; the first, marked do this first, is one time-boxed, stewarded review of the goal, the symptoms and the likely constraint](docs/images/trees/transition-tree.svg)
+
+More on how to read each tree: [the six trees, explained](docs/the-trees.md).
+
+## From tree to test: what the app does today
+
+The app does not draw these trees yet. Today it runs the step where reasoning meets
+reality: you take **one action**, write down what you expect **before** it
+happens, do it, and review what happened against that forecast.
 
 ![The loop: 1 Goal, 2 Test + forecast, 3 Action, 4 Observe, 5 Review, then again](docs/images/loop.svg)
 
-1. **Goal.** What would count as better, how you will notice, and what must not get worse.
-2. **Test with a forecast.** One small change you can make yourself, plus what you
-   expect to happen. The forecast is saved before any result exists and never changes.
-3. **Action.** The concrete next thing you will do, and when.
-4. **Observe.** What actually happened, kept apart from what you hoped.
-5. **Review.** The result next to your forecast. Keep the change, adjust it or drop
-   it, then start the next loop from what you learned.
+Here is the Transition Tree's third action, *prototype one clear next step from an
+open evening to a first practice*, as an organiser would run it. The goal and its
+safeguards stay pinned at the top, and the line under them shows where you are.
 
-A built-in guide asks these questions one at a time. If you like, Claude or a local
-model can take its place and give advice as well.
+![The workspace mid-loop: the goal of a clear, no-pressure next step after open evenings is pinned, with its safeguards; the loop line shows Goal, Test and Action done and Observe current; the guide asks what actually happened](docs/images/in-progress.png)
+
+Three weeks later the forecast sits next to the result. The forecast was 6 of 30
+newcomers; the result was 9 of 31, with both safeguards intact. This is where the
+learning is, and it feeds back into the trees.
+
+![The Tests view: the original forecast, 6 of 30 newcomers at a first practice within 3 weeks, next to the reported result, 9 of 31](docs/images/forecast-vs-result.png)
+
+| | In the app today |
+| --- | --- |
+| The loop: goal, test with forecast, action, observation, review | **Works now**, offline, with a built-in guide or an AI consultant |
+| Goal Tree | One goal with a measure and safeguards; the full tree is planned |
+| Current Reality Tree | Planned next: causes, evidence and alternatives |
+| Evaporating Cloud | Planned, together with group work |
+| Future Reality, Prerequisite and Transition Trees | Planned; each action already runs as a loop |
+
+The order follows the [delivery plan](reason-commons-spec/delivery-phases.md).
 
 ## Is this for you?
 
-It suits any goal where you are not sure what will work, for example:
+It suits any change where you are not sure what will work, for example:
 
-- **Personal:** "Be in bed by 23:00 four nights a week without losing evenings with my partner."
-- **Work:** "Cut the time our changes wait for release, without more rollbacks."
-- **Team or community:** "Get more neighbours to the monthly meeting without burning out the organisers."
+- **A movement:** "Turn people who resonate with our ideas into people who practise them."
+- **A community group:** "Get more neighbours to the monthly meeting without burning out the organisers."
+- **A team:** "Cut the time our changes wait for release, without more rollbacks."
 
-After one loop you have a written goal and safeguards. You also have a test whose
-forecast you can't quietly rewrite, an honest record of what happened, and a decision
-you can explain. All of it is in a plain folder you own.
+After one loop you have a written goal and safeguards, a forecast you can't quietly
+rewrite, an honest record of what happened and a decision you can explain. It is
+all in a plain folder you own.
 
 ## Try it
 
@@ -53,36 +141,27 @@ reason-commons
 That is all; there is no Python setup to manage. To update later, run
 `uv tool upgrade reason-commons`.
 
-## What a session looks like
-
-**Your goals.** `reason-commons` opens a list of your goals. You can pick one, start a
-new one, or look around a finished example first.
+`reason-commons` opens a list of your goals. Start a new one, or look around the
+finished open-evening example first. A new goal opens with a short welcome and one
+question; you answer in ordinary words, Enter adds a line and Ctrl+S sends.
 
 ![The home screen lists goals with their current step, plus Start a new goal and a finished example](docs/images/home.png)
-
-**The first question.** A new goal opens with a short welcome and one question. You
-answer in ordinary words. Enter adds a line and Ctrl+S sends.
-
-![The welcome screen asks what you want to achieve and draws the loop](docs/images/welcome.png)
-
-**Forecast next to result.** Under **Tests**, what you expected sits beside what
-happened. This is where the learning is.
-
-![The Tests view shows the original forecast, 4 of 7 nights, next to the reported result, 5 of 7 nights](docs/images/forecast-vs-result.png)
 
 Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
 `reason-commons` takes you back to where you were.
 
 ## Where next
 
-- [Using the workspace](docs/tui.md): keys, views, consultants, where your data lives.
-- [Use a local model with LM Studio](docs/lm-studio.md).
-- [Use Reason Commons from an AI agent](docs/skill-use.md).
+- [Tutorial: your first loop](docs/tutorial.md), step by step with pictures.
+- [The six trees, explained](docs/the-trees.md) and [the loop, explained](docs/the-loop.md).
+- [Use Claude or a local model](docs/use-a-model.md) and [back up, share and move goals](docs/back-up-and-share.md).
+- [Workspace reference](docs/tui.md): keys, views, commands and settings.
+- [All documentation](docs/README.md), including using Reason Commons from an AI agent.
 - Questions or ideas: [open an issue](https://github.com/life-itself/reason-commons-tui/issues).
 
 ## Status
 
-This is an early prototype for personal use. The loop above works end to end. Group
-work, richer reasoning maps and an accessible plain-text mode are planned.
+This is an early prototype for personal use. The loop works end to end. Drawing
+the trees, group work and an accessible plain-text mode are planned.
 
 [Contributing](CONTRIBUTING.md) · [MIT License](LICENSE)

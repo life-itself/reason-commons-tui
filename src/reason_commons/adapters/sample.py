@@ -8,21 +8,28 @@ throwaway folder; the people and numbers are fictional.
 from reason_commons.adapters.guided import GuidedConsultant
 from reason_commons.bootstrap import create_case, open_case
 
-NAME = "Example: in bed by 23:00"
-SPEAKER = "Sam (example)"
+NAME = "Example: from open evening to first practice"
+SPEAKER = "Mira (example)"
+# One test from the Second Renaissance analysis in the reasoncommons guide: its
+# Transition Tree's third action, "prototype one clear next step from a public event to
+# a first practice". The organiser, numbers and dates are invented.
 ANSWERS = [
-    "Be in bed by 23:00 more often, so I wake up rested.",
-    "Nights a week in bed by 23:00 (sleep log): now 1 of 7, aiming for 4 of 7 by 31 October.",
-    "Evenings with my partner\nMy morning run",
-    "No screens after 22:15; the phone charges in the kitchen.",
-    "4 of 7 nights in bed by 23:00 in the first week",
-    "Sunday, 12 October",
-    "Stop if I lie awake for more than an hour on three nights.",
-    "Tonight at 22:15: put the phone on the kitchen charger and set a reminder.",
-    "5 of 7 nights in bed by 23:00 (sleep log). Two nights I read until 23:30. "
-    "Evenings with my partner felt calmer; I ran every morning as usual.",
-    "Keep it. I forecast 4 of 7 and got 5 of 7, and both safeguards held. "
-    "Next I will try the same on weekends.",
+    "Newcomers at our open evenings find a clear, no-pressure next step into a first practice "
+    "session, so interest turns into sustained practice.",
+    "Newcomers at a first practice within 3 weeks (sign-up sheet): now 2 of 30, "
+    "aiming for 8 of 30 by 30 November.",
+    "Nobody feels recruited or pressured\nOrganisers' hours stay as they are",
+    "End each open evening with one clear invitation: the date of a first practice, what it asks "
+    "of you, and that no is a fine answer.",
+    "6 of 30 newcomers come to a first practice within 3 weeks",
+    "Sunday, 9 November",
+    "Stop if anyone tells us they felt pushed.",
+    "Thursday 16 October: I give the invitation in the last ten minutes and hand out a card with "
+    "the date and an easy way to say no.",
+    "9 of 31 newcomers came to a first practice within 3 weeks (sign-up sheet). Nobody said they "
+    "felt pushed; two said the card helped them decide. Organiser hours were the same.",
+    "Keep it. I forecast 6 of 30 and got 9 of 31, and both safeguards held. "
+    "Next I will test whether people come back for a second session.",
 ]
 
 

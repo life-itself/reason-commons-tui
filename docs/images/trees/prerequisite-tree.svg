@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 846" width="900" height="846" role="img" aria-label="Prerequisite Tree. What stands in the way, and what has to come first? Change we make: Scale through depth: reach built around protected practice pockets. Obstacle: Practices stay tacit or spread shallowly. Intermediate objective: A maturity-rated, adaptable practice library. Obstacle: Values are hard to sustain without a container. Intermediate objective: An outward-facing pilot pocket runs. Obstacle: Delegating risks quality or a status hierarchy. Intermediate objective: Accountable, graduated stewardship. Obstacle: Agreeing in principle doesn&#x27;t change practice. Intermediate objective: Recurring practice at deeper levels. Obstacle: No next step; people may resist being funnelled. Intermediate objective: A transparent, consent-based entry path. Obstacle: A progress measure may be contested or reductive. Intermediate objective: A mixed-method progress measure is agreed. Obstacle: Goal, symptoms and arrows are not yet checked. Intermediate objective: A stewarded model, accepted for provisional use.">
+<title>Prerequisite Tree: What stands in the way, and what has to come first?</title>
+<style>
+  .k-injection { --c: #0969da; }
+  .k-io { --c: #0969da; }
+  .k-obstacle { --c: #bc4c00; }
+  .box { fill: var(--c); fill-opacity: .07; stroke: var(--c); stroke-width: 1.5; }
+  .k-constraint .box, .k-next .box { stroke-width: 3; }
+  .kind { font: 600 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; letter-spacing: .06em; fill: var(--c); }
+  .text { font: 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .title { font: 600 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .question { font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #424a53; }
+  .note { font: italic 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .edge { fill: none; stroke: #8b949e; stroke-width: 1.5; }
+  .dashed { stroke-dasharray: 6 4; }
+  .conflict { stroke: #cf222e; stroke-width: 2.5; stroke-dasharray: 7 5; }
+  .risk { stroke: #cf222e; stroke-dasharray: 6 4; }
+  #a path { fill: #8b949e; } #r path { fill: #cf222e; }
+  @media (prefers-color-scheme: dark) {
+    .k-injection { --c: #4493f8; } .k-io { --c: #4493f8; } .k-obstacle { --c: #f0883e; }
+    .text, .title { fill: #e6edf3; } .question { fill: #c9d1d9; } .note { fill: #9198a1; }
+    .conflict, .risk { stroke: #f85149; } #r path { fill: #f85149; }
+  }
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="title" x="24" y="36">Prerequisite Tree</text>
+<text class="question" x="24" y="60">What stands in the way, and what has to come first?</text>
+<text class="note" x="876" y="36" text-anchor="end">arrows: is overcome by · comes before</text>
+<path class="edge" d="M408.0 198.0 C470.0 198.0 470.0 207.0 532.0 207.0" marker-end="url(#a)"/>
+<path class="edge" d="M408.0 288.0 C470.0 288.0 470.0 288.0 532.0 288.0" marker-end="url(#a)"/>
+<path class="edge" d="M408.0 378.0 C470.0 378.0 470.0 378.0 532.0 378.0" marker-end="url(#a)"/>
+<path class="edge" d="M408.0 468.0 C470.0 468.0 470.0 468.0 532.0 468.0" marker-end="url(#a)"/>
+<path class="edge" d="M408.0 567.0 C470.0 567.0 470.0 558.0 532.0 558.0" marker-end="url(#a)"/>
+<path class="edge" d="M408.0 657.0 C470.0 657.0 470.0 657.0 532.0 657.0" marker-end="url(#a)"/>
+<path class="edge" d="M408.0 738.0 C470.0 738.0 470.0 747.0 532.0 747.0" marker-end="url(#a)"/>
+<path class="edge" d="M706.0 168.0 C706.0 164.0 706.0 164.0 706.0 160.0" marker-end="url(#a)"/>
+<path class="edge" d="M706.0 708.0 C706.0 702.0 706.0 702.0 706.0 696.0" marker-end="url(#a)"/>
+<path class="edge" d="M706.0 618.0 C706.0 603.0 706.0 603.0 706.0 588.0" marker-end="url(#a)"/>
+<path class="edge" d="M706.0 528.0 C706.0 513.0 706.0 513.0 706.0 498.0" marker-end="url(#a)"/>
+<path class="edge" d="M706.0 438.0 C706.0 423.0 706.0 423.0 706.0 408.0" marker-end="url(#a)"/>
+<path class="edge" d="M706.0 348.0 C706.0 333.0 706.0 333.0 706.0 318.0" marker-end="url(#a)"/>
+<path class="edge" d="M706.0 258.0 C706.0 252.0 706.0 252.0 706.0 246.0" marker-end="url(#a)"/>
+<g class="k-injection">
+<rect class="box" x="536" y="86" width="340" height="70" rx="9"/>
+<text class="kind" x="548" y="106">CHANGE WE MAKE</text>
+<text class="text" x="548" y="128">Scale through depth: reach built around</text>
+<text class="text" x="548" y="146">protected practice pockets</text>
+</g>
+<g class="k-obstacle">
+<rect class="box" x="24" y="172" width="380" height="52" rx="9"/>
+<text class="kind" x="36" y="192">OBSTACLE</text>
+<text class="text" x="36" y="214">Practices stay tacit or spread shallowly</text>
+</g>
+<g class="k-io">
+<rect class="box" x="536" y="172" width="340" height="70" rx="9"/>
+<text class="kind" x="548" y="192">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="548" y="214">A maturity-rated, adaptable practice</text>
+<text class="text" x="548" y="232">library</text>
+</g>
+<g class="k-obstacle">
+<rect class="box" x="24" y="262" width="380" height="52" rx="9"/>
+<text class="kind" x="36" y="282">OBSTACLE</text>
+<text class="text" x="36" y="304">Values are hard to sustain without a container</text>
+</g>
+<g class="k-io">
+<rect class="box" x="536" y="262" width="340" height="52" rx="9"/>
+<text class="kind" x="548" y="282">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="548" y="304">An outward-facing pilot pocket runs</text>
+</g>
+<g class="k-obstacle">
+<rect class="box" x="24" y="352" width="380" height="52" rx="9"/>
+<text class="kind" x="36" y="372">OBSTACLE</text>
+<text class="text" x="36" y="394">Delegating risks quality or a status hierarchy</text>
+</g>
+<g class="k-io">
+<rect class="box" x="536" y="352" width="340" height="52" rx="9"/>
+<text class="kind" x="548" y="372">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="548" y="394">Accountable, graduated stewardship</text>
+</g>
+<g class="k-obstacle">
+<rect class="box" x="24" y="442" width="380" height="52" rx="9"/>
+<text class="kind" x="36" y="462">OBSTACLE</text>
+<text class="text" x="36" y="484">Agreeing in principle doesn&#x27;t change practice</text>
+</g>
+<g class="k-io">
+<rect class="box" x="536" y="442" width="340" height="52" rx="9"/>
+<text class="kind" x="548" y="462">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="548" y="484">Recurring practice at deeper levels</text>
+</g>
+<g class="k-obstacle">
+<rect class="box" x="24" y="532" width="380" height="70" rx="9"/>
+<text class="kind" x="36" y="552">OBSTACLE</text>
+<text class="text" x="36" y="574">No next step; people may resist being</text>
+<text class="text" x="36" y="592">funnelled</text>
+</g>
+<g class="k-io">
+<rect class="box" x="536" y="532" width="340" height="52" rx="9"/>
+<text class="kind" x="548" y="552">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="548" y="574">A transparent, consent-based entry path</text>
+</g>
+<g class="k-obstacle">
+<rect class="box" x="24" y="622" width="380" height="70" rx="9"/>
+<text class="kind" x="36" y="642">OBSTACLE</text>
+<text class="text" x="36" y="664">A progress measure may be contested or</text>
+<text class="text" x="36" y="682">reductive</text>
+</g>
+<g class="k-io">
+<rect class="box" x="536" y="622" width="340" height="70" rx="9"/>
+<text class="kind" x="548" y="642">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="548" y="664">A mixed-method progress measure is</text>
+<text class="text" x="548" y="682">agreed</text>
+</g>
+<g class="k-obstacle">
+<rect class="box" x="24" y="712" width="380" height="52" rx="9"/>
+<text class="kind" x="36" y="732">OBSTACLE</text>
+<text class="text" x="36" y="754">Goal, symptoms and arrows are not yet checked</text>
+</g>
+<g class="k-io">
+<rect class="box" x="536" y="712" width="340" height="70" rx="9"/>
+<text class="kind" x="548" y="732">INTERMEDIATE OBJECTIVE</text>
+<text class="text" x="548" y="754">A stewarded model, accepted for</text>
+<text class="text" x="548" y="772">provisional use</text>
+</g>
+<text class="note" x="706" y="802" text-anchor="middle">start here</text>
+<text class="note" x="24" y="828">Second Renaissance example, from reasoncommons/ltp/06-prerequisite-tree.md (labels shortened)</text>
+</svg>
