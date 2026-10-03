@@ -10,7 +10,7 @@ flowchart TD
   CLI[Offline CLI] --> App[Application use cases]
   Invocation[One-shot contribution command] --> Skill
   MCP[Local MCP tools] --> App
-  TUI[Future p1 TUI] --> App
+  TUI[Textual TUI, first p1 slice] --> App
   Agent[Agent using procedure] --> Skill[Skill adapter]
   Skill --> App
   BDD[Original p0 Gherkin steps] --> App

@@ -1,4 +1,4 @@
-"""Case utilities and one-shot skill invocations; the persistent TUI is p1."""
+"""Case utilities, one-shot skill invocations and the launcher for the terminal workspace."""
 
 import argparse
 import json
@@ -17,6 +17,15 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="reason-commons", description="Reason Commons durable cases and contribution skill")
     parser.add_argument("--version", action="version", version=__version__)
     commands = parser.add_subparsers(dest="command")
+    for name in ("tui", "resume"):
+        workspace = commands.add_parser(name, help="Open the terminal workspace; tui also creates a missing case")
+        workspace.add_argument("store", help="Case folder, for example ~/ReasonCommons/running")
+        workspace.add_argument("--name", help="Case name when creating a new case (default: folder name)")
+        workspace.add_argument("--speaker", help="Your name as recorded with each answer (default: $USER)")
+        workspace.add_argument("--provider", choices=["guided", "lm-studio", "anthropic"],
+                               help="Consultant; otherwise REASON_COMMONS_PROVIDER or guided (offline)")
+        workspace.add_argument("--model", help="Selected provider's model ID")
+        workspace.add_argument("--base-url", help="Selected provider's URL")
     new = commands.add_parser("new", help="Create a durable minimal case (p0)")
     new.add_argument("--store", required=True)
     new.add_argument("--name", default="Untitled case")
@@ -69,7 +78,18 @@ def main(argv=None):
     mcp.add_argument("--base-url", help="Selected provider's URL")
     args = parser.parse_args(argv)
     try:
-        if args.command == "new":
+        if args.command in {"tui", "resume"}:
+            if not (sys.stdin.isatty() and sys.stdout.isatty()):
+                raise ValueError("The workspace needs an interactive terminal; use show/inspect for offline reads")
+            if args.command == "resume" and not Path(args.store).expanduser().exists():
+                raise ValueError(f"No case at {args.store}; use 'reason-commons tui {args.store}' to create one")
+            try:
+                from reason_commons.adapters.tui import run
+            except ImportError:
+                raise ValueError("The workspace needs Textual: python3 -m pip install -e '.[tui]'") from None
+            run(args.store, name=args.name, speaker=args.speaker, provider=args.provider,
+                model=args.model, base_url=args.base_url)
+        elif args.command == "new":
             with create_case(args.store, args.name) as app:
                 print(json.dumps(app.inspect(), ensure_ascii=False))
         elif args.command in {"inspect", "history"}:

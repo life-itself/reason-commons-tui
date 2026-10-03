@@ -131,3 +131,16 @@ converted case continued at revision 2 with revision 1 unchanged. The full gate
 now passes 159 implementation tests, 23 specification regressions, the original
 nine p0 scenarios and seven conversation scenarios. Native formulation
 supersession and later graph profiles remain separate domain capabilities.
+
+## After p0: first TUI slice
+
+A personal-use slice of p1 now ships as `reason-commons tui` (optional extra
+`.[tui]`, Textual), described in [tui.md](tui.md). It reads `workspace`/`inspect`
+and changes the case only through `retain_input`, `consult`, `retry`, `export` and
+`checkpoint`. A deterministic `GuidedConsultant` (provider `guided`) implements the
+consultant port offline; the application validates its proposals like any other.
+Adapter tests (`tests/test_tui.py`, `tests/test_guided.py`) cover sending, draft
+restore, local browsing without calls, and retained-input retry. The p1 scenario
+set (80×24 specimens, accessible mode, speaker switching, usability evidence) is
+not yet delivered and no p1 scenario is claimed.
+
