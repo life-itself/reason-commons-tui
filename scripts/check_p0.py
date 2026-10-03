@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the complete p0 gate without changing the authoritative specification."""
+"""Run the complete p0 gate, plus every delivered p2 tree scenario, without changing the specification."""
 
 import json
 import os
@@ -39,6 +39,18 @@ def main():
         if len(selected) != len(expected) or actual != expected or any(s["status"] != "passed" for s in selected):
             raise SystemExit("FAIL: incomplete p0 acceptance coverage")
         print(f"PASS: all {len(expected)} authoritative p0 scenarios executed and passed: {', '.join(sorted(actual))}")
+        # The trees feature is delivered ahead of the rest of p2: every scenario in it must run and pass.
+        trees_feature = ROOT / "reason-commons-spec/features/12_trees_in_conversation.feature"
+        trees_output = Path(directory) / "trees.json"
+        run("-m", "behave", "--include", trees_feature.name, "--format", "json", "--outfile", str(trees_output))
+        ran = [s for feature in json.loads(trees_output.read_text()) for s in feature.get("elements", [])
+               if s.get("type") == "scenario"]
+        cases = sum(sum(len(e.table.rows) for e in s.examples) if hasattr(s, "examples") else 1
+                    for s in parse_file(str(trees_feature)).scenarios)
+        if len(ran) != cases or any(s["status"] != "passed" for s in ran):
+            raise SystemExit("FAIL: incomplete trees acceptance coverage")
+        ids = sorted({t for s in ran for t in s["tags"] if t.startswith("S") and t[1:].isdigit()})
+        print(f"PASS: all {len(ran)} trees cases executed and passed: {', '.join(ids)}")
         conversation = Path(directory) / "conversation.json"
         run("-m", "behave", "--runner", "tests.conversation.runner:ConversationRunner",
             "tests/conversation/features", "--format", "json", "--outfile", str(conversation))

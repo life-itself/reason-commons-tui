@@ -13,10 +13,13 @@ movement, analysed from its own documents in the
 Labels in the pictures are shortened; the guide has the full wording, evidence and
 open questions for every box.
 
-> **What the app draws today.** These pictures illustrate the method. The app does
-> not draw them yet; it runs the [loop](the-loop.md) that tests one action at a time.
-> The trees arrive in stages, as the [delivery plan](../reason-commons-spec/delivery-phases.md)
-> describes.
+> **In the app.** These pictures illustrate the method. The app's **Trees** view
+> (Ctrl+T, then Ctrl+N for the next tree) draws the same six trees as indented outlines, from what you and the consultant
+> record as you talk, or from an `.ltp.yaml` file you bring in. The finished example
+> in the app carries this whole analysis. Joint causes (several causes that only work
+> together) and rival explanations arrive later, as the
+> [delivery plan](../reason-commons-spec/delivery-phases.md) describes. The
+> [loop](the-loop.md) then tests one action at a time.
 
 ## Reading the pictures
 

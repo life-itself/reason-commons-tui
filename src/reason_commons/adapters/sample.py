@@ -1,11 +1,16 @@
 """A finished example loop, built through the application with the built-in guide.
 
 The home screen offers it so a newcomer can look at a whole loop (goal, test with a
-forecast, action, observation, review) before starting their own. It is written to a
-throwaway folder; the people and numbers are fictional.
+forecast, action, observation, review) before starting their own. The finished
+example also brings in the six trees of the analysis the test comes from. It is
+written to a throwaway folder; the people and numbers are fictional.
 """
 
+from functools import partial
+from importlib.resources import as_file, files
+
 from reason_commons.adapters.guided import GuidedConsultant
+from reason_commons.adapters.ltp_trees import import_trees
 from reason_commons.bootstrap import create_case, open_case
 
 NAME = "Example: from open evening to first practice"
@@ -33,10 +38,11 @@ ANSWERS = [
 ]
 
 
-def build_sample(path, answers=None, clock=None, view="tests", name=NAME):
+def build_sample(path, answers=None, clock=None, view="tests", name=NAME, trees=None):
     """Create the example case at path (which must not exist) and return path.
 
-    By default the whole loop is answered; screenshots pass fewer answers or a fixed clock.
+    By default the whole loop is answered and the trees are brought in; screenshots
+    pass fewer answers or a fixed clock.
     """
     create_case(path, name, clock=clock).close()
     with open_case(path, consultant=GuidedConsultant(), clock=clock) as app:
@@ -46,6 +52,10 @@ def build_sample(path, answers=None, clock=None, view="tests", name=NAME):
             result = app.consult(result["request_id"])
             if result["status"] != "saved":
                 raise RuntimeError(f"Example could not be built: {result['status']}")
+    if answers is None if trees is None else trees:
+        with as_file(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")) as source:
+            import_trees(path, source, SPEAKER, open_case=partial(open_case, clock=clock))
+    with open_case(path, clock=clock) as app:
         # Open on Tests, where the original forecast sits next to the reported result.
         target = app.workspace()["target"]
         app.checkpoint({"view": view, "focus": "browse", "draft": "", "caret": 0, "speaker": SPEAKER,

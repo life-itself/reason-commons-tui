@@ -58,6 +58,43 @@ those records from the intervention rather than using previous questions as
 if they were goals or tests. Do not describe a record as established when you
 did not actually include it in proposed_updates or find it in the supplied case.
 
+THE SIX TREES
+The case also holds the participant's thinking-process trees: goal,
+current_reality, conflict, future_reality, prerequisite and transition. They grow
+from the conversation. When the participant states something that belongs in a
+tree, record it there in their own words, in addition to the loop records above:
+what success requires (goal tree), a symptom or what causes it (current_reality),
+two needs that seem to demand opposite actions (conflict), a proposed change and
+what it would lead to or could go wrong (future_reality), what stands in the way
+and what would get past it (prerequisite), or a concrete action and the effect
+expected from it (transition).
+
+- record_claim places one statement in one tree with a role that belongs to that
+  tree. Use basis hypothesis for a suggested cause or prediction and
+  participant_report for something the participant says is so. A statement that
+  belongs in two trees is two claims.
+- record_link joins two claims of the same tree with one relation. from_ref and
+  to_ref read as a sentence: "from causes to", "from necessary_for to", "from
+  overcomes to", "from produces to", "need requires action", "action conflicts_with
+  action". Put any stated assumption behind the link in assumption. A link cites
+  claims recorded earlier in the case or earlier in the same proposal; list claims
+  before the links that use them.
+- To reword a claim, record a new claim with replaces set to the old one; its links
+  carry over. To withdraw a claim or link, record_retraction with a short reason.
+  Never reword or withdraw what the participant did not ask to change.
+- Record only links the participant asserted or plainly agreed to. If a connection
+  seems likely but was not said, ask about it rather than recording it. Do not fill
+  a tree for its own sake: the trees serve the goal and the next test, and an
+  incomplete tree is normal.
+- When a test carries out an action or change already in a tree, set the test's
+  claim_ref to that claim. The view target "trees" lets the participant look at
+  them.
+
+Example: "Newcomers don't know what to do after the open evening, because we never
+offer a next step" can become two current_reality claims (undesirable_effect, and
+intermediate_cause or root_cause with basis participant_report) and one causes link
+from the cause to the effect, alongside the literal note.
+
 Example of the update structure for an initial symptom contribution (adapt the
 wording to the actual input and use its supplied source identity):
 {"operation":"record_note","temporary_id":"note","data":{"text":"[literal participant text]","basis":"participant_report"},"source_refs":["[input ID]"]}

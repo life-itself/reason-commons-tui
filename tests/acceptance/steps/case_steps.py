@@ -1,4 +1,4 @@
-"""Executable definitions for the nine unchanged p0 specification scenarios."""
+"""Executable definitions for the nine p0 specification scenarios (S108 amended for tree records)."""
 
 from copy import deepcopy
 from pathlib import Path
@@ -313,7 +313,7 @@ def owner_help(context):
     assert "not tamper-proof" in context.help
 
 
-@given("the v1 schema allows only goal, note, intervention, test, action, observation, and bounded review records")
+@given("the v1 schema allows only goal, note, intervention, test, action, observation, bounded review, and typed tree claim, link and retraction records")
 def v1_case(context):
     new_app(context)
     seed(context.app, context.provider)
@@ -321,7 +321,7 @@ def v1_case(context):
     context.before = context.app.inspect()
 
 
-@when("an adapter proposal includes a relationship graph or structured stance update")
+@when("an adapter proposal includes an untyped relationship graph or structured stance update")
 def later_fields(context):
     for kind in ("relationship", "stance"):
         def invalid(request, kind=kind):

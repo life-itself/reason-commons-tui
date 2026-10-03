@@ -1,0 +1,1003 @@
+# The Second Renaissance analysis from the reasoncommons guide (ltp/ltp-model.yaml, MIT licence),
+# mapped to LTP 1.0 by scripts/build_sample_trees.py for the app's finished example.
+ltp:
+  schema_version: '1.0'
+  project_id: second-renaissance-example
+  title: 'Second Renaissance: why resonance is not becoming durable adoption'
+  entities:
+  - id: goal-nc-1
+    tree: goal
+    statement: Goal-relevant throughput is operationally defined without reducing transformation to activity
+      counts
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NC-1
+  - id: goal-nc-2
+    tree: goal
+    statement: A transparent path connects first contact to sustained practice and contribution
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NC-2
+  - id: goal-nc-3
+    tree: goal
+    statement: Participants can repeat embodied practices at progressively deeper levels
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NC-3
+  - id: goal-nc-4
+    tree: goal
+    statement: Contributors can develop into facilitators and accountable stewards
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NC-4
+  - id: goal-nc-5
+    tree: goal
+    statement: Dense practice containers receive sangha support and remain outward-facing
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NC-5
+  - id: goal-nc-6
+    tree: goal
+    statement: Strategic maps are governed as living, challengeable, versioned commons
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NC-6
+  - id: goal-csf-1
+    tree: goal
+    statement: People durably embody wiser views, values, practices, and ways of acting
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#CSF-1
+  - id: goal-csf-2
+    tree: goal
+    statement: The group learns and revises strategy through evidence, objections, and constraint review
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#CSF-2
+  - id: goal-csf-3
+    tree: goal
+    statement: Proven practices stabilize in pockets and become responsibly transmissible
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#CSF-3
+  - id: goal-g-1
+    tree: goal
+    statement: Co-initiate a conscious transformation toward a wiser, weller, regenerative civilization
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#G-1
+  - id: current-reality-rc-0
+    tree: current_reality
+    statement: The group has no agreed process for validating and revising its strategic maps
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#RC-0
+  - id: current-reality-rc-1
+    tree: current_reality
+    statement: The group lacks a reliable architecture that converts interest into practice, contribution,
+      pocket formation, and replication
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#RC-1
+  - id: current-reality-rc-2
+    tree: current_reality
+    statement: Throughput is not yet operationally defined and accepted
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#RC-2
+  - id: current-reality-rc-3
+    tree: current_reality
+    statement: The group lacks a disciplined practice-action-learning and constraint-review cadence
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#RC-3
+  - id: current-reality-ude-1
+    tree: current_reality
+    statement: Many people resonate with the ideas but few enter sustained practice
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#UDE-1
+  - id: current-reality-ude-2
+    tree: current_reality
+    statement: The group is busy while durable-adoption throughput remains low
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#UDE-2
+  - id: current-reality-ude-3
+    tree: current_reality
+    statement: Core organizers carry too much of the work and risk burnout
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#UDE-3
+  - id: current-reality-ude-4
+    tree: current_reality
+    statement: New participants do not know the next step after initial contact
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#UDE-4
+  - id: current-reality-ude-5
+    tree: current_reality
+    statement: Pockets are difficult to form and remain fragile or isolated
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#UDE-5
+  - id: current-reality-ude-6
+    tree: current_reality
+    statement: Others may admire the work without reproducing it
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#UDE-6
+  - id: conflict-opt-1
+    tree: conflict
+    statement: Act like a movement now by prioritizing scale, speed, message, and accessibility
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OPT-1
+  - id: conflict-opt-2
+    tree: conflict
+    statement: Act like a monastery or laboratory now by prioritizing depth, slowness, practice, and rigor
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OPT-2
+  - id: conflict-need-1
+    tree: conflict
+    statement: Become visible enough to attract people, resources, energy, and legitimacy
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NEED-1
+  - id: conflict-need-2
+    tree: conflict
+    statement: Become embodied enough to represent the proposed new paradigm with integrity
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NEED-2
+  - id: conflict-co-1
+    tree: conflict
+    statement: Increase durable cultural transformation
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#CO-1
+  - id: future-reality-inj-0
+    tree: future_reality
+    statement: Establish a lightweight stewardship and revision protocol for the trees
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-0
+  - id: future-reality-inj-1
+    tree: future_reality
+    statement: Organize a broad public invitation around deep, protected, practice-based pockets
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-1
+  - id: future-reality-inj-2
+    tree: future_reality
+    statement: Define throughput as verified durable adoption using mixed quantitative and qualitative
+      evidence
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-2
+  - id: future-reality-inj-3
+    tree: future_reality
+    statement: Build a transparent, consent-based staged conversion architecture
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-3
+  - id: future-reality-inj-4
+    tree: future_reality
+    statement: Install a practice-action-learning cadence with regular constraint review
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-4
+  - id: future-reality-inj-5
+    tree: future_reality
+    statement: Create a graduated contributor, facilitator, and stewardship pathway
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-5
+  - id: future-reality-inj-6
+    tree: future_reality
+    statement: Build dense practice containers connected to an outward-facing sangha
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-6
+  - id: future-reality-inj-7
+    tree: future_reality
+    statement: Document only maturity-rated practices in a context-adaptable replication library
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-7
+  - id: future-reality-de-1
+    tree: future_reality
+    statement: The group can distinguish durable transformation from visible activity
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#DE-1
+  - id: future-reality-de-2
+    tree: future_reality
+    statement: More interested people enter and sustain embodied practice
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#DE-2
+  - id: future-reality-de-3
+    tree: future_reality
+    statement: Leadership capacity grows without permanent founder bottlenecks
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#DE-3
+  - id: future-reality-de-4
+    tree: future_reality
+    statement: Stable pockets form, mature, and stay connected to wider society
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#DE-4
+  - id: future-reality-de-5
+    tree: future_reality
+    statement: Tested practices become teachable and independently reproducible
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#DE-5
+  - id: future-reality-de-6
+    tree: future_reality
+    statement: The rate of verified durable adoption increases
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#DE-6
+  - id: future-reality-nbr-1
+    tree: future_reality
+    statement: Throughput metrics crowd out subtle inner and relational transformation
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NBR-1
+  - id: future-reality-nbr-2
+    tree: future_reality
+    statement: A conversion pathway feels manipulative, extractive, or cult-like
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#NBR-2
+  - id: future-reality-g-1
+    tree: future_reality
+    statement: Co-initiate a conscious transformation toward a wiser, weller, regenerative civilization
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#G-1
+  - id: prerequisite-obs-1
+    tree: prerequisite
+    statement: The goal, UDEs, and causal arrows have not been tested against lived group evidence
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OBS-1
+  - id: prerequisite-io-1
+    tree: prerequisite
+    statement: A stewarded, versioned model is accepted as good enough for provisional use
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-1
+  - id: prerequisite-obs-2
+    tree: prerequisite
+    statement: Throughput may be contested or become reductive before the goal model is trusted
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OBS-2
+  - id: prerequisite-io-2
+    tree: prerequisite
+    statement: A mixed-method throughput definition and review protocol are accepted
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-2
+  - id: prerequisite-obs-3
+    tree: prerequisite
+    statement: New people lack a clear next step and may resist being funneled
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OBS-3
+  - id: prerequisite-io-3
+    tree: prerequisite
+    statement: One transparent, consent-based entry pathway exists
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-3
+  - id: prerequisite-obs-4
+    tree: prerequisite
+    statement: Intellectual agreement does not reliably change daily practice
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OBS-4
+  - id: prerequisite-io-4
+    tree: prerequisite
+    statement: A recurring, progressively deep practice architecture exists
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-4
+  - id: prerequisite-obs-5
+    tree: prerequisite
+    statement: Delegating responsibility may reduce quality or create status hierarchy
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OBS-5
+  - id: prerequisite-io-5
+    tree: prerequisite
+    statement: A graduated stewardship pathway with accountable role criteria exists
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-5
+  - id: prerequisite-obs-6
+    tree: prerequisite
+    statement: New values are hard to sustain without dense and supported containers
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OBS-6
+  - id: prerequisite-io-6
+    tree: prerequisite
+    statement: A pilot pocket or sangha container operates with outward-facing service
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-6
+  - id: prerequisite-obs-7
+    tree: prerequisite
+    statement: Successful practices may remain tacit or spread as shallow copies
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#OBS-7
+  - id: prerequisite-io-7
+    tree: prerequisite
+    statement: A maturity-rated replication library distinguishes principles from local forms
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-7
+  - id: prerequisite-inj-1
+    tree: prerequisite
+    statement: Organize a broad public invitation around deep, protected, practice-based pockets
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#INJ-1
+  - id: transition-act-1
+    tree: transition
+    statement: Facilitate one bounded stewarded review of the goal, priority UDEs, and conversion-constraint
+      hypothesis
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#ACT-1
+  - id: transition-tr-1
+    tree: transition
+    statement: A dated model records confirmations, disputes, evidence gaps, a named steward, and the
+      next review
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#TR-1
+  - id: transition-io-1
+    tree: transition
+    statement: A stewarded, versioned model is accepted as good enough for provisional use
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-1
+  - id: transition-act-2
+    tree: transition
+    statement: Draft and review one mixed-method definition of a durable adoption event
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#ACT-2
+  - id: transition-tr-2
+    tree: transition
+    statement: The group can test one candidate throughput measure without treating it as complete truth
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#TR-2
+  - id: transition-io-2
+    tree: transition
+    statement: A mixed-method throughput definition and review protocol are accepted
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-2
+  - id: transition-act-3
+    tree: transition
+    statement: Prototype one consent-based next-step pathway from a real public contact into first practice
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#ACT-3
+  - id: transition-tr-3
+    tree: transition
+    statement: The group observes where real participants accept, decline, or leave the entry pathway
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#TR-3
+  - id: transition-io-3
+    tree: transition
+    statement: One transparent, consent-based entry pathway exists
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-3
+  - id: transition-act-4
+    tree: transition
+    statement: Run one short recurring-practice cohort as a documented learning experiment
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#ACT-4
+  - id: transition-tr-4
+    tree: transition
+    statement: The group obtains retention, qualitative practice, safety, and learning evidence
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#TR-4
+  - id: transition-io-4
+    tree: transition
+    statement: A recurring, progressively deep practice architecture exists
+    provenance:
+      path: reasoncommons/ltp/ltp-model.yaml#IO-4
+  designations:
+  - id: d-goal-nc-1
+    entity_id: goal-nc-1
+    role: necessary_condition
+  - id: d-goal-nc-2
+    entity_id: goal-nc-2
+    role: necessary_condition
+  - id: d-goal-nc-3
+    entity_id: goal-nc-3
+    role: necessary_condition
+  - id: d-goal-nc-4
+    entity_id: goal-nc-4
+    role: necessary_condition
+  - id: d-goal-nc-5
+    entity_id: goal-nc-5
+    role: necessary_condition
+  - id: d-goal-nc-6
+    entity_id: goal-nc-6
+    role: necessary_condition
+  - id: d-goal-csf-1
+    entity_id: goal-csf-1
+    role: critical_success_factor
+  - id: d-goal-csf-2
+    entity_id: goal-csf-2
+    role: critical_success_factor
+  - id: d-goal-csf-3
+    entity_id: goal-csf-3
+    role: critical_success_factor
+  - id: d-goal-g-1
+    entity_id: goal-g-1
+    role: goal
+  - id: d-current-reality-rc-0
+    entity_id: current-reality-rc-0
+    role: root_cause
+  - id: d-current-reality-rc-1
+    entity_id: current-reality-rc-1
+    role: root_cause
+  - id: d-current-reality-rc-2
+    entity_id: current-reality-rc-2
+    role: root_cause
+  - id: d-current-reality-rc-3
+    entity_id: current-reality-rc-3
+    role: root_cause
+  - id: d-current-reality-ude-1
+    entity_id: current-reality-ude-1
+    role: undesirable_effect
+  - id: d-current-reality-ude-2
+    entity_id: current-reality-ude-2
+    role: undesirable_effect
+  - id: d-current-reality-ude-3
+    entity_id: current-reality-ude-3
+    role: undesirable_effect
+  - id: d-current-reality-ude-4
+    entity_id: current-reality-ude-4
+    role: undesirable_effect
+  - id: d-current-reality-ude-5
+    entity_id: current-reality-ude-5
+    role: undesirable_effect
+  - id: d-current-reality-ude-6
+    entity_id: current-reality-ude-6
+    role: undesirable_effect
+  - id: d-conflict-opt-1
+    entity_id: conflict-opt-1
+    role: cloud_prerequisite
+  - id: d-conflict-opt-2
+    entity_id: conflict-opt-2
+    role: cloud_prerequisite
+  - id: d-conflict-need-1
+    entity_id: conflict-need-1
+    role: cloud_requirement
+  - id: d-conflict-need-2
+    entity_id: conflict-need-2
+    role: cloud_requirement
+  - id: d-conflict-co-1
+    entity_id: conflict-co-1
+    role: cloud_objective
+  - id: d-future-reality-inj-0
+    entity_id: future-reality-inj-0
+    role: injection
+  - id: d-future-reality-inj-1
+    entity_id: future-reality-inj-1
+    role: injection
+  - id: d-future-reality-inj-2
+    entity_id: future-reality-inj-2
+    role: injection
+  - id: d-future-reality-inj-3
+    entity_id: future-reality-inj-3
+    role: injection
+  - id: d-future-reality-inj-4
+    entity_id: future-reality-inj-4
+    role: injection
+  - id: d-future-reality-inj-5
+    entity_id: future-reality-inj-5
+    role: injection
+  - id: d-future-reality-inj-6
+    entity_id: future-reality-inj-6
+    role: injection
+  - id: d-future-reality-inj-7
+    entity_id: future-reality-inj-7
+    role: injection
+  - id: d-future-reality-de-1
+    entity_id: future-reality-de-1
+    role: desired_effect
+  - id: d-future-reality-de-2
+    entity_id: future-reality-de-2
+    role: desired_effect
+  - id: d-future-reality-de-3
+    entity_id: future-reality-de-3
+    role: desired_effect
+  - id: d-future-reality-de-4
+    entity_id: future-reality-de-4
+    role: desired_effect
+  - id: d-future-reality-de-5
+    entity_id: future-reality-de-5
+    role: desired_effect
+  - id: d-future-reality-de-6
+    entity_id: future-reality-de-6
+    role: desired_effect
+  - id: d-future-reality-nbr-1
+    entity_id: future-reality-nbr-1
+    role: undesirable_effect
+  - id: d-future-reality-nbr-2
+    entity_id: future-reality-nbr-2
+    role: undesirable_effect
+  - id: d-future-reality-g-1
+    entity_id: future-reality-g-1
+    role: desired_effect
+  - id: d-prerequisite-obs-1
+    entity_id: prerequisite-obs-1
+    role: obstacle
+  - id: d-prerequisite-io-1
+    entity_id: prerequisite-io-1
+    role: intermediate_objective
+  - id: d-prerequisite-obs-2
+    entity_id: prerequisite-obs-2
+    role: obstacle
+  - id: d-prerequisite-io-2
+    entity_id: prerequisite-io-2
+    role: intermediate_objective
+  - id: d-prerequisite-obs-3
+    entity_id: prerequisite-obs-3
+    role: obstacle
+  - id: d-prerequisite-io-3
+    entity_id: prerequisite-io-3
+    role: intermediate_objective
+  - id: d-prerequisite-obs-4
+    entity_id: prerequisite-obs-4
+    role: obstacle
+  - id: d-prerequisite-io-4
+    entity_id: prerequisite-io-4
+    role: intermediate_objective
+  - id: d-prerequisite-obs-5
+    entity_id: prerequisite-obs-5
+    role: obstacle
+  - id: d-prerequisite-io-5
+    entity_id: prerequisite-io-5
+    role: intermediate_objective
+  - id: d-prerequisite-obs-6
+    entity_id: prerequisite-obs-6
+    role: obstacle
+  - id: d-prerequisite-io-6
+    entity_id: prerequisite-io-6
+    role: intermediate_objective
+  - id: d-prerequisite-obs-7
+    entity_id: prerequisite-obs-7
+    role: obstacle
+  - id: d-prerequisite-io-7
+    entity_id: prerequisite-io-7
+    role: intermediate_objective
+  - id: d-prerequisite-inj-1
+    entity_id: prerequisite-inj-1
+    role: implementation_objective
+  - id: d-transition-act-1
+    entity_id: transition-act-1
+    role: transition_action
+  - id: d-transition-tr-1
+    entity_id: transition-tr-1
+    role: transition_expected_effect
+  - id: d-transition-io-1
+    entity_id: transition-io-1
+    role: transition_need
+  - id: d-transition-act-2
+    entity_id: transition-act-2
+    role: transition_action
+  - id: d-transition-tr-2
+    entity_id: transition-tr-2
+    role: transition_expected_effect
+  - id: d-transition-io-2
+    entity_id: transition-io-2
+    role: transition_need
+  - id: d-transition-act-3
+    entity_id: transition-act-3
+    role: transition_action
+  - id: d-transition-tr-3
+    entity_id: transition-tr-3
+    role: transition_expected_effect
+  - id: d-transition-io-3
+    entity_id: transition-io-3
+    role: transition_need
+  - id: d-transition-act-4
+    entity_id: transition-act-4
+    role: transition_action
+  - id: d-transition-tr-4
+    entity_id: transition-tr-4
+    role: transition_expected_effect
+  - id: d-transition-io-4
+    entity_id: transition-io-4
+    role: transition_need
+  relationships:
+  - id: goal-l-001
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-csf-1
+    to_entity_id: goal-g-1
+  - id: goal-l-002
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-csf-2
+    to_entity_id: goal-g-1
+  - id: goal-l-003
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-csf-3
+    to_entity_id: goal-g-1
+  - id: goal-l-004
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-nc-1
+    to_entity_id: goal-csf-2
+  - id: goal-l-005
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-nc-2
+    to_entity_id: goal-csf-1
+  - id: goal-l-006
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-nc-3
+    to_entity_id: goal-csf-1
+  - id: goal-l-007
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-nc-4
+    to_entity_id: goal-csf-3
+  - id: goal-l-008
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-nc-5
+    to_entity_id: goal-csf-3
+  - id: goal-l-009
+    tree: goal
+    kind: necessary_for
+    from_entity_ids:
+    - goal-nc-6
+    to_entity_id: goal-csf-2
+  - id: current-reality-l-010
+    tree: current_reality
+    kind: contributes_to
+    from_entity_ids:
+    - current-reality-rc-0
+    to_entity_id: current-reality-rc-2
+  - id: current-reality-l-011
+    tree: current_reality
+    kind: causes
+    from_entity_ids:
+    - current-reality-rc-2
+    to_entity_id: current-reality-ude-2
+  - id: current-reality-l-012
+    tree: current_reality
+    kind: causes
+    from_entity_ids:
+    - current-reality-rc-3
+    to_entity_id: current-reality-ude-2
+  - id: current-reality-l-013
+    tree: current_reality
+    kind: causes
+    from_entity_ids:
+    - current-reality-rc-1
+    to_entity_id: current-reality-ude-4
+  - id: current-reality-l-014
+    tree: current_reality
+    kind: contributes_to
+    from_entity_ids:
+    - current-reality-ude-4
+    to_entity_id: current-reality-ude-1
+  - id: current-reality-l-015
+    tree: current_reality
+    kind: contributes_to
+    from_entity_ids:
+    - current-reality-ude-1
+    to_entity_id: current-reality-ude-3
+  - id: current-reality-l-016
+    tree: current_reality
+    kind: contributes_to
+    from_entity_ids:
+    - current-reality-ude-1
+    to_entity_id: current-reality-ude-5
+  - id: current-reality-l-017
+    tree: current_reality
+    kind: contributes_to
+    from_entity_ids:
+    - current-reality-ude-5
+    to_entity_id: current-reality-ude-6
+  - id: current-reality-l-018
+    tree: current_reality
+    kind: contributes_to
+    from_entity_ids:
+    - current-reality-ude-6
+    to_entity_id: current-reality-ude-2
+  - id: conflict-l-019
+    tree: conflict
+    kind: necessary_for
+    from_entity_ids:
+    - conflict-need-1
+    to_entity_id: conflict-co-1
+  - id: conflict-l-020
+    tree: conflict
+    kind: necessary_for
+    from_entity_ids:
+    - conflict-need-2
+    to_entity_id: conflict-co-1
+  - id: conflict-l-021
+    tree: conflict
+    kind: requires
+    from_entity_ids:
+    - conflict-need-1
+    to_entity_id: conflict-opt-1
+  - id: conflict-l-022
+    tree: conflict
+    kind: requires
+    from_entity_ids:
+    - conflict-need-2
+    to_entity_id: conflict-opt-2
+  - id: conflict-l-023
+    tree: conflict
+    kind: conflicts_with
+    from_entity_ids:
+    - conflict-opt-1
+    to_entity_id: conflict-opt-2
+  - id: future-reality-l-024
+    tree: future_reality
+    kind: enables
+    from_entity_ids:
+    - future-reality-inj-0
+    to_entity_id: future-reality-de-1
+  - id: future-reality-l-025
+    tree: future_reality
+    kind: causes
+    from_entity_ids:
+    - future-reality-inj-2
+    to_entity_id: future-reality-de-1
+  - id: future-reality-l-026
+    tree: future_reality
+    kind: causes
+    from_entity_ids:
+    - future-reality-inj-3
+    to_entity_id: future-reality-de-2
+  - id: future-reality-l-027
+    tree: future_reality
+    kind: contributes_to
+    from_entity_ids:
+    - future-reality-inj-4
+    to_entity_id: future-reality-de-1
+  - id: future-reality-l-028
+    tree: future_reality
+    kind: causes
+    from_entity_ids:
+    - future-reality-inj-5
+    to_entity_id: future-reality-de-3
+  - id: future-reality-l-029
+    tree: future_reality
+    kind: causes
+    from_entity_ids:
+    - future-reality-inj-6
+    to_entity_id: future-reality-de-4
+  - id: future-reality-l-030
+    tree: future_reality
+    kind: causes
+    from_entity_ids:
+    - future-reality-inj-7
+    to_entity_id: future-reality-de-5
+  - id: future-reality-l-031
+    tree: future_reality
+    kind: enables
+    from_entity_ids:
+    - future-reality-de-1
+    to_entity_id: future-reality-de-2
+  - id: future-reality-l-032
+    tree: future_reality
+    kind: enables
+    from_entity_ids:
+    - future-reality-de-2
+    to_entity_id: future-reality-de-3
+  - id: future-reality-l-033
+    tree: future_reality
+    kind: enables
+    from_entity_ids:
+    - future-reality-de-3
+    to_entity_id: future-reality-de-4
+  - id: future-reality-l-034
+    tree: future_reality
+    kind: enables
+    from_entity_ids:
+    - future-reality-de-4
+    to_entity_id: future-reality-de-5
+  - id: future-reality-l-035
+    tree: future_reality
+    kind: contributes_to
+    from_entity_ids:
+    - future-reality-de-5
+    to_entity_id: future-reality-de-6
+  - id: future-reality-l-036
+    tree: future_reality
+    kind: contributes_to
+    from_entity_ids:
+    - future-reality-de-6
+    to_entity_id: future-reality-g-1
+  - id: future-reality-l-037
+    tree: future_reality
+    kind: causes
+    from_entity_ids:
+    - future-reality-inj-2
+    to_entity_id: future-reality-nbr-1
+  - id: future-reality-l-038
+    tree: future_reality
+    kind: causes
+    from_entity_ids:
+    - future-reality-inj-3
+    to_entity_id: future-reality-nbr-2
+  - id: future-reality-l-061
+    tree: future_reality
+    kind: refines
+    from_entity_ids:
+    - future-reality-inj-1
+    to_entity_id: future-reality-inj-3
+  - id: prerequisite-l-039
+    tree: prerequisite
+    kind: overcomes
+    from_entity_ids:
+    - prerequisite-io-1
+    to_entity_id: prerequisite-obs-1
+  - id: prerequisite-l-040
+    tree: prerequisite
+    kind: enables
+    from_entity_ids:
+    - prerequisite-io-1
+    to_entity_id: prerequisite-io-2
+  - id: prerequisite-l-041
+    tree: prerequisite
+    kind: overcomes
+    from_entity_ids:
+    - prerequisite-io-2
+    to_entity_id: prerequisite-obs-2
+  - id: prerequisite-l-042
+    tree: prerequisite
+    kind: enables
+    from_entity_ids:
+    - prerequisite-io-2
+    to_entity_id: prerequisite-io-3
+  - id: prerequisite-l-043
+    tree: prerequisite
+    kind: overcomes
+    from_entity_ids:
+    - prerequisite-io-3
+    to_entity_id: prerequisite-obs-3
+  - id: prerequisite-l-044
+    tree: prerequisite
+    kind: enables
+    from_entity_ids:
+    - prerequisite-io-3
+    to_entity_id: prerequisite-io-4
+  - id: prerequisite-l-045
+    tree: prerequisite
+    kind: overcomes
+    from_entity_ids:
+    - prerequisite-io-4
+    to_entity_id: prerequisite-obs-4
+  - id: prerequisite-l-046
+    tree: prerequisite
+    kind: enables
+    from_entity_ids:
+    - prerequisite-io-4
+    to_entity_id: prerequisite-io-5
+  - id: prerequisite-l-047
+    tree: prerequisite
+    kind: overcomes
+    from_entity_ids:
+    - prerequisite-io-5
+    to_entity_id: prerequisite-obs-5
+  - id: prerequisite-l-048
+    tree: prerequisite
+    kind: enables
+    from_entity_ids:
+    - prerequisite-io-5
+    to_entity_id: prerequisite-io-6
+  - id: prerequisite-l-049
+    tree: prerequisite
+    kind: overcomes
+    from_entity_ids:
+    - prerequisite-io-6
+    to_entity_id: prerequisite-obs-6
+  - id: prerequisite-l-050
+    tree: prerequisite
+    kind: enables
+    from_entity_ids:
+    - prerequisite-io-6
+    to_entity_id: prerequisite-io-7
+  - id: prerequisite-l-051
+    tree: prerequisite
+    kind: overcomes
+    from_entity_ids:
+    - prerequisite-io-7
+    to_entity_id: prerequisite-obs-7
+  - id: prerequisite-l-052
+    tree: prerequisite
+    kind: enables
+    from_entity_ids:
+    - prerequisite-io-7
+    to_entity_id: prerequisite-inj-1
+  - id: transition-l-053
+    tree: transition
+    kind: produces
+    from_entity_ids:
+    - transition-act-1
+    to_entity_id: transition-tr-1
+  - id: transition-l-054
+    tree: transition
+    kind: enables
+    from_entity_ids:
+    - transition-tr-1
+    to_entity_id: transition-io-1
+  - id: transition-l-055
+    tree: transition
+    kind: produces
+    from_entity_ids:
+    - transition-act-2
+    to_entity_id: transition-tr-2
+  - id: transition-l-056
+    tree: transition
+    kind: enables
+    from_entity_ids:
+    - transition-tr-2
+    to_entity_id: transition-io-2
+  - id: transition-l-057
+    tree: transition
+    kind: produces
+    from_entity_ids:
+    - transition-act-3
+    to_entity_id: transition-tr-3
+  - id: transition-l-058
+    tree: transition
+    kind: supports
+    from_entity_ids:
+    - transition-tr-3
+    to_entity_id: transition-io-3
+  - id: transition-l-059
+    tree: transition
+    kind: produces
+    from_entity_ids:
+    - transition-act-4
+    to_entity_id: transition-tr-4
+  - id: transition-l-060
+    tree: transition
+    kind: supports
+    from_entity_ids:
+    - transition-tr-4
+    to_entity_id: transition-io-4
+  assumptions:
+  - id: a-goal-l-001
+    relationship_id: goal-l-001
+    statement: Civilizational transformation requires durable individual and collective embodiment.
+  - id: a-goal-l-002
+    relationship_id: goal-l-002
+    statement: Strategy that cannot learn and revise will not sustain progress toward the goal.
+  - id: a-goal-l-003
+    relationship_id: goal-l-003
+    statement: Durable cultural change requires transmissible pockets and institutions, not only individual
+      practice.
+  - id: a-current-reality-l-010
+    relationship_id: current-reality-l-010
+    statement: Without trusted map governance, a shared throughput definition remains premature or contested.
+  - id: a-current-reality-l-011
+    relationship_id: current-reality-l-011
+    statement: Unclear throughput causes decisions to favor visible activity.
+  - id: a-current-reality-l-012
+    relationship_id: current-reality-l-012
+    statement: Without a constraint-review cadence, activity is not reliably subordinated to system throughput.
+  - id: a-current-reality-l-013
+    relationship_id: current-reality-l-013
+    statement: A missing staged pathway leaves new participants without an actionable next step.
+  - id: a-current-reality-l-014
+    relationship_id: current-reality-l-014
+    statement: Missing next steps materially reduce entry into sustained practice.
+  - id: a-current-reality-l-015
+    relationship_id: current-reality-l-015
+    statement: Too few sustained practitioners leaves recurring work concentrated on core organizers.
+  - id: a-current-reality-l-016
+    relationship_id: current-reality-l-016
+    statement: Too few practitioners and facilitators limits the formation of dense containers.
+  - id: a-current-reality-l-017
+    relationship_id: current-reality-l-017
+    statement: Fragile pockets provide too little evidence and capacity for independent replication.
+  - id: a-current-reality-l-018
+    relationship_id: current-reality-l-018
+    statement: Weak replication materially limits durable-adoption throughput.
+  - id: a-conflict-l-021
+    relationship_id: conflict-l-021
+    statement: Visibility requires prioritizing movement-like scale and accessibility now.
+  - id: a-conflict-l-022
+    relationship_id: conflict-l-022
+    statement: Embodied integrity requires prioritizing laboratory-like depth and rigor now.
+  - id: a-conflict-l-023
+    relationship_id: conflict-l-023
+    statement: Scale and depth compete for the same scarce organizer capacity and cannot be sequenced
+      or integrated.
+  - id: a-future-reality-l-024
+    relationship_id: future-reality-l-024
+    statement: A governed model makes goal-relevant progress more discernible.
+  - id: a-future-reality-l-025
+    relationship_id: future-reality-l-025
+    statement: A mixed-method throughput definition improves decisions without becoming the goal.
+  - id: a-future-reality-l-026
+    relationship_id: future-reality-l-026
+    statement: A consent-based staged pathway increases practice entry without damaging trust.
+  - id: a-future-reality-l-027
+    relationship_id: future-reality-l-027
+    statement: Short learning cycles reveal and improve the current constraint.
+  - id: a-future-reality-l-028
+    relationship_id: future-reality-l-028
+    statement: Apprenticeship and review distribute leadership while preserving quality.
+  - id: a-future-reality-l-029
+    relationship_id: future-reality-l-029
+    statement: Repeated interaction and sangha support stabilize practice into lived culture.
+  - id: a-future-reality-l-030
+    relationship_id: future-reality-l-030
+    statement: Mature documentation allows responsible adoption without founder presence.
+  assessments: []
+  changes: []

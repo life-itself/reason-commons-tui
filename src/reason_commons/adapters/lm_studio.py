@@ -70,7 +70,7 @@ class LMStudioConsultant:
 
     @property
     def version(self):
-        return (f"lm-studio/adapter=5/prompt=5/schema=1/model={self.model or 'unresolved'}"
+        return (f"lm-studio/adapter=5/prompt=6/schema=2/model={self.model or 'unresolved'}"
                 f"/temperature={self.temperature}/max_tokens={self.max_tokens}"
                 f"/procedure={sha256(self._procedure.encode()).hexdigest()[:16]}"
                 f"/context={sha256(self._context.encode()).hexdigest()[:16]}")

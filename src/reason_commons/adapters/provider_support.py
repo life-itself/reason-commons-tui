@@ -7,7 +7,7 @@ import json
 from urllib.request import HTTPRedirectHandler
 
 from reason_commons.domain.contract import proposal_schema
-from reason_commons.domain.model import REQUIRED_REFERENCES
+from reason_commons.domain.model import REFERENCE_KINDS, REQUIRED_REFERENCES
 
 
 class NoRedirect(HTTPRedirectHandler):
@@ -44,8 +44,8 @@ def request_schema(request):
     temporary = {"anyOf": [{"enum": aliases}, {"type": "string", "pattern": "^temp_[A-Za-z][A-Za-z0-9_]*$"}]}
     records = request["case"].get("records", [])
 
-    def refs(kind=None):
-        allowed = [r["ref"] for r in records if kind is None or r["kind"] == kind]
+    def refs(kinds=None):
+        allowed = [r["ref"] for r in records if kinds is None or r["kind"] in kinds]
         choices = [temporary]
         if allowed:
             choices.append({"enum": allowed})
@@ -53,7 +53,7 @@ def request_schema(request):
 
     intervention_schema = schema["properties"]["intervention"]["properties"]
     intervention_schema["required_context_refs"]["items"] = refs()
-    intervention_schema["goal_ref"] = {"anyOf": [refs("goal"), {"type": "null"}]}
+    intervention_schema["goal_ref"] = {"anyOf": [refs({"goal"}), {"type": "null"}]}
     for update in schema["properties"]["proposed_updates"]["items"]["anyOf"]:
         update["properties"]["temporary_id"] = temporary
         update["required"] = sorted(set(update["required"]) | {"temporary_id"})
@@ -62,10 +62,10 @@ def request_schema(request):
             update["properties"]["source_refs"]["minItems"] = 1
         fields = update["properties"]["data"]["properties"]
         record_kind = update["properties"]["operation"]["const"][7:]
-        for name, kind in (("goal_ref", "goal"), ("test_ref", "test")):
+        for name, kinds in REFERENCE_KINDS.items():
             if name in fields:
-                fields[name] = (refs(kind) if name in REQUIRED_REFERENCES.get(record_kind, set())
-                                else {"anyOf": [refs(kind), {"type": "null"}]})
+                fields[name] = (refs(kinds) if name in REQUIRED_REFERENCES.get(record_kind, set())
+                                else {"anyOf": [refs(kinds), {"type": "null"}]})
         if "observation_refs" in fields:
-            fields["observation_refs"]["items"] = refs("observation")
+            fields["observation_refs"]["items"] = refs({"observation"})
     return schema

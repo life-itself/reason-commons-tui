@@ -1,10 +1,12 @@
 # Delivery phases and release gates
 
 V1 proves a useful goal–action–review loop. Its user does not need graph controls,
-formal participant stances, six trees, or TOC vocabulary. V1 already provides
+formal participant stances, or TOC vocabulary. V1 already provides
 a persistent full-screen workspace, literal response
-editor, visible local controls and readable forecast/outcome review. Typed graph
-schemas and formal tools arrive later; the TUI itself is not deferred.
+editor, visible local controls and readable forecast/outcome review, and it draws
+the six trees as they grow in conversation (scope change approved 2026-10-03).
+The trees' joint premises, rival routes, dependent review and other formal
+checks arrive later; the TUI itself is not deferred.
 
 Section 0 of the main specification defines the v1 boundary. The JSON manifest
 locks the selected scenario IDs and artifact profiles. Changing that scope is
@@ -39,8 +41,8 @@ boolean filters follow the [official Cucumber reference](https://cucumber.io/doc
 |---|---|---|
 | p0 Durable minimal case | Goal/note/intervention/test/action/observation schema; immutable ancestry; preserved inputs; atomic publication; idempotent retry; stale response rejection; one writer; portable export/import; profile validation | Restart and round-trip reproduce the supported records and original forecast offline. Failed writes and invalid/out-of-profile proposals commit nothing. No provider call follows failed input retention. |
 | p1 Persistent TUI | Event loop; pinned case/goal/task/footer; literal multiline editor; keyboard controls; local inspection; async completion notices; focus/draft restoration; 80×24; linear alternative; profile-aware Actions | Default launch opens the workspace. Tab/arrows/Enter/Esc complete ordinary work without commands. Input is literal; navigation makes zero calls; pending output does not steal focus. Resize, resume and failure preserve draft and target. |
-| p2 Complete v1 loop | Goal/baseline/protections; public decision purpose; attributed corrections; bounded forecast; immediate action and authority; effect observation; prospective review; next decision | The v1 session is reproducible with a fake adapter; a real adapter preserves semantic invariants; first-time users complete and explain the goal–action–review loop. |
-| p3 Causal release | Typed partial CRT, WIP integration, assumptions, evidence detail, comparisons, feedback episodes, goal-connection and revision-review views; optional coaching/density settings and structured authoring forms | New causal scenarios and p0-p2 regressions pass. Users preserve joint premises, challenge a mechanism, distinguish alternatives, and notice changed-premise reviews. |
+| p2 Complete v1 loop | Goal/baseline/protections; public decision purpose; attributed corrections; bounded forecast; immediate action and authority; effect observation; prospective review; next decision; tree claims, single links, rewording and retraction drawn in a Trees view; LTP 1.0 import/export | The v1 session is reproducible with a fake adapter; a real adapter preserves semantic invariants; first-time users complete and explain the goal–action–review loop. |
+| p3 Causal release | Joint premise (ALL) groups and rival routes in the CRT, WIP integration, assumptions, evidence detail, comparisons, feedback episodes, goal-connection and revision-review views; optional coaching/density settings and structured authoring forms | New causal scenarios and p0-p2 regressions pass. Users preserve joint premises, challenge a mechanism, distinguish alternatives, and notice changed-premise reviews. |
 | p4 Facilitated group release | Exact-version representation/belief/reliance; declared speaker switching; scoped Cloud; reported versus direct attribution | New group scenarios and p0-p3 regressions pass. No silence, reported opinion, or willingness to test becomes invented belief or consensus. |
 | p5 Full-tools release | Goal hierarchy, FRT and negative branches, PRT criteria/dependencies, TT rationale/contingencies, shared requirements, cross-tool traceability and review | New full-tool scenarios and p0-p4 regressions pass. Users trace the goal connection, review adverse paths, distinguish necessary states from sufficient action plans, and choose a changed-case action. |
 

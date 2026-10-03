@@ -85,7 +85,9 @@ label or numbered object users must learn. Human titles identify the task.
 ## Delivery gate
 
 P1 includes workspace, controls, multiline input, draft preservation, asynchronous
-focus stability, recovery and 80×24. P2 adds original forecast/outcome review.
-Typed graphs arrive in p3–p5 with their schemas; the TUI is not deferred. Use
-S114–S127 alongside earlier integrity and reasoning gates. Authored snapshots
+focus stability, recovery and 80×24. P2 adds original forecast/outcome review and
+the Trees view: the six trees drawn as indented outlines from recorded claims and
+single links (S128–S134). Joint premises, rival routes and boxed canvases arrive
+in p3–p5; the TUI is not deferred. Use S114–S134 alongside earlier integrity and
+reasoning gates. Authored snapshots
 and document checks do not prove a running TUI or measured usability.

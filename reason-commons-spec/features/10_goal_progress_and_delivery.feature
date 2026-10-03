@@ -163,8 +163,8 @@ Feature: Connect reasoning to goal progress within the delivered scope
 
   @S108 @p0 @v1 @automated
   Scenario: Reject an adapter update outside the delivered schema
-    Given the v1 schema allows only goal, note, intervention, test, action, observation, and bounded review records
-    When an adapter proposal includes a relationship graph or structured stance update
+    Given the v1 schema allows only goal, note, intervention, test, action, observation, bounded review, and typed tree claim, link and retraction records
+    When an adapter proposal includes an untyped relationship graph or structured stance update
     Then the entire proposal is rejected before commit
     And the raw input and failure receipt remain available
     And later fields are not silently stored or partially applied

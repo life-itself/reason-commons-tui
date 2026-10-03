@@ -163,5 +163,33 @@ step screenshots (`tutorial.md`), how-to guides (`use-a-model.md`,
 The README and docs now illustrate the six LTP trees with the Second Renaissance
 analysis from the reasoncommons guide (`docs/the-trees.md`, pictures drawn by
 `scripts/draw_trees.py`), and the finished example is one of its Transition Tree
-actions. The pictures are labelled as illustrations: the app still draws only
-explicit record references, and the typed trees remain p3–p5 work.
+actions. The pictures are labelled as illustrations.
+
+## Trees in conversation (p2 scenarios S128–S134)
+
+On 3 October 2026 David approved a specification change: the six trees enter v1
+and grow in the conversation. The domain gains three record kinds in the LTP 1.0
+vocabulary: `claim` (tree, role, statement, basis, optional `replaces`), `link`
+(one typed relation between two earlier, current claims of the same tree, with an
+optional assumption) and `retraction`. Tests may name the claim they carry out
+(`claim_ref`). Validation keeps the trees append-only and ordered: a role must
+belong to its tree, links stay inside one tree, and nothing cites a replaced or
+withdrawn claim. S108 now names these typed records in its allowed schema; it
+still rejects untyped graphs and stances.
+
+`workspace` returns the current trees (`project_trees`); the TUI's Trees view, the
+`trees` command and `show --view trees` draw them with `adapters/trees.py`. The
+TUI shows one tree at a time (Ctrl+T opens the view, Ctrl+N steps to the next tree
+or all six); which tree is shown is presentation state, kept in the cursor's
+`display` field like the view, and `trees --tree NAME` gives the same choice.
+`adapters/ltp_trees.py` brings LTP files in through `add_source` and `submit` with
+a deterministic one-use proposal adapter (no model call), keeps what the trees
+cannot hold as notes, and writes the trees back out. The consultant prompt and
+domain context explain the tree records; LLM output with them is not yet checked
+against a live model. The finished example carries the reasoncommons Second
+Renaissance analysis, mapped by `scripts/build_sample_trees.py`.
+
+`scripts/check_p0.py` now also runs every scenario in
+`12_trees_in_conversation.feature` (S128–S134, 11 cases) and fails unless all
+pass. Joint premise groups, rival routes, dependent review and boxed canvases
+remain p3–p5 work. The remaining p1/p2 scenarios are not yet delivered.
