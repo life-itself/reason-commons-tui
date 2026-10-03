@@ -2,7 +2,7 @@
 
 Read `ARCHITECTURE.md` and the owning `src/reason_commons/domain/CONTEXT.md`
 before changing case behavior. The existing specification and its scenario-local
-delivery tags define scope. P0 is implemented; p1/p2 are not yet delivered.
+delivery tags define scope. P0 is implemented; a personal-use TUI slice exists, but no p1/p2 scenarios are delivered yet.
 
 Keep domain knowledge in the context/model and acceptance behavior in `.feature`
 files. Skills consult those artifacts and call application capabilities. Domain

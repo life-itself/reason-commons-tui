@@ -227,7 +227,7 @@ The existing `my-case` was inspected read-only; its revision 1 was not resubmitt
 or modified. It has a note and question without graph references, so no diagram
 is invented. The packaged skill now presents a continuing conversation over the
 shared workspace; a fresh Codex chat must load the updated MCP tool catalog.
-The persistent TUI, later typed causal/conflict graphs, full v1 consulting quality
+The full p1 TUI contract (a first slice now ships), later typed causal/conflict graphs, full v1 consulting quality
 and participant/assistive-technology release gates remain outstanding.
 
 

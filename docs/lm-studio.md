@@ -3,7 +3,8 @@
 `LMStudioConsultant` implements the existing `Consultant` port. It calls only the
 configured LM Studio server, with no hosted fallback or implicit retries. All
 application validation, retention, stale-target checks and durable commits apply
-unchanged. This integrates a real provider with p0; the p1 TUI is still pending.
+unchanged. In the workspace, start with `reason-commons tui <folder> --provider lm-studio`
+or switch with Ctrl+P → Consultant: LM Studio (see [tui.md](tui.md)).
 
 ## Server and model
 

@@ -4,8 +4,9 @@ Reason Commons opens a persistent terminal workspace from its first usable relea
 Read the [canonical session](reason-commons-spec/example-tui-session.txt),
 [v1 session](reason-commons-spec/example-mvp-session.txt) and
 [rendering contract](reason-commons-spec/tui-reasoning-design.md) before implementing
-screens. These are required behavior, not optional future styling. This
-repository contains acceptance documents, not application code.
+screens. These are required behavior, not optional future styling. A first
+personal-use slice is implemented in `src/reason_commons/adapters/tui.py`
+([run guide](docs/tui.md)); it does not yet meet this whole contract.
 
 ## Direction and references
 
