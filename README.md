@@ -16,19 +16,26 @@ original forecast → action → observation → review**.
 
 ## Quick start (macOS)
 
+Install [uv](https://docs.astral.sh/uv/) once, then open a new Terminal window:
+
 ```sh
-git clone https://github.com/life-itself/reason-commons-tui.git
-cd reason-commons-tui
-python3 -m venv .venv && source .venv/bin/activate
-python3 -m pip install --upgrade pip   # macOS ships an old pip that cannot install this
-python3 -m pip install -e '.[tui]'
-reason-commons tui ~/ReasonCommons/my-first-goal
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-The folder is created on first run; the same command resumes it, including your
-unsent draft. It works offline with the built-in guide. To use Claude, set
-`ANTHROPIC_API_KEY` and add `--provider anthropic`; for a local model use
-`--provider lm-studio`. You can also switch with Ctrl+P inside the app.
+Install Reason Commons and start it:
+
+```sh
+uv tool install git+https://github.com/life-itself/reason-commons-tui
+reason-commons
+```
+
+That's all. uv brings its own Python, so there is no virtual environment or pip
+to manage. `reason-commons` shows your goals (kept in `~/ReasonCommons`) and
+**Start a new goal**; everything is saved as you type, including an unsent
+draft. It works offline with the built-in guide. To use Claude or a local
+model, press Ctrl+P inside the app. Update later with
+`uv tool upgrade reason-commons`.
+
 [Running the TUI](docs/tui.md) covers keys, consultants, data and limits.
 
 ## Developers
@@ -55,7 +62,7 @@ consultant; the deterministic acceptance suite requires no provider or key.
 The TUI adapter (`adapters/tui.py`) and the offline `GuidedConsultant`
 (`adapters/guided.py`) use the same application boundary as every other
 interface. `tests/test_tui.py` drives the workspace headlessly with Textual's
-pilot; install `.[test,tui]` to run it. The full gate's desktop-launcher test
+pilot; install `.[test]` to run it. The full gate's desktop-launcher test
 needs `/bin/zsh` and a `.venv` in the repository.
 
 For a local model, see the [LM Studio setup](docs/lm-studio.md). The

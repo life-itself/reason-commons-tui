@@ -121,9 +121,11 @@ The TUI reuses the projection and supplies its own layout and controls.
 ## Terminal workspace
 
 `reason-commons tui <folder>` creates or resumes a case and opens a Textual app
-(optional extra `.[tui]`). Consultant calls run in a worker thread so browsing
+(Textual is a core dependency). Consultant calls run in a worker thread so browsing
 stays responsive; navigation never consults. Drafts, caret and view are saved
-with `checkpoint`. `resume` refuses to create a case. The consultant is chosen at
+with `checkpoint`. `resume` refuses to create a case. Plain `reason-commons` first shows a goals home
+screen over the case folders in `~/ReasonCommons`; it only lists (read-only
+`inspect`) and creates (`create_case`) cases, then opens the chosen one. The consultant is chosen at
 composition (`--provider`, `REASON_COMMONS_PROVIDER`, default `guided`) and can
 be switched in the app by reopening the case with another adapter.
 

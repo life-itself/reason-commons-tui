@@ -9,33 +9,35 @@ This is a first, personal-use slice of p1. It is not the complete p1 contract
 
 ## Run it on a Mac
 
-You need Python 3.9 or newer (`python3 --version`). In Terminal:
+Install [uv](https://docs.astral.sh/uv/) once (`curl -LsSf https://astral.sh/uv/install.sh | sh`
+or `brew install uv`), open a new Terminal window, then:
 
 ```sh
-git clone https://github.com/life-itself/reason-commons-tui.git
-cd reason-commons-tui
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install --upgrade pip   # macOS ships an old pip that cannot install this
-python3 -m pip install -e '.[tui]'
-
-reason-commons tui ~/ReasonCommons/my-first-goal
+uv tool install git+https://github.com/life-itself/reason-commons-tui
+reason-commons
 ```
 
-The last command creates the case folder if it does not exist and opens the
-workspace. Run the same command again later to resume exactly where you left
-off, including your unsent draft. `reason-commons resume <folder>` does the same
-but refuses to create a new case.
+uv brings its own Python. If macOS offers to install the command line developer
+tools (for git), accept. If `reason-commons` is not found, run `uv tool update-shell`
+and open a new window. Update with `uv tool upgrade reason-commons`.
 
-Next time, you only need:
+`reason-commons` opens your goals: pick one with the arrows and Enter, or choose
+**Start a new goal** and give it a short name. Goals live in `~/ReasonCommons`, one
+folder each (set `REASON_COMMONS_HOME` to keep them elsewhere). Everything is saved
+as you type, including an unsent draft, so the next `reason-commons` takes you back
+to where you left off.
 
-```sh
-cd reason-commons-tui && source .venv/bin/activate
-reason-commons tui ~/ReasonCommons/my-first-goal
-```
+To keep a goal in a folder of your own choosing, give the folder:
+`reason-commons tui ~/Projects/payments-goal` creates or opens it, and
+`reason-commons resume <folder>` opens it but never creates one.
 
 Options: `--speaker "David"` sets the name recorded with your answers (default:
-your login name), `--name "Running"` names a new case (default: the folder name).
+your login name), `--name "Running"` names a new goal created by `tui <folder>`
+(default: the folder name).
+
+To work on Reason Commons itself instead, clone the repository and install it
+into a virtual environment with `python3 -m pip install -e '.[test]'` (upgrade pip
+first on macOS); see the README's developer section.
 
 ## Choosing a consultant
 

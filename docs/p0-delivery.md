@@ -134,8 +134,8 @@ supersession and later graph profiles remain separate domain capabilities.
 
 ## After p0: first TUI slice
 
-A personal-use slice of p1 now ships as `reason-commons tui` (optional extra
-`.[tui]`, Textual), described in [tui.md](tui.md). It reads `workspace`/`inspect`
+A personal-use slice of p1 now ships as `reason-commons tui` (Textual,
+now a core dependency), described in [tui.md](tui.md). It reads `workspace`/`inspect`
 and changes the case only through `retain_input`, `consult`, `retry`, `export` and
 `checkpoint`. A deterministic `GuidedConsultant` (provider `guided`) implements the
 consultant port offline; the application validates its proposals like any other.
@@ -143,4 +143,9 @@ Adapter tests (`tests/test_tui.py`, `tests/test_guided.py`) cover sending, draft
 restore, local browsing without calls, and retained-input retry. The p1 scenario
 set (80×24 specimens, accessible mode, speaker switching, usability evidence) is
 not yet delivered and no p1 scenario is claimed.
+
+A goals home screen follows: plain `reason-commons` in a terminal lists the case
+folders under `~/ReasonCommons` (or `REASON_COMMONS_HOME`) and starts new ones with
+`create_case`, reading each through read-only `open_case`/`inspect`. Without a
+terminal it still prints help. The header shows "Saved"; revisions stay in History.
 
