@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 238" width="940" height="238" role="img" aria-label="The Reason Commons loop: goal, test with a forecast, action, observation, review, then again">
+<title>The Reason Commons loop</title>
+<style>
+  .box { fill: none; stroke: #8b949e; stroke-width: 1.5; }
+  .now { fill: #0969da; fill-opacity: .08; stroke: #0969da; stroke-width: 2.5; }
+  .name { font: 600 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .body { font: 13.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #424a53; }
+  .note { font: italic 13.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #59636e; }
+  .title { font: 600 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: #1f2328; }
+  .edge { fill: none; stroke: #8b949e; stroke-width: 1.5; }
+  #a path { fill: #8b949e; }
+  @media (prefers-color-scheme: dark) {
+    .name, .title { fill: #e6edf3; } .body { fill: #c9d1d9; } .note { fill: #9198a1; }
+    .now { fill: #4493f8; stroke: #4493f8; fill-opacity: .12; }
+  }
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<text class="title" x="20" y="32">One small loop at a time; the forecast is written before anything happens</text>
+<rect class="box" x="20" y="56" width="164" height="124" rx="10"/>
+<text class="name" x="34" y="86">1  Goal</text>
+<text class="body" x="34" y="114">What would count as</text>
+<text class="body" x="34" y="134">better, and what must</text>
+<text class="body" x="34" y="154">not get worse</text>
+<path class="edge" d="M187 118.0 H200" marker-end="url(#a)"/>
+<rect class="box now" x="204" y="56" width="164" height="124" rx="10"/>
+<text class="name" x="218" y="86">2  Test + forecast</text>
+<text class="body" x="218" y="114">One small change,</text>
+<text class="body" x="218" y="134">with a forecast written</text>
+<text class="body" x="218" y="154">before any result</text>
+<path class="edge" d="M371 118.0 H384" marker-end="url(#a)"/>
+<rect class="box" x="388" y="56" width="164" height="124" rx="10"/>
+<text class="name" x="402" y="86">3  Action</text>
+<text class="body" x="402" y="114">The concrete next</text>
+<text class="body" x="402" y="134">thing you will do,</text>
+<text class="body" x="402" y="154">and when</text>
+<path class="edge" d="M555 118.0 H568" marker-end="url(#a)"/>
+<rect class="box" x="572" y="56" width="164" height="124" rx="10"/>
+<text class="name" x="586" y="86">4  Observe</text>
+<text class="body" x="586" y="114">What actually</text>
+<text class="body" x="586" y="134">happened, kept apart</text>
+<text class="body" x="586" y="154">from what you hoped</text>
+<path class="edge" d="M739 118.0 H752" marker-end="url(#a)"/>
+<rect class="box" x="756" y="56" width="164" height="124" rx="10"/>
+<text class="name" x="770" y="86">5  Review</text>
+<text class="body" x="770" y="114">The result next to</text>
+<text class="body" x="770" y="134">your forecast: keep,</text>
+<text class="body" x="770" y="154">adjust or drop</text>
+<path class="edge" d="M838.0 184 V214 H102.0 V188" marker-end="url(#a)"/>
+<text class="note" x="470.0" y="208" text-anchor="middle">then again, starting from what you learned</text>
+</svg>

@@ -152,4 +152,7 @@ The workspace draws the loop under the pinned context (current step marked) and 
 small workflow diagram on the welcome screen; record IDs stay out of the views. The
 home screen offers a finished, fictional example built through `retain_input` and
 `consult` with the built-in guide in a temporary folder that is removed afterwards.
+The README now leads with screenshots rendered from the running workspace by
+`scripts/render_screenshots.py`; developer material moved to `CONTRIBUTING.md`, and
+`tests/test_docs.py` checks that README and docs links and images resolve.
 
