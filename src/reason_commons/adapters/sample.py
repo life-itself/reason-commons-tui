@@ -12,8 +12,7 @@ NAME = "Example: in bed by 23:00"
 SPEAKER = "Sam (example)"
 ANSWERS = [
     "Be in bed by 23:00 more often, so I wake up rested.",
-    "Nights in bed by 23:00, from my phone's sleep log. Now 1 of 7 last week. "
-    "Goal: 4 of 7 by the end of October.",
+    "Nights a week in bed by 23:00 (sleep log): now 1 of 7, aiming for 4 of 7 by 31 October.",
     "Evenings with my partner\nMy morning run",
     "No screens after 22:15; the phone charges in the kitchen.",
     "4 of 7 nights in bed by 23:00 in the first week",
@@ -27,11 +26,14 @@ ANSWERS = [
 ]
 
 
-def build_sample(path):
-    """Create the example case at path (which must not exist) and return path."""
-    create_case(path, NAME).close()
-    with open_case(path, consultant=GuidedConsultant()) as app:
-        for answer in ANSWERS:
+def build_sample(path, answers=None, clock=None, view="tests", name=NAME):
+    """Create the example case at path (which must not exist) and return path.
+
+    By default the whole loop is answered; screenshots pass fewer answers or a fixed clock.
+    """
+    create_case(path, name, clock=clock).close()
+    with open_case(path, consultant=GuidedConsultant(), clock=clock) as app:
+        for answer in ANSWERS if answers is None else answers:
             target = app.workspace()["target"]
             result = app.retain_input(answer, SPEAKER, target["base_revision"], target["response_target"])
             result = app.consult(result["request_id"])
@@ -39,6 +41,6 @@ def build_sample(path):
                 raise RuntimeError(f"Example could not be built: {result['status']}")
         # Open on Tests, where the original forecast sits next to the reported result.
         target = app.workspace()["target"]
-        app.checkpoint({"view": "tests", "focus": "browse", "draft": "", "caret": 0, "speaker": SPEAKER,
+        app.checkpoint({"view": view, "focus": "browse", "draft": "", "caret": 0, "speaker": SPEAKER,
                         "response_target": target["response_target"], "base_revision": target["base_revision"]})
     return path

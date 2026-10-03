@@ -1,90 +1,88 @@
 # Reason Commons
 
-A persistent terminal workspace that helps people reason through shared goals,
-problems, changes and results, one small loop at a time: **goal → test with an
-original forecast → action → observation → review**.
+**Make real progress on a goal that matters, one small, honest experiment at a time.**
 
-## Status
+Reason Commons is a calm workspace in your terminal. It helps you say what you
+want, try one small change, write down what you expect *before* it happens, and
+then look at what really happened. It works offline, and it keeps your own words.
 
-| Part | State |
-| --- | --- |
-| p0 durable case engine | Implemented: revisions, YAML storage, export/import, retry, consultant ports, CLI, MCP |
-| Terminal workspace (TUI) | First personal-use slice of p1: `reason-commons tui`, built with Textual |
-| Built-in guide | Offline consultant (`guided`) that walks the loop without a model or key |
-| Full p1 contract | Not yet delivered: `--accessible`, speaker switching, 80×24 specimens, usability evidence |
-| p2 and later | Consulting-quality gates, review loop acceptance and typed graphs remain later work |
+![A goal in progress: the loop line shows Goal, Test and Action done and Observe as the current step; the workspace asks what actually happened](docs/images/in-progress.png)
 
-## Quick start (macOS)
+## How it works
 
-Install [uv](https://docs.astral.sh/uv/) once, then open a new Terminal window:
+![The loop: 1 Goal, 2 Test + forecast, 3 Action, 4 Observe, 5 Review, then again](docs/images/loop.svg)
+
+1. **Goal.** What would count as better, how you will notice, and what must not get worse.
+2. **Test with a forecast.** One small change you can make yourself, plus what you
+   expect to happen. The forecast is saved before any result exists and never changes.
+3. **Action.** The concrete next thing you will do, and when.
+4. **Observe.** What actually happened, kept apart from what you hoped.
+5. **Review.** The result next to your forecast. Keep the change, adjust it or drop
+   it, then start the next loop from what you learned.
+
+A built-in guide asks these questions one at a time. If you like, Claude or a local
+model can take its place and give advice as well.
+
+## Is this for you?
+
+It suits any goal where you are not sure what will work, for example:
+
+- **Personal:** "Be in bed by 23:00 four nights a week without losing evenings with my partner."
+- **Work:** "Cut the time our changes wait for release, without more rollbacks."
+- **Team or community:** "Get more neighbours to the monthly meeting without burning out the organisers."
+
+After one loop you have a written goal and safeguards. You also have a test whose
+forecast you can't quietly rewrite, an honest record of what happened, and a decision
+you can explain. All of it is in a plain folder you own.
+
+## Try it
+
+On a Mac, install [uv](https://docs.astral.sh/uv/) once, then open a new Terminal window:
 
 ```sh
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Install Reason Commons and start it:
+Then install Reason Commons and start it:
 
 ```sh
 uv tool install git+https://github.com/life-itself/reason-commons-tui
 reason-commons
 ```
 
-That's all. uv brings its own Python, so there is no virtual environment or pip
-to manage. `reason-commons` shows your goals (kept in `~/ReasonCommons`) and
-**Start a new goal**; everything is saved as you type, including an unsent
-draft. It works offline with the built-in guide. To use Claude or a local
-model, press Ctrl+P inside the app. Update later with
+That is all; there is no Python setup to manage. To update later, run
 `uv tool upgrade reason-commons`.
 
-[Running the TUI](docs/tui.md) covers keys, consultants, data and limits.
+## What a session looks like
 
-## Developers
+**Your goals.** `reason-commons` opens a list of your goals. You can pick one, start a
+new one, or look around a finished example first.
 
-The [architecture](ARCHITECTURE.md) explains the domain/application/adapter
-boundaries and how BDD and replaceable skills use the same application surface.
-The [p0 implementation report](docs/p0-delivery.md) records the delivered slice.
+![The home screen lists goals with their current step, plus Start a new goal and a finished example](docs/images/home.png)
 
-```sh
-python3 -m pip install -e '.[test]'
-python3 scripts/check_p0.py
-reason-commons new --store /tmp/payments-case --name Payments
-reason-commons show /tmp/payments-case
-reason-commons inspect /tmp/payments-case --json
-reason-commons export /tmp/payments-case /tmp/payments.reasoncase
-reason-commons import /tmp/payments.reasoncase --store /tmp/payments-handoff
-```
+**The first question.** A new goal opens with a short welcome and one question. You
+answer in ordinary words. Enter adds a line and Ctrl+S sends.
 
-Use a new destination for each case or export. Without installation, prefix
-utilities with `PYTHONPATH=src python3 -m reason_commons`. Python 3.9+ and a local
-POSIX filesystem are supported. The application API accepts an injected
-consultant; the deterministic acceptance suite requires no provider or key.
+![The welcome screen asks what you want to achieve and draws the loop](docs/images/welcome.png)
 
-The TUI adapter (`adapters/tui.py`) and the offline `GuidedConsultant`
-(`adapters/guided.py`) use the same application boundary as every other
-interface. `tests/test_tui.py` drives the workspace headlessly with Textual's
-pilot; install `.[test]` to run it. The full gate's desktop-launcher test
-needs `/bin/zsh` and a `.venv` in the repository.
+**Forecast next to result.** Under **Tests**, what you expected sits beside what
+happened. This is where the learning is.
 
-For a local model, see the [LM Studio setup](docs/lm-studio.md). The
-`LMStudioConsultant` adapter plugs into the same application boundary and requests
-structured proposals; application/domain validation stays authoritative.
-The [validation guide](docs/validation.md) runs repeatable live-model, real-agent
-and recovery evaluations, with retained evidence and an attributed review rubric.
+![The Tests view shows the original forecast, 4 of 7 nights, next to the reported result, 5 of 7 nights](docs/images/forecast-vs-result.png)
 
-The [skill usage guide](docs/skill-use.md) describes a continuing conversation in
-Codex, with saved questions, local explanations/history/sources, recorded diagrams
-and forecast comparisons. Offline `show` and deliberate `contribute`/`retry`
-commands use the same workspace through the application boundary. The contribution procedure ships in the Python package and is discoverable
-through the repository's `.agents/skills` symlink. MCP is optional (`.[mcp]`,
-Python 3.10+); the durable engine and local invocation remain Python 3.9+.
+Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
+`reason-commons` takes you back to where you were.
 
-Start with the [first-release TUI journey](reason-commons-spec/example-mvp-session.txt)
-or the [full visual reasoning journey](reason-commons-spec/example-tui-session.txt).
-Then read the [specification](reason-commons-spec/reason-commons-specification.md),
-[terminal design contract](TUI-DESIGN.md) and [bundle guide](reason-commons-spec/README.md).
+## Where next
 
-The product is **Reason Commons**. The proposed executable is `reason-commons`.
-Ordinary work uses visible workspace controls and a literal response editor.
-Questions, reports, relationships, goals, tests, actions and reviews are the
-user-facing concepts. Shell commands launch/resume or operate offline utilities.
-The accessible ordered presentation shares the same actions and submission rules.
+- [Using the workspace](docs/tui.md): keys, views, consultants, where your data lives.
+- [Use a local model with LM Studio](docs/lm-studio.md).
+- [Use Reason Commons from an AI agent](docs/skill-use.md).
+- Questions or ideas: [open an issue](https://github.com/life-itself/reason-commons-tui/issues).
+
+## Status
+
+This is an early prototype for personal use. The loop above works end to end. Group
+work, richer reasoning maps and an accessible plain-text mode are planned.
+
+[Contributing](CONTRIBUTING.md) · [MIT License](LICENSE)

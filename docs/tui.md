@@ -39,7 +39,7 @@ your login name), `--name "Running"` names a new goal created by `tui <folder>`
 
 To work on Reason Commons itself instead, clone the repository and install it
 into a virtual environment with `python3 -m pip install -e '.[test]'` (upgrade pip
-first on macOS); see the README's developer section.
+first on macOS); see [Contributing](../CONTRIBUTING.md).
 
 ## Choosing a consultant
 
