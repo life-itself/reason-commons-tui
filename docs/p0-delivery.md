@@ -193,3 +193,8 @@ Renaissance analysis, mapped by `scripts/build_sample_trees.py`.
 `12_trees_in_conversation.feature` (S128–S134, 11 cases) and fails unless all
 pass. Joint premise groups, rival routes, dependent review and boxed canvases
 remain p3–p5 work. The remaining p1/p2 scenarios are not yet delivered.
+
+The user docs now cover the trees: the tutorial ends in the example's Transition
+Tree (`tutorial-trees.png`), `use-a-model.md` explains growing trees in
+conversation, `back-up-and-share.md` covers `.ltp.yaml` import/export and the
+`trees` command, and `skill-use.md` lists the `trees` view.

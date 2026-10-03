@@ -1,4 +1,4 @@
-# Back up, share and move goals
+# Back up, share and move goals and trees
 
 Each goal is a plain folder. By default they live in `~/ReasonCommons`, one folder
 per goal.
@@ -34,6 +34,24 @@ reason-commons
 ```
 
 The destination folder must not exist yet. The copy carries the whole history.
+
+## Bring trees in or out
+
+Trees can travel on their own as an `.ltp.yaml` file, the format the
+[Reason Commons guide](https://github.com/life-itself/reasoncommons/tree/main/ltp)
+uses. In the workspace, press **Ctrl+P** and choose **Import trees** or **Export
+trees**. Imported trees join the ones already in the goal; anything the trees
+cannot draw yet, such as a joint cause, is kept as a note.
+
+From the command line:
+
+```sh
+reason-commons trees ~/ReasonCommons/first-practice --import analysis.ltp.yaml
+reason-commons trees ~/ReasonCommons/first-practice --export ~/Desktop/analysis.ltp.yaml
+reason-commons trees ~/ReasonCommons/first-practice --tree current_reality
+```
+
+The last command draws one tree in the terminal without opening the workspace.
 
 ## Keep goals somewhere else
 

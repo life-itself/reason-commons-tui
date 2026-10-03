@@ -50,8 +50,8 @@ The same workspace is available offline:
 .venv/bin/reason-commons show .reason-commons/cases/my-case --view history
 ```
 
-Views are `next`, `explain`, `goal`, `reasoning`, `tests`, `actions`, `history` and
-`sources`. `--revision N` freezes an earlier published revision. `--select REF`
+Views are `next`, `explain`, `goal`, `trees`, `reasoning`, `tests`, `actions`,
+`history` and `sources`. `--revision N` freezes an earlier published revision. `--select REF`
 opens an exact saved item and its referenced context. `--format json` returns
 presentation data and text/Markdown/Mermaid renderings. Inspection requires no
 model connection and does not change case state.
@@ -108,10 +108,12 @@ exports go into its reserved `exports` directory.
 
 Diagrams show **explicit saved record references**, such as a test's goal, an
 action's test or a review's observations. Edge labels preserve those meanings.
-Original wording and forecast/result details accompany them. The current domain
-registry does not support the later causal/necessity/conflict graph types, CRT,
-Goal Tree or Cloud; the renderer cannot manufacture them from notes. A first
-TUI slice is available ([tui.md](tui.md)); the remaining p1/p2 release gates are separate work. This
+Original wording and forecast/result details accompany them. The `trees` view
+draws the six thinking-process trees from recorded tree statements and links, and
+a consultant adds to them when a reply describes causes, conflicts, obstacles or
+plans; the renderer never manufactures them from notes. Joint causes and rival
+explanations remain later work. The TUI is described in [tui.md](tui.md); the
+remaining p1/p2 release gates are separate work. This
 change delivers the conversation interface for the implemented case semantics.
 
 ## Installation and configuration

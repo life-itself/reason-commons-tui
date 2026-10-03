@@ -155,7 +155,8 @@ That is all; there is no Python setup to manage. To update later, run
 `uv tool upgrade reason-commons`.
 
 `reason-commons` opens a list of your goals. Start a new one, or look around the
-finished open-evening example first. A new goal opens with a short welcome and one
+finished open-evening example first: it carries the group's whole analysis, so
+Ctrl+T shows all six trees. A new goal opens with a short welcome and one
 question; you answer in ordinary words, Enter adds a line and Ctrl+S sends.
 
 ![The home screen lists goals with their current step, plus Start a new goal and a finished example](docs/images/home.png)
@@ -167,7 +168,7 @@ Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
 
 - [Tutorial: your first loop](docs/tutorial.md), step by step with pictures.
 - [The six trees, explained](docs/the-trees.md) and [the loop, explained](docs/the-loop.md).
-- [Use Claude or a local model](docs/use-a-model.md) and [back up, share and move goals](docs/back-up-and-share.md).
+- [Use Claude or a local model](docs/use-a-model.md) to grow the trees as you talk, and [back up, share and move goals and trees](docs/back-up-and-share.md).
 - [Workspace reference](docs/tui.md): keys, views, commands and settings.
 - [All documentation](docs/README.md), including using Reason Commons from an AI agent.
 - Questions or ideas: [open an issue](https://github.com/life-itself/reason-commons-tui/issues).

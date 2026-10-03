@@ -1,7 +1,8 @@
 # Tutorial: your first loop
 
 In this tutorial you take one small goal through a whole loop: goal, test with a
-forecast, action, observation and review. The typing takes a few minutes; the
+forecast, action, observation and review. At the end you see where the test sits in
+the six trees. The typing takes a few minutes; the
 test itself runs in your real life for as long as you choose. You need nothing but
 Reason Commons itself ([install it](../README.md#try-it)); the built-in guide works
 offline.
@@ -100,6 +101,24 @@ Open **Tests** (in the list on the left, or **Views**) to see the forecast and t
 result side by side:
 
 ![The Tests view shows the forecast, 6 of 30 newcomers, next to the result, 9 of 31](images/forecast-vs-result.png)
+
+## 7. See where the test sits in the trees
+
+On the home screen, choose **Look around a finished example first**. It is Mira's
+loop, together with her group's whole analysis. Press **Ctrl+T**: the Trees view
+opens, and the line at the top lists all six trees and how many statements each
+holds. Press **Ctrl+N** until the Transition Tree is on screen. Its third action,
+a next step from a public contact into a first practice, is the test Mira just ran.
+
+![The Trees view showing the Transition Tree: each action with what we expect to see and why it must change; the line at the top lists all six trees with their sizes](images/tutorial-trees.png)
+
+Your own goal starts with empty trees. With Claude or a local model as your
+consultant, tell it what causes a problem, which conflict keeps you stuck, what
+stands in the way or what you plan to do, and it adds each statement to its tree
+in your words ([how](use-a-model.md#grow-the-trees-as-you-talk)). The built-in
+guide does not add to the trees, but you can
+[bring in trees you already have](back-up-and-share.md#bring-trees-in-or-out).
+Press **Ctrl+T** again to go back to the question.
 
 ## What you have now
 

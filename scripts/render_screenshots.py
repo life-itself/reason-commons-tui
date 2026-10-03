@@ -70,6 +70,7 @@ async def render(folder):
     finished = build_sample(folder / "finished", name=GOAL, clock=FixedClock("2026-11-09T09:00:00+00:00"))
     await shoot(workspace(finished), "forecast-vs-result", (120, 36))
     await shoot(workspace(finished), "trees-view", (120, 36), before=lambda app: app.show_view("trees"))
+    await shoot(workspace(finished), "tutorial-trees", (120, 36), before=lambda app: app.show_tree("transition"))
 
 
 def can_make_png():
