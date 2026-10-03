@@ -13,6 +13,23 @@ STORAGE_HELP = (
 )
 
 
+FAILURE_CATEGORIES = {"configuration", "http_error", "timeout", "connection"}
+
+
+def failure_detail(error):
+    """Safe diagnostics from any consultant failure; never its message or body.
+
+    A consultant may tag its exception with a ``category`` from a fixed set and
+    an integer ``http_status``. Anything else is reported as ``unknown``.
+    """
+    category = getattr(error, "category", None)
+    detail = {"failure_category": category if category in FAILURE_CATEGORIES else "unknown"}
+    status = getattr(error, "http_status", None)
+    if type(status) is int and 100 <= status <= 599:
+        detail["http_status"] = status
+    return detail
+
+
 class CaseApplication:
     """One writer session; synchronous use cases can run in a future TUI worker.
 
@@ -165,10 +182,10 @@ class CaseApplication:
             except ConsultantResponseError:
                 return self._failure(request_id, "rejected", "Input retained; invalid structured response rejected",
                                      ["inspect_failure", "reevaluate_current_revision"], attempt)
-            except Exception:
+            except Exception as exc:
                 # Provider exception text can include credentials; retain category only.
                 return self._failure(request_id, "unavailable", "Input retained; consultant unavailable",
-                                     ["retry_retained_input"], attempt)
+                                     ["retry_retained_input"], attempt, detail=failure_detail(exc))
             try:
                 self._store.received(request_id, attempt, proposal, self._consultant.version)
                 response = {"proposal": proposal, "version": self._consultant.version}
@@ -202,9 +219,9 @@ class CaseApplication:
     def retry(self, request_id: str) -> dict:
         return self.consult(request_id)
 
-    def _failure(self, request_id, status, message, recovery, attempt=0, persist=True):
+    def _failure(self, request_id, status, message, recovery, attempt=0, persist=True, detail=None):
         result = {"status": status, "request_id": request_id, "message": message,
-                  "recovery_actions": recovery, "input_retained": True}
+                  "recovery_actions": recovery, "input_retained": True, **(detail or {})}
         if persist:
             try:
                 self._store.receipt(request_id, attempt, result)

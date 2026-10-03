@@ -194,6 +194,11 @@ is checked and you choose from the models your key can use. Change any of it lat
 under **Settings** on the home screen. The guided tour walks one whole loop on a
 practice goal, with example answers one button away; nothing from it is kept.
 
+Contributors and agents: start with [how we develop](docs/development/README.md).
+The [architecture](ARCHITECTURE.md) explains the domain/application/adapter
+boundaries and how BDD and replaceable skills use the same application surface.
+The [p0 implementation report](docs/p0-delivery.md) records the delivered slice.
+
 **Explore a real commons** opens the Second Renaissance's shared reasoning
 read-only, on the one action it says comes next. Step back with ← through every
 saved step of how it grew since June 2026: who said what, when, in their own words,
@@ -207,6 +212,17 @@ ordinary words, Enter adds a line and Ctrl+S sends. **Explain this** shows why t
 question matters and how one loop works.
 
 ![The home screen lists goals with their current step, plus Start a new goal, the real commons and the guided tour](docs/images/home.png)
+
+**Choosing a consultant.** Reading, history, export and import need no model. The
+TUI starts with the offline built-in guide. To have a model propose questions,
+choose a provider: a local model through LM Studio, or Anthropic. Either plugs
+into the same application boundary and requests
+structured proposals; application/domain validation stays authoritative.
+[Choosing a consultant](docs/providers.md) explains how to set up each, how to
+check the setup offline with `reason-commons providers`, and what to do when a
+consultation fails. See also the [LM Studio setup](docs/lm-studio.md).
+The [validation guide](docs/validation.md) runs repeatable live-model, real-agent
+and recovery evaluations, with retained evidence and an attributed review rubric.
 
 Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
 `reason-commons` takes you back to where you were.

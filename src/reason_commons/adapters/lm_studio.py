@@ -68,6 +68,18 @@ class LMStudioConsultant:
                    api_key=os.environ.get("LM_STUDIO_API_TOKEN") or None,
                    timeout=float(os.environ.get("REASON_COMMONS_LM_STUDIO_TIMEOUT", "120")))
 
+    @staticmethod
+    def describe_settings(model=None, base_url=None, environ=os.environ):
+        """Resolved configuration for a readiness check; reads the environment only."""
+        env_model = environ.get("REASON_COMMONS_LM_STUDIO_MODEL") or None
+        env_url = environ.get("REASON_COMMONS_LM_STUDIO_URL") or None
+        return {"model": model or env_model or "the single chat model the server advertises",
+                "model_source": "explicit" if model else "environment" if env_model else "auto",
+                "endpoint": base_url or env_url or "http://127.0.0.1:1234/v1",
+                "credential": {"variable": "LM_STUDIO_API_TOKEN", "required": False,
+                               "present": bool((environ.get("LM_STUDIO_API_TOKEN") or "").strip())},
+                "problems": []}
+
     @property
     def version(self):
         return (f"lm-studio/adapter=5/prompt=6/schema=2/model={self.model or 'unresolved'}"

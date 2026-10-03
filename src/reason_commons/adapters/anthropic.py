@@ -67,6 +67,18 @@ class AnthropicConsultant:
                    api_key=os.environ.get("ANTHROPIC_API_KEY") or None,
                    timeout=float(os.environ.get("REASON_COMMONS_ANTHROPIC_TIMEOUT", "120")))
 
+    @staticmethod
+    def describe_settings(model=None, base_url=None, environ=os.environ):
+        """Resolved configuration for a readiness check; reads the environment only."""
+        env_model = environ.get("REASON_COMMONS_ANTHROPIC_MODEL") or None
+        env_url = environ.get("REASON_COMMONS_ANTHROPIC_URL") or None
+        present = bool((environ.get("ANTHROPIC_API_KEY") or "").strip())
+        return {"model": model or env_model or DEFAULT_MODEL,
+                "model_source": "explicit" if model else "environment" if env_model else "default",
+                "endpoint": base_url or env_url or "https://api.anthropic.com/v1",
+                "credential": {"variable": "ANTHROPIC_API_KEY", "required": True, "present": present},
+                "problems": [] if present else ["ANTHROPIC_API_KEY is not set; export it in the environment that starts reason-commons"]}
+
     @property
     def version(self):
         return (f"anthropic/adapter=1/prompt=6/schema=2/model={self._resolved_model or self.model}"

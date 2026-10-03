@@ -14,60 +14,13 @@ import pytest
 from reason_commons.adapters.anthropic import AnthropicConsultant, AnthropicError, DEFAULT_MODEL
 from reason_commons.application.ports import ConsultantResponseError
 from reason_commons.bootstrap import configured_consultant, create_case, open_case
+from tests.servers import anthropic_server_instance
 from tests.support import bounded_case, cli, submit
 
 
 @pytest.fixture
 def anthropic_server():
-    class Handler(BaseHTTPRequestHandler):
-        def log_message(self, *args):
-            pass
-
-        def respond(self, value, status=200, headers=None):
-            body = value if isinstance(value, bytes) else json.dumps(value).encode()
-            self.send_response(status)
-            self.send_header("Content-Length", str(len(body)))
-            for k, v in (headers or {}).items():
-                self.send_header(k, v)
-            self.end_headers()
-            self.wfile.write(body)
-
-        def do_GET(self):
-            self.server.requests.append(("GET", self.path, dict(self.headers), None))
-            if self.server.get_status != 200:
-                self.respond({"error": "fixture-secret: unsafe server body"}, self.server.get_status)
-            else:
-                self.respond({"id": DEFAULT_MODEL, "max_input_tokens": 1000000})
-
-        def do_POST(self):
-            payload = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-            self.server.requests.append(("POST", self.path, dict(self.headers), payload))
-            if self.path == "/v1/messages/count_tokens":
-                self.respond({"input_tokens": 12345})
-                return
-            if self.server.custom is not None:
-                self.respond(*self.server.custom)
-                return
-            request = json.loads(payload["messages"][0]["content"])
-            proposal = bounded_case(request)
-            for i, update in enumerate(proposal["proposed_updates"]):
-                update.setdefault("temporary_id", f"temp_update_{i}")
-            jsonschema.validate(proposal, payload["tools"][0]["input_schema"])
-            response = {"model": payload["model"], "stop_reason": "tool_use", "content": [
-                {"type": "tool_use", "name": "submit_proposal", "id": "fixture-call", "input": proposal}]}
-            if self.server.transform:
-                self.server.transform(response)
-            self.respond(response)
-
-    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
-    server.requests, server.custom, server.transform, server.get_status = [], None, None, 200
-    server.url = f"http://127.0.0.1:{server.server_port}/v1"
-    thread = Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    yield server
-    server.shutdown()
-    server.server_close()
-    thread.join(timeout=2)
+    yield from anthropic_server_instance()
 
 
 def adapter(server):
@@ -186,7 +139,7 @@ def test_provider_selection_and_cli_keep_agent_runner_explicit(anthropic_server,
     assert isinstance(configured_consultant(), AnthropicConsultant)
     from reason_commons.adapters.lm_studio import LMStudioConsultant
     assert isinstance(configured_consultant(provider="lm-studio"), LMStudioConsultant)
-    with pytest.raises(ValueError, match="Choose provider"):
+    with pytest.raises(ValueError, match="Unknown provider.*lm-studio.*anthropic"):
         configured_consultant(provider="unknown")
     store = tmp_path / "case"
     cli("new", "--store", store)

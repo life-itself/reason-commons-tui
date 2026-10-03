@@ -17,6 +17,15 @@ LABELS = {"goal_ref": "Goal", "test_ref": "Test", "observation_refs": "Observati
           "expected_state_attainment": "Expected state attainment", "execution": "Work execution"}
 
 
+
+FAILURE_HINTS = {
+    "configuration": "run the providers check (reason-commons providers)",
+    "http_error": "check the credential and model access",
+    "timeout": "allow more time or check provider load",
+    "connection": "check the provider is running",
+    "unknown": "run the providers check (reason-commons providers) and read the provider's own logs",
+}
+
 def value_text(value):
     if value is None or value == []:
         return "not recorded"
@@ -105,6 +114,10 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
         paragraph("Contribution receipt: " + result["request_id"])
     if result and result.get("message"):
         paragraph(literal(result["message"]))
+    if result and result.get("failure_category"):
+        status = f", HTTP {result['http_status']}" if result.get("http_status") else ""
+        paragraph(f"Provider problem ({result['failure_category']}{status}). To resolve: "
+                  + FAILURE_HINTS.get(result["failure_category"], FAILURE_HINTS["unknown"]) + ".")
     if result and result.get("recovery_actions"):
         paragraph("Recovery: " + "; ".join(a.replace("_", " ") for a in result["recovery_actions"]) + ". Retry only when explicitly requested.")
     if result and result.get("draft") is not None:
@@ -218,3 +231,22 @@ def workspace_output(workspace, result=None, speaker=None):
         "markdown": render_workspace(workspace, markdown=True, result=result, speaker=speaker),
         "text": render_workspace(workspace, result=result, speaker=speaker),
         "mermaid": render_mermaid(workspace)}}
+
+
+def render_provider_settings(settings):
+    """Plain-text readiness report. Names credential variables, never their values."""
+    credential = settings["credential"]
+    state = ("set" if credential["present"] else "not set") + (" (required)" if credential["required"] else " (optional)")
+    others = ", ".join(p for p in settings["providers"] if p != settings["provider"])
+    chosen = {"explicit": "chosen explicitly", "environment": "chosen by REASON_COMMONS_PROVIDER",
+              "default": "the default"}[settings["selected_by"]]
+    source = {"explicit": "set explicitly", "environment": "from the environment", "default": "default",
+              "auto": "selected automatically"}[settings["model_source"]]
+    lines = [f"Provider: {settings['provider']} ({chosen})",
+             f"Model: {settings['model']} ({source})",
+             f"Endpoint: {settings['endpoint'] or 'none (works offline)'}",
+             f"Credential: {credential['variable']} {state}" if credential["variable"] else "Credential: none needed",
+             "Status: " + ("ready (no request was sent to check)" if settings["ready"] else "not ready")]
+    lines += [f"  - {problem}" for problem in settings["problems"]]
+    lines.append(f"Other providers: {others}")
+    return "\n".join(lines) + "\n"
