@@ -13,6 +13,7 @@ import tempfile
 from pathlib import Path
 
 from rich.markup import escape
+from rich.text import Text
 from textual import on
 from textual.app import App, ComposeResult, SystemCommand
 from textual.binding import Binding
@@ -23,10 +24,11 @@ from textual.widgets.option_list import Option
 
 from reason_commons.adapters.guided import STEPS
 from reason_commons.adapters.rendering import _literal
+from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, trees_lines
 
 
 PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claude", "lm-studio": "LM Studio (local)"}
-VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("tests", "Tests"), ("actions", "Actions"),
+VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"), ("actions", "Actions"),
                ("reasoning", "Everything"), ("sources", "Your words"), ("history", "History")]
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
         ("review", "Review")]
@@ -62,6 +64,20 @@ You work through one small loop, as often as you like:
 5. **Review**: compare the result with the original forecast, then keep, adjust or drop the change.
 
 Everything is saved in the case folder as you go. Closing the app keeps your draft.
+
+## The trees
+
+The **Trees** view draws the six thinking-process trees: Goal, Current Reality,
+Evaporating Cloud, Future Reality, Prerequisite and Transition. They grow as you
+talk: tell the consultant what causes a problem, what conflict keeps you stuck,
+what stands in the way or what you plan to do, and it records each statement in
+its tree, linked to the others. Ask it to reword or drop something and the tree
+changes; earlier wording stays in History. A test can carry out an action from
+the Transition Tree, and its forecast and result then show under that action.
+
+The built-in guide does not add to the trees; Anthropic or LM Studio do. Any
+consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
+`.ltp.yaml` file, and **Export trees** writes one.
 
 ## Keys
 
@@ -160,22 +176,28 @@ class ChoiceScreen(ModalScreen):
         self.dismiss(event.option.id)
 
 
-class ExportScreen(ModalScreen):
+class PathScreen(ModalScreen):
     BINDINGS = [Binding("escape", "dismiss", "Cancel")]
 
-    def __init__(self, default):
+    def __init__(self, title, default, hint):
         super().__init__()
-        self.default = default
+        self.title_text, self.default, self.hint = title, default, hint
 
     def compose(self) -> ComposeResult:
         with Vertical(id="dialog"):
-            yield Label("Export a portable copy of this case (.reasoncase)", classes="dialog-title")
+            yield Label(self.title_text, classes="dialog-title")
             yield Input(self.default, id="destination")
-            yield Label("Enter exports. Use a new file name. Esc cancels.", classes="hint")
+            yield Label(self.hint, classes="hint")
 
     @on(Input.Submitted)
     def submitted(self, event):
         self.dismiss(event.value.strip() or None)
+
+
+class ExportScreen(PathScreen):
+    def __init__(self, default):
+        super().__init__("Export a portable copy of this case (.reasoncase)", default,
+                         "Enter exports. Use a new file name. Esc cancels.")
 
 
 class ReasonCommonsApp(App):
@@ -191,6 +213,8 @@ class ReasonCommonsApp(App):
     #views.hidden { display: none; }
     #main { border: round $panel; padding: 0 1; }
     #content { margin: 0; }
+    #canvas { margin: 0 0 1 0; padding: 0 2; }
+    #canvas.hidden { display: none; }
     #content MarkdownH2 { margin: 0 0 1 0; }
     #content MarkdownH3 { margin: 1 0 1 0; }
     #main:focus-within, #main:focus { border: round $accent; }
@@ -200,7 +224,7 @@ class ReasonCommonsApp(App):
     #controls { height: 1; margin-top: 1; }
     #controls Button { min-width: 8; height: 1; border: none; margin-right: 1; }
     #retry.hidden { display: none; }
-    ChoiceScreen, ExportScreen, HelpScreen { align: center middle; }
+    ChoiceScreen, PathScreen, HelpScreen { align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
     HelpScreen #dialog { height: 90%; }
@@ -231,6 +255,7 @@ class ReasonCommonsApp(App):
             yield OptionList(*[Option(label, id=key) for key, label in VIEW_LABELS], id="views")
             with VerticalScroll(id="main"):
                 yield Markdown(id="content")
+                yield Static(id="canvas")
         with Vertical(id="response"):
             yield Label(id="response-label")
             yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
@@ -282,6 +307,10 @@ class ReasonCommonsApp(App):
         self.query_one("#loop", Static).update("" if w["historical"] else loop_line(loop_stage(w["question"])))
         content = self.render_next() if self.view_name == "next" else self.render_view()
         self.query_one("#content", Markdown).update(content)
+        canvas = self.query_one("#canvas", Static)
+        canvas.set_class(self.view_name != "trees", "hidden")
+        if self.view_name == "trees":
+            canvas.update(self.render_trees())
         retryable = self.retryable()
         self.query_one("#retry").set_class(not retryable, "hidden")
         self.query_one("#response-label", Label).update(
@@ -366,6 +395,12 @@ class ReasonCommonsApp(App):
             out = [f"**Review:** {md(d['assessment'])}"]
             if d.get("next_decision"):
                 out.append(f"  \nNext: {md(d['next_decision'])}")
+        elif kind == "claim":
+            out = [f"**{TREE_TITLES[d['tree']][0]}, {ROLE_LABELS[d['role']].lower()}:** {md(d['statement'])}"]
+        elif kind == "link":
+            out = [f"**{TREE_TITLES[d['tree']][0]} link:** {md(d['relation'].replace('_', ' '))}"]
+        elif kind == "retraction":
+            out = [f"**Withdrawn:** {md(d['reason'])}"]
         else:
             out = [f"**Note:** {md(d.get('text'))}"]
         return out + [""]
@@ -384,6 +419,17 @@ class ReasonCommonsApp(App):
                 lines += [f"**{md(source['speaker'])}** | {md(source['timestamp'])} | {source['request_id']}", "",
                           "> " + md(source["text"] or "(empty)").replace("\n", "  \n> "), ""]
             return "\n".join(lines) if sources else "\n".join(lines + ["Nothing written yet."])
+        if view == "trees":
+            count = sum(len(t["claims"]) for t in w["trees"])
+            if not count:
+                lines.append("No trees yet. They grow as you talk: tell the consultant what causes the problem, "
+                             "what conflict keeps you stuck, what stands in the way, or what you plan to do. "
+                             "Or bring in trees you already have: Ctrl+P, **Import trees**.")
+            else:
+                lines.append(f"{count} statements in {sum(1 for t in w['trees'] if t['claims'])} trees, as recorded. "
+                             "Each branch says how a statement relates to the one above it. "
+                             "Ctrl+P, **Export trees** writes them to an `.ltp.yaml` file.")
+            return "\n".join(lines)
         if view == "tests":
             if not w["comparisons"]:
                 lines.append("No test yet.")
@@ -408,6 +454,16 @@ class ReasonCommonsApp(App):
         if view == "reasoning" and w["uncertainty"]:
             lines += ["### Still open", ""] + [f"- {md(u['message'])}" for u in w["uncertainty"]]
         return "\n".join(lines)
+
+    def render_trees(self):
+        """The six trees, drawn from the recorded claims and links, coloured by role."""
+        width = max(40, self.query_one("#main").size.width - 6)
+        text = Text()
+        for line in trees_lines(self.workspace_value["trees"], width):
+            for part, style in line:
+                text.append(part, style=style or None)
+            text.append("\n")
+        return text
 
     def show_view(self, name):
         self.view_name = name
@@ -588,6 +644,8 @@ class ReasonCommonsApp(App):
             yield SystemCommand(f"View: {label}", "Local view, no consultant call",
                                 lambda key=key: self.show_view(key))
         yield SystemCommand("Export case", "Write a portable .reasoncase copy", self.action_export)
+        yield SystemCommand("Import trees", "Bring in trees from an .ltp.yaml file", self.action_import_trees)
+        yield SystemCommand("Export trees", "Write the trees to an .ltp.yaml file", self.action_export_trees)
         for key, label in PROVIDERS.items():
             if key != self.provider:
                 yield SystemCommand(f"Consultant: {label}", "Use this consultant from now on",
@@ -607,6 +665,45 @@ class ReasonCommonsApp(App):
             except Exception as exc:
                 self.notify(f"Export failed: {exc}", severity="error", timeout=8)
         self.push_screen(ExportScreen(default), chosen)
+
+    def action_import_trees(self):
+        if self.busy:
+            self.notify("Wait for the current request to finish.")
+            return
+
+        def chosen(path):
+            if not path:
+                return
+            from reason_commons.adapters.ltp_trees import import_trees
+            self.checkpoint()
+            self.case.close()
+            try:
+                summary = import_trees(self.store, os.path.expanduser(path), self.speaker)
+                self.notify(f"Brought in {summary['claims']} statements and {summary['links']} links." +
+                            (f" {summary['notes']} items the trees cannot draw are kept as notes."
+                             if summary["notes"] else ""), timeout=8)
+            except Exception as exc:
+                self.notify(f"Import failed: {exc}", severity="error", timeout=10)
+            finally:
+                self.case = self._open(self._consultant_factory(self.provider))
+            self.show_view("trees")
+        self.push_screen(PathScreen("Bring in trees from an LTP file (.ltp.yaml)", "",
+                                    "Enter imports. They join the trees already here. Esc cancels."), chosen)
+
+    def action_export_trees(self):
+        default = str(Path(self.store).with_name(f"{Path(self.store).name}-trees-{date.today().isoformat()}.ltp.yaml"))
+
+        def chosen(destination):
+            if not destination:
+                return
+            from reason_commons.adapters.ltp_trees import export_trees
+            try:
+                summary = export_trees(self.case.workspace(view="trees"), os.path.expanduser(destination))
+                self.notify(f"Wrote {summary['claims']} statements and {summary['links']} links to {destination}")
+            except Exception as exc:
+                self.notify(f"Export failed: {exc}", severity="error", timeout=8)
+        self.push_screen(PathScreen("Write the trees to an LTP file (.ltp.yaml)", default,
+                                    "Enter writes. Use a new file name. Esc cancels."), chosen)
 
     def switch_provider(self, provider):
         if self.busy:

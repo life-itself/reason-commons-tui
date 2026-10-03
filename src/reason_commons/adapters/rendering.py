@@ -10,7 +10,8 @@ import re
 
 
 TITLES = {"goal": "Goal", "note": "Reported note", "test": "Original test", "action": "Action",
-          "observation": "Observation", "review": "Review", "intervention": "Question"}
+          "observation": "Observation", "review": "Review", "intervention": "Question",
+          "claim": "Tree statement", "link": "Tree link", "retraction": "Withdrawal"}
 LABELS = {"goal_ref": "Goal", "test_ref": "Test", "observation_refs": "Observations",
           "source_refs": "Sources", "required_context_refs": "Relevant context",
           "expected_state_attainment": "Expected state attainment", "execution": "Work execution"}
@@ -139,6 +140,10 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
     elif workspace["view"] == "sources":
         for source in workspace["sources"].values():
             source_details(source)
+    elif workspace["view"] == "trees" and not workspace["selection"]:
+        from reason_commons.adapters.trees import plain, trees_lines
+        drawing = plain(trees_lines(workspace["trees"]))
+        lines.extend(["```", drawing.rstrip(), "```", ""] if markdown else [drawing.rstrip(), ""])
     elif workspace["selected_source"]:
         source_details(workspace["selected_source"])
     else:

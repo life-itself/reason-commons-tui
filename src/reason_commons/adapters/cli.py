@@ -21,6 +21,7 @@ everyday use:
   reason-commons tui FOLDER           Open a goal in a folder of your choice, creating it if needed
   reason-commons resume FOLDER        Open an existing goal; never creates one
   reason-commons export FOLDER FILE   Save a portable copy (.reasoncase)
+  reason-commons trees FOLDER         Draw the goal's six trees; --import or --export an .ltp.yaml
   reason-commons --version            Show the version
 
 The workspace works offline with a built-in guide. Inside it, F1 shows help and
@@ -68,6 +69,13 @@ def main(argv=None):
     export = commands.add_parser("export", help="Export a portable .reasoncase archive")
     export.add_argument("store")
     export.add_argument("bundle")
+    trees = commands.add_parser("trees", help="Draw the six trees, or bring them in or out as an .ltp.yaml file")
+    trees.add_argument("store", metavar="FOLDER")
+    trees_file = trees.add_mutually_exclusive_group()
+    trees_file.add_argument("--import", dest="import_file", metavar="FILE", help="Bring in the trees from an LTP file")
+    trees_file.add_argument("--export", dest="export_file", metavar="FILE", help="Write the trees to a new LTP file")
+    trees.add_argument("--speaker", help="Your name as recorded with an import (default: $USER)")
+    trees.add_argument("--width", type=int, default=100, help="Drawing width in columns")
     imported = commands.add_parser("import", help="Validate and import into a new editable store")
     imported.add_argument("bundle")
     imported.add_argument("--store", required=True)
@@ -137,6 +145,23 @@ def main(argv=None):
         elif args.command == "export":
             with open_case(args.store) as app:
                 app.export(args.bundle)
+        elif args.command == "trees":
+            from reason_commons.adapters.ltp_trees import export_trees, import_trees
+            from reason_commons.adapters.trees import plain, trees_lines
+            if args.import_file:
+                import os
+                speaker = args.speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
+                summary = import_trees(args.store, args.import_file, speaker)
+                print(f"Brought in {summary['claims']} statements and {summary['links']} links"
+                      + (f"; {summary['notes']} items kept as notes." if summary["notes"] else "."))
+            else:
+                with open_case(args.store, writable=False) as app:
+                    workspace = app.workspace(view="trees")
+                if args.export_file:
+                    summary = export_trees(workspace, args.export_file)
+                    print(f"Wrote {summary['claims']} statements and {summary['links']} links to {args.export_file}")
+                else:
+                    print(plain(trees_lines(workspace["trees"], args.width)), end="")
         elif args.command == "import":
             with import_case(args.bundle, args.store) as app:
                 print(json.dumps(app.inspect(), ensure_ascii=False))

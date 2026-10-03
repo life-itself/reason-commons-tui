@@ -18,7 +18,8 @@ ALL boundaries, both Cloud sides and selected-object evidence. The 80x24 and
 persistent application; ACTION annotations describe keys and contributions.
 
 V1 ships p0-p2: a durable case, persistent workspace and a complete goal/action/
-review loop for one operator. Structured graphs and group positions arrive later.
+review loop for one operator, with the six trees growing in its conversation.
+The trees' formal checks and group positions arrive later.
 The shell launches/resumes and provides offline utilities. The
 [accessible ordered presentation](accessibility.md) shares the same labeled
 actions, literal editor, selection and deliberate submission. No interactive
@@ -27,8 +28,8 @@ Users work with questions, reports, relationships, goals, tests, actions and
 reviews. Internal consultant records do not become numbered stationery objects.
 
 - 16 jobs to be done with observable signals and traceability.
-- 11 `.feature` files: 127 named scenarios/outlines, expanding to 157 cases.
-- V1: 64 scenarios and 86 expanded cases across p0-p2.
+- 12 `.feature` files: 134 named scenarios/outlines, expanding to 168 cases.
+- V1: 71 scenarios and 97 expanded cases across p0-p2.
 - Later p3-p5: 63 scenarios and 71 expanded cases.
 - 38 ASCII screens across three synchronized TUI specimens.
 - `example-mvp-session.txt`: v1, 6 consultant calls and 6 revisions, 80x24;
@@ -50,7 +51,7 @@ reviews. Internal consultant records do not become numbered stationery objects.
 |---|---|---:|---:|
 | p0 | Durable minimal case | 9 | 9 |
 | p1 | Persistent TUI workspace | 32 | 46 |
-| p2 | Complete v1 goal-action-review loop | 23 | 31 |
+| p2 | Complete v1 goal-action-review loop, trees in conversation | 30 | 42 |
 | p3 | Partial causal reasoning | 29 | 31 |
 | p4 | Facilitated positions and Cloud | 16 | 16 |
 | p5 | Full tools and cross-tool review | 18 | 24 |

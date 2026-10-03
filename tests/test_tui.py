@@ -202,8 +202,9 @@ def test_example_goal_is_a_finished_loop(tmp_path):
         workspace = app.workspace()
         kinds = {record["kind"] for record in app.inspect()["case"]["records"]}
         assert app.inspect()["cursor"]["view"] == "tests"
-    assert workspace["revision"] == len(ANSWERS)
-    assert {"goal", "test", "action", "observation"} <= kinds
+    # One revision per answer, then one that brings in the trees.
+    assert workspace["revision"] == len(ANSWERS) + 1
+    assert {"goal", "test", "action", "observation", "claim", "link"} <= kinds
     assert workspace["question"]["data"]["purpose"] == "guided:test_change"
 
 
@@ -218,3 +219,38 @@ def test_goals_home_offers_the_example(tmp_path):
             await pilot.pause()
         return app.return_value
     assert asyncio.run(run()) == SAMPLE
+
+
+def test_trees_view_draws_imported_trees_and_exports_them(tmp_path):
+    from importlib.resources import files
+    path = tmp_path / "case"
+    create_case(path, "Trees").close()
+    source = files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")
+    exported = tmp_path / "out.ltp.yaml"
+    consultant = ScriptedConsultant()
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.show_view("trees")
+            await pilot.pause()
+            assert "No trees yet" in app.query_one("#content").source
+            app.action_import_trees()
+            await pilot.pause()
+            app.screen.query_one("#destination").value = str(source)
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.view_name == "trees"
+            drawing = str(app.query_one("#canvas").render())
+            for title in ("Goal Tree", "Current Reality Tree", "Evaporating Cloud", "Future Reality Tree",
+                          "Prerequisite Tree", "Transition Tree"):
+                assert title in drawing
+            assert "conflicts with" in drawing and "69 statements in 6 trees" in app.query_one("#content").source
+            app.action_export_trees()
+            await pilot.pause()
+            app.screen.query_one("#destination").value = str(exported)
+            await pilot.press("enter")
+            await pilot.pause()
+    asyncio.run(run())
+    assert consultant.calls == []
+    assert exported.read_text().count("tree: ") >= 69

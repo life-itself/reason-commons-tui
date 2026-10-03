@@ -81,11 +81,23 @@ time-boxed review of the whole model.
 
 More on how to read each tree: [the six trees, explained](docs/the-trees.md).
 
-## From tree to test: what the app does today
+## In the app: trees that grow as you talk
 
-The app does not draw these trees yet. Today it runs the step where reasoning meets
-reality: you take **one action**, write down what you expect **before** it
-happens, do it, and review what happened against that forecast.
+The app's **Trees** view draws all six trees. They grow from the conversation: tell
+the consultant what causes a problem, which conflict keeps you stuck, what stands
+in the way or what you plan to do, and it records each statement in its tree,
+linked to the others, in your own words. Ask it to reword or drop something and the
+tree changes, while the earlier wording stays in the history. Trees you already
+have come in from an `.ltp.yaml` file (the format the Reason Commons guide uses),
+and go out the same way.
+
+![The Trees view: the Goal Tree drawn as an outline, the goal at the top and each critical success factor and necessary condition below it, with "needs" written on every branch](docs/images/trees-view.png)
+
+## From tree to test
+
+Trees say what might work. The loop finds out: you take **one action**, write down
+what you expect **before** it happens, do it, and review what happened against that
+forecast.
 
 ![The loop: 1 Goal, 2 Test + forecast, 3 Action, 4 Observe, 5 Review, then again](docs/images/loop.svg)
 
@@ -97,17 +109,17 @@ safeguards stay pinned at the top, and the line under them shows where you are.
 
 Three weeks later the forecast sits next to the result. The forecast was 6 of 30
 newcomers; the result was 9 of 31, with both safeguards intact. This is where the
-learning is, and it feeds back into the trees.
+learning is. A test can name the tree action it carries out, and its forecast and
+result then show under that action in the Trees view.
 
 ![The Tests view: the original forecast, 6 of 30 newcomers at a first practice within 3 weeks, next to the reported result, 9 of 31](docs/images/forecast-vs-result.png)
 
 | | In the app today |
 | --- | --- |
 | The loop: goal, test with forecast, action, observation, review | **Works now**, offline, with a built-in guide or an AI consultant |
-| Goal Tree | One goal with a measure and safeguards; the full tree is planned |
-| Current Reality Tree | Planned next: causes, evidence and alternatives |
-| Evaporating Cloud | Planned, together with group work |
-| Future Reality, Prerequisite and Transition Trees | Planned; each action already runs as a loop |
+| All six trees | **Drawn now**. Claude or a local model adds to them as you talk; any consultant can work with trees you import |
+| Joint causes (AND), rival explanations, flags on tests when a cause changes | Planned |
+| Group work: several people's positions on one tree | Planned |
 
 The order follows the [delivery plan](reason-commons-spec/delivery-phases.md).
 
@@ -161,7 +173,8 @@ Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
 
 ## Status
 
-This is an early prototype for personal use. The loop works end to end. Drawing
-the trees, group work and an accessible plain-text mode are planned.
+This is an early prototype for personal use. The loop works end to end, and the
+six trees grow in the conversation. Joint causes, group work and an accessible
+plain-text mode are planned.
 
 [Contributing](CONTRIBUTING.md) · [MIT License](LICENSE)

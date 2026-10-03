@@ -25,7 +25,7 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations, or ask the consultant for advice or a different question |
 | **Views** | Switch view (also the list on the left) |
-| Ctrl+P (**Actions**) | Export, retry, change consultant, views, help, quit |
+| Ctrl+P (**Actions**) | Export, import or export trees, retry, change consultant, views, help, quit |
 | F1 | Help |
 | Ctrl+Q | Save your draft and quit |
 
@@ -39,6 +39,7 @@ Browsing views never calls the consultant.
 | --- | --- |
 | Next step | The current question and what it builds on |
 | Goal | Goal, measure and safeguards |
+| Trees | The six thinking-process trees, drawn from what was recorded; each branch says how a statement relates to the one above it |
 | Tests | Each test with its original forecast next to the reported result, and reviews |
 | Actions | Planned actions |
 | Everything | All saved records |
@@ -47,6 +48,21 @@ Browsing views never calls the consultant.
 
 With the built-in guide, an empty answer skips an optional question (measure,
 safeguards, review date, stop condition).
+
+## The trees
+
+The Trees view shows the Goal, Current Reality, Evaporating Cloud, Future Reality,
+Prerequisite and Transition Trees, one below the other. Each statement shows its
+role (for example ROOT CAUSE or OBSTACLE) and, where recorded, whether it is a
+hypothesis or a report. Branches read top down: "needs", "because", "overcomes",
+"produced by". A statement reached twice is drawn once and then referred to.
+
+Claude and LM Studio add to the trees when you tell them about causes, conflicts,
+obstacles or plans, and reword or drop a statement when you ask. The built-in
+guide does not add to them. Under Actions (Ctrl+P), **Import trees** brings in an
+`.ltp.yaml` file and **Export trees** writes one; imported trees join the ones
+already there, and anything the trees cannot draw (a joint cause, an assessment)
+is kept as a note.
 
 ## Commands
 
@@ -58,6 +74,7 @@ safeguards, review date, stop condition).
 | `reason-commons export FOLDER FILE` | Write a portable `.reasoncase` copy |
 | `reason-commons import FILE --store FOLDER` | Continue from a copy in a new folder |
 | `reason-commons show FOLDER_OR_FILE` | Print a goal without opening the workspace |
+| `reason-commons trees FOLDER` | Draw the goal's trees; `--import FILE` brings trees in from an `.ltp.yaml` file, `--export FILE` writes them out |
 | `reason-commons --version` | Show the version |
 
 `tui` and `resume` also take `--speaker NAME` (the name recorded with your
@@ -92,5 +109,6 @@ whole; use export and import rather than editing files by hand.
 ## Not in this version yet
 
 An accessible plain-text mode (`--accessible`), switching between several people
-in one goal, attaching sources from the workspace, and richer reasoning maps. They
+in one goal, attaching sources from the workspace, and the trees' richer reasoning
+checks (joint causes, rival explanations, boxed diagrams). They
 are specified in [TUI-DESIGN.md](../TUI-DESIGN.md).

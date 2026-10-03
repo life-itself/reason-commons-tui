@@ -69,7 +69,9 @@ cannot silently remain outside the skill surface. TUI actions call these use
 cases; domain effects and local-versus-consultant routing are tested at that
 boundary, while focus/layout behavior belongs in adapter tests. The first TUI
 slice (`adapters/tui.py`) reads `workspace`/`inspect` and writes only through
-`retain_input`, `consult`, `retry`, `export` and `checkpoint`. Its bindings are
+`retain_input`, `consult`, `retry`, `export` and `checkpoint`; importing trees
+goes through `add_source` and `submit` with a deterministic proposal adapter
+(`adapters/ltp_trees.py`), the same path the `trees --import` command uses. Its bindings are
 covered by adapter tests; p1 scenario verification is still outstanding.
 
 ## Application surface

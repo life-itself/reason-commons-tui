@@ -7,18 +7,69 @@ Layout, Markdown and terminal drawing belong to adapters.
 
 from copy import deepcopy
 
-from reason_commons.domain.model import require
+from reason_commons.domain.model import TREES, require
 
 
-VIEWS = ("next", "explain", "goal", "reasoning", "tests", "actions", "history", "sources")
-LINK_FIELDS = {"goal_ref": "concerns goal", "test_ref": "concerns test",
+VIEWS = ("next", "explain", "goal", "trees", "reasoning", "tests", "actions", "history", "sources")
+LINK_FIELDS = {"goal_ref": "concerns goal", "test_ref": "concerns test", "claim_ref": "carries out",
                "observation_refs": "uses observation", "required_context_refs": "uses context"}
-LINK_LABELS = {("test", "goal_ref"): "tests progress toward", ("action", "test_ref"): "work for",
+LINK_LABELS = {("test", "goal_ref"): "tests progress toward", ("test", "claim_ref"): "carries out",
+               ("action", "test_ref"): "work for",
                ("observation", "test_ref"): "reports result of", ("review", "test_ref"): "reviews"}
 UNKNOWN_FIELDS = {"goal": ("scope", "horizon", "measure", "baseline", "protections"),
                   "test": ("scope", "stop_condition", "review_date"),
                   "action": ("owner", "authority", "execution", "expected_state_attainment"),
                   "observation": ("scope", "denominator", "period", "basis")}
+
+
+def project_trees(records):
+    """The current state of each thinking-process tree, exactly as recorded.
+
+    A replaced claim gives way to its latest wording and keeps its links; a
+    withdrawn claim or link disappears from the tree but stays in history.
+    Nothing is inferred: a tree shows only claims and links someone recorded.
+    """
+    withdrawn = {r["data"]["target_ref"] for r in records.values() if r["kind"] == "retraction"}
+    successor = {r["data"]["replaces"]: r["ref"] for r in records.values()
+                 if r["kind"] == "claim" and r["data"].get("replaces")}
+
+    def latest(ref):
+        while ref in successor:
+            ref = successor[ref]
+        return ref
+
+    def earlier(ref):
+        previous = {new: old for old, new in successor.items()}
+        chain = []
+        while ref in previous:
+            ref = previous[ref]
+            chain.append(ref)
+        return chain
+
+    claims = [r for r in records.values() if r["kind"] == "claim" and r["ref"] not in successor
+              and r["ref"] not in withdrawn]
+    current = {c["ref"] for c in claims}
+    trees = []
+    for name in TREES:
+        nodes = [{"ref": c["ref"], "role": c["data"]["role"], "statement": c["data"]["statement"],
+                  "basis": c["data"].get("basis"), "earlier_wording": [records[r]["data"]["statement"]
+                                                                      for r in earlier(c["ref"])],
+                  "tests": [{"ref": t["ref"], "statement": t["data"]["statement"],
+                             "forecast": [f.get("expected") for f in t["data"].get("forecast") or []],
+                             "results": [o["data"]["value"] for o in records.values()
+                                         if o["kind"] == "observation" and o["data"]["test_ref"] == t["ref"]]}
+                            for t in records.values() if t["kind"] == "test"
+                            and t["data"].get("claim_ref") and latest(t["data"]["claim_ref"]) == c["ref"]]}
+                 for c in claims if c["data"]["tree"] == name]
+        links = []
+        for link in (r for r in records.values() if r["kind"] == "link" and r["data"]["tree"] == name):
+            ends = latest(link["data"]["from_ref"]), latest(link["data"]["to_ref"])
+            if link["ref"] in withdrawn or not set(ends) <= current or ends[0] == ends[1]:
+                continue
+            links.append({"ref": link["ref"], "relation": link["data"]["relation"], "from": ends[0],
+                          "to": ends[1], "assumption": link["data"].get("assumption")})
+        trees.append({"tree": name, "claims": nodes, "links": links})
+    return trees
 
 
 def project_workspace(snapshot, sources, *, view="next", selection=None, live_revision=None,
@@ -43,8 +94,8 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
                 if target in records:
                     links.append({"from": record["ref"], "to": target, "field": field,
                                   "label": LINK_LABELS.get((record["kind"], field), label)})
-    filters = {"goal": {"goal"}, "tests": {"test", "observation", "review"},
-               "actions": {"action"}, "reasoning": set(UNKNOWN_FIELDS) | {"note", "review"}}
+    filters = {"goal": {"goal"}, "tests": {"test", "observation", "review"}, "trees": {"claim", "link"},
+               "actions": {"action"}, "reasoning": set(UNKNOWN_FIELDS) | {"note", "review", "claim"}}
     if selection in records:
         # Resolve complete context recursively; never draw a dangling conclusion.
         included = {selection}
@@ -138,7 +189,7 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
             "selected_source": deepcopy(visible_sources.get(selection)),
             "sources": visible_sources if view == "sources" else {}, "uncertainty": unknowns,
             "diagram": {"kind": "recorded_references", "nodes": deepcopy(diagram_nodes), "links": diagram_links},
-            "comparisons": comparisons, "available_actions": actions,
+            "comparisons": comparisons, "available_actions": actions, "trees": project_trees(records),
             "history": deepcopy(list(history)) if view == "history" else [],
             "pending_requests": deepcopy(list(pending)) if not historical else [],
             "draft": deepcopy(cursor or {}) if not historical else {}}

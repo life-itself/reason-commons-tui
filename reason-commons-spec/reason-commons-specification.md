@@ -40,8 +40,11 @@ request authorizes the specification revision, not organizational execution.
 The first release proves one useful loop: define success, choose a bounded
 change, record an immediate action and prospective prediction, return with
 observations, and decide what to do next. One operator uses a persistent TUI with
-attributed notes, visible local controls and a consultant. Formal graph authoring and group stance
-work are later capabilities. Unknown facts and authority remain explicit.
+attributed notes, visible local controls and a consultant. The six thinking-process
+trees grow in that conversation: the consultant records each stated cause, need,
+conflict, obstacle or action as a claim in its tree, joined by single typed links,
+and the TUI draws them. Joint premise groups, rival routes, dependent review and
+group stance work are later capabilities. Unknown facts and authority remain explicit.
 
 This section controls the release scope of every later requirement, action,
 state field, screen and example. Sections 1-4 and 6a describe the cumulative
@@ -54,32 +57,40 @@ artifact scope. Gherkin delivery tags are on scenarios, not whole features.
 |---|---|---|
 | `@p0` | Durable minimal case, atomic commits, recovery, export/import, profile validation | v1 foundation |
 | `@p1` | Persistent TUI, literal editor, local views, focus/draft recovery, accessible linear alternative | v1 interaction |
-| `@p2` | Goal, bounded test, immediate action, observations, original-forecast review | v1 complete loop |
-| `@p3` | Partial causal model, WIP integration, comparisons, goal connections, dependency reviews | Later causal release |
+| `@p2` | Goal, bounded test, immediate action, observations, original-forecast review; trees grown in conversation with LTP 1.0 import/export | v1 complete loop |
+| `@p3` | Joint premise groups and rival routes, WIP integration, comparisons, goal connections, dependency reviews | Later causal release |
 | `@p4` | Structured participant stances, speaker switching, reliance, scoped Cloud | Later facilitated group release |
 | `@p5` | Full Goal/Future/Prerequisite/Transition views, negative branches, cross-tool reviews | Later full-tools release |
 
 V1 ships only p0-p2. Later phases build cumulatively and preserve earlier
 contracts. A development phase is not a sequence users must follow in a case.
 The consultant may discuss causes, conflicts, or obstacles in plain language
-in v1; this does not require structured trees or expose their controls.
+in v1 and record what the participant states in the trees. Recording is never a
+prerequisite: an empty or partial tree is normal, and no tree gates a test.
 
 ### V1 behavior and explicit exclusions
 
 V1 records a versioned goal with scope, horizon, measure, baseline, and protected
 conditions; attributed notes; interventions with decision purpose and rationale;
 bounded tests with forecasts; immediate actions; and observations/reviews.
+It also records tree claims (tree, role, statement, basis), single typed links
+between claims of one tree with an optional assumption, retractions, and
+replacements that reword a claim while keeping its links. A test may name the
+tree claim it carries out. The vocabulary is LTP 1.0 from the reasoncommons
+guide, so trees import from and export to `.ltp.yaml` files. Imports go through
+the ordinary retained-input and publication path; what the trees cannot hold
+(joint premises, cross-tree links, assessments) is kept as labelled notes.
 It stores unknowns rather than manufacturing completeness. It distinguishes
 completed work, observed effects, supported predictions, and goal attainment.
 An explicit goal-version reference lets a changed goal flag a test's relevance
 for review without building a general dependency engine.
 
-V1 controls are Send, Explain this, Other moves, Goal, Tests, Actions and
+V1 controls are Send, Explain this, Other moves, Goal, Trees, Tests, Actions and
 History, plus source and current-test inspection. The visible Views/Actions
 controls provide navigation, export, retry, Help and Save and quit. They are
 keyboard reachable without command syntax. Display only capabilities enabled
 by the case profile. V1 uses one declared operator; structured speaker switching,
-positions and full graph tools arrive in their tagged phases.
+positions and the tree-specific reasoning checks arrive in their tagged phases.
 
 The Actions list and Help contain only operations enabled by the case profile.
 There is no interactive colon-command parser, phrase router, command field or
@@ -575,7 +586,7 @@ manufacture a confirmation loop after a commitment was already supplied.
 
 ## 5. Gherkin and traceability
 
-The eleven `.feature` files below are acceptance specifications, with examples
+The twelve `.feature` files below are acceptance specifications, with examples
 expanding some outlines into multiple cases. Counts are in the bundle README.
 They are not implemented tests. Step definitions and provider adapters remain
 to be built. Deterministic scenarios should run against a fake consultant with
@@ -600,6 +611,7 @@ all failure branches. Every scenario still needs its own fixture and release gat
 | J05–J06, J16 | 02 later local views | S90–S90 | S05A–S05B | Stored model, unlinked reports and assumptions |
 | J01–J03, J06–J07, J09, J11–J16 | 10 goal progress and delivery | S91–S113 | M03–M07; R01–R04 | Goal connection, execution/attainment and dependent review |
 | J02–J03, J05–J07, J09, J12–J16 | 11 TUI workspace | S114–S127 | M01–M07; S01–S24; R01–R04 | Canonical interaction, async focus and complete diagrams |
+| J03, J07, J11–J12, J14 | 12 trees in conversation | S128–S134 | none yet | Claims and single links in six trees, rewording, LTP 1.0 import/export |
 
 ## 6. Build sequence
 
@@ -608,8 +620,8 @@ Build p0, then p1, then p2; release v1 only after the complete loop works with
 one semantic adapter and real first-time participants. A fake adapter isolates
 storage and interaction behavior but cannot establish consulting quality.
 
-Develop p3 only after v1 users show that explicit causal relationships help the
-next decision. Add p4 when facilitated use needs exact structured positions;
+Develop p3 only after v1 users show that the trees' explicit relationships help
+the next decision and need joint premises, rival routes or dependent review. Add p4 when facilitated use needs exact structured positions;
 add p5 as particular cross-tool tasks justify it. Each later release passes
 its own new scenarios plus cumulative earlier regressions. A later feature
 cannot become a dependency of an earlier fixture or background.
@@ -2176,8 +2188,8 @@ Feature: Connect reasoning to goal progress within the delivered scope
 
   @S108 @p0 @v1 @automated
   Scenario: Reject an adapter update outside the delivered schema
-    Given the v1 schema allows only goal, note, intervention, test, action, observation, and bounded review records
-    When an adapter proposal includes a relationship graph or structured stance update
+    Given the v1 schema allows only goal, note, intervention, test, action, observation, bounded review, and typed tree claim, link and retraction records
+    When an adapter proposal includes an untyped relationship graph or structured stance update
     Then the entire proposal is rejected before commit
     And the raw input and failure receipt remain available
     And later fields are not silently stored or partially applied
@@ -2349,6 +2361,82 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And trace links name their dependency meaning and are excluded from causal traversal
     And historical positions, prior observations and action execution remain on their original records
     And the view does not claim the dependency list exhausts real-world consequences
+```
+
+### 12_trees_in_conversation.feature
+
+```gherkin
+@J03 @J07 @J11 @J12 @J14
+Feature: Grow the six thinking-process trees in conversation
+  The trees use the LTP 1.0 vocabulary of the reasoncommons guide: a claim is one
+  sourced statement in one tree with a role; a link is one typed relation between
+  two claims of the same tree. Joint premise groups, rival routes and dependent
+  review stay with the later causal and full-tools releases.
+
+  @S128 @p2 @v1 @automated
+  Scenario: Record a reported cause and its effect in the Current Reality Tree
+    Given a case whose goal is "A clear next step after open evenings"
+    When the operator says "Newcomers do not know the next step, because we never offer one"
+    And the consultant proposes a symptom, a cause and a causes link citing that input
+    Then the Current Reality Tree holds both statements and the link
+    And the literal input remains the source of all three
+    And the Trees view draws the symptom above its cause, labelled "because"
+
+  @S129 @p2 @v1 @automated
+  Scenario Outline: Reject a tree record that breaks the tree grammar
+    Given a case whose goal is "A clear next step after open evenings"
+    When the consultant proposes <record> with an ordinary note
+    Then the entire proposal is rejected before commit
+    And the raw input and failure receipt remain available
+
+    Examples:
+      | record                                              |
+      | a goal role in the Current Reality Tree             |
+      | a link between claims of two different trees        |
+      | a link from a claim to itself                       |
+      | a link to a claim proposed after the link           |
+      | a link with a relation outside the LTP vocabulary   |
+
+  @S130 @p2 @v1 @automated
+  Scenario: Reword and withdraw without rewriting history
+    Given a Current Reality Tree with a symptom, a cause and a causes link
+    When the operator asks to word the cause more precisely and the consultant replaces it
+    Then the tree shows the new wording, still linked to the symptom
+    And the earlier wording stays in the case history
+    When the operator withdraws the cause and the consultant records the withdrawal with a reason
+    Then the tree no longer shows the cause or its link
+    And a later proposal linking the withdrawn cause is rejected before commit
+
+  @S131 @p2 @v1 @automated
+  Scenario: Connect a test to the tree action it carries out
+    Given a Transition Tree action "Prototype one next step after open evenings"
+    When the operator records a test with a forecast that carries out that action
+    And reports an observation for the test
+    Then the Trees view shows the test's original forecast and reported result under the action
+    And the test's original forecast is unchanged
+
+  @S132 @p2 @v1 @automated
+  Scenario: Bring in trees from an LTP file without inferring anything
+    Given a case in the middle of the goal-action-review loop
+    And an LTP 1.0 file with six statements, two single-premise links, one joint-premise link and one assessment
+    When the operator brings in the file
+    Then the file is retained as a source and every imported statement and link cites it
+    And the joint-premise link and the assessment are kept as labelled notes
+    And the current question carries on from the same step
+    And the consultant is not called
+
+  @S133 @p2 @v1 @automated
+  Scenario: Export the trees and bring them back unchanged
+    Given a case with imported trees
+    When the operator exports the trees to a new LTP file and brings that file into a new case
+    Then both cases show the same statements, roles, links and assumptions
+    And exporting to an existing file is refused
+
+  @S134 @p2 @v1 @automated
+  Scenario: Browse the trees locally
+    Given a case with imported trees
+    When the operator opens the Trees view and then returns to the current question
+    Then no consultant call and no revision occurs
 ```
 
 ## 8. V1 TUI goal action review session

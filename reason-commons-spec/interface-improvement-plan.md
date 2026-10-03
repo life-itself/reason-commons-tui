@@ -30,8 +30,8 @@ establish measured usability or authorize organizational actions.
 | Share one interaction model | All scenarios use labeled controls; ordered accessibility shares actions | No workflow needs colon syntax or a separate REPL |
 
 Build p0 storage/commit/recovery, p1 workspace and p2 complete goal/action/review
-loop. Ship that loop before formal trees, group stances and cross-tool analysis
-arrive in p3-p5. One fake adapter isolates state/interaction; a semantic adapter
+loop, with the six trees growing in that conversation. Ship that loop before the
+trees' formal checks, group stances and cross-tool analysis arrive in p3-p5. One fake adapter isolates state/interaction; a semantic adapter
 and first-time participant checks remain required. More diagrams alone are not
 progress. Introduce a representation when it helps a recurrent decision.
 

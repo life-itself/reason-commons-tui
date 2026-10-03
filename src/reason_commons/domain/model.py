@@ -17,23 +17,54 @@ class StaleWork(InvalidCase):
 SCHEMA = "1"
 PROFILE = "p2"  # v1 data contract; delivery milestone remains p0
 PREFIXES = {"goal": "G", "note": "N", "test": "P", "action": "A",
-            "observation": "B", "review": "R", "intervention": "I"}
+            "observation": "B", "review": "R", "intervention": "I",
+            "claim": "C", "link": "L", "retraction": "X"}
 # A small closed registry: generic notes cannot smuggle executable graph fields.
 FIELDS = {
     "goal": {"statement", "scope", "horizon", "measure", "baseline", "protections"},
     "note": {"text", "basis"},
-    "test": {"statement", "goal_ref", "scope", "forecast", "stop_condition", "review_date"},
+    "test": {"statement", "goal_ref", "scope", "forecast", "stop_condition", "review_date", "claim_ref"},
     "action": {"statement", "test_ref", "owner", "authority", "execution", "expected_state_attainment"},
     "observation": {"test_ref", "measure", "value", "scope", "denominator", "period", "basis"},
     "review": {"test_ref", "observation_refs", "assessment", "next_decision", "goal_ref"},
+    # Thinking-process trees, in the LTP 1.0 vocabulary. A claim is one sourced
+    # proposition placed in a tree; a link is one explicit, typed relation between
+    # two claims of the same tree; a retraction withdraws either without rewriting it.
+    "claim": {"tree", "role", "statement", "basis", "replaces"},
+    "link": {"tree", "relation", "from_ref", "to_ref", "assumption"},
+    "retraction": {"target_ref", "reason"},
 }
 REQUIRED = {"goal": {"statement"}, "note": {"text"},
             "test": {"statement", "goal_ref", "scope", "forecast"},
             "action": {"statement", "test_ref"},
             "observation": {"test_ref", "measure", "value"},
-            "review": {"test_ref", "assessment"}}
+            "review": {"test_ref", "assessment"},
+            "claim": {"tree", "role", "statement"},
+            "link": {"tree", "relation", "from_ref", "to_ref"},
+            "retraction": {"target_ref", "reason"}}
 REQUIRED_REFERENCES = {"test": {"goal_ref"}, "action": {"test_ref"},
-                       "observation": {"test_ref"}, "review": {"test_ref"}}
+                       "observation": {"test_ref"}, "review": {"test_ref"},
+                       "link": {"from_ref", "to_ref"}, "retraction": {"target_ref"}}
+# Fields that cite another record, and the kinds each may cite.
+REFERENCE_KINDS = {"goal_ref": {"goal"}, "test_ref": {"test"}, "claim_ref": {"claim"},
+                   "from_ref": {"claim"}, "to_ref": {"claim"}, "replaces": {"claim"},
+                   "target_ref": {"claim", "link"}}
+TREES = ("goal", "current_reality", "conflict", "future_reality", "prerequisite", "transition")
+ALL_TREES = set(TREES)
+# Which trees each role belongs to (reasoncommons skills/ltp-project/references/vocabulary.md).
+ROLES = {"goal": {"goal"}, "critical_success_factor": {"goal"}, "necessary_condition": {"goal"},
+         "undesirable_effect": {"current_reality", "future_reality"},
+         "intermediate_cause": {"current_reality"}, "root_cause": {"current_reality"},
+         "critical_root_cause": {"current_reality"}, "cloud_objective": {"conflict"},
+         "cloud_requirement": {"conflict"}, "cloud_prerequisite": {"conflict"},
+         "injection": {"conflict", "future_reality"}, "desired_effect": {"future_reality"},
+         "implementation_objective": {"prerequisite"}, "obstacle": {"prerequisite"},
+         "intermediate_objective": {"prerequisite"}, "transition_existing_reality": {"transition"},
+         "transition_need": {"transition"}, "transition_action": {"transition"},
+         "transition_expected_effect": {"transition"}, "observation": ALL_TREES, "evidence": ALL_TREES}
+RELATIONS = {"necessary_for", "causes", "contributes_to", "conflicts_with", "requires", "satisfies",
+             "overcomes", "precedes", "produces", "invalidates_assumption", "implements", "supersedes",
+             "supports", "challenges", "refines", "enables"}
 # A record needs its defining text and relationships. Scope and supplementary
 # context can explicitly remain unknown; an unformed claim belongs in a note.
 REQUIRED_TEXT = {kind: fields - {"scope", "forecast"} for kind, fields in REQUIRED.items()}
@@ -44,9 +75,10 @@ INTERVENTION_KINDS = {"question", "recommendation", "stop"}
 FORECAST_FIELDS = {"measure", "expected", "scope", "denominator", "period", "bound"}
 FORECAST_REQUIRED = {"measure", "expected", "scope", "denominator"}
 ENUM_FIELDS = {"basis": {"hypothesis", "participant_report", "observed"},
+               "tree": ALL_TREES, "role": set(ROLES), "relation": RELATIONS,
                "execution": {"unknown", "planned", "completed", "blocked"},
                "expected_state_attainment": {"unknown", "pending", "met", "not_met"}}
-VIEW_TARGETS = {"goal", "history", "sources", "current_question"}
+VIEW_TARGETS = {"goal", "history", "sources", "current_question", "trees"}
 CONSULT_INTENTS = {"another_question", "direct_advice", "explain_observation"}
 
 
@@ -89,6 +121,8 @@ def validate_value(kind: str, data: dict) -> None:
     for field, values in ENUM_FIELDS.items():
         if field in data:
             require(data[field] in values, f"Unknown {field}")
+    if kind == "claim":
+        require(data["tree"] in ROLES[data["role"]], f"Role {data['role']} does not belong in the {data['tree']} tree")
 
 
 def validate_intervention(data: dict, records: Mapping[str, dict]) -> None:
@@ -127,6 +161,28 @@ def validate_intervention(data: dict, records: Mapping[str, dict]) -> None:
             shape(action, {"type", "intent"}, {"type", "intent"}, "consult action")
             require(action["type"] == "consult" and action["intent"] in CONSULT_INTENTS,
                     "Action belongs to an unavailable delivery profile")
+
+
+def validate_tree_record(record: dict, records: Mapping[str, dict], earlier: set,
+                         withdrawn: set, replaced: set) -> None:
+    """Tree records cite only earlier, still-current claims, so history reads in order."""
+    data, kind = record["data"], record["kind"]
+    current = lambda ref: ref in earlier and ref not in withdrawn and ref not in replaced
+    if kind == "claim" and data.get("replaces") is not None:
+        old = data["replaces"]
+        require(current(old), "A claim can only replace an earlier, current claim")
+        require(records[old]["data"]["tree"] == data["tree"], "A replacement stays in the same tree")
+        replaced.add(old)
+    elif kind == "link":
+        for key in ("from_ref", "to_ref"):
+            require(current(data[key]), "A link joins earlier, current claims")
+            require(records[data[key]]["data"]["tree"] == data["tree"], "A link joins claims of its own tree")
+        require(data["from_ref"] != data["to_ref"], "A claim cannot be linked to itself")
+    elif kind == "retraction":
+        require(current(data["target_ref"]), "Only an earlier, current claim or link can be withdrawn")
+        withdrawn.add(data["target_ref"])
+    elif kind == "test" and data.get("claim_ref") is not None:
+        require(current(data["claim_ref"]), "A test can only carry out an earlier, current claim")
 
 
 def reference(ref: str, records: Mapping[str, dict], kind: str = None) -> None:
@@ -211,14 +267,17 @@ class Snapshot:
             string_list(record["source_refs"], "source_refs")
             require(bool(record["source_refs"]) and all(s in sources for s in record["source_refs"]), "Unknown source")
             records[ref] = record
-        for record in records.values():
+        withdrawn, replaced, earlier = set(), set(), set()
+        for record in self.value["records"]:
             if record["kind"] == "intervention":
                 validate_intervention(record["data"], records)
             else:
                 validate_value(record["kind"], record["data"])
-                for key, kind in (("goal_ref", "goal"), ("test_ref", "test")):
+                for key, kinds in REFERENCE_KINDS.items():
                     if record["data"].get(key) is not None:
-                        reference(record["data"][key], records, kind)
+                        reference(record["data"][key], records)
+                        require(records[record["data"][key]]["kind"] in kinds, f"Wrong reference kind: {key}")
+                validate_tree_record(record, records, earlier, withdrawn, replaced)
                 for ref in record["data"].get("observation_refs", []):
                     reference(ref, records, "observation")
                 owner = record["data"].get("owner")
@@ -228,6 +287,7 @@ class Snapshot:
                 if record["data"].get("basis") == "observed":
                     require(any("observed" in sources[s].get("declarations", {}).get("evidence", [])
                                 for s in record["source_refs"]), "Observed support requires cited explicit evidence")
+            earlier.add(record["ref"])
         if self.target is not None:
             reference(self.target, records, "intervention")
         for field in ("applied_requests", "source_input_refs"):
@@ -282,7 +342,7 @@ class Snapshot:
 
         def resolve_data(data):
             require(isinstance(data, dict), "Record data must be an object")
-            for key in ("goal_ref", "test_ref"):
+            for key in REFERENCE_KINDS:
                 if isinstance(data.get(key), str):
                     data[key] = temporary.get(data[key], data[key])
             for key in ("observation_refs", "required_context_refs"):
