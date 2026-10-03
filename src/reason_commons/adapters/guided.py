@@ -249,7 +249,8 @@ class GuidedConsultant:
         if step == "review":
             test = self._latest(records or {}, "test")
             forecast = "; ".join(f.get("expected") or "" for f in (test or {}).get("data", {}).get("forecast", []))
-            prompt = (f"Your original forecast was: {forecast or 'not recorded'}. How does what happened compare? "
+            prompt = (f"Your original forecast was: \"{forecast}\". " if forecast else "No forecast was recorded. ")
+            prompt += ("How does what happened compare? "
                       "Check your safeguards first. Then decide: keep, adjust or drop the change?")
         if after_review and step == "test_change":
             prompt = ("Review saved. What is the next small change you want to try? It can be the same "

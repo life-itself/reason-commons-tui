@@ -148,4 +148,8 @@ A goals home screen follows: plain `reason-commons` in a terminal lists the case
 folders under `~/ReasonCommons` (or `REASON_COMMONS_HOME`) and starts new ones with
 `create_case`, reading each through read-only `open_case`/`inspect`. Without a
 terminal it still prints help. The header shows "Saved"; revisions stay in History.
+The workspace draws the loop under the pinned context (current step marked) and a
+small workflow diagram on the welcome screen; record IDs stay out of the views. The
+home screen offers a finished, fictional example built through `retain_input` and
+`consult` with the built-in guide in a temporary folder that is removed afterwards.
 

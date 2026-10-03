@@ -9,6 +9,7 @@ which view is shown; it defines no reasoning or persistence rules.
 from datetime import date
 import os
 import re
+import tempfile
 from pathlib import Path
 
 from rich.markup import escape
@@ -27,6 +28,25 @@ from reason_commons.adapters.rendering import _literal
 PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claude", "lm-studio": "LM Studio (local)"}
 VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("tests", "Tests"), ("actions", "Actions"),
                ("reasoning", "Everything"), ("sources", "Your words"), ("history", "History")]
+LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
+        ("review", "Review")]
+GUIDED_STAGE = {"goal": "goal", "goal_measure": "goal", "goal_protect": "goal", "test_change": "test",
+                "test_forecast": "test", "test_review": "test", "test_stop": "test", "action": "action",
+                "observe": "observe", "review": "review"}
+STAGE_WORDS = [("review", ("review",)), ("observe", ("observ", "result", "happened")), ("action", ("action",)),
+               ("test", ("test", "forecast", "trial", "change")), ("goal", ("goal", "success", "start"))]
+WELCOME_WIDE = """\
+```
+ +--------------------+     +--------------------+     +--------------------+
+ | What matters       |     | One small test     |     | What you learn     |
+ | your goal and what | --> | with a forecast    | --> | the result next to |
+ | must not get worse |     | written first      |     | your forecast      |
+ +--------------------+     +--------------------+     +--------------------+
+```"""
+WELCOME_NARROW = """\
+```
+ [What matters] --> [One small test] --> [What you learn]
+```"""
 STATUS_TEXT = {"unavailable": "the consultant could not be reached", "rejected": "the consultant's reply was invalid",
                "started": "the request was interrupted", "input_retained": "the consultant was not asked yet"}
 
@@ -61,6 +81,33 @@ The **built-in guide** works offline and asks the loop's questions in order.
 **Anthropic** (needs `ANTHROPIC_API_KEY`) or **LM Studio** (a local model) give
 adaptive questions and advice. Change it any time with Ctrl+P.
 """
+
+
+def loop_stage(question):
+    """Which part of the loop the current question belongs to, or None when it cannot be told."""
+    if not question:
+        return "goal"
+    data = question.get("data", {})
+    purpose = data.get("purpose") or ""
+    if purpose.startswith("guided:"):
+        return GUIDED_STAGE.get(purpose[len("guided:"):])
+    decision = (data.get("decision") or "").lower()
+    return next((stage for stage, words in STAGE_WORDS if any(word in decision for word in words)), None)
+
+
+def loop_line(stage):
+    """The loop drawn as one line: done steps ticked, the current one marked; symbols carry the meaning."""
+    keys = [key for key, _ in LOOP]
+    now = keys.index(stage) if stage in keys else -1
+    parts = []
+    for index, (key, label) in enumerate(LOOP):
+        if index == now:
+            parts.append(f"[b reverse] > {label} [/]")
+        elif index < now:
+            parts.append(f"[dim]✓ {label}[/]")
+        else:
+            parts.append(label)
+    return " → ".join(parts) + ("   [dim](then the loop starts again)[/]" if stage == "review" else "")
 
 
 def md(value):
@@ -138,6 +185,7 @@ class ReasonCommonsApp(App):
     Screen { layout: vertical; }
     #status { height: 1; background: $primary; color: $text; padding: 0 1; }
     #pinned { height: auto; max-height: 3; background: $boost; padding: 0 1; }
+    #loop { height: 1; padding: 0 1; color: $text; }
     #body { height: 1fr; }
     #views { width: 18; border: round $panel; }
     #views.hidden { display: none; }
@@ -178,6 +226,7 @@ class ReasonCommonsApp(App):
     def compose(self) -> ComposeResult:
         yield Static(id="status")
         yield Static(id="pinned")
+        yield Static(id="loop")
         with Horizontal(id="body"):
             yield OptionList(*[Option(label, id=key) for key, label in VIEW_LABELS], id="views")
             with VerticalScroll(id="main"):
@@ -212,6 +261,8 @@ class ReasonCommonsApp(App):
     def on_resize(self, event=None):
         self.query_one("#views").set_class(self.size.width < 100, "hidden")
         self.query_one("#editor").styles.height = 3 if self.size.height < 30 else 6
+        if self.workspace_value is not None and not self.workspace_value["question"]:
+            self.render_all()
 
     # ----- reading ------------------------------------------------------
     def refresh_workspace(self):
@@ -228,6 +279,7 @@ class ReasonCommonsApp(App):
             f"[b]{escape(w['case_name'])}[/b]  |  {escape(self.speaker)}  |  {state}  |  "
             f"{escape(step)}  |  {escape(consultant)}")
         self.query_one("#pinned", Static).update(self.pinned_text())
+        self.query_one("#loop", Static).update("" if w["historical"] else loop_line(loop_stage(w["question"])))
         content = self.render_next() if self.view_name == "next" else self.render_view()
         self.query_one("#content", Markdown).update(content)
         retryable = self.retryable()
@@ -265,15 +317,17 @@ class ReasonCommonsApp(App):
             rationale = data["rationale"]
         else:
             lines += ["## Welcome to Reason Commons", "",
-                      "Work through one goal at a time: set a goal, try a small test with a forecast, "
-                      "act, observe what happened, and review.", ""]
+                      "Make progress on something that matters, one small loop at a time.", ""]
             if self.provider == "guided":
                 lines += [f"**{md(STEPS['goal'][1])}**", ""]
                 rationale = STEPS["goal"][2]
             else:
-                lines += ["**What is happening, and what would count as better?** "
-                          "You can begin in ordinary words. Unknown measures can stay open.", ""]
+                lines += ["**What is happening, and what would count as better?**", ""]
                 rationale = "A clear picture of success comes before choosing what to change."
+            lines += [WELCOME_WIDE if self.size.width >= 100 else WELCOME_NARROW,
+                      "*This shows how one loop works, not what causes what.*", "",
+                      "Begin in ordinary words. Unknown numbers can stay open, and you can correct "
+                      "anything later. There are no commands to learn.", ""]
         if self.explain:
             lines += ["> **Why this question** (saved explanation, no consultant call)", ">",
                       "> " + md(rationale), ""]
@@ -290,30 +344,30 @@ class ReasonCommonsApp(App):
         return "\n".join(lines)
 
     def record_lines(self, record):
-        d, ref = record["data"], record["ref"]
+        d = record["data"]
         kind = record["kind"]
         if kind == "goal":
-            out = [f"**Goal {ref}:** {md(d['statement'])}  "]
+            out = [f"**Goal:** {md(d['statement'])}  "]
             out.append(f"Measure: {md(d.get('measure') or 'not set')}  ")
             out.append("Protect: " + md("; ".join(d.get("protections") or []) or "none recorded"))
         elif kind == "test":
-            out = [f"**Test {ref}:** {md(d['statement'])}  "]
+            out = [f"**Test:** {md(d['statement'])}  "]
             for f in d.get("forecast") or []:
                 out.append(f"Original forecast (saved before results): {md(f.get('expected'))}  ")
             out.append(f"Review: {md(d.get('review_date') or 'not set')} | "
                        f"Stop if: {md(d.get('stop_condition') or 'not set')}")
         elif kind == "action":
-            out = [f"**Action {ref}:** {md(d['statement'])}  ",
+            out = [f"**Action:** {md(d['statement'])}  ",
                    f"Execution: {md(d.get('execution') or 'unknown')} | "
                    f"Expected state: {md(d.get('expected_state_attainment') or 'unknown')}"]
         elif kind == "observation":
-            out = [f"**Observation {ref}** ({md(d.get('basis') or 'basis unknown')}): {md(d['value'])}"]
+            out = [f"**Observation** ({md(d.get('basis') or 'basis unknown')}): {md(d['value'])}"]
         elif kind == "review":
-            out = [f"**Review {ref}** of {d['test_ref']}: {md(d['assessment'])}"]
+            out = [f"**Review:** {md(d['assessment'])}"]
             if d.get("next_decision"):
                 out.append(f"  \nNext: {md(d['next_decision'])}")
         else:
-            out = [f"**Note {ref}:** {md(d.get('text'))}"]
+            out = [f"**Note:** {md(d.get('text'))}"]
         return out + [""]
 
     def render_view(self):
@@ -335,7 +389,7 @@ class ReasonCommonsApp(App):
                 lines.append("No test yet.")
             for comparison in reversed(w["comparisons"]):
                 test = comparison["test"]
-                lines += [f"### Test {test['ref']}: {md(test['data']['statement'])}", "",
+                lines += [f"### Test: {md(test['data']['statement'])}", "",
                           "| | Original forecast | Reported result |", "| --- | --- | --- |"]
                 results = "<br>".join(md(o["data"]["value"]).replace("\n", "<br>") for o in comparison["observations"])
                 for forecast in test["data"].get("forecast") or []:
@@ -344,7 +398,7 @@ class ReasonCommonsApp(App):
                 lines += ["", f"Review date: {md(test['data'].get('review_date') or 'not set')} | "
                           f"Stop if: {md(test['data'].get('stop_condition') or 'not set')}", ""]
                 for review in comparison["reviews"]:
-                    lines += [f"**Review {review['ref']}:** {md(review['data']['assessment'])}", ""]
+                    lines += [f"**Review:** {md(review['data']['assessment'])}", ""]
             return "\n".join(lines)
         records = [r for r in w["records"] if r["kind"] != "intervention"]
         if not records:
@@ -660,17 +714,21 @@ class GoalsApp(App):
         if not self.goals:
             intro += "\n\nYou have no goals yet. Start one below; it is saved as you go."
         self.query_one("#home-intro", Static).update(intro)
-        options = [Option("+ Start a new goal", id="new")]
+        options = [Option("+ Start a new goal", id="new"),
+                   Option("  Look around a finished example first (nothing you do there is kept)", id="sample")]
         for index, goal in enumerate(self.goals):
             label = f"{goal['name']}   ·   {goal['step']}   ·   {str(goal['changed'])[:10]}"
             options.append(Option(escape(label), id=str(index)))
         goals = self.query_one("#goals", OptionList)
         goals.add_options(options)
-        goals.highlighted = 1 if self.goals else 0
+        goals.highlighted = 2 if self.goals else 0
         goals.focus()
 
     @on(OptionList.OptionSelected, "#goals")
     def chosen(self, event):
+        if event.option.id == "sample":
+            self.exit(SAMPLE)
+            return
         if event.option.id != "new":
             self.exit(self.goals[int(event.option.id)]["path"])
             return
@@ -694,11 +752,20 @@ class GoalsApp(App):
         self.push_screen(HelpScreen())
 
 
+SAMPLE = "sample"
+
+
 def run_home(speaker=None, provider=None, model=None, base_url=None):
-    """Show your goals, then open the chosen one in the workspace."""
+    """Show your goals, then open the chosen one (or a throwaway example) in the workspace."""
+    options = {"speaker": speaker, "provider": provider, "model": model, "base_url": base_url}
     store = GoalsApp(goals_home()).run()
-    if store is not None:
-        run(store, speaker=speaker, provider=provider, model=model, base_url=base_url)
+    if store == SAMPLE:
+        from reason_commons.adapters.sample import build_sample
+        with tempfile.TemporaryDirectory(prefix="reason-commons-example-") as folder:
+            path = build_sample(Path(folder) / "example")
+            run(path, **{**options, "provider": provider or "guided"})
+    elif store is not None:
+        run(store, **options)
 
 
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None):
