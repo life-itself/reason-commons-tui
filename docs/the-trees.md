@@ -13,13 +13,9 @@ movement, analysed from its own documents in the
 Labels in the pictures are shortened; the guide has the full wording, evidence and
 open questions for every box.
 
-> **In the app.** These pictures illustrate the method. The app's **Trees** view
-> (Ctrl+T, then Ctrl+N for the next tree) draws the same six trees as indented outlines, from what you and the consultant
-> record as you talk, or from an `.ltp.yaml` file you bring in. The finished example
-> in the app carries this whole analysis. Joint causes (several causes that only work
-> together) and rival explanations arrive later, as the
-> [delivery plan](../reason-commons-spec/delivery-phases.md) describes. The
-> [loop](the-loop.md) then tests one action at a time.
+> **In the app.** The app draws these six trees in its Trees view: press **Ctrl+T**.
+> See [seeing the trees in the app](#seeing-the-trees-in-the-app) for how, and why
+> it helps.
 
 ## Reading the pictures
 
@@ -135,6 +131,34 @@ evening to a first practice, is the finished example in the app.
 ![Transition Tree for the Second Renaissance](images/trees/transition-tree.svg)
 
 **Check it by asking:** how will we know it worked? Who does it, and by when?
+
+## Seeing the trees in the app
+
+The pictures above are drawn for this page. In the app, the **Trees** view draws
+the same six trees as indented outlines, from what you and the consultant record as
+you talk, or from an `.ltp.yaml` file you bring in. The finished example on the
+home screen carries this whole analysis, so it is the easiest place to start.
+
+**Why open them while you work.** The trees keep the whole in view while you answer
+one small question. Each branch shows the assumption it rests on, which is exactly
+where a challenge belongs. Gaps stand out: an obstacle with no objective, or a
+tree with nothing in it, is the next good question. And because every statement
+keeps who said it and its earlier wordings, the reasoning builds up instead of
+being lost in the conversation.
+
+**How.** Press **Ctrl+T** to open the trees and **Ctrl+N** to step from one tree to
+the next; after the sixth you see all six together. The line at the top says which
+tree is on screen and how many statements each holds. Read top down: the coloured
+label says what a statement is, and the branch word ("because", "needs",
+"overcomes", "produced by") says how it relates to the one above. **Ctrl+T** again
+returns to the question. **Ctrl+P**, then **Import trees** or **Export trees**,
+moves trees in or out as `.ltp.yaml`.
+
+![The Trees view showing the example's Goal Tree as an outline: the goal at the top, each critical success factor and necessary condition below it, with "needs" on every branch](images/trees-view.png)
+
+Joint causes (several causes that only work together) and rival explanations
+arrive later, as the [delivery plan](../reason-commons-spec/delivery-phases.md)
+describes. The [workspace reference](tui.md#the-trees) has the details.
 
 ## From the trees to the loop
 

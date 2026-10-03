@@ -38,6 +38,19 @@ Nothing leaves your computer with a local model.
 The [LM Studio notes](lm-studio.md) cover other addresses, tokens and how model
 choice is verified.
 
+## Grow the trees as you talk
+
+With Claude or LM Studio as consultant, the six trees grow from the conversation.
+Tell it what causes a problem, which conflict keeps you stuck, what a change
+should lead to, what stands in the way or what you plan to do. It records each
+statement in the right tree, in your words, and links it to what is already
+there. Ask it to reword or drop a statement and the tree changes; the earlier
+wording stays in **History**.
+
+Press **Ctrl+T** to see the trees and **Ctrl+N** to step through them. The
+[workspace reference](tui.md#the-trees) explains how to read them. The built-in
+guide does not add to the trees; it only walks the loop.
+
 ## When the consultant can't be reached
 
 Your answer is saved anyway. A **Retry** button appears; press it once the

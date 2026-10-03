@@ -1,8 +1,9 @@
 # The loop, explained
 
-Reason Commons works today through one small loop: **goal → test with a forecast →
-action → observation → review**, then again. In the method's terms, each loop
-tests one action from a Transition Tree, the last of [the six trees](the-trees.md).
+The six trees say what might work; the loop finds out. It is one small cycle:
+**goal → test with a forecast → action → observation → review**, then again. In the
+method's terms, each loop tests one action from a Transition Tree, the last of
+[the six trees](the-trees.md), which the app draws in its Trees view (Ctrl+T).
 This page explains why each step is there. To try it, follow the
 [tutorial](tutorial.md).
 
@@ -55,6 +56,8 @@ See [use Claude or a local model](use-a-model.md).
 | Action | The concrete next thing you will do, and when |
 | Observation | What actually happened, as you report it |
 | Review | The result next to the forecast and safeguards, ending in keep, adjust or drop |
+| Tree | One of the six thinking-process trees; Ctrl+T shows them |
+| Tree statement | One box in a tree, such as a root cause or an obstacle, in someone's own words |
 | Consultant | Whoever asks the questions: the built-in guide, Claude or a local model |
 
 ## Where your data lives

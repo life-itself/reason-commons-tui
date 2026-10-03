@@ -83,16 +83,44 @@ More on how to read each tree: [the six trees, explained](docs/the-trees.md).
 
 ## In the app: trees that grow as you talk
 
-The app's **Trees** view (Ctrl+T) draws the six trees one at a time; Ctrl+N
-moves to the next tree, and after the sixth shows all six together. They grow from the conversation: tell
-the consultant what causes a problem, which conflict keeps you stuck, what stands
-in the way or what you plan to do, and it records each statement in its tree,
-linked to the others, in your own words. Ask it to reword or drop something and the
-tree changes, while the earlier wording stays in the history. Trees you already
-have come in from an `.ltp.yaml` file (the format the Reason Commons guide uses),
-and go out the same way.
+### Why look at the trees while you work
 
-![The Trees view: the Goal Tree drawn as an outline, the goal at the top and each critical success factor and necessary condition below it, with "needs" written on every branch](docs/images/trees-view.png)
+- **See the whole while you work on one part.** A question about a single test
+  sits inside a goal, a cause and a plan. The trees keep that context one key away,
+  so a small step never loses its reason.
+- **Find the weak spot.** Every arrow shows the assumption it rests on, in grey
+  under the statement. That is where to push back: "is that really why?"
+- **Notice what is missing.** An obstacle with no objective, a cause nobody has
+  explained, a tree with nothing in it: each is the next good question to ask.
+- **Keep the reasoning, not just the chat.** Each statement keeps who said it and
+  its earlier wordings, so the thinking builds up instead of scrolling away.
+
+### How to see them
+
+1. Run `reason-commons` and open a goal. To explore first, choose **Look around a
+   finished example first**: it carries the Second Renaissance analysis above.
+2. Press **Ctrl+T**. The Trees view opens; the line at the top lists the six trees
+   and how many statements each holds.
+3. Press **Ctrl+N** to step to the next tree. After the sixth it shows all six
+   together, then starts again.
+4. Read each tree top down: a coloured label says what a statement is (ROOT CAUSE,
+   OBSTACLE, ACTION), and the branch says how it relates to the one above
+   ("because", "needs", "overcomes", "produced by").
+5. Press **Ctrl+T** again to go back to the question you were answering.
+
+![The Trees view showing the Current Reality Tree of the example: the symptom "the group is busy while durable-adoption throughput remains low" at the top, with root causes and further symptoms branching below it as "because" and "partly because", each with its assumption in grey](docs/images/trees-current-reality.png)
+
+The trees grow from the conversation. With Claude or a local model as consultant,
+tell it what causes a problem, which conflict keeps you stuck, what stands in the
+way or what you plan to do. It records each statement in its tree, linked to the
+others, in your own words. Ask it to reword or drop something and the tree changes,
+while the earlier wording stays in the history. The built-in guide does not add to
+the trees.
+
+Trees you already have come in from an `.ltp.yaml` file, the format the Reason
+Commons guide uses, and go out the same way: press **Ctrl+P** and choose **Import
+trees** or **Export trees**. From the terminal, `reason-commons trees FOLDER` draws
+them without opening the workspace. Add `--tree current_reality` to draw just one.
 
 ## From tree to test
 
@@ -155,7 +183,8 @@ That is all; there is no Python setup to manage. To update later, run
 `uv tool upgrade reason-commons`.
 
 `reason-commons` opens a list of your goals. Start a new one, or look around the
-finished open-evening example first. A new goal opens with a short welcome and one
+finished open-evening example first: it carries the group's whole analysis, so
+Ctrl+T shows all six trees. A new goal opens with a short welcome and one
 question; you answer in ordinary words, Enter adds a line and Ctrl+S sends.
 
 ![The home screen lists goals with their current step, plus Start a new goal and a finished example](docs/images/home.png)
@@ -167,7 +196,7 @@ Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
 
 - [Tutorial: your first loop](docs/tutorial.md), step by step with pictures.
 - [The six trees, explained](docs/the-trees.md) and [the loop, explained](docs/the-loop.md).
-- [Use Claude or a local model](docs/use-a-model.md) and [back up, share and move goals](docs/back-up-and-share.md).
+- [Use Claude or a local model](docs/use-a-model.md) to grow the trees as you talk, and [back up, share and move goals and trees](docs/back-up-and-share.md).
 - [Workspace reference](docs/tui.md): keys, views, commands and settings.
 - [All documentation](docs/README.md), including using Reason Commons from an AI agent.
 - Questions or ideas: [open an issue](https://github.com/life-itself/reason-commons-tui/issues).
