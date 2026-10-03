@@ -1,20 +1,37 @@
 # Reason Commons
 
 A persistent terminal workspace that helps people reason through shared goals,
-problems, changes and results. The **p0 durable case engine is implemented**.
-A first personal-use slice of the p1 TUI is available; the complete
-first-release goal–action–review loop is p2. Authored interface specimens
-describe those subsequent increments.
+problems, changes and results, one small loop at a time: **goal → test with an
+original forecast → action → observation → review**.
 
-**To open the workspace**, see [Running the TUI](docs/tui.md):
+## Status
+
+| Part | State |
+| --- | --- |
+| p0 durable case engine | Implemented: revisions, YAML storage, export/import, retry, consultant ports, CLI, MCP |
+| Terminal workspace (TUI) | First personal-use slice of p1: `reason-commons tui`, built with Textual |
+| Built-in guide | Offline consultant (`guided`) that walks the loop without a model or key |
+| Full p1 contract | Not yet delivered: `--accessible`, speaker switching, 80×24 specimens, usability evidence |
+| p2 and later | Consulting-quality gates, review loop acceptance and typed graphs remain later work |
+
+## Quick start (macOS)
 
 ```sh
-python3 -m pip install --upgrade pip
+git clone https://github.com/life-itself/reason-commons-tui.git
+cd reason-commons-tui
+python3 -m venv .venv && source .venv/bin/activate
+python3 -m pip install --upgrade pip   # macOS ships an old pip that cannot install this
 python3 -m pip install -e '.[tui]'
 reason-commons tui ~/ReasonCommons/my-first-goal
 ```
 
-It works offline with a built-in guide; Anthropic or LM Studio are optional.
+The folder is created on first run; the same command resumes it, including your
+unsent draft. It works offline with the built-in guide. To use Claude, set
+`ANTHROPIC_API_KEY` and add `--provider anthropic`; for a local model use
+`--provider lm-studio`. You can also switch with Ctrl+P inside the app.
+[Running the TUI](docs/tui.md) covers keys, consultants, data and limits.
+
+## Developers
 
 The [architecture](ARCHITECTURE.md) explains the domain/application/adapter
 boundaries and how BDD and replaceable skills use the same application surface.
@@ -34,6 +51,12 @@ Use a new destination for each case or export. Without installation, prefix
 utilities with `PYTHONPATH=src python3 -m reason_commons`. Python 3.9+ and a local
 POSIX filesystem are supported. The application API accepts an injected
 consultant; the deterministic acceptance suite requires no provider or key.
+
+The TUI adapter (`adapters/tui.py`) and the offline `GuidedConsultant`
+(`adapters/guided.py`) use the same application boundary as every other
+interface. `tests/test_tui.py` drives the workspace headlessly with Textual's
+pilot; install `.[test,tui]` to run it. The full gate's desktop-launcher test
+needs `/bin/zsh` and a `.venv` in the repository.
 
 For a local model, see the [LM Studio setup](docs/lm-studio.md). The
 `LMStudioConsultant` adapter plugs into the same application boundary and requests

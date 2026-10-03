@@ -110,8 +110,8 @@ Diagrams show **explicit saved record references**, such as a test's goal, an
 action's test or a review's observations. Edge labels preserve those meanings.
 Original wording and forecast/result details accompany them. The current domain
 registry does not support the later causal/necessity/conflict graph types, CRT,
-Goal Tree or Cloud; the renderer cannot manufacture them from notes. The
-persistent TUI and remaining p1/p2 release gates are still separate work. This
+Goal Tree or Cloud; the renderer cannot manufacture them from notes. A first
+TUI slice is available ([tui.md](tui.md)); the remaining p1/p2 release gates are separate work. This
 change delivers the conversation interface for the implemented case semantics.
 
 ## Installation and configuration

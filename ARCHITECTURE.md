@@ -65,10 +65,12 @@ validation hint cannot be the sole enforcement of a consequential rule.
 attachment and portable export, plus their local reads. Cursor checkpointing
 and session lifecycle are explicit exceptions. The architecture gate checks
 coverage and argument parity against `CaseApplication`: a new public use case
-cannot silently remain outside the skill surface. Future TUI actions must call
-these use cases; domain effects and local-versus-consultant routing are tested
-at that boundary, while focus/layout behavior belongs in adapter tests. No TUI
-is implemented in p0, so its future action bindings still need p1 verification.
+cannot silently remain outside the skill surface. TUI actions call these use
+cases; domain effects and local-versus-consultant routing are tested at that
+boundary, while focus/layout behavior belongs in adapter tests. The first TUI
+slice (`adapters/tui.py`) reads `workspace`/`inspect` and writes only through
+`retain_input`, `consult`, `retry`, `export` and `checkpoint`. Its bindings are
+covered by adapter tests; p1 scenario verification is still outstanding.
 
 ## Application surface
 
@@ -114,7 +116,24 @@ the post-operation workspace to the authoritative result, independently of model
 prose. The packaged skill uses the projection for a continuing conversation,
 local explanation/inspection, ordinary replies and explicit consultant moves.
 Replies remain bound to the last displayed live target; no silent retargeting.
-The future TUI can reuse the projection and supply its own layout and controls.
+The TUI reuses the projection and supplies its own layout and controls.
+
+## Terminal workspace
+
+`reason-commons tui <folder>` creates or resumes a case and opens a Textual app
+(optional extra `.[tui]`). Consultant calls run in a worker thread so browsing
+stays responsive; navigation never consults. Drafts, caret and view are saved
+with `checkpoint`. `resume` refuses to create a case. The consultant is chosen at
+composition (`--provider`, `REASON_COMMONS_PROVIDER`, default `guided`) and can
+be switched in the app by reopening the case with another adapter.
+
+`GuidedConsultant` is a deterministic implementation of the consultant port. It
+asks the v1 loop's questions in order, records literal participant wording as
+goal, test, action, observation and review records, and infers no measures,
+ownership, evidence or outcomes. Its proposals go through the same validation
+as a model's. When another consultant asked the last question, it continues
+from the recorded state, keeping the answer as a note when it starts a new goal
+or test.
 
 ## Durability and recovery
 
@@ -207,11 +226,12 @@ context resources are frozen/hashed for each consultant session. The provider
 grammar distinguishes source identities, existing formulation refs and named
 temporary updates; domain validation still decides publication.
 
-P0 is complete; p1 TUI, p2 consulting quality and the useful human review loop,
-complete semantic acceptance and participant studies remain later work. The p2 envelope
+P0 is complete. A first personal-use TUI slice ships; the remaining p1 contract,
+p2 consulting quality and the useful human review loop, complete semantic
+acceptance and participant studies remain later work. The p2 envelope
 name denotes the v1 **data profile**, not completion of p2 delivery behavior.
-The conversational skill projects current saved record links; later typed graph/group semantics remain unavailable. No shell REPL or synthetic TUI is advertised. The
-existing TUI design remains the p1 contract.
+The conversational skill projects current saved record links; later typed graph/group semantics remain unavailable. No shell REPL is advertised. The
+existing TUI design remains the p1 contract that the TUI slice works toward.
 
 
 The offline legacy LTP continuation converter is a source-bound deterministic
