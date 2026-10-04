@@ -54,6 +54,88 @@ explains each of the six steps; **Example answer** puts the tutorial's answer in
 the box and **Finish tour** returns to the home screen. The practice goal is
 deleted afterwards.
 
+## Screens
+
+A picture of each part of the workspace, drawn from the finished example or a goal
+in progress. `scripts/render_screenshots.py` regenerates them.
+
+### The goals list
+
+| | |
+| --- | --- |
+| ![The goals list with Settings highlighted](images/home-settings.png) | Goals, **Start a new goal**, the example, the tour and **Settings** |
+| ![Naming a new goal](images/new-goal.png) | Naming a new goal |
+| ![Help on the goals list](images/home-help.png) | F1: how the loop works |
+
+### The workspace
+
+![The workspace on a narrow terminal, with the views behind Views](images/workspace-narrow.png)
+
+On a narrow terminal the views list is hidden; **Views** opens it.
+
+![The Views menu](images/views-menu.png)
+
+![A draft answer in the answer box](images/answer-draft.png)
+
+**Explain this** shows why the question matters, saved and without a consultant call.
+
+![Explain this](images/explain-question.png)
+
+**Other moves** offers local explanations, or asks the consultant for advice, a different question or help planning an observation.
+
+![Other moves](images/other-moves.png)
+
+If the consultant cannot be reached, your words are kept and **Retry** appears.
+
+![The consultant could not be reached; Retry is offered](images/consultant-unavailable.png)
+
+F1 shows help.
+
+![Help](images/help.png)
+
+### Views
+
+| View | Screenshot |
+| --- | --- |
+| Goal | ![Goal view](images/view-goal.png) |
+| Tests | ![Tests view](images/forecast-vs-result.png) |
+| Actions | ![Actions view](images/view-actions.png) |
+| Everything | ![Everything view](images/view-everything.png) |
+| Your words | ![Your words view](images/view-sources.png) |
+| History | ![History view](images/view-history.png) |
+
+### The trees
+
+Before anything is recorded the Trees view says how they grow.
+
+![The Trees view with nothing recorded yet](images/trees-empty.png)
+
+Ctrl+N steps through the trees:
+
+| Tree | Screenshot |
+| --- | --- |
+| Goal | ![Goal Tree](images/tree-goal.png) |
+| Current Reality | ![Current Reality Tree](images/trees-current-reality.png) |
+| Evaporating Cloud | ![Evaporating Cloud](images/tree-evaporating-cloud.png) |
+| Future Reality | ![Future Reality Tree](images/tree-future-reality.png) |
+| Prerequisite | ![Prerequisite Tree](images/tree-prerequisite.png) |
+| Transition | ![Transition Tree](images/tutorial-trees.png) |
+| All six | ![All six trees together](images/tree-all-six.png) |
+
+### Actions (Ctrl+P)
+
+![The Actions palette](images/actions-palette.png)
+
+Type to filter the list.
+
+![Filtering the Actions palette](images/actions-palette-search.png)
+
+| Action | Screenshot |
+| --- | --- |
+| Export case | ![Export case](images/export-case.png) |
+| Export trees | ![Export trees](images/export-trees.png) |
+| Import trees | ![Import trees](images/import-trees.png) |
+
 ## Views
 
 Browsing views never calls the consultant.
