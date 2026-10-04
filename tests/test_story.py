@@ -15,6 +15,7 @@ from reason_commons.adapters.tui import (STORY_ARCHIVE, STORY_HOME, STORY_OWN_GO
                                          ReasonCommonsApp)
 from reason_commons.bootstrap import create_case, import_case, open_case  # noqa: E402
 from tests.support import ScriptedConsultant  # noqa: E402
+from tests.test_tui import screen_text  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -92,7 +93,11 @@ def test_story_opens_read_only_on_the_next_action_and_steps_through_history(stor
             assert "The next action" in app.query_one("#content").source
             band = Console(width=120, record=True)
             band.print(app.band())
-            assert "stewarded review" in band.export_text()
+            # The action leads the reading pane, so the band does not repeat it (nothing shown twice).
+            assert "stewarded review" not in band.export_text()
+            screen = screen_text(app)
+            assert "Hold the stewarded review" in screen and "Read-only" in screen
+            assert "Focus: Earlier" in screen
             await pilot.press("ctrl+s")  # nothing to send in a story
             await pilot.pause()
             await pilot.press("left")

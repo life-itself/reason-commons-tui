@@ -13,7 +13,7 @@ KIND_WORDS = {"goal": ("goal set", "goal set"), "test": ("test with a forecast",
 
 def revision_changes(snapshots, sources):
     """One entry per revision, oldest first: when, who, what they wrote, and what changed."""
-    entries, seen = [], set()
+    entries, seen, previous = [], set(), None
     for snapshot in snapshots:
         records = snapshot["records"]
         new = [r for r in records if r["ref"] not in seen]
@@ -31,8 +31,13 @@ def revision_changes(snapshots, sources):
             elif kind == "intervention":
                 continue
             counts[kind] = counts.get(kind, 0) + 1
+        asked = next((r for r in (previous or {}).get("records", [])
+                      if r["ref"] == (previous or {}).get("current_intervention")), None)
+        previous = snapshot
         entries.append({
             "revision": snapshot["revision"], "timestamp": snapshot["timestamp"],
+            "answered": (asked or {}).get("data", {}).get("decision"),
+            "asked": (asked or {}).get("data", {}).get("primary_prompt"),
             "speaker": source.get("speaker"), "text": source.get("text"),
             "decision": (question or {}).get("data", {}).get("decision"),
             "fresh": {r["ref"] for r in new if r["kind"] == "claim"},
