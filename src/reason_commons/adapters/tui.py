@@ -10,9 +10,12 @@ from datetime import date
 import os
 import re
 import tempfile
+import textwrap
 from pathlib import Path
 
+from rich.console import Group
 from rich.markup import escape
+from rich.table import Table
 from rich.text import Text
 from textual import on, work
 from textual.app import App, ComposeResult, SystemCommand
@@ -55,6 +58,12 @@ WELCOME_NARROW = """\
 ```"""
 STATUS_TEXT = {"unavailable": "the consultant could not be reached", "rejected": "the consultant's reply was invalid",
                "started": "the request was interrupted", "input_retained": "the consultant was not asked yet"}
+# Stored values in everyday words.
+BASIS_WORDS = {"participant_report": "reported", "observed": "observed", "hypothesis": "hypothesis"}
+EXECUTION_WORDS = {"unknown": "not known yet", "planned": "planned", "completed": "done", "blocked": "blocked"}
+ATTAINMENT_WORDS = {"unknown": "not known yet", "pending": "pending", "met": "met", "not_met": "not met"}
+# Pane width from which a forecast and its results sit side by side rather than one after the other.
+WIDE = 90
 
 HELP = """\
 ## How Reason Commons works
@@ -153,6 +162,156 @@ def caret_location(text, index):
     return len(before) - 1, len(before[-1])
 
 
+def clip(text, width, lines):
+    """Wrap text to at most ``lines`` lines; a cut is always marked with an ellipsis, never silent."""
+    width = max(10, width)
+    wrapped = textwrap.wrap(" ".join(str(text).split()), width) or [""]
+    if len(wrapped) <= lines:
+        return "\n".join(wrapped)
+    kept = wrapped[:lines]
+    kept[-1] = kept[-1][:width - 1].rstrip() + "…"
+    return "\n".join(kept)
+
+
+def latest(records, kind):
+    return max((r for r in records if r["kind"] == kind), key=lambda r: int(r["ref"][1:].split("@")[0]),
+               default=None)
+
+
+def speakers(workspace, ref):
+    names = [a["speaker"] for a in workspace["attribution"].get(ref, []) if a.get("speaker")]
+    return ", ".join(dict.fromkeys(names))
+
+
+def qualifiers(data):
+    """Scope, denominator and period of a forecast or result, when recorded."""
+    parts = [f"{field}: {data[field]}" for field in ("scope", "denominator", "period") if data.get(field)]
+    return Text(" · ".join(parts), style="dim") if parts else None
+
+
+def label(text):
+    return Text(text, style="bold dim")
+
+
+def side_by_side(rows):
+    table = Table.grid(expand=True, padding=(0, 3))
+    table.add_column(ratio=4)
+    table.add_column(ratio=5)
+    for left, right in rows:
+        table.add_row(left, right)
+    return table
+
+
+def comparison_block(workspace, comparison, wide):
+    """A test's original forecast next to what was reported, then the goal's safeguards.
+
+    Results are matched to a forecast or safeguard only by the measure name someone
+    recorded, as the chat renderer does. Nothing is judged: no tick, cross or breach
+    appears unless someone recorded it.
+    """
+    test = comparison["test"]["data"]
+    observations = comparison["observations"]
+    goal = next((g for g in workspace["goals"] if g["ref"] == test.get("goal_ref")), None)
+    protections = (goal or {}).get("data", {}).get("protections") or []
+    forecasts = test.get("forecast") or []
+
+    def results(measure):
+        return [o for o in observations if o["data"]["measure"] == measure]
+
+    def reported(found):
+        if not found:
+            return Text("not observed yet", style="dim")
+        body = Text("\n\n".join(str(o["data"]["value"]) for o in found))
+        extra = [qualifiers(o["data"]) for o in found if qualifiers(o["data"])]
+        return Group(body, *extra)
+
+    def heading(title, note):
+        """One line when stacked; when side by side, the note goes underneath so both columns align."""
+        if not wide:
+            return label(title + (f" · {note}" if note else ""))
+        return Group(label(title), Text(note, style="dim"))
+
+    def result_heading(found):
+        basis = {o["data"].get("basis") for o in found}
+        word = "OBSERVED RESULT" if basis == {"observed"} else "REPORTED RESULT" if found else "RESULT"
+        return heading(word, ", ".join(dict.fromkeys(n for o in found for n in [speakers(workspace, o["ref"])] if n)))
+
+    parts = [Text.assemble(("TEST  ", "bold dim"), str(test["statement"]))]
+    for forecast in forecasts:
+        found = results(forecast.get("measure"))
+        parts += [Text(""), Text("Measure: " + str(forecast.get("measure") or "not stated"), style="dim")]
+        expected = Group(Text(str(forecast.get("expected") or "not stated")),
+                         *[q for q in [qualifiers(forecast)] if q])
+        before, after = heading("ORIGINAL FORECAST", "saved before any result"), result_heading(found)
+        if wide:
+            parts.append(side_by_side([(before, after), (expected, reported(found))]))
+        else:
+            parts += [before, expected, after, reported(found)]
+    named = {f.get("measure") for f in forecasts} | set(protections)
+    for observation in (o for o in observations if o["data"]["measure"] not in named):
+        parts.append(Group(label(f"ADDITIONAL RESULT · {observation['data']['measure']}"),
+                           reported([observation])))
+    if protections:
+        checked = {p: results(p) for p in protections}
+        if not any(checked.values()):
+            parts.append(Text(""))
+            parts.append(label("SAFEGUARDS · no separate result recorded: check each against the report"))
+            parts += [Text("· " + p) for p in protections]
+        else:
+            parts += [Text(""), label("SAFEGUARDS")]
+            rows = [(Text("· " + p), reported(found) if found else Text("no separate result recorded", style="dim"))
+                    for p, found in checked.items()]
+            parts.append(side_by_side(rows) if wide else Group(*[part for row in rows for part in row]))
+    details = Table.grid(padding=(0, 2))
+    details.add_column(style="bold dim", no_wrap=True)
+    details.add_column()
+    for name, value in (("Stop condition", test.get("stop_condition")), ("Review date", test.get("review_date"))):
+        if value:
+            details.add_row(name, Text(str(value)))
+    for review in comparison["reviews"]:
+        who = speakers(workspace, review["ref"])
+        details.add_row("Review" + (f" · {who}" if who else ""), Text(str(review["data"]["assessment"])))
+        if review["data"].get("next_decision"):
+            details.add_row("Next", Text(str(review["data"]["next_decision"])))
+    if details.row_count:
+        parts += [Text(""), details]
+    return Group(*parts)
+
+
+def context_rows(workspace, record, pinned_goal):
+    """One context record as (label, value) rows; what the band already shows is left out."""
+    d, kind = record["data"], record["kind"]
+    if kind == "goal":
+        rows = [] if record["ref"] == pinned_goal else [("Goal", d["statement"])]
+        rows += [(name.capitalize(), d[name]) for name in ("measure", "baseline", "horizon", "scope") if d.get(name)]
+        if record["ref"] != pinned_goal:
+            rows.append(("Protect", " · ".join(d.get("protections") or []) or "none recorded"))
+        return rows
+    if kind == "test":
+        rows = [("Test", d["statement"])]
+        rows += [("Original forecast", f.get("expected") or "not stated") for f in d.get("forecast") or []]
+        rows += [(name, d[field]) for name, field in (("Review date", "review_date"), ("Stop condition", "stop_condition"))
+                 if d.get(field)]
+        return rows
+    if kind == "action":
+        return [("Action", d["statement"]),
+                ("Status", f"{EXECUTION_WORDS.get(d.get('execution'), 'not known yet')} · whether it has the "
+                           f"expected effect: {ATTAINMENT_WORDS.get(d.get('expected_state_attainment'), 'not known yet')}")]
+    who = speakers(workspace, record["ref"])
+    if kind == "observation":
+        return [(" · ".join(filter(None, [BASIS_WORDS.get(d.get("basis"), "result").capitalize(), who])), d["value"])]
+    if kind == "review":
+        rows = [("Review" + (f" · {who}" if who else ""), d["assessment"])]
+        return rows + ([("Next", d["next_decision"])] if d.get("next_decision") else [])
+    if kind == "claim":
+        return [(f"{TREE_TITLES[d['tree']][0]}, {ROLE_LABELS[d['role']].lower()}", d["statement"])]
+    if kind == "link":
+        return [(f"{TREE_TITLES[d['tree']][0]} link", d["relation"].replace("_", " "))]
+    if kind == "retraction":
+        return [("Withdrawn", d["reason"])]
+    return [("Note", d.get("text"))]
+
+
 class HelpScreen(ModalScreen):
     BINDINGS = [Binding("escape,f1", "dismiss", "Close")]
 
@@ -217,7 +376,7 @@ class ReasonCommonsApp(App):
     CSS = """
     Screen { layout: vertical; }
     #status { height: 1; background: $primary; color: $text; padding: 0 1; }
-    #pinned { height: auto; max-height: 3; background: $boost; padding: 0 1; }
+    #pinned { height: auto; background: $boost; padding: 0 1; }
     #loop { height: 1; padding: 0 1; color: $text; }
     #body { height: 1fr; }
     #views { width: 18; border: round $panel; }
@@ -312,7 +471,7 @@ class ReasonCommonsApp(App):
     def on_resize(self, event=None):
         self.query_one("#views").set_class(self.size.width < 100, "hidden")
         self.query_one("#editor").styles.height = 3 if self.size.height < 30 else 6
-        if self.workspace_value is not None and not self.workspace_value["question"]:
+        if self.workspace_value is not None:  # the band, comparisons and welcome depend on the width
             self.render_all()
 
     # ----- reading ------------------------------------------------------
@@ -329,14 +488,17 @@ class ReasonCommonsApp(App):
         self.query_one("#status", Static).update(
             f"[b]{escape(w['case_name'])}[/b]  |  {escape(self.speaker)}  |  {state}  |  "
             f"{escape(step)}  |  {escape(consultant)}")
-        self.query_one("#pinned", Static).update(self.pinned_text())
         self.query_one("#loop", Static).update("" if w["historical"] else loop_line(loop_stage(w["question"])))
         content = self.render_next() if self.view_name == "next" else self.render_view()
         self.query_one("#content", Markdown).update(content)
+        drawing = {"trees": self.render_trees, "next": self.render_context,
+                   "tests": self.render_tests}.get(self.view_name, lambda: None)()
         canvas = self.query_one("#canvas", Static)
-        canvas.set_class(self.view_name != "trees", "hidden")
-        if self.view_name == "trees":
-            canvas.update(self.render_trees())
+        canvas.set_class(drawing is None, "hidden")
+        if drawing is not None:
+            canvas.update(drawing)
+        # The band never repeats what the view is showing: safeguards move into a comparison.
+        self.query_one("#pinned", Static).update(self.band(protect=not self.shows_safeguards()))
         retryable = self.retryable()
         self.query_one("#retry").set_class(not retryable, "hidden")
         if self.tour:
@@ -350,22 +512,39 @@ class ReasonCommonsApp(App):
     def tour_state(self):
         return tour_state(self.workspace_value["question"], self.case.inspect()["case"]["records"])
 
-    def pinned_text(self):
-        case = self.case.inspect()["case"]
-        records = [r for r in case["records"]]
-        latest = lambda kind: max((r for r in records if r["kind"] == kind),
-                                  key=lambda r: int(r["ref"][1:].split("@")[0]), default=None)
-        goal, test = latest("goal"), latest("test")
+    def pinned_goal(self):
+        return latest(self.workspace_value["goals"], "goal")
+
+    def band(self, protect=True):
+        """The goal and its safeguards, at most two labelled lines; a cut is marked, and Goal shows it all."""
+        goal = self.pinned_goal()
         if goal is None:
-            return "Goal: not set yet  |  Safeguards: not set yet  |  No test yet"
-        protections = "; ".join(goal["data"].get("protections") or []) or "none recorded"
-        parts = [f"[b]Goal[/b] {escape(goal['data']['statement'])}", f"[b]Protect[/b] {escape(protections)}"]
-        if test:
-            forecast = "; ".join(f.get("expected") or "" for f in test["data"].get("forecast") or [])
-            parts.append(f"[b]Test[/b] {escape(test['data']['statement'])} (forecast: {escape(forecast)})")
-        else:
-            parts.append("No test yet")
-        return "  |  ".join(parts)
+            return Text("No goal yet", style="dim")
+        width = self.size.width - 11
+        grid = Table.grid(padding=(0, 1))
+        grid.add_column(style="bold", width=7, no_wrap=True)
+        grid.add_column()
+        grid.add_row("Goal", Text(clip(goal["data"]["statement"], width, 2 if self.size.height >= 30 else 1)))
+        if protect:
+            protections = " · ".join(goal["data"].get("protections") or []) or "none recorded"
+            grid.add_row("Protect", Text(clip(protections, width, 1)))
+        return grid
+
+    def pane_width(self):
+        main = self.query_one("#main")
+        return main.content_size.width or self.size.width - (22 if self.size.width >= 100 else 4)
+
+    def compared(self):
+        """The comparisons the current view draws: every test in Tests, tests with results in Next."""
+        comparisons = self.workspace_value["comparisons"]
+        if self.view_name == "tests":
+            return comparisons
+        return [c for c in comparisons if c["observations"]] if self.view_name == "next" else []
+
+    def shows_safeguards(self):
+        goal = self.pinned_goal()
+        return bool(goal and goal["data"].get("protections")) and any(
+            c["test"]["data"].get("goal_ref") == goal["ref"] for c in self.compared())
 
     def retryable(self):
         return [a for a in self.workspace_value["available_actions"] if a["capability"] == "retry"]
@@ -398,45 +577,37 @@ class ReasonCommonsApp(App):
             if value["base_revision"] == w["revision"] and value["response_target"] == w["target"]["response_target"]:
                 lines += [f"> **Saved, but not answered yet:** {STATUS_TEXT.get(pending['status'], pending['status'])}. "
                           "Your words are kept. Use **Retry** to ask again.", ">", "> " + md(value["text"]), ""]
-        records = [r for r in w["records"] if r["kind"] != "intervention"]
-        if records:
-            lines += ["---", "", "### What this step builds on", ""]
-            for record in records:
-                lines += self.record_lines(record)
         return "\n".join(lines)
 
+    def render_context(self):
+        """What the current question builds on, below it: each forecast beside its results first,
+        then the other records the consultant attached, leaving out what the band shows."""
+        w = self.workspace_value
+        compared = self.compared()
+        drawn = {r["ref"] for c in compared for r in [c["test"], *c["observations"], *c["reviews"]]}
+        parts = [comparison_block(w, c, self.pane_width() >= WIDE) for c in compared]
+        rows = Table.grid(padding=(0, 2))
+        rows.add_column(style="bold dim", max_width=24)
+        rows.add_column()
+        pinned = (self.pinned_goal() or {}).get("ref")
+        for record in w["records"]:
+            if record["kind"] != "intervention" and record["ref"] not in drawn:
+                for name, value in context_rows(w, record, pinned):
+                    rows.add_row(name, Text(str(value)))
+        if rows.row_count:
+            parts += [Text("")] * bool(parts) + [rows]
+        return Group(*parts) if parts else None
+
+    def render_tests(self):
+        comparisons = list(reversed(self.compared()))
+        wide = self.pane_width() >= WIDE
+        return Group(*[part for index, c in enumerate(comparisons)
+                       for part in [Text("")] * bool(index) + [comparison_block(self.workspace_value, c, wide)]]
+                     ) if comparisons else None
+
     def record_lines(self, record):
-        d = record["data"]
-        kind = record["kind"]
-        if kind == "goal":
-            out = [f"**Goal:** {md(d['statement'])}  "]
-            out.append(f"Measure: {md(d.get('measure') or 'not set')}  ")
-            out.append("Protect: " + md("; ".join(d.get("protections") or []) or "none recorded"))
-        elif kind == "test":
-            out = [f"**Test:** {md(d['statement'])}  "]
-            for f in d.get("forecast") or []:
-                out.append(f"Original forecast (saved before results): {md(f.get('expected'))}  ")
-            out.append(f"Review: {md(d.get('review_date') or 'not set')} | "
-                       f"Stop if: {md(d.get('stop_condition') or 'not set')}")
-        elif kind == "action":
-            out = [f"**Action:** {md(d['statement'])}  ",
-                   f"Execution: {md(d.get('execution') or 'unknown')} | "
-                   f"Expected state: {md(d.get('expected_state_attainment') or 'unknown')}"]
-        elif kind == "observation":
-            out = [f"**Observation** ({md(d.get('basis') or 'basis unknown')}): {md(d['value'])}"]
-        elif kind == "review":
-            out = [f"**Review:** {md(d['assessment'])}"]
-            if d.get("next_decision"):
-                out.append(f"  \nNext: {md(d['next_decision'])}")
-        elif kind == "claim":
-            out = [f"**{TREE_TITLES[d['tree']][0]}, {ROLE_LABELS[d['role']].lower()}:** {md(d['statement'])}"]
-        elif kind == "link":
-            out = [f"**{TREE_TITLES[d['tree']][0]} link:** {md(d['relation'].replace('_', ' '))}"]
-        elif kind == "retraction":
-            out = [f"**Withdrawn:** {md(d['reason'])}"]
-        else:
-            out = [f"**Note:** {md(d.get('text'))}"]
-        return out + [""]
+        rows = context_rows(self.workspace_value, record, None)
+        return [f"**{md(name)}:** {md(value)}  " for name, value in rows] + [""]
 
     def render_view(self):
         w, view = self.workspace_value, self.view_name
@@ -461,8 +632,8 @@ class ReasonCommonsApp(App):
                 shown = self.shown_tree()
                 tabs = []
                 for tree in w["trees"]:
-                    label = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])})"
-                    tabs.append(f"**▸ {label}**" if tree["tree"] == shown else label)
+                    name = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])})"
+                    tabs.append(f"**▸ {name}**" if tree["tree"] == shown else name)
                 tabs.append("**▸ All six**" if shown == "all" else "All six")
                 lines += [" · ".join(tabs), "",
                           "_**Ctrl+N** next tree · **Ctrl+T** back to the question · Ctrl+P **Export trees** "
@@ -471,18 +642,6 @@ class ReasonCommonsApp(App):
         if view == "tests":
             if not w["comparisons"]:
                 lines.append("No test yet.")
-            for comparison in reversed(w["comparisons"]):
-                test = comparison["test"]
-                lines += [f"### Test: {md(test['data']['statement'])}", "",
-                          "| | Original forecast | Reported result |", "| --- | --- | --- |"]
-                results = "<br>".join(md(o["data"]["value"]).replace("\n", "<br>") for o in comparison["observations"])
-                for forecast in test["data"].get("forecast") or []:
-                    lines.append(f"| {md(forecast.get('measure'))} | {md(forecast.get('expected'))} | "
-                                 f"{results or 'not observed yet'} |")
-                lines += ["", f"Review date: {md(test['data'].get('review_date') or 'not set')} | "
-                          f"Stop if: {md(test['data'].get('stop_condition') or 'not set')}", ""]
-                for review in comparison["reviews"]:
-                    lines += [f"**Review:** {md(review['data']['assessment'])}", ""]
             return "\n".join(lines)
         records = [r for r in w["records"] if r["kind"] != "intervention"]
         if not records:

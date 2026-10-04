@@ -61,3 +61,11 @@ def test_guide_keeps_advice_requests_as_notes(tmp_path):
                             intent="direct_advice")
         assert result["status"] == "saved"
         assert "cannot give advice" in app.workspace()["question"]["data"]["primary_prompt"]
+
+
+def test_guide_shows_the_change_while_it_is_being_forecast(tmp_path):
+    with create_case(tmp_path / "case", "Running", consultant=GuidedConsultant()) as app:
+        prompts = [answer(app, text)["question"]["data"]["primary_prompt"] for text in ANSWERS[:8]]
+    # Not yet a record: the test is saved with its stop condition, so the questions before it quote the change.
+    assert all(prompt.startswith('Your change: "Intervals twice a week" ') for prompt in prompts[3:6])
+    assert "Your change" not in prompts[6] and "Your change" not in prompts[2]

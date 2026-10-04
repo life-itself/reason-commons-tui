@@ -1,6 +1,8 @@
 """Terminal workspace adapter: layout state and routing over the application boundary."""
 
 import asyncio
+import html
+import re
 
 import pytest
 
@@ -15,6 +17,11 @@ from tests.support import ScriptedConsultant  # noqa: E402
 def launch(path, consultants):
     return ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
                             lambda provider: consultants[provider])
+
+
+def screen_text(app):
+    """What is visible on screen right now, as plain text (scrolled-away content is not included)."""
+    return html.unescape(re.sub(r"<[^>]+>", "", app.export_screenshot())).replace("\xa0", " ")
 
 
 async def send(app, pilot, text):
@@ -274,3 +281,53 @@ def test_trees_view_draws_imported_trees_and_exports_them(tmp_path):
     assert exported.read_text().count("tree: ") >= 69
     with open_case(path, writable=False) as case:
         assert case.inspect()["cursor"]["display"] == {"tree": "goal"}
+
+
+def sample_at(tmp_path, answers):
+    from reason_commons.adapters.sample import ANSWERS, build_sample
+    path = build_sample(tmp_path / "sample", answers=ANSWERS[:answers], view="next")
+    return launch(path, {"guided": GuidedConsultant()})
+
+
+def test_review_shows_the_original_forecast_beside_the_result_without_judging(tmp_path):
+    app = sample_at(tmp_path, 9)
+
+    async def run():
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            visible = screen_text(app)
+            assert "6 of 30 newcomers come" in visible and "9 of 31 newcomers came" in visible
+            assert "Nobody feels recruited or pressured" in visible and "no separate result recorded" in visible
+            assert not any(verdict in visible for verdict in ("BREACH", "✓ Review", "✗"))
+            # The safeguards are in the comparison now, so the band does not repeat them.
+            assert "Protect" not in str(app.query_one("#pinned").render())
+    asyncio.run(run())
+
+
+def test_forecast_question_shows_the_change_and_does_not_repeat_the_goal(tmp_path):
+    app = sample_at(tmp_path, 4)
+
+    async def run():
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            visible = screen_text(app)
+            assert 'Your change: "End each open evening with one clear invitation' in visible
+            assert "(sign-up sheet): now 2 of 30" in visible  # the measure, beside the forecast question
+            assert visible.count("Newcomers at our open evenings find a clear") == 1  # only in the band
+    asyncio.run(run())
+
+
+def test_band_marks_a_cut_and_the_goal_view_shows_it_all(tmp_path):
+    app = sample_at(tmp_path, 3)
+    goal = ("Newcomers at our open evenings find a clear, no-pressure next step into a first practice session, "
+            "so interest turns into sustained practice.")
+
+    async def run():
+        async with app.run_test(size=(80, 24)) as pilot:
+            await pilot.pause()
+            band = screen_text(app)
+            assert "…" in band and goal not in band
+            app.show_view("goal")
+            await pilot.pause()
+            assert goal.replace("-", "\\-").replace(".", "\\.") in app.query_one("#content").source
+    asyncio.run(run())

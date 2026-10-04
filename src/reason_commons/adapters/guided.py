@@ -54,7 +54,9 @@ STEPS = {
                 "and the period if you have them.",
                 "Doing the work is not the same as it working. Write down what you observed, "
                 "separately from what you hoped.", True),
-    "review": ("Review against the forecast", None,
+    "review": ("Review against the forecast",
+               "How does what happened compare with your original forecast? Check your safeguards first. "
+               "Then decide: keep, adjust or drop the change?",
                "Comparing the result with the original forecast, and checking the safeguards, "
                "tells you whether to keep, adjust or drop the change.", True),
 }
@@ -80,19 +82,22 @@ class GuidedConsultant:
         answer = _literal(value["text"])
         request_id = value["request_id"]
         updates, context = [], {}
+        # The change being forecast, so the next questions can show it: it is not a record until the test is.
+        change = answer if step == "test_change" else (self._answer(case, sources, records, "test_change")
+                                                       or (None, None))[1]
 
         if inferred and step in ("goal", "test_change"):
             # The last question came from another consultant. Keep the words; start the step cleanly.
             if answer:
                 updates.append(self._note(value["text"], [request_id]))
-            return self._proposal(value, updates, step, self._context(records),
+            return self._proposal(value, updates, step, self._context(records), change=change,
                                   notice="The built-in guide continues from here. Your last answer is saved as a note.")
 
         if value["intent"] != "answer":
             # Advice and reformulation need a model; keep the person's words and the step.
             if answer:
                 updates.append(self._note(value["text"], [request_id]))
-            return self._proposal(value, updates, step, self._context(records), notice=(
+            return self._proposal(value, updates, step, self._context(records), change=change, notice=(
                 "The built-in guide cannot give advice or rephrase questions. Your note is saved. "
                 "Choose Anthropic or LM Studio under Actions for an AI consultant."))
 
@@ -169,7 +174,7 @@ class GuidedConsultant:
             else:
                 next_step = "test_change" if not test else "review"
         return self._proposal(value, updates, next_step, self._context(records, context), notice,
-                              records=records, after_review=step == "review" and bool(answer))
+                              change=change, after_review=step == "review" and bool(answer))
 
     def _step(self, current, records):
         """Return (step, inferred). The empty case's welcome question asks for the goal."""
@@ -244,14 +249,10 @@ class GuidedConsultant:
             refs.append(latest["ref"])
         return refs
 
-    def _proposal(self, value, updates, step, context, notice=None, records=None, after_review=False):
+    def _proposal(self, value, updates, step, context, notice=None, change=None, after_review=False):
         decision, prompt, rationale, _ = STEPS[step]
-        if step == "review":
-            test = self._latest(records or {}, "test")
-            forecast = "; ".join(f.get("expected") or "" for f in (test or {}).get("data", {}).get("forecast", []))
-            prompt = (f"Your original forecast was: \"{forecast}\". " if forecast else "No forecast was recorded. ")
-            prompt += ("How does what happened compare? "
-                      "Check your safeguards first. Then decide: keep, adjust or drop the change?")
+        if change and step in ("test_forecast", "test_review", "test_stop"):
+            prompt = f"Your change: \"{' '.join(change.split())}\" {prompt}"
         if after_review and step == "test_change":
             prompt = ("Review saved. What is the next small change you want to try? It can be the same "
                       "change, adjusted. If the goal is met, you can stop here.")

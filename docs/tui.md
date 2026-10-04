@@ -8,9 +8,9 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Part | What it shows |
 | --- | --- |
 | Top line | The goal's name, your name, whether everything is saved, the current step and the consultant |
-| Pinned line | Your goal, safeguards and current test with its forecast |
+| Pinned lines | Your goal and safeguards; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
 | Loop line | Goal → Test + forecast → Action → Observe → Review; ✓ marks finished steps and > the current one |
-| Middle | The current question and what it builds on, or the view you chose |
+| Middle | The current question and what it builds on (at review: the original forecast beside the result), or the view you chose |
 | Views list | On terminals 100 columns or wider; otherwise use **Views** |
 | Answer box | Your answer; all typing is literal, including `?`, `q` and numbers |
 

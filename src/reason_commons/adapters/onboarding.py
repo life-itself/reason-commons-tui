@@ -338,8 +338,8 @@ COACH = {
     "action": "Name the very next action and when. For real, you would now press [b]Ctrl+Q[/b] and go do "
               "it; everything, even a half-written answer, is saved. In the tour, time skips ahead.",
     "observe": "Some weeks later... Report what actually happened, separately from what you hoped.",
-    "review": "The guide quotes your original forecast word for word. Check the safeguards first, then "
-              "decide: keep, adjust or drop the change.",
+    "review": "Your original forecast, word for word, now sits next to what you reported. Check the "
+              "safeguards first, then decide: keep, adjust or drop the change.",
     "done": "[b]Loop complete.[/b] Look around before you go: [b]Views[/b] then [i]Tests[/i] puts your forecast "
             "next to the result; [b]Ctrl+T[/b] opens the six trees (Claude or a local model grows them as "
             "you talk); [b]Ctrl+P[/b] lists every action, including changing consultant. Press "
