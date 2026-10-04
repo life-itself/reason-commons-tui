@@ -1,19 +1,23 @@
 # Choosing a consultant
 
-Reason Commons keeps your reasoning in a durable case. A **consultant** is the
-language model that proposes the next question or recommendation from that case.
-The consultant is a replaceable choice, made outside the case. Two are supported:
+Reason Commons keeps your reasoning in a durable case. A **consultant** proposes
+the next question or recommendation from that case. The consultant is a
+replaceable choice, made outside the case. Three are supported:
 
-| | LM Studio (local) | Anthropic |
-|---|---|---|
-| Where it runs | A server on your machine or network | Anthropic's hosted API |
-| What you need | LM Studio with a chat model loaded | An Anthropic API key |
-| Cost | None beyond your hardware | Billed to your API key |
-| Case content leaves your machine | No (unless you point it at a remote server) | Yes, to Anthropic |
-| Provider name | `lm-studio` | `anthropic` |
+| | Built-in guide | LM Studio (local) | Anthropic |
+|---|---|---|---|
+| Where it runs | Inside Reason Commons | A server on your machine or network | Anthropic's hosted API |
+| What you need | Nothing | LM Studio with a chat model loaded | An Anthropic API key |
+| Cost | None | None beyond your hardware | Billed to your API key |
+| Case content leaves your machine | No | No (unless you point it at a remote server) | Yes, to Anthropic |
+| Provider name | `guided` | `lm-studio` | `anthropic` |
+
+The built-in guide is not a language model. It asks the loop's questions in a
+fixed order, keeps your exact words, never gives advice and does not add to the
+trees.
 
 Every consultation sends the **complete** case and its sources; nothing is
-truncated or summarised on the way. Neither provider is a fallback for the other.
+truncated or summarised on the way. No provider is a fallback for another.
 If the chosen consultant fails, your words are kept and nothing else is tried.
 
 Reading, searching, history, export and import never need a consultant or a key.
@@ -50,10 +54,19 @@ reason-commons contribute /path/to/my-case --speaker David --text 'Our deliverie
 
 The first of these that is set wins:
 
-1. **An explicit choice**: `--provider anthropic` or `--provider lm-studio` on
-   `contribute`, `retry`, `mcp` or `providers`.
+1. **An explicit choice**: `--provider guided`, `--provider anthropic` or
+   `--provider lm-studio` on `tui`, `resume`, `contribute`, `retry`, `mcp` or
+   `providers`.
 2. **The environment**: `REASON_COMMONS_PROVIDER`.
-3. **The default**: `lm-studio`.
+3. **Your saved settings**, in the workspace only: the consultant chosen at first
+   start or under **Settings** on the home screen, kept in
+   `~/.config/reason-commons/settings.yaml`.
+4. **The default**: `guided` in the workspace (`reason-commons`, `tui`,
+   `resume`); `lm-studio` for `contribute`, `retry`, `mcp` and `providers`.
+
+The command-line commands and the MCP server do not read the saved settings, so
+set the environment for them. In the workspace, **Ctrl+P** also switches the
+consultant for the rest of the session.
 
 In the environment, the name is not case-sensitive and a blank value counts as not
 set. The flag accepts only the exact names. An unknown name is rejected with the
@@ -62,8 +75,9 @@ order over the provider's own environment variables and defaults.
 
 ## Settings
 
-Settings live in the process environment of whatever starts `reason-commons`. They
-are never written into a case or an export.
+Settings live in the process environment of whatever starts `reason-commons`. The
+workspace's saved settings fill in only the variables the environment leaves unset.
+Neither is ever written into a case or an export.
 
 | Setting | Anthropic | LM Studio |
 |---|---|---|
@@ -92,7 +106,7 @@ Endpoint: https://api.anthropic.com/v1
 Credential: ANTHROPIC_API_KEY not set (required)
 Status: not ready
   - ANTHROPIC_API_KEY is not set; export it in the environment that starts reason-commons
-Other providers: lm-studio
+Other providers: lm-studio, guided
 ```
 
 This reads configuration only. It names the credential variable and never prints

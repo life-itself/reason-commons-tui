@@ -7,7 +7,7 @@ moves**. Your case keeps going from where it is when you switch.
 
 ## The easy way: setup
 
-On the first start, choose **Set me up and start my first goal**; later, choose
+On the first start, choose **Choose who asks the questions first**; later, choose
 **Settings** on the home screen. Pick Claude or LM Studio:
 
 - **Claude**: paste your API key from the
