@@ -393,7 +393,7 @@ class ReasonCommonsApp(App):
     #content { margin: 0; }
     #canvas { margin: 0 0 1 0; padding: 0 2; }
     #canvas.hidden { display: none; }
-    #content MarkdownH2 { margin: 0 0 1 0; color: $text-muted; background: transparent; text-style: bold; }
+    #content MarkdownH2 { margin: 0; color: $text-muted; background: transparent; text-style: bold; }
     #content MarkdownH3 { margin: 1 0 1 0; }
     #response { height: auto; border: round $panel-lighten-2; padding: 0 1;
                 border-title-color: $text-muted; border-subtitle-color: $text-muted; }

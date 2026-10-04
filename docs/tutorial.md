@@ -67,7 +67,7 @@ repeats the change you just wrote, so you forecast exactly that. Write it down n
 with a number if you can. This original forecast is saved before any result
 exists, and it never changes.
 
-![The guide asks for a forecast; Goal is ticked and Test + forecast is current](images/tutorial-forecast.png)
+![The guide repeats the change Mira chose and asks for a forecast, with the goal's measure underneath; Goal is ticked and Test + forecast is current](images/tutorial-forecast.png)
 
 > 6 of 30 newcomers come to a first practice within 3 weeks
 

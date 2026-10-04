@@ -71,6 +71,8 @@ async def render(folder):
         step = build_sample(folder / name, answers=ANSWERS[:count], view="next", name=GOAL,
                             clock=FixedClock("2026-10-14T20:00:00+00:00"))
         await shoot(workspace(step), name, (120, 36))
+        if name == "tutorial-review":  # the smallest supported terminal, where the comparison stacks
+            await shoot(workspace(step), "review-80x24", (80, 24))
     finished = build_sample(folder / "finished", name=GOAL, clock=FixedClock("2026-11-09T09:00:00+00:00"))
     await shoot(workspace(finished), "forecast-vs-result", (120, 36))
     await shoot(workspace(finished), "trees-view", (120, 36), before=lambda app: app.show_view("trees"))

@@ -14,6 +14,11 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Views list | On terminals 100 columns or wider; narrower, the **Views** button takes its place |
 | Answer box | Your answer; all typing is literal, including `?`, `q` and numbers. Its frame says who you answer as and who **Send** asks, and turns bright while you type. It grows as you write |
 
+On a small terminal (80×24) the views list gives way to the **Views** button, and
+the forecast and the result stack one above the other:
+
+![The review question at 80 by 24: the original forecast, 6 of 30 newcomers, directly above the reported result, 9 of 31, under a one-line goal that ends in an ellipsis](images/review-80x24.png)
+
 ## Keys and controls
 
 | Key or control | What it does |
