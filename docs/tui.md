@@ -56,14 +56,23 @@ deleted afterwards.
 
 ## Screens
 
-A picture of each part of the workspace, drawn from the finished example or a goal
-in progress. `scripts/render_screenshots.py` regenerates them.
+A picture of each part of the workspace, drawn from Mira's example goal, a goal in
+progress or the real commons. `scripts/render_screenshots.py` regenerates them.
+
+### First start
+
+| | |
+| --- | --- |
+| ![The first screen: start a first goal, choose who asks, the tour or the real commons](images/first-start.png) | The ways to start, shown once |
+| ![Choosing who asks the questions](images/setup-consultant.png) | Setup: who asks the questions |
+| ![Choosing a Claude model](images/setup-model.png) | Setup: the models your key can use |
+| ![The guided tour, step 1](images/tour.png) | The guided tour's coaching strip and **Example answer** |
 
 ### The goals list
 
 | | |
 | --- | --- |
-| ![The goals list with Settings highlighted](images/home-settings.png) | Goals, **Start a new goal**, the example, the tour and **Settings** |
+| ![The goals list with Settings highlighted](images/home-settings.png) | Goals, **Start a new goal**, the real commons, the tour and **Settings** |
 | ![Naming a new goal](images/new-goal.png) | Naming a new goal |
 | ![Help on the goals list](images/home-help.png) | F1: how the loop works |
 
@@ -100,9 +109,25 @@ F1 shows help.
 | Goal | ![Goal view](images/view-goal.png) |
 | Tests | ![Tests view](images/forecast-vs-result.png) |
 | Actions | ![Actions view](images/view-actions.png) |
-| Everything | ![Everything view](images/view-everything.png) |
+| Reasoning | ![Reasoning view](images/view-reasoning.png) |
 | Your words | ![Your words view](images/view-sources.png) |
-| History | ![History view](images/view-history.png) |
+| History | ![History view: every saved step with who, when and what changed](images/view-history.png) |
+
+### Looking back and the real commons
+
+Enter on a History step opens that moment, read-only: the question it answered, the
+words, what changed and what was asked next. ← and → step through.
+
+![An earlier step of Mira's goal, read-only](images/history-moment.png)
+
+**Explore a real commons** opens on the decision the Second Renaissance story waits
+on and its one open action; each step back shows the editor's narration, the quoted
+words, the source and what changed.
+
+| | |
+| --- | --- |
+| ![The real commons now: the decision and the open action](images/story-now.png) | Now |
+| ![Step 6 of the real commons](images/story-moment.png) | One step back |
 
 ### The trees
 

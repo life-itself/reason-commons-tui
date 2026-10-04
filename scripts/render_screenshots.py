@@ -87,13 +87,18 @@ async def render(folder):
 
 async def more_workspace(folder, goals, finished):
     """Every other view, the trees not shown above, the dialogs, the palette and the narrow layout."""
-    for view, name in (("goal", "view-goal"), ("actions", "view-actions"), ("reasoning", "view-everything"),
+    for view, name in (("goal", "view-goal"), ("actions", "view-actions"), ("reasoning", "view-reasoning"),
                        ("sources", "view-sources"), ("history", "view-history")):
         await shoot(workspace(finished), name, (120, 36), before=lambda app, view=view: app.show_view(view))
-    for tree, name, height in (("goal", "tree-goal", 36), ("evaporating_cloud", "tree-evaporating-cloud", 44),
+    for tree, name, height in (("goal", "tree-goal", 36), ("conflict", "tree-evaporating-cloud", 44),
                                ("future_reality", "tree-future-reality", 56), ("prerequisite", "tree-prerequisite", 44),
                                ("all", "tree-all-six", 60)):
         await shoot(workspace(finished), name, (120, height), before=lambda app, tree=tree: app.show_tree(tree))
+    # Looking back: an ordinary goal at an earlier step, read-only.
+    def step_back(app):
+        app.go_to(8)
+        app.show_view("next")  # the example opens on Tests; a step reads best on its own page
+    await shoot(workspace(finished), "history-moment", (120, 36), before=step_back)
     create_case(folder / "bare", "Agree how our strategy map gets reviewed").close()
     await shoot(workspace(folder / "bare"), "trees-empty", (120, 30), before=lambda app: app.show_view("trees"))
     await shoot(workspace(finished), "explain-this", (120, 36), steps=press("explain"))
