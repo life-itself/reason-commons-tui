@@ -2,10 +2,11 @@
 #
 # From the repository root:
 #
-#     vhs scripts/video/demo.tape
+#     vhs scripts/video/demo.tape && scripts/video/add_music.sh
 #
 # It runs this checkout offline with the built-in guide, in a throwaway folder
-# (see demo-env.sh), and writes docs/video/reason-commons-demo.mp4.
+# (see demo-env.sh), and writes docs/video/reason-commons-demo.mp4. VHS records
+# no sound; add_music.sh lays the soundtrack under it (needs ffmpeg).
 #
 #   0:00  What it is
 #   0:10  First start, and a new goal answered in ordinary words
