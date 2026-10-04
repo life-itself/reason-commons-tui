@@ -592,21 +592,21 @@ class ReasonCommonsApp(App):
             lines += [f"## {md(data.get('decision') or 'Next question')}", "", f"**{md(data['primary_prompt'])}**", ""]
             rationale = data["rationale"]
         else:
-            lines += ["## Welcome to Reason Commons", "",
-                      "Make progress on something that matters, one small loop at a time.", ""]
-            if self.provider == "guided":
-                lines += [f"**{md(STEPS['goal'][1])}**", ""]
-                rationale = STEPS["goal"][2]
-            else:
-                lines += ["**What is happening, and what would count as better?**", ""]
-                rationale = "A clear picture of success comes before choosing what to change."
-            lines += [WELCOME_WIDE if self.size.width >= 100 else WELCOME_NARROW,
-                      "*This shows how one loop works, not what causes what.*", "",
-                      "Begin in ordinary words. Unknown numbers can stay open, and you can correct "
-                      "anything later. There are no commands to learn.", ""]
+            # A new goal: its name is in the header, so the first question builds on it.
+            lines += [f"## {md(STEPS['goal'][0])}", "",
+                      "**What would count as better? Describe it in your own words.**" if self.provider == "guided"
+                      else "**What is happening, and what would count as better?**", "",
+                      "Your words are kept as written. Unknowns can stay open. Nothing is sent until you press "
+                      "Send.", ""]
+            rationale = (STEPS["goal"][2] if self.provider == "guided"
+                         else "A clear picture of success comes before choosing what to change.")
         if self.explain:
             lines += ["> **Why this question** (saved explanation, no consultant call)", ">",
                       "> " + md(rationale), ""]
+            if not w["question"]:
+                lines += ["How one loop works, one small change at a time:", "",
+                          WELCOME_WIDE if self.size.width >= 100 else WELCOME_NARROW,
+                          "*This shows how one loop works, not what causes what.*", ""]
         for pending in w["pending_requests"]:
             value = pending["input"]
             if value["base_revision"] == w["revision"] and value["response_target"] == w["target"]["response_target"]:
@@ -1046,10 +1046,10 @@ class NewGoalScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         with Vertical(id="dialog"):
-            yield Label("What would you like to call this goal?", classes="dialog-title")
+            yield Label("Name this goal", classes="dialog-title")
             yield Input(placeholder="for example: A clear next step after open evenings", id="goal-name")
-            yield Label("A short name is enough; you describe the goal inside. Enter starts, Esc goes back.",
-                        classes="hint")
+            yield Label("A few words is enough. Next you describe what would count as better. "
+                        "Enter starts, Esc goes back.", classes="hint")
 
     @on(Input.Submitted)
     def submitted(self, event):
@@ -1103,17 +1103,17 @@ class GoalsApp(App):
         if self.first_run:
             intro = ("[b]Welcome.[/b] Reason Commons helps you make progress on something that matters, one small "
                      f"loop at a time: {loop}.\n\nHow would you like to start? Everything stays on this computer.")
-            options = [Option(option_label("Set me up and start my first goal",
-                                           "Your name and who asks the questions: an offline guide, Claude or a "
-                                           "local model. About a minute."), id="setup"),
+            options = [Option(option_label("Start my first goal",
+                                           f"The offline guide asks the questions; your answers are saved as "
+                                           f"{login_name() or 'Me'}. Change either later in Settings."), id="start"),
+                       Option(option_label("Choose who asks the questions first",
+                                           "Your name, and the offline guide, Claude or a local model. About a "
+                                           "minute."), id="setup"),
                        Option(option_label("Take the guided tour",
                                            "Practise one whole loop with example answers. About 5 minutes; "
                                            "nothing is kept."), id="tour"),
                        Option(option_label("Look around a finished example",
-                                           "Mira's completed loop and her group's six trees."), id="sample"),
-                       Option(option_label("Skip setup",
-                                           f"Use the offline guide as {login_name() or 'yourself'}; change it "
-                                           "later in Settings."), id="skip")]
+                                           "Mira's completed loop and her group's six trees."), id="sample")]
             highlighted = 0
         else:
             intro = f"Make progress on a goal that matters, one small loop at a time: {loop}."
@@ -1140,7 +1140,8 @@ class GoalsApp(App):
             self.exit(choice)
         elif choice in ("setup", "settings"):
             self.setup(first_run=choice == "setup")
-        elif choice == "skip":
+        elif choice == "start":
+            # The defaults setup would offer; the next screen names the goal.
             self.settings.set(self.settings.get("name") or login_name() or "Me", "name")
             self.settings.set("guided", "consultant")
             try:
@@ -1149,6 +1150,7 @@ class GoalsApp(App):
                 self.notify(f"Could not save your settings ({exc}).", severity="error", timeout=8)
             self.settings.apply()
             self.show_options()
+            self.new_goal()
         elif choice == "new":
             self.new_goal()
         else:

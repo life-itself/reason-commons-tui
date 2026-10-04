@@ -35,9 +35,10 @@ On the goals list: arrows choose, Enter opens, F1 shows help, Ctrl+Q quits.
 
 ## First start, settings and the tour
 
-The first time, `reason-commons` offers four ways to start: set up and start a
-first goal, take the guided tour, look around a finished example, or skip setup.
-Setup asks for your name (recorded with your answers), the consultant and, for
+The first time, `reason-commons` offers four ways to start: start a first goal
+straight away (the offline guide, with your login name), choose who asks the
+questions first, take the guided tour, or look around a finished example. Choosing
+first asks for your name (recorded with your answers), the consultant and, for
 Claude or LM Studio, checks the connection and lets you choose a model. Esc goes
 back a step; leaving setup changes nothing. **Settings** on the home screen runs
 it again.

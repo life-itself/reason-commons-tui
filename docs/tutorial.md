@@ -22,8 +22,9 @@ own goal if you have one, or copy Mira's answers to get a feel for it first.
 
 ## 1. Start a goal
 
-Run `reason-commons`, choose **Start a new goal** and give it a short name, such as
-"From open evening to first practice". The workspace opens with one question.
+Run `reason-commons`, choose **Start my first goal** (later, **Start a new goal**)
+and give it a short name, such as "From open evening to first practice". The
+workspace opens with one question: what would count as better?
 
 Type in the box at the bottom. **Enter** starts a new line; **Ctrl+S** sends. Mira
 writes:

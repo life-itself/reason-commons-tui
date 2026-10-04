@@ -82,25 +82,27 @@ def test_first_start_offers_the_ways_to_begin(tmp_path):
         async with app.run_test(size=(80, 24)) as pilot:
             await pilot.pause()
             ids = [option.id for option in app.query_one("#goals").options]
-            assert ids == ["setup", "tour", "sample", "skip"]
-            app.query_one("#goals").highlighted = 1
+            assert ids == ["start", "setup", "tour", "sample"]
+            assert app.query_one("#goals").highlighted == 0
+            app.query_one("#goals").highlighted = 2
             await pilot.press("enter")
             await pilot.pause()
         return app.return_value
     assert asyncio.run(run()) == TOUR
 
 
-def test_skip_setup_saves_defaults_and_shows_the_goals_home(tmp_path):
+def test_start_saves_defaults_and_goes_straight_to_naming_the_goal(tmp_path):
     settings = Settings.load(tmp_path / "settings.yaml")
 
     async def run():
         app = GoalsApp(tmp_path / "goals", settings=settings)
         async with app.run_test(size=(80, 24)) as pilot:
-            app.query_one("#goals").highlighted = 3
-            await pilot.press("enter")
             await pilot.pause()
-            return [option.id for option in app.query_one("#goals").options]
-    assert asyncio.run(run()) == ["new", "sample", "tour", "settings"]
+            await pilot.press("enter")  # the first option, highlighted
+            await pilot.pause()
+            await type_in(app, pilot, "Sleep better")
+        return app.return_value
+    assert asyncio.run(run()) == tmp_path / "goals" / "sleep-better"
     saved = Settings.load(tmp_path / "settings.yaml")
     assert saved.get("name") == "David" and saved.get("consultant") == "guided"
 
@@ -175,7 +177,7 @@ def test_escape_leaves_setup_without_saving(tmp_path):
             await pilot.press("escape")
             await pilot.pause()
             return [option.id for option in app.query_one("#goals").options]
-    assert asyncio.run(run())[0] == "setup"
+    assert asyncio.run(run())[0] == "start"  # still the first-start choices
     assert not (tmp_path / "settings.yaml").exists()
 
 

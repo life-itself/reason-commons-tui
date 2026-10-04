@@ -193,7 +193,11 @@ def test_welcome_draws_the_loop_and_the_strip_follows_progress(tmp_path):
         app = launch(path, {"guided": GuidedConsultant()})
         async with app.run_test(size=(80, 24)) as pilot:
             await pilot.pause()
+            # The welcome asks one question; the loop diagram is one press away, behind Explain this.
+            assert "One small test" not in app.render_next() and "Nothing is sent until" in app.render_next()
+            app.action_explain()
             assert "One small test" in app.render_next()
+            app.action_explain()
             assert "● Goal" in str(app.query_one("#loop").render())
             for answer in ("Sleep better", "", "", "Phone in the kitchen"):
                 await send(app, pilot, answer)
