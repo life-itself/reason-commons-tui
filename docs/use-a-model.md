@@ -5,7 +5,24 @@ words. It works offline and never gives advice. An AI consultant adapts its
 questions, notices what is missing and can give direct advice through **Other
 moves**. Your case keeps going from where it is when you switch.
 
-## Use Claude
+## The easy way: setup
+
+On the first start, choose **Set me up and start my first goal**; later, choose
+**Settings** on the home screen. Pick Claude or LM Studio:
+
+- **Claude**: paste your API key from the
+  [Anthropic Console](https://console.anthropic.com/). Reason Commons checks it and
+  lists the models your key can use; Sonnet is marked as recommended.
+- **LM Studio**: the usual address is filled in. Reason Commons finds the server
+  and lists the loaded models. If nothing answers, it says what to do in LM Studio.
+
+![Choosing a Claude model: Opus, Sonnet (recommended) and Haiku, each with its trade-off](images/setup-model.png)
+
+Your choices are saved in `~/.config/reason-commons/settings.yaml`, readable only
+by you, and never in a goal or an export. Environment variables, described below,
+still take precedence, so an existing shell setup keeps working.
+
+## Use Claude with environment variables
 
 1. Get an API key from the [Anthropic Console](https://console.anthropic.com/).
 2. Make it available to Reason Commons. On a Mac, add this line to `~/.zshrc` and

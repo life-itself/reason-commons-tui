@@ -14,7 +14,7 @@ from pathlib import Path
 
 from rich.markup import escape
 from rich.text import Text
-from textual import on
+from textual import on, work
 from textual.app import App, ComposeResult, SystemCommand
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
@@ -23,10 +23,13 @@ from textual.widgets import Button, Footer, Input, Label, Markdown, OptionList, 
 from textual.widgets.option_list import Option
 
 from reason_commons.adapters.guided import STEPS
+from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
+from reason_commons.adapters.settings import Settings, describe
 from reason_commons.adapters.rendering import _literal
 from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, trees_lines
 
 
+TOUR_FINISHED = "tour-finished"
 PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claude", "lm-studio": "LM Studio (local)"}
 TREE_ORDER = list(TREE_TITLES)
 VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"), ("actions", "Actions"),
@@ -99,7 +102,11 @@ consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
 
 The **built-in guide** works offline and asks the loop's questions in order.
 **Anthropic** (needs `ANTHROPIC_API_KEY`) or **LM Studio** (a local model) give
-adaptive questions and advice. Change it any time with Ctrl+P.
+adaptive questions and advice. Ctrl+P switches for this session; **Settings** on
+the home screen saves your name, consultant and model for next time.
+
+New to it? **Take the guided tour** from the home screen: a practice goal with
+coaching at each step and example answers. Nothing from it is kept.
 """
 
 
@@ -227,8 +234,14 @@ class ReasonCommonsApp(App):
     #editor { height: 6; border: none; }
     #controls { height: 1; margin-top: 1; }
     #controls Button { min-width: 8; height: 1; border: none; margin-right: 1; }
-    #retry.hidden { display: none; }
-    ChoiceScreen, PathScreen, HelpScreen { align: center middle; }
+    #retry.hidden, #fill.hidden, #finish.hidden { display: none; }
+    #coach { height: auto; max-height: 5; border: round $warning; padding: 0 1; }
+    #coach.hidden { display: none; }
+    .step-count { color: $text-muted; }
+    Step #dialog, Checking #dialog { padding: 0 2; }
+    .explanation { margin-bottom: 1; }
+    #choices { height: auto; max-height: 16; }
+    ChoiceScreen, PathScreen, HelpScreen, Step, Checking { align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
     HelpScreen #dialog { height: 90%; }
@@ -244,9 +257,9 @@ class ReasonCommonsApp(App):
         Binding("ctrl+q", "quit", "Save & quit", priority=True),
     ]
 
-    def __init__(self, store, speaker, provider, open_application, consultant_factory):
+    def __init__(self, store, speaker, provider, open_application, consultant_factory, tour=False):
         super().__init__()
-        self.store, self.speaker, self.provider = str(store), speaker, provider
+        self.store, self.speaker, self.provider, self.tour = str(store), speaker, provider, tour
         self._open, self._consultant_factory = open_application, consultant_factory
         self.case = open_application(consultant_factory(provider))
         self.view_name, self.explain, self.busy = "next", False, False
@@ -264,16 +277,19 @@ class ReasonCommonsApp(App):
             with VerticalScroll(id="main"):
                 yield Markdown(id="content")
                 yield Static(id="canvas")
+        yield Static(id="coach", classes="" if self.tour else "hidden")
         with Vertical(id="response"):
             yield Label(id="response-label")
             yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
             with Horizontal(id="controls"):
                 yield Button("Send", id="send", variant="primary")
+                yield Button("Example answer", id="fill", classes="" if self.tour else "hidden")
                 yield Button("Retry", id="retry", variant="warning", classes="hidden")
                 yield Button("Explain this", id="explain")
                 yield Button("Other moves", id="moves")
                 yield Button("Views", id="views-button")
                 yield Button("Actions", id="actions")
+                yield Button("Finish tour", id="finish", variant="success", classes="" if self.tour else "hidden")
         yield Footer()
 
     def on_mount(self):
@@ -323,9 +339,16 @@ class ReasonCommonsApp(App):
             canvas.update(self.render_trees())
         retryable = self.retryable()
         self.query_one("#retry").set_class(not retryable, "hidden")
+        if self.tour:
+            state = self.tour_state()
+            self.query_one("#coach", Static).update(coach_text(state))
+            self.query_one("#fill").set_class(state not in EXAMPLE_ANSWERS, "hidden")
         self.query_one("#response-label", Label).update(
             f"Answer as {escape(self.speaker)}  ·  Enter: new line  ·  Ctrl+S or Send: send to the "
             f"{'guide' if self.provider == 'guided' else 'consultant'}")
+
+    def tour_state(self):
+        return tour_state(self.workspace_value["question"], self.case.inspect()["case"]["records"])
 
     def pinned_text(self):
         case = self.case.inspect()["case"]
@@ -502,6 +525,20 @@ class ReasonCommonsApp(App):
     @on(Button.Pressed, "#send")
     def send_pressed(self):
         self.action_send()
+
+    @on(Button.Pressed, "#fill")
+    def fill_pressed(self):
+        """Tour only: put the tutorial's example answer for this question into the editor."""
+        answer = EXAMPLE_ANSWERS.get(self.tour_state())
+        if answer is not None:
+            editor = self.query_one("#editor", TextArea)
+            editor.load_text(answer)
+            editor.cursor_location = caret_location(answer, len(answer))
+            editor.focus()
+
+    @on(Button.Pressed, "#finish")
+    def finish_pressed(self):
+        self.exit(TOUR_FINISHED)
 
     @on(Button.Pressed, "#retry")
     def retry_pressed(self):
@@ -758,7 +795,8 @@ class ReasonCommonsApp(App):
             self.notify(f"Could not set up {PROVIDERS[provider]}: {exc}", severity="error", timeout=8)
             return
         if provider == "anthropic" and not os.environ.get("ANTHROPIC_API_KEY"):
-            self.notify("ANTHROPIC_API_KEY is not set, so requests will fail. See the README.",
+            self.notify("No Anthropic key yet, so requests will fail. Add one under Settings on the home "
+                        "screen, or set ANTHROPIC_API_KEY.",
                         severity="warning", timeout=10)
         self.checkpoint()
         self.case.close()
@@ -821,7 +859,11 @@ class NewGoalScreen(ModalScreen):
 
 
 class GoalsApp(App):
-    """Home screen: pick one of your goals or start a new one. Returns the chosen folder."""
+    """Home screen: how to begin on first start, then your goals. Returns what to open next.
+
+    With ``settings`` that were never saved, it first offers the ways to start: set up and
+    start a goal, the guided tour, the finished example, or skipping setup.
+    """
 
     TITLE = "Reason Commons"
     ENABLE_COMMAND_PALETTE = False
@@ -833,11 +875,16 @@ class GoalsApp(App):
     """
     BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help")]
 
-    def __init__(self, root, list_goals=find_goals, create=None):
+    def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None):
         super().__init__()
         self.root, self._list = Path(root), list_goals
         self._create = create or self._create_case
+        self.settings, self._checks = settings, checks
         self.goals = []
+
+    @property
+    def first_run(self):
+        return self.settings is not None and not self.settings.exists
 
     def compose(self) -> ComposeResult:
         with Vertical(id="home"):
@@ -849,30 +896,78 @@ class GoalsApp(App):
 
     def on_mount(self):
         self.goals = self._list(self.root)
-        intro = ("Make progress on a goal that matters, one small loop at a time: "
-                 "goal → test with a forecast → action → observation → review.")
-        if not self.goals:
-            intro += "\n\nYou have no goals yet. Start one below; it is saved as you go."
-        self.query_one("#home-intro", Static).update(intro)
-        options = [Option("+ Start a new goal", id="new"),
-                   Option("  Look around a finished example first (nothing you do there is kept)", id="sample")]
-        for index, goal in enumerate(self.goals):
-            label = f"{goal['name']}   ·   {goal['step']}   ·   {str(goal['changed'])[:10]}"
-            options.append(Option(escape(label), id=str(index)))
+        self.show_options()
+
+    def show_options(self):
+        loop = "goal → test with a forecast → action → observation → review"
         goals = self.query_one("#goals", OptionList)
+        goals.clear_options()
+        if self.first_run:
+            intro = ("[b]Welcome.[/b] Reason Commons helps you make progress on something that matters, one small "
+                     f"loop at a time: {loop}.\n\nHow would you like to start? Everything stays on this computer.")
+            options = [Option(option_label("Set me up and start my first goal",
+                                           "Your name and who asks the questions: an offline guide, Claude or a "
+                                           "local model. About a minute."), id="setup"),
+                       Option(option_label("Take the guided tour",
+                                           "Practise one whole loop with example answers. About 5 minutes; "
+                                           "nothing is kept."), id="tour"),
+                       Option(option_label("Look around a finished example",
+                                           "Mira's completed loop and her group's six trees."), id="sample"),
+                       Option(option_label("Skip setup",
+                                           f"Use the offline guide as {login_name() or 'yourself'}; change it "
+                                           "later in Settings."), id="skip")]
+            highlighted = 0
+        else:
+            intro = f"Make progress on a goal that matters, one small loop at a time: {loop}."
+            if not self.goals:
+                intro += "\n\nYou have no goals yet. Start one below; it is saved as you go."
+            options = [Option("+ Start a new goal", id="new"),
+                       Option("  Look around a finished example (nothing you do there is kept)", id="sample"),
+                       Option("  Take the guided tour (practice goal, about 5 minutes)", id="tour")]
+            if self.settings is not None:
+                options.append(Option(f"  Settings: {escape(describe(self.settings))}", id="settings"))
+            highlighted = len(options) if self.goals else 0
+            for index, goal in enumerate(self.goals):
+                label = f"{goal['name']}   ·   {goal['step']}   ·   {str(goal['changed'])[:10]}"
+                options.append(Option(escape(label), id=str(index)))
+        self.query_one("#home-intro", Static).update(intro)
         goals.add_options(options)
-        goals.highlighted = 2 if self.goals else 0
+        goals.highlighted = highlighted
         goals.focus()
 
     @on(OptionList.OptionSelected, "#goals")
     def chosen(self, event):
-        if event.option.id == "sample":
-            self.exit(SAMPLE)
-            return
-        if event.option.id != "new":
-            self.exit(self.goals[int(event.option.id)]["path"])
-            return
+        choice = event.option.id
+        if choice in (SAMPLE, TOUR):
+            self.exit(choice)
+        elif choice in ("setup", "settings"):
+            self.setup(first_run=choice == "setup")
+        elif choice == "skip":
+            self.settings.set(self.settings.get("name") or login_name() or "Me", "name")
+            self.settings.set("guided", "consultant")
+            try:
+                self.settings.save()
+            except OSError as exc:
+                self.notify(f"Could not save your settings ({exc}).", severity="error", timeout=8)
+            self.settings.apply()
+            self.show_options()
+        elif choice == "new":
+            self.new_goal()
+        else:
+            self.exit(self.goals[int(choice)]["path"])
 
+    @work
+    async def setup(self, first_run):
+        then = await run_setup(self, self.settings, first_run, checks=self._checks)
+        if then in (SAMPLE, TOUR):
+            self.exit(then)
+        elif then == "goal":
+            self.show_options()
+            self.new_goal()
+        else:
+            self.show_options()
+
+    def new_goal(self):
         def named(name):
             if name:
                 try:
@@ -892,25 +987,53 @@ class GoalsApp(App):
         self.push_screen(HelpScreen())
 
 
+def option_label(title, detail):
+    text = Text(title, style="bold")
+    text.append("\n" + detail, style="dim")
+    return text
+
+
 SAMPLE = "sample"
+TOUR = "tour"
 
 
-def run_home(speaker=None, provider=None, model=None, base_url=None):
-    """Show your goals, then open the chosen one (or a throwaway example) in the workspace."""
+def run_home(speaker=None, provider=None, model=None, base_url=None, settings=None):
+    """First start or your goals, then the chosen goal (or the tour or example) in the workspace.
+
+    The tour returns here when finished; quitting any workspace ends the program.
+    """
     options = {"speaker": speaker, "provider": provider, "model": model, "base_url": base_url}
-    store = GoalsApp(goals_home()).run()
-    if store == SAMPLE:
-        from reason_commons.adapters.sample import build_sample
-        with tempfile.TemporaryDirectory(prefix="reason-commons-example-") as folder:
-            path = build_sample(Path(folder) / "example")
-            run(path, **{**options, "provider": provider or "guided"})
-    elif store is not None:
-        run(store, **options)
+    settings = settings or Settings.load()
+    settings.apply()
+    while True:
+        store = GoalsApp(goals_home(), settings=settings).run()
+        if store == TOUR:
+            if run_tour(speaker) != TOUR_FINISHED:
+                return
+        elif store == SAMPLE:
+            from reason_commons.adapters.sample import build_sample
+            with tempfile.TemporaryDirectory(prefix="reason-commons-example-") as folder:
+                path = build_sample(Path(folder) / "example")
+                run(path, **{**options, "provider": provider or "guided"})
+            return
+        elif store is not None:
+            run(store, **options)
+            return
+        else:
+            return
 
 
-def run(store, name=None, speaker=None, provider=None, model=None, base_url=None):
+def run_tour(speaker=None):
+    """The guided tour: a practice goal in a throwaway folder, always with the offline guide."""
+    with tempfile.TemporaryDirectory(prefix="reason-commons-tour-") as folder:
+        return run(Path(folder) / "practice", name="Practice: your first loop", speaker=speaker,
+                   provider="guided", tour=True)
+
+
+def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False):
     """Create the case if the folder does not exist yet, then open the workspace."""
     from reason_commons.bootstrap import configured_consultant, create_case, open_case
+    Settings.load().apply()  # fills in only what flags and the environment leave unset
     store = Path(os.path.expanduser(store)).resolve()
     provider = provider or os.environ.get("REASON_COMMONS_PROVIDER") or "guided"
     speaker = speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
@@ -919,5 +1042,6 @@ def run(store, name=None, speaker=None, provider=None, model=None, base_url=None
     if not store.exists():
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()
-    app = ReasonCommonsApp(store, speaker, provider, lambda consultant: open_case(store, consultant=consultant), factory)
-    app.run()
+    app = ReasonCommonsApp(store, speaker, provider, lambda consultant: open_case(store, consultant=consultant),
+                           factory, tour=tour)
+    return app.run()

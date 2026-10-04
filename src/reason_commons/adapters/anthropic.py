@@ -98,6 +98,19 @@ class AnthropicConsultant:
         except (ValueError, UnicodeError, RecursionError):
             raise ConsultantResponseError("Anthropic returned invalid JSON") from None
 
+    def list_models(self):
+        """Models this key may use, newest first, as (id, display name); also checks the key works."""
+        value = self._request("/models?limit=100")
+        if not isinstance(value, dict) or not isinstance(value.get("data"), list):
+            raise AnthropicError("Anthropic returned an invalid models response")
+        models = []
+        for item in value["data"]:
+            if (isinstance(item, dict) and isinstance(item.get("id"), str)
+                    and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", item["id"])):
+                name = item.get("display_name") if isinstance(item.get("display_name"), str) else item["id"]
+                models.append((item["id"], name))
+        return models
+
     def model_metadata(self):
         """Verify account access and resolve the exact requested model, without inference."""
         value = self._request("/models/" + self.model)
