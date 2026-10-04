@@ -1,4 +1,4 @@
-"""Personal settings chosen on first start: your name, consultant and model.
+"""Personal settings chosen on first start: your name, consultant and model, and the theme.
 
 They live outside every goal folder (never in a case or an export), in
 ``$REASON_COMMONS_CONFIG`` or ``$XDG_CONFIG_HOME/reason-commons/settings.yaml``
@@ -24,6 +24,7 @@ ENVIRONMENT = {
     ("anthropic", "api_key"): "ANTHROPIC_API_KEY",
     ("lm_studio", "url"): "REASON_COMMONS_LM_STUDIO_URL",
     ("lm_studio", "model"): "REASON_COMMONS_LM_STUDIO_MODEL",
+    ("theme",): "REASON_COMMONS_THEME",
 }
 
 

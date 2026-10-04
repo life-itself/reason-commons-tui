@@ -21,6 +21,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from reason_commons.adapters import themes  # noqa: E402
 from reason_commons.adapters.sample import ANSWERS, build_sample  # noqa: E402
 from reason_commons.adapters.tui import GoalsApp, ReasonCommonsApp  # noqa: E402
 from reason_commons.bootstrap import configured_consultant, create_case, open_case  # noqa: E402
@@ -279,6 +280,7 @@ def to_png(browser, svg):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    os.environ[themes.ENVIRONMENT] = themes.DEFAULT_THEME  # the docs show the default, not your own theme
     with tempfile.TemporaryDirectory() as folder:
         asyncio.run(render(Path(folder)))
     browser = chromium() if can_make_png() else None
