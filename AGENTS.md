@@ -1,5 +1,8 @@
 # Working on Reason Commons
 
+How we develop (method, workflow, testing, recipes) is in
+`docs/development/README.md`.
+
 Read `ARCHITECTURE.md` and the owning `src/reason_commons/domain/CONTEXT.md`
 before changing case behavior. The existing specification and its scenario-local
 delivery tags define scope. P0 is implemented; a personal-use TUI slice exists. Of p1/p2, only the

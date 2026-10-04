@@ -3,7 +3,8 @@
 The skill is a conversational case interface. Codex presents the saved question,
 context, uncertainty, forecast comparisons and recorded diagrams, and accepts
 participant replies in ordinary language. The application owns the reasoning,
-attribution, exact targets and persistence. LM Studio supplies semantic
+attribution, exact targets and persistence. The chosen consultant, a local model
+or Anthropic (see [choosing a consultant](providers.md)), supplies semantic
 consultation only after an explicit contribution or consultant move.
 
 ## Use it on this machine
@@ -56,13 +57,21 @@ opens an exact saved item and its referenced context. `--format json` returns
 presentation data and text/Markdown/Mermaid renderings. Inspection requires no
 model connection and does not change case state.
 
-For a deliberate contribution with LM Studio running on port 1234:
+For a deliberate contribution, name the provider (or set `REASON_COMMONS_PROVIDER`):
 
 ```sh
+# Anthropic, with ANTHROPIC_API_KEY exported
 .venv/bin/reason-commons contribute .reason-commons/cases/my-case \
-  --speaker David --model google/gemma-4-e4b \
+  --speaker David --provider anthropic \
+  --text-file /absolute/path/to/my-reply.txt
+
+# A local model through LM Studio
+.venv/bin/reason-commons contribute .reason-commons/cases/my-case \
+  --speaker David --provider lm-studio --model google/gemma-4-e4b \
   --text-file /absolute/path/to/my-reply.txt
 ```
+
+Run `reason-commons providers` first to confirm the settings without sending anything.
 
 Use `--text-file -` for standard input. Default output presents the saved question
 and workspace; `--format markdown` includes diagrams and tables. `--json` exposes
@@ -76,17 +85,19 @@ selects a consultant alternative. `--ownership NAME` and `--observed` express
 actual participant declarations, never guesses from prose.
 
 The default `--runner procedure` executes the bounded inspect → retain → consult
-sequence. `--runner agent` lets the configured model execute the packaged skill
-through the same host. It is experimental; a model changing literal input or the
-bound target is rejected. There is no automatic fallback or semantic retry.
+sequence with either provider. `--runner agent` lets the configured model execute
+the packaged skill through the same host. It is experimental and currently needs
+`lm-studio` (it is rejected before anything is retained with Anthropic); a model
+changing literal input or the bound target is rejected. There is no automatic fallback or semantic retry.
 
 ```sh
 .venv/bin/reason-commons receipts .reason-commons/cases/my-case REQUEST_ID
 .venv/bin/reason-commons retry .reason-commons/cases/my-case REQUEST_ID \
-  --model google/gemma-4-e4b
+  --provider lm-studio --model google/gemma-4-e4b
 ```
 
-Use the actual retained identity. Already applied requests return the saved state
+Use the actual retained identity. Retry with the provider you want to consult; it
+need not be the one that failed. Already applied requests return the saved state
 without consulting again. An unavailable model, invalid proposal or unconfirmed
 save remains a failure. A stale reply requires deliberate re-evaluation against
 current context.
@@ -136,9 +147,11 @@ mkdir -p .reason-commons/cases
 ```
 
 Register a connection to `/absolute/path/to/.venv/bin/python -m reason_commons mcp
---case-root /absolute/path/to/cases --model YOUR_MODEL_ID`. Preserve existing
-connections for other projects. Model, endpoint, timeout and optional
-`LM_STUDIO_API_TOKEN` are provider settings, outside case state. See
+--case-root /absolute/path/to/cases --provider PROVIDER [--model YOUR_MODEL_ID]`.
+Preserve existing connections for other projects. Provider, model, endpoint,
+timeout and credentials are settings outside case state, and the credential must
+reach the server process (for Anthropic, add `ANTHROPIC_API_KEY` to `env_vars`).
+See [choosing a consultant](providers.md) for a complete example and for
 [LM Studio configuration](lm-studio.md).
 
 Codex registration follows the official [MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)

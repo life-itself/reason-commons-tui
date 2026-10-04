@@ -31,6 +31,14 @@
     ],
     "procedures": [
       "skills/**"
+    ],
+    "conversation_acceptance": [
+      "tests/conversation/features/**"
+    ],
+    "development_method": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/development/**"
     ]
   },
   "dependency_rules": {

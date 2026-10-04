@@ -8,59 +8,13 @@ import pytest
 from reason_commons.adapters.lm_studio import LMStudioConsultant, LMStudioError
 from reason_commons.bootstrap import create_case, open_case
 from reason_commons.domain.contract import proposal_schema
+from tests.servers import lm_studio_server_instance
 from tests.support import bounded_case, proposal, submit
 
 
 @pytest.fixture
 def server():
-    class Handler(BaseHTTPRequestHandler):
-        def log_message(self, *args):
-            pass
-
-        def respond(self, body, status=200, headers=None):
-            content = body if isinstance(body, bytes) else json.dumps(body).encode()
-            self.send_response(status)
-            self.send_header("Content-Type", "application/json")
-            for key, value in (headers or {}).items():
-                self.send_header(key, value)
-            self.send_header("Content-Length", str(len(content)))
-            self.end_headers()
-            self.wfile.write(content)
-
-        def do_GET(self):
-            self.server.requests.append(("GET", self.path, dict(self.headers), None))
-            self.respond({"data": [{"id": model} for model in self.server.models]})
-
-        def do_POST(self):
-            body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-            self.server.requests.append(("POST", self.path, dict(self.headers), body))
-            request = json.loads(body["messages"][1]["content"])
-            if self.server.custom is not None:
-                content, *rest = self.server.custom
-                if isinstance(content, dict) and "choices" in content:
-                    content = {"model": body["model"], **content}
-                self.respond(content, *rest)
-                return
-            result = self.server.author(request)
-            for index, update in enumerate(result["proposed_updates"]):
-                # The real provider grammar requires named updates. The domain
-                # and provider-free BDD also accept unnamed updates.
-                update.setdefault("temporary_id", f"temp_update_{index}")
-            jsonschema.validate(result, body["response_format"]["json_schema"]["schema"])
-            self.respond({"model": self.server.response_model or body["model"],
-                          "choices": [{"finish_reason": "stop", "message": {"content": json.dumps(result)}}]})
-
-    instance = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
-    instance.requests, instance.models, instance.custom = [], ["model", "selected-model", "model-a", "model-b"], None
-    instance.response_model = None
-    instance.author = bounded_case
-    instance.url = f"http://127.0.0.1:{instance.server_port}/v1"
-    thread = Thread(target=instance.serve_forever, daemon=True)
-    thread.start()
-    yield instance
-    instance.shutdown()
-    instance.server_close()
-    thread.join(timeout=2)
+    yield from lm_studio_server_instance()
 
 
 def input_request():

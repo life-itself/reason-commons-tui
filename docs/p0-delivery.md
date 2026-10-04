@@ -57,6 +57,13 @@ tool-calling skill execution, repeated semantic proposals and real-server
 recovery evidence. Formal semantic approval and participant studies remain
 incomplete; live runs expose consequential quality failures rather than
 establishing v1 readiness.
+
+**Provider-neutral consulting.** The consultant is now an explicit choice between
+LM Studio and Anthropic ([choosing a consultant](providers.md)). The change added
+14 conversation scenarios (21 in all) in `tests/conversation/features/providers.feature`,
+an offline `reason-commons providers` readiness check, and a retained safe failure
+category. The original p0 features were not changed.
+
 P0 has only automated-tagged scenarios. P1/p2 and the v1 release gates remain
 explicitly incomplete. A synchronous application boundary is ready for a future
 TUI worker, but the persistent TUI does not ship here. The conversational skill described below is now available.

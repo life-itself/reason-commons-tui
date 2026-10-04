@@ -56,7 +56,7 @@ def main():
             "tests/conversation/features", "--format", "json", "--outfile", str(conversation))
         scenarios = [s for feature in json.loads(conversation.read_text()) for s in feature.get("elements", [])]
         expected_names = {s.name for path in (ROOT / "tests/conversation/features").glob("*.feature")
-                          for s in parse_file(str(path)).scenarios}
+                          for s in parse_file(str(path)).walk_scenarios()}
         if len(scenarios) != len(expected_names) or {s["name"] for s in scenarios} != expected_names or any(
                 s["status"] != "passed" for s in scenarios):
             raise SystemExit("FAIL: incomplete conversational acceptance coverage")

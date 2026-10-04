@@ -1,5 +1,11 @@
 # Using LM Studio
 
+LM Studio is one of two consultants; [Choosing a consultant](providers.md) covers
+how to select between it and Anthropic, check the setup, and diagnose failures.
+This page covers the local server itself. Select it with
+`REASON_COMMONS_PROVIDER=lm-studio` or `--provider lm-studio`; it is also the
+default when nothing is chosen.
+
 `LMStudioConsultant` implements the existing `Consultant` port. It calls only the
 configured LM Studio server, with no hosted fallback or implicit retries. All
 application validation, retention, stale-target checks and durable commits apply

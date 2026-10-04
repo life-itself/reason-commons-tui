@@ -1,5 +1,8 @@
 # Reason Commons architecture
 
+How to work on this code (method, workflow, testing, recipes) is in
+[docs/development](docs/development/README.md); this file records the boundaries.
+
 The refined conversation fits Reason Commons directly: the app must preserve
 reasoning correctly even if a skill is removed or a consultant misbehaves.
 The first completed increment is **p0**, as selected by the existing delivery
@@ -18,6 +21,8 @@ flowchart TD
   App --> Ports[Storage / consultant / clock ports]
   Ports --> FS[POSIX YAML and ZIP adapter]
   Ports --> Provider[Replaceable consultant]
+  Provider --> LMS[LM Studio adapter]
+  Provider --> Anth[Anthropic adapter]
 ```
 
 There is one bounded context, [Reasoning Case](src/reason_commons/domain/CONTEXT.md).
@@ -34,7 +39,7 @@ ownership actually emerges.
 | Application contract | `application/ports.py`, `application/service.py` | Retention, consultation, retry, inspection, cursor and portability |
 | Procedures | `skills/reason-commons-contribute/SKILL.md` | How an agent chooses and sequences capabilities |
 | Adapters | `adapters/` | Storage, offline CLI and a replaceable procedure driver |
-| Composition | `bootstrap.py` | Choose adapters; create/open/import a case |
+| Composition | `bootstrap.py` | Choose adapters, including the consultant provider; create/open/import a case |
 
 The domain imports only the standard library. The application imports the domain
 and defines outbound protocols; it never imports an adapter or skill. Interfaces
@@ -214,14 +219,33 @@ or consulting rules. Domain validation, exact bases/targets and writer exclusion
 remain in the existing layers. Its `context` read projects the owning artifacts,
 rather than copying domain truth into the procedure. See [skill usage](docs/skill-use.md).
 
-`LMStudioConsultant` is a real local HTTP provider adapter. It uses the domain
-registry's JSON Schema projection and packaged consulting procedure/context,
-requests structured chat output, and translates it to the existing `Consultant`
-port. Model/endpoint/token configuration stays outside case state. Malformed or
-truncated output has a distinct rejected-response receipt; transport failures
-retain the existing unavailable/retry behavior. Local HTTP fixtures test this
-adapter separately from provider-free application BDD. See the
-[LM Studio guide](docs/lm-studio.md) for configuration and an opt-in live smoke test.
+The consultant is a replaceable choice made only at composition. Two real HTTP
+adapters implement the same `Consultant` port: `LMStudioConsultant` (local) and
+`AnthropicConsultant` (hosted). Each uses the domain registry's JSON Schema
+projection (shared in `provider_support.py`) and the packaged consulting
+procedure/context, and translates the provider's structured output to a proposal
+the application validates. `bootstrap.configured_consultant` picks one: an explicit
+choice beats `REASON_COMMONS_PROVIDER`, which beats the local default. There is no
+fallback between them, and an unknown name is rejected. `bootstrap.provider_settings`
+reports the resolved choice and its readiness offline, without a request or a
+secret value; the `providers` command projects it.
+
+Model, endpoint and credentials stay outside case state; only each applied
+request's consultant version is recorded, so a case can change consultants between
+contributions. Malformed or truncated output has a distinct rejected-response
+receipt. Transport and configuration failures keep the unavailable/retry
+behavior, and the application records a safe failure category
+(`configuration`, `http_error`, `timeout`, `connection` or `unknown`) with any
+HTTP status. Provider exception text is never retained. The application holds no
+provider-specific knowledge: an adapter only tags its exception.
+
+The provider behavior participants see is specified in
+`tests/conversation/features/providers.feature`, run through application use
+cases with fixture consultants and loopback fake servers (`tests/servers.py`).
+Protocol details, redirects, request limits and exit codes are adapter tests
+(`tests/test_anthropic.py`, `tests/test_lm_studio.py`, `tests/test_providers.py`).
+See [choosing a consultant](docs/providers.md), the [LM Studio guide](docs/lm-studio.md)
+and its opt-in live smoke test.
 
 The [validation harness](docs/validation.md) now retains repeated multi-turn
 local-model proposals, capability traces, actual-server failures and attributed

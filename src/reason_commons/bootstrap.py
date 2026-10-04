@@ -11,19 +11,49 @@ from reason_commons.application.service import CaseApplication
 from reason_commons.domain.model import Snapshot
 
 
+PROVIDERS = ("lm-studio", "anthropic", "guided")
+DEFAULT_PROVIDER = "lm-studio"
+
+
+def _choose_provider(provider, environ=os.environ):
+    """Explicit choice beats the environment, which beats the local default."""
+    for value, source in ((provider, "explicit"), (environ.get("REASON_COMMONS_PROVIDER"), "environment")):
+        if value is not None and value.strip():
+            name = value.strip().lower()
+            if name not in PROVIDERS:
+                raise ValueError(f"Unknown provider {value!r}; choose one of: {', '.join(PROVIDERS)}")
+            return name, source
+    return DEFAULT_PROVIDER, "default"
+
+
+def provider_settings(provider=None, model=None, base_url=None, environ=os.environ):
+    """What would be used and whether it is ready: offline, no request, no secret value."""
+    name, source = _choose_provider(provider, environ)
+    if name == "guided":
+        settings = {"model": "built-in guide", "model_source": "default", "endpoint": None,
+                    "credential": {"variable": None, "required": False, "present": False}, "problems": []}
+        return {"provider": name, "selected_by": source, "providers": list(PROVIDERS),
+                **settings, "ready": True}
+    if name == "anthropic":
+        from reason_commons.adapters.anthropic import AnthropicConsultant as Adapter
+    else:
+        from reason_commons.adapters.lm_studio import LMStudioConsultant as Adapter
+    settings = Adapter.describe_settings(model=model, base_url=base_url, environ=environ)
+    return {"provider": name, "selected_by": source, "providers": list(PROVIDERS),
+            **settings, "ready": not settings["problems"]}
+
+
 def configured_consultant(provider=None, model=None, base_url=None):
     """Explicit provider selection at composition, with no hosted fallback."""
-    provider = provider or os.environ.get("REASON_COMMONS_PROVIDER", "lm-studio")
-    if provider == "lm-studio":
-        from reason_commons.adapters.lm_studio import LMStudioConsultant
-        return LMStudioConsultant.from_env(model=model, base_url=base_url)
-    if provider == "guided":
+    name, _ = _choose_provider(provider)
+    if name == "guided":
         from reason_commons.adapters.guided import GuidedConsultant
         return GuidedConsultant()
-    if provider == "anthropic":
+    if name == "anthropic":
         from reason_commons.adapters.anthropic import AnthropicConsultant
         return AnthropicConsultant.from_env(model=model, base_url=base_url)
-    raise ValueError("Choose provider guided, lm-studio or anthropic")
+    from reason_commons.adapters.lm_studio import LMStudioConsultant
+    return LMStudioConsultant.from_env(model=model, base_url=base_url)
 
 
 def create_case(path, name="Untitled case", consultant=None, timezone="Europe/Berlin", clock=None):

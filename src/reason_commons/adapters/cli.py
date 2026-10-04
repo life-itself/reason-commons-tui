@@ -7,7 +7,7 @@ from pathlib import Path
 
 from reason_commons import __version__
 from reason_commons.application.ports import StoreError
-from reason_commons.bootstrap import configured_consultant, create_case, import_case, open_case
+from reason_commons.bootstrap import PROVIDERS, configured_consultant, create_case, import_case, open_case, provider_settings
 from reason_commons.domain.model import InvalidCase
 from reason_commons.domain.model import CONSULT_INTENTS
 from reason_commons.application.presentation import VIEWS
@@ -82,6 +82,11 @@ def main(argv=None):
     imported.add_argument("bundle")
     imported.add_argument("--store", required=True)
     commands.add_parser("storage-help", help="Explain storage integrity guarantees")
+    providers = commands.add_parser("providers", help="Check which consultant would be used and whether it is configured; sends no request")
+    providers.add_argument("--provider", choices=list(PROVIDERS), help="Check this provider instead of REASON_COMMONS_PROVIDER")
+    providers.add_argument("--model", help="Model ID to check")
+    providers.add_argument("--base-url", help="Server URL to check")
+    providers.add_argument("--json", action="store_true")
     contribution = commands.add_parser("contribute", help="Run the contribution skill once against an existing case")
     contribution.add_argument("store")
     contribution.add_argument("--speaker", required=True, help="Declared participant attribution")
@@ -99,7 +104,7 @@ def main(argv=None):
     for command in (contribution, retry):
         command.add_argument("--json", action="store_true", help="Include structured state and diagnostic trace")
         command.add_argument("--format", choices=["text", "markdown"], default="text")
-        command.add_argument("--provider", choices=["lm-studio", "anthropic"], help="Consultant provider; otherwise REASON_COMMONS_PROVIDER or lm-studio")
+        command.add_argument("--provider", choices=list(PROVIDERS), help="Consultant provider; otherwise REASON_COMMONS_PROVIDER or lm-studio")
         command.add_argument("--model", help="Selected provider's model ID; otherwise use environment/default")
         command.add_argument("--base-url", help="Selected provider's URL; otherwise use environment/default")
         command.add_argument("--runner", choices=["agent", "procedure"], default="procedure",
@@ -109,7 +114,7 @@ def main(argv=None):
     receipts.add_argument("request_id")
     mcp = commands.add_parser("mcp", help="Serve case capabilities to a local MCP client over standard input/output")
     mcp.add_argument("--case-root", required=True, help="Existing directory containing editable case folders")
-    mcp.add_argument("--provider", choices=["lm-studio", "anthropic"], help="Consultant provider; otherwise REASON_COMMONS_PROVIDER or lm-studio")
+    mcp.add_argument("--provider", choices=list(PROVIDERS), help="Consultant provider; otherwise REASON_COMMONS_PROVIDER or lm-studio")
     mcp.add_argument("--model", help="Selected provider's model ID")
     mcp.add_argument("--base-url", help="Selected provider's URL")
     args = parser.parse_args(argv)
@@ -170,6 +175,11 @@ def main(argv=None):
         elif args.command == "storage-help":
             from reason_commons.application.service import STORAGE_HELP
             print(STORAGE_HELP)
+        elif args.command == "providers":
+            from reason_commons.adapters.rendering import render_provider_settings
+            settings = provider_settings(provider=args.provider, model=args.model, base_url=args.base_url)
+            print(json.dumps(settings, ensure_ascii=False, indent=2) if args.json else render_provider_settings(settings), end="\n" if args.json else "")
+            return 0 if settings["ready"] else 1
         elif args.command == "receipts":
             with open_case(args.store, writable=False) as app:
                 print(json.dumps(app.receipts(args.request_id), ensure_ascii=False, indent=2))
