@@ -30,6 +30,11 @@ PATH_PATTERN = re.compile(r"(?:manifest\.yaml|cursor\.yaml|allocations\.yaml|rev
                           r"sources/s[0-9a-f]{32}\.yaml)")
 
 
+# The C parser reads the same safe YAML much faster; writing (and so every hash)
+# keeps the pure-Python dumper, so stored bytes do not change.
+SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
 def encoded(value: dict) -> bytes:
     try:
         return yaml.safe_dump(value, sort_keys=True, allow_unicode=True).encode("utf-8")
@@ -49,7 +54,7 @@ def read_yaml(path: Path) -> dict:
     try:
         if path.is_symlink() or path.stat().st_size > MAX_FILE:
             raise StoreError("Unsupported storage file")
-        value = yaml.safe_load(path.read_bytes())
+        value = yaml.load(path.read_bytes(), Loader=SAFE_LOADER)
         if not isinstance(value, dict):
             raise StoreError("Storage record is not an object")
         return value

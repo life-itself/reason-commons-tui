@@ -97,8 +97,8 @@ More on how to read each tree: [the six trees, explained](docs/the-trees.md).
 
 ### How to see them
 
-1. Run `reason-commons` and open a goal. To explore first, choose **Look around a
-   finished example first**: it carries the Second Renaissance analysis above.
+1. Run `reason-commons` and open a goal. To explore first, choose **Explore a real
+   commons**: it carries the Second Renaissance analysis above, and how it grew.
 2. Press **Ctrl+T**. The Trees view opens; the line at the top lists the six trees
    and how many statements each holds.
 3. Press **Ctrl+N** to step to the next tree. After the sixth it shows all six
@@ -184,9 +184,9 @@ That is all; there is no Python setup to manage. To update later, run
 
 The first time, `reason-commons` offers to start your first goal straight away
 with the offline guide. You can instead choose who asks the questions first, take
-the guided tour or look around a finished example.
+the guided tour or explore a real commons.
 
-![The first screen offers four ways to start: start my first goal with the offline guide, choose who asks the questions first, take the guided tour, or look around a finished example](docs/images/first-start.png)
+![The first screen offers four ways to start: start my first goal with the offline guide, choose who asks the questions first, take the guided tour, or explore a real commons](docs/images/first-start.png)
 
 Choosing who asks takes about a minute: your name, then the offline guide, Claude
 or a local model in LM Studio. For Claude you paste an API key; it
@@ -194,13 +194,19 @@ is checked and you choose from the models your key can use. Change any of it lat
 under **Settings** on the home screen. The guided tour walks one whole loop on a
 practice goal, with example answers one button away; nothing from it is kept.
 
-After that, `reason-commons` opens a list of your goals. Start a new one, or look
-around the finished open-evening example: it carries the group's whole analysis,
-so Ctrl+T shows all six trees. A new goal opens with one question; you answer in
+**Explore a real commons** opens the Second Renaissance's shared reasoning
+read-only, on the one action it says comes next. Step back with ← through every
+saved step of how it grew since June 2026: who said what, when, in their own words,
+and what changed in the trees. Ctrl+T shows all six trees.
+
+![The real commons opens on its next action, with a strip for stepping back through how it got here](docs/images/story-now.png)
+
+After that, `reason-commons` opens a list of your goals. Start a new one, or come
+back to the real commons or the tour. A new goal opens with one question; you answer in
 ordinary words, Enter adds a line and Ctrl+S sends. **Explain this** shows why the
 question matters and how one loop works.
 
-![The home screen lists goals with their current step, plus Start a new goal, a finished example and the guided tour](docs/images/home.png)
+![The home screen lists goals with their current step, plus Start a new goal, the real commons and the guided tour](docs/images/home.png)
 
 Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
 `reason-commons` takes you back to where you were.

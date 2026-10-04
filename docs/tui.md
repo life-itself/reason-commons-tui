@@ -28,6 +28,7 @@ the forecast and the result stack one above the other:
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the answer box to browse; your text stays |
 | Ctrl+T | Open the trees; press again to go back to the current question |
+| ← / → | Step back or forward through saved steps, when the answer box is not in use |
 | Ctrl+N | In the Trees view: the next tree, one at a time, then all six together |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations, or ask the consultant for advice or a different question |
@@ -42,7 +43,7 @@ On the goals list: arrows choose, Enter opens, F1 shows help, Ctrl+Q quits.
 
 The first time, `reason-commons` offers four ways to start: start a first goal
 straight away (the offline guide, with your login name), choose who asks the
-questions first, take the guided tour, or look around a finished example. Choosing
+questions first, take the guided tour, or explore a real commons. Choosing
 first asks for your name (recorded with your answers), the consultant and, for
 Claude or LM Studio, checks the connection and lets you choose a model. Esc goes
 back a step; leaving setup changes nothing. **Settings** on the home screen runs
@@ -66,10 +67,27 @@ Browsing views never calls the consultant.
 | Actions | Planned actions |
 | Reasoning | All saved records, and what is still open |
 | Your words | Your answers, exactly as written |
-| History | Every saved revision with its time |
+| History | Every saved step, oldest first: when, who, and what changed; Enter opens that moment |
 
 With the built-in guide, an empty answer skips an optional question (measure,
 safeguards, review date, stop condition).
+
+## Looking back
+
+Every goal keeps each saved step. **History** lists them oldest first, with the
+date, who answered and what changed (statements added, reworded or withdrawn,
+links, tests). Enter opens that moment: the goal exactly as it was, with the words
+that produced it, what changed, and the trees with that step's new statements
+marked NEW. **← / →** (or **◀ Earlier**, **Later ▶**) step through; **Back to now**
+returns. Nothing can be changed while looking back, and your unsent draft waits.
+
+A **Next action** line under the goal shows the open action (planned, its test not
+yet observed) and its owner.
+
+**Explore a real commons** on the home screen opens the Second Renaissance's shared
+reasoning this way, read-only: its quoted words are real and dated, the tree
+changes are an editor's reading of each step, and approximate dates are marked ≈.
+**Start my own goal** and **Back to start** leave it; nothing there is kept.
 
 ## The trees
 
@@ -93,7 +111,7 @@ is kept as a note.
 
 | Command | What it does |
 | --- | --- |
-| `reason-commons` | The first time, the ways to start; then your goals: open one, start one, the tour, the finished example or Settings |
+| `reason-commons` | The first time, the ways to start; then your goals: open one, start one, the tour, the real commons or Settings |
 | `reason-commons tui FOLDER` | Open a goal in that folder, creating it if needed |
 | `reason-commons resume FOLDER` | Open an existing goal; never creates one |
 | `reason-commons export FOLDER FILE` | Write a portable `.reasoncase` copy |

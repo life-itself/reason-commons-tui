@@ -66,8 +66,10 @@ def _number(ref):
     return int(ref[1:].split("@")[0])
 
 
-def tree_lines(tree, width=80):
-    """One tree as lines of (text, style) segments; an empty style is plain text."""
+def tree_lines(tree, width=80, fresh=()):
+    """One tree as lines of (text, style) segments; an empty style is plain text.
+
+    Claims whose references are in ``fresh`` are marked NEW (the ones a past revision added)."""
     name, question = TREE_TITLES[tree["tree"]]
     lines = [[(name, "bold"), ("  " + question, "italic")], []]
     claims = {c["ref"]: c for c in tree["claims"]}
@@ -117,6 +119,8 @@ def tree_lines(tree, width=80):
         header.append((ROLE_LABELS[claim["role"]], "dim " + ROLE_STYLES.get(claim["role"], "")))
         if claim.get("basis"):
             header.append(("  " + BASIS[claim["basis"]], "dim"))
+        if ref in fresh:
+            header.append(("  NEW", "bold reverse"))
         lines.append(header)
         for line in wrap(claim["statement"], rest):
             lines.append([(rest, "dim"), (line, "")])
@@ -147,7 +151,7 @@ def tree_lines(tree, width=80):
     return lines
 
 
-def trees_lines(trees, width=80, only=None):
+def trees_lines(trees, width=80, only=None, fresh=()):
     """All trees (or one), separated by a blank line."""
     lines = []
     for tree in trees:
@@ -155,7 +159,7 @@ def trees_lines(trees, width=80, only=None):
             continue
         if lines:
             lines += [[], []]
-        lines += tree_lines(tree, width)
+        lines += tree_lines(tree, width, fresh)
     return lines
 
 

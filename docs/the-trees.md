@@ -125,8 +125,9 @@ Each step pairs a concrete **action** with **what you expect to see** when it
 works, and the objective it serves. Read it left to right.
 
 In the example, the first action is one time-boxed, stewarded review of the goal,
-the symptoms and the likely constraint. The third, a clear next step from an open
-evening to a first practice, is the finished example in the app.
+the symptoms and the likely constraint. It is still the next action in the app's
+**Explore a real commons**; the third, a clear next step from an open evening to a
+first practice, is the test the [tutorial](tutorial.md) runs.
 
 ![Transition Tree for the Second Renaissance](images/trees/transition-tree.svg)
 
@@ -136,8 +137,9 @@ evening to a first practice, is the finished example in the app.
 
 The pictures above are drawn for this page. In the app, the **Trees** view draws
 the same six trees as indented outlines, from what you and the consultant record as
-you talk, or from an `.ltp.yaml` file you bring in. The finished example on the
-home screen carries this whole analysis, so it is the easiest place to start.
+you talk, or from an `.ltp.yaml` file you bring in. The real commons on the
+home screen (**Explore a real commons**) carries this whole analysis and how it grew,
+so it is the easiest place to start.
 
 **Why open them while you work.** The trees keep the whole in view while you answer
 one small question. Each branch shows the assumption it rests on, which is exactly

@@ -1,0 +1,1105 @@
+# The Second Renaissance commons: how its shared reasoning came to be, step by step.
+#
+# Each chapter becomes one saved revision of a goal, in order, on its real date,
+# attributed to the person who said it. `words` is what that person actually
+# wrote (quoted from the source named beside it); `summary` is the editor's
+# one-paragraph narration; the tree changes are the editor's reading of what the
+# words changed, inferred where the sources only record the outcome. Quotes keep
+# the writers' own spelling, and omissions are marked with …. Where the words are a
+# document's text rather than something the speaker wrote, `words_note` says so.
+#
+# Sources: the public forum threads "2R Goal Tree: what is expected" (/t/746) and
+# "2R Prerequisite Tree: How to Cause the Change?" (/t/750) on forum.secondrenaissance.net,
+# David Joseph's account of June-July 2026, written as background for an AI assistant
+# (docs/prompts/LTP_BACKGROUND_PROMPT.md in the reasoncommons repository; it quotes
+# forum and Discord messages),
+# and the reasoncommons repository's files and Git history up to 28 September 2026.
+#
+# DRAFT FOR CONSENT. The people named here (David Joseph, Rufus Pollock, Robert Bunge,
+# curious_reader, and Margaret, who is mentioned) have not yet agreed to be quoted in
+# the product. The Discord messages and the account are not public. Do not publish
+# until they have agreed.
+
+name: "Second Renaissance: a theory of change people can argue with"
+as_of: "28 September 2026"
+reader: "You (reading)"
+intro: >-
+  This is the Second Renaissance's shared reasoning: a movement's strategy written as
+  trees, then argued with, reorganised and partly rebuilt by the people working on it.
+  Step back through how it got here, or look at the one action it says comes next.
+fidelity: >-
+  Quoted words are real and dated from their sources. Tree changes are an editor's
+  reading of what each step changed. Dates marked ≈ are approximate.
+
+chapters:
+- date: '2026-06-05T16:56:00+00:00'
+  speaker: David Joseph
+  title: The strategy becomes a goal tree
+  summary: David opens a forum series that translates the movement's white papers into the Logical Thinking Process.
+    The goal comes first, with eight conditions that must all hold for a Second Renaissance to be more than an idea.
+  source: 'Forum, 2R Goal Tree: what is expected, post 1 (5 June)'
+  where: https://forum.secondrenaissance.net/t/2r-goal-tree-what-is-expected/746
+  words: |-
+    This will be the first in a series of posts concerning the Logical Thinking Process and how it can help us organize our research efforts towards a goal:
+
+    Co-initiate a Second Renaissance: a conscious transformation of foundational views, values, practices, and institutions toward a wiser, weller, regenerative civilization.
+
+    …
+
+    As I see it, we can assume we have a common goal, whether or not it has been explicated well.
+    Then we can asssume there is some form of throughput - measurable progress towards this goal. Evidence that somehow, what we are doing will result in what we desire.
+  goal:
+    statement: 'Co-initiate a Second Renaissance: a conscious transformation of foundational views, values, practices,
+      and institutions toward a wiser, weller, regenerative civilization.'
+  add:
+  - id: g
+    tree: goal
+    role: goal
+    statement: 'Co-initiate a Second Renaissance: a conscious transformation of foundational views, values, practices,
+      and institutions toward a wiser, weller, regenerative civilization'
+  - id: csf-diagnosis
+    tree: goal
+    role: critical_success_factor
+    statement: People share a diagnosis of the civilizational crisis as one crisis
+  - id: csf-vision
+    tree: goal
+    role: critical_success_factor
+    statement: A compelling vision of the next paradigm offers an attractive pull
+  - id: csf-practice
+    tree: goal
+    role: critical_success_factor
+    statement: The vision is embodied in practices and inner development
+  - id: csf-pockets
+    tree: goal
+    role: critical_success_factor
+    statement: Pockets of coherent new culture make the new way of living livable
+  - id: csf-sangha
+    tree: goal
+    role: critical_success_factor
+    statement: A wider sangha, a community of practice, nourishes the pockets
+  - id: csf-movement
+    tree: goal
+    role: critical_success_factor
+    statement: Pockets and sanghas connect into a coherent movement that transmits the culture
+  - id: csf-institutions
+    tree: goal
+    role: critical_success_factor
+    statement: The movement shapes new institutions and a regenerative social architecture
+  - id: csf-transition
+    tree: goal
+    role: critical_success_factor
+    statement: The transition through collapse and renewal is navigated wisely
+  links:
+  - from: csf-diagnosis
+    to: g
+    relation: necessary_for
+  - from: csf-vision
+    to: g
+    relation: necessary_for
+  - from: csf-practice
+    to: g
+    relation: necessary_for
+  - from: csf-pockets
+    to: g
+    relation: necessary_for
+  - from: csf-sangha
+    to: g
+    relation: necessary_for
+  - from: csf-movement
+    to: g
+    relation: necessary_for
+  - from: csf-institutions
+    to: g
+    relation: necessary_for
+  - from: csf-transition
+    to: g
+    relation: necessary_for
+  question: Which of the eight conditions is wrong, missing or not really necessary?
+- date: '2026-06-05T17:05:00+00:00'
+  speaker: David Joseph
+  title: Four more trees, and a first idea of throughput
+  summary: 'The prerequisite tree follows in its own thread minutes later, with the other trees in theirs: why the
+    movement is not there yet, the conflict that keeps it stuck, and the changes that could work. Its key dependency
+    chain starts with one step: define throughput.'
+  source: 'Forum, 2R Prerequisite Tree: How to Cause the Change?, post 1 (5 June); the June trees in docs/ltp_trees'
+  where: https://forum.secondrenaissance.net/t/2r-prerequisite-tree-how-to-cause-the-change/750
+  words_note: After the first paragraph, the words are the prerequisite tree document's own text, which reads as
+    drafted with an AI assistant.
+  words: |-
+    Just to keep on the same page, let's agree that everything in the document is provisional and up for discussion/debate. If you would like to see specific changes, please comment in the document itself. If you would like to discuss details, please comment in this thread.
+
+    …
+
+    Below is a Prerequisite Tree for implementing the Future Reality Tree.
+
+    In LTP terms, the Prerequisite Tree answers: What obstacles stand between us and the injection, and what intermediate objectives must be achieved to overcome them?
+  goal:
+    statement: 'Co-initiate a Second Renaissance: a conscious transformation of foundational views, values, practices,
+      and institutions toward a wiser, weller, regenerative civilization.'
+    measure: 'Throughput (June current reality tree): the rate at which the group produces durable adoption of wiser
+      views, values, practices, and social forms by people, groups, and institutions'
+  add:
+  - id: ude-resonate
+    tree: current_reality
+    role: undesirable_effect
+    statement: Many people resonate with the ideas, but few enter sustained practice
+  - id: ude-busy
+    tree: current_reality
+    role: undesirable_effect
+    statement: The group is busy, but throughput remains low
+  - id: ude-burnout
+    tree: current_reality
+    role: undesirable_effect
+    statement: Core organizers carry too much of the work and begin to burn out
+  - id: ude-next-step
+    tree: current_reality
+    role: undesirable_effect
+    statement: New participants do not know the next step after initial contact
+  - id: ude-pockets
+    tree: current_reality
+    role: undesirable_effect
+    statement: The group has difficulty forming stable pockets
+  - id: ude-replication
+    tree: current_reality
+    role: undesirable_effect
+    statement: 'Replication is weak: others admire the work but do not reproduce it'
+  - id: crc-throughput
+    tree: current_reality
+    role: root_cause
+    statement: The group lacks a clear operational definition of throughput
+  - id: crc-pathway
+    tree: current_reality
+    role: critical_root_cause
+    statement: There is no explicit pathway from interest to practice to contribution to replication
+  - id: crc-rhythm
+    tree: current_reality
+    role: root_cause
+    statement: The group lacks a disciplined learning and constraint-management rhythm
+  - id: cloud-objective
+    tree: conflict
+    role: cloud_objective
+    statement: Increase durable cultural transformation
+  - id: cloud-visible
+    tree: conflict
+    role: cloud_requirement
+    statement: Become visible enough to attract people, resources, energy and legitimacy
+  - id: cloud-embodied
+    tree: conflict
+    role: cloud_requirement
+    statement: Become embodied enough to represent the new paradigm with integrity
+  - id: cloud-movement
+    tree: conflict
+    role: cloud_prerequisite
+    statement: 'Act like a movement now: scale, speed, message, accessibility'
+  - id: cloud-monastery
+    tree: conflict
+    role: cloud_prerequisite
+    statement: 'Act like a monastery or laboratory now: depth, slowness, practice, rigor'
+  - id: inj-pockets
+    tree: future_reality
+    role: injection
+    statement: Build broad reach around deep, protected, practice-based pockets
+  - id: inj-throughput
+    tree: future_reality
+    role: injection
+    statement: Define throughput as verified durable adoption
+  - id: inj-pathway
+    tree: future_reality
+    role: injection
+    statement: Create a staged, consent-based pathway from interest to practice
+  - id: de-adoption
+    tree: future_reality
+    role: desired_effect
+    statement: Verified durable adoption increases
+  - id: prt-objective
+    tree: prerequisite
+    role: implementation_objective
+    statement: A functioning Second Renaissance operating system converts resonance into sustained practice, contribution,
+      pocket formation and replication
+  - id: obs-throughput
+    tree: prerequisite
+    role: obstacle
+    statement: The group does not yet have a shared definition of throughput, so people confuse activity with transformation
+  - id: io-throughput
+    tree: prerequisite
+    role: intermediate_objective
+    statement: Throughput is operationally defined and accepted
+  - id: io-entry
+    tree: prerequisite
+    role: intermediate_objective
+    statement: A consent-based entry pathway exists
+  - id: io-practice
+    tree: prerequisite
+    role: intermediate_objective
+    statement: Recurring practice is offered
+  links:
+  - from: crc-pathway
+    to: ude-next-step
+    relation: causes
+  - from: ude-next-step
+    to: ude-resonate
+    relation: contributes_to
+  - from: ude-resonate
+    to: ude-burnout
+    relation: contributes_to
+  - from: ude-resonate
+    to: ude-pockets
+    relation: contributes_to
+  - from: ude-pockets
+    to: ude-replication
+    relation: contributes_to
+  - from: ude-replication
+    to: ude-busy
+    relation: contributes_to
+  - from: crc-throughput
+    to: ude-busy
+    relation: causes
+  - from: crc-rhythm
+    to: ude-busy
+    relation: causes
+  - from: cloud-visible
+    to: cloud-objective
+    relation: necessary_for
+  - from: cloud-embodied
+    to: cloud-objective
+    relation: necessary_for
+  - from: cloud-visible
+    to: cloud-movement
+    relation: requires
+  - from: cloud-embodied
+    to: cloud-monastery
+    relation: requires
+  - from: cloud-movement
+    to: cloud-monastery
+    relation: conflicts_with
+    assumption: Both modes draw on the same scarce capacity and cannot be staged or combined
+  - from: inj-pockets
+    to: de-adoption
+    relation: contributes_to
+  - from: inj-throughput
+    to: de-adoption
+    relation: contributes_to
+  - from: inj-pathway
+    to: de-adoption
+    relation: contributes_to
+  - from: io-throughput
+    to: obs-throughput
+    relation: overcomes
+  - from: io-throughput
+    to: io-entry
+    relation: precedes
+  - from: io-entry
+    to: io-practice
+    relation: precedes
+  - from: io-practice
+    to: prt-objective
+    relation: enables
+  question: 'Where should the work start? The prerequisite tree says: define throughput.'
+- date: '2026-06-06T00:07:00+00:00'
+  speaker: Robert Bunge
+  title: 'Robert: we''re a school'
+  summary: 'Robert likes the idea of a 2R operating system and the funnel, and expects "define throughput" to tie
+    people in knots. He offers his own reading: the movement is a school, its throughput ideas becoming workable
+    and newcomers becoming practitioners, and the rest of the chain is educational administration, where he has
+    credentials and years of experience.'
+  source: 'Forum, 2R Prerequisite Tree: How to Cause the Change?, post 3 (6 June)'
+  where: https://forum.secondrenaissance.net/t/2r-prerequisite-tree-how-to-cause-the-change/750
+  words: |-
+    On the "Objective" section above, I like idea of a 2R operating system. That has both literal and metaphorical resonance for me!
+
+    …
+
+    Moving to the "key dependency chain" section, the very first point - "define throughput" is likely going to have a lot of people all tied up in knots! We're not exactly Adam Smith's pin factory, after all! My take is, we're basically in the education business, with a special focus on R&D and training for cultural transformation. The "throughput" is raw information to workable ideas, along with a parallel throughput of people unfamiliar with any of it to advanced theorists and practitioners of all of it. We're a school. Without the stupid stuff like grades and tuition. If you buy what I selling about 2R being a "school", then the rest of the key dependency chain is literally educational administration, a vertical in which I have both formal credentials and years of experience. Again, there is no wheel to reinvent here. Just wheels to put our collective shoulders to!
+  add:
+  - id: robert-school
+    tree: prerequisite
+    role: observation
+    basis: participant_report
+    statement: 'Throughput for a movement that is a school: raw information becoming workable ideas, and newcomers
+      becoming advanced theorists and practitioners'
+  - id: robert-administration
+    tree: prerequisite
+    role: observation
+    basis: participant_report
+    statement: The rest of the key dependency chain is educational administration, with no wheel to reinvent
+  links:
+  - from: robert-school
+    to: io-throughput
+    relation: refines
+  - from: robert-administration
+    to: io-entry
+    relation: supports
+  question: How should throughput be defined?
+- date: '2026-06-06T01:03:00+00:00'
+  speaker: Robert Bunge
+  title: 'Robert: align with the pull, don''t create it'
+  summary: 'On the goal tree, Robert takes up the second condition, the "pull factor". He does not think it is 2R''s
+    job to create the pull, but to align with a pull he sees as cosmically established: for him the needed pull
+    is spiritual alignment, not a marketing strategy. CSF 7, the professional and technical wing, is where his own
+    motor runs; CSF 8 is its context.'
+  source: 'Forum, 2R Goal Tree: what is expected, post 3 (6 June)'
+  where: https://forum.secondrenaissance.net/t/2r-goal-tree-what-is-expected/746
+  words: |-
+    … Now I shall wax metaphysical! I don't think it's the job of 2R to create the "pull". It's the job of 2R to align with the "pull" that was cosmically established in ancient days and draws the universe itself forward towards its mysterious denouement. … So to me, the needed 2R "pull" is not a marketing strategy. It's more like spiritual alignment.
+
+    …
+
+    CSF 7 is where my personal motor really starts running! This is basically the professional/technical wing of 2R, or its integrated theory/practice program. Anyone want to go there right this minute? Let's go there!
+
+    CSF 8 is the geopolitical and species-level context for CSF 7.
+  add:
+  - id: robert-pull
+    tree: goal
+    role: observation
+    basis: participant_report
+    statement: 'It is not 2R''s job to create the pull but to align with it: the needed pull is spiritual alignment,
+      not a marketing strategy'
+  - id: robert-csf7
+    tree: goal
+    role: observation
+    basis: participant_report
+    statement: New institutions are the professional and technical wing of 2R, its integrated theory and practice
+      programme, set in a geopolitical and species-level context
+  links:
+  - from: robert-pull
+    to: csf-vision
+    relation: challenges
+  - from: robert-csf7
+    to: csf-institutions
+    relation: supports
+  question: Should the second condition be reworded, or does it stand?
+- date: '2026-06-06T09:12:00+00:00'
+  speaker: David Joseph
+  title: Real needs before beautiful solutions
+  summary: 'David agrees with Robert: ideas succeed when they meet real needs, not because they are beautiful. The
+    objection now sits on the condition it is about, with support.'
+  source: 'Forum, 2R Goal Tree: what is expected, post 4 (6 June)'
+  where: https://forum.secondrenaissance.net/t/2r-goal-tree-what-is-expected/746
+  words: 'Very much agreed, and this is one of those points that is often overlooked by theoreticians and would-be
+    entrepreneurs everywhere. … The real test is: does your idea align with pull forces? What pulls it into existence?
+    … The pull view is simply more correct, and we ought to first care about aligning ourselves with real needs–not
+    advocating for beautiful solutions that need to convince.'
+  add:
+  - id: david-needs
+    tree: goal
+    role: observation
+    basis: participant_report
+    statement: Aligning with real needs comes before advocating beautiful solutions
+  links:
+  - from: david-needs
+    to: robert-pull
+    relation: supports
+  question: The objection is agreed. What would the condition say instead?
+- date: '2026-06-08T20:42:00+00:00'
+  speaker: David Joseph
+  title: First, decide how the trees get updated
+  summary: 'The turning point. David agrees the tension is real, but acting on the chain would quietly treat the
+    trees as valid, and nobody can test or change them: Rufus offered revisions and Margaret questioned points,
+    so who decides? He puts two steps in front of throughput: decide how the trees get updated, then validate them
+    enough for provisional use.'
+  source: 'Forum, 2R Prerequisite Tree: How to Cause the Change?, post 4 (8 June)'
+  where: https://forum.secondrenaissance.net/t/2r-prerequisite-tree-how-to-cause-the-change/750
+  words: |-
+    I agree, and I see this as a good thing. … And yet, ruminating on this very point has led me to reconsider whether this dependency chain is well-conceived.
+
+    If we were to start defining throughput and jumping into this set of tasks, we'd be implicitly affirming this tree's validity, and all of those that led up to it. However, we don't really have a way of testing the trees' validity and updating them if we find flaws in them.
+
+    This was apparent from the very first meeting; @rufuspollock offered some revision suggestions, and Margaret also questioned some points. Now what? Since I'm the trees' creator, should I get to decide whether or not to make those changes? Should Rufus decide? If these trees organize our R&D in the future they will be very consequential, so one or two points of failure wouldn't be in line with what we profess to believe in.
+
+    This got be to thinking: perhaps the very first point in the dependency chain should be, decide on how these trees get updated.
+
+    So I made some changes to the Prerequisite Tree (redundantly I might add that I don't anticipate making any more updates unilaterally!)
+
+    Decide how the trees get updated
+    ↓
+    Validate and revise the trees enough for provisional use
+    ↓
+    Define throughput
+    ↓
+  add:
+  - id: io-decide
+    tree: prerequisite
+    role: intermediate_objective
+    statement: Decide how the trees get updated
+  - id: io-validate
+    tree: prerequisite
+    role: intermediate_objective
+    statement: Validate and revise the trees enough for provisional use
+  - id: crc-governance
+    tree: current_reality
+    role: root_cause
+    statement: The group lacks a governance process for validating and updating its strategic maps
+  - id: ic-authority
+    tree: current_reality
+    role: intermediate_cause
+    statement: Revision suggestions depend on informal authority, persistence or the original author's judgment
+  - id: ic-trust
+    tree: current_reality
+    role: intermediate_cause
+    statement: Participants may not trust the trees as shared artifacts
+  - id: ic-premature
+    tree: current_reality
+    role: intermediate_cause
+    statement: A throughput definition becomes premature or contested
+  links:
+  - from: io-decide
+    to: io-validate
+    relation: precedes
+  - from: io-validate
+    to: io-throughput
+    relation: precedes
+  - from: crc-governance
+    to: ic-authority
+    relation: causes
+  - from: ic-authority
+    to: ic-trust
+    relation: contributes_to
+  - from: ic-trust
+    to: ic-premature
+    relation: contributes_to
+  - from: ic-premature
+    to: crc-throughput
+    relation: contributes_to
+  question: How should the trees get updated, and by whom?
+- date: '2026-06-08T20:57:00+00:00'
+  speaker: David Joseph
+  title: Living, revisable commons
+  summary: 'Fifteen minutes later David updates the goal tree to match: under movement coherence, a new condition
+    that shared strategic artifacts are governed as living, revisable commons.'
+  source: 'Forum, 2R Goal Tree: what is expected, post 6 (8 June)'
+  where: https://forum.secondrenaissance.net/t/2r-goal-tree-what-is-expected/746
+  words: |-
+    As explained in this post, I'm making an update to the Goal Tree:
+
+    …
+
+    6.7. Shared strategic artifacts are governed as living, revisable commons, with clear processes for challenge, update, stewardship, and provisional adoption.
+  add:
+  - id: nc-commons
+    tree: goal
+    role: necessary_condition
+    statement: Shared strategic artifacts are governed as living, revisable commons, with clear processes for challenge,
+      update, stewardship and provisional adoption
+  links:
+  - from: nc-commons
+    to: csf-movement
+    relation: necessary_for
+  question: What would those processes for challenge and update be?
+- date: '2026-06-08T21:00:00+00:00'
+  speaker: Robert Bunge
+  title: An agenda for 19 June
+  summary: 'Robert''s reply to who decides on changes is short: put it on the agenda for the next session.'
+  source: 'Forum, 2R Prerequisite Tree: How to Cause the Change?, post 5 (8 June)'
+  where: https://forum.secondrenaissance.net/t/2r-prerequisite-tree-how-to-cause-the-change/750
+  words: Sounds like a good agenda for the June 19 session!
+  add:
+  - id: robert-agenda
+    tree: prerequisite
+    role: observation
+    basis: participant_report
+    statement: Deciding how the trees get updated is a good agenda for the 19 June session
+  links:
+  - from: robert-agenda
+    to: io-decide
+    relation: supports
+  question: How should the trees get updated, and by whom?
+- date: '2026-06-08T21:10:00+00:00'
+  speaker: David Joseph
+  title: Conversation or structure?
+  summary: 'David posts a conflict diagram, an image made with ChatGPT whose text is not in the record. As he later
+    described it: people who dislike the trees value spontaneous conversation, intuition and freedom from constraint;
+    people who like them value focus and alignment. The bridge: people talk as they always have, and their points
+    are placed in the trees so conversations add up. (The problem statement is known from Robert''s reply, which
+    quotes it.)'
+  source: 'Forum, 2R Prerequisite Tree thread, post 6 (8 June: the diagram, as an image); the words are from David
+    Joseph''s account of June and July 2026, written as background for an AI assistant (reasoncommons repository,
+    docs/prompts/LTP_BACKGROUND_PROMPT.md)'
+  where: https://forum.secondrenaissance.net/t/2r-prerequisite-tree-how-to-cause-the-change/750
+  words_note: Words from David's later account of the diagram he posted; the diagram itself is an image.
+  words: 'This led me to consider how the trees themselves were to be updated, as this was a prerequisite to the
+    throughput question. The attached conflict resolution diagram illustrates the key tension: people who don''t
+    like working with the trees enjoy spontaneous conversation, they value intuition, and they''re suspicious of
+    constraints. People who do like them value the focus and clarity they bring and their ability to align efforts.
+    The resolution I began creating was a bridge that would allow people to carry on as they always had, having
+    deep conversations about the metacrisis with uninterrupted flow, but at the same time have their topics/points
+    contextualized in the logical trees and enable conversations to be truly additive and not just go around in
+    circles.'
+  add:
+  - id: talk-objective
+    tree: conflict
+    role: cloud_objective
+    statement: Conversations about the metacrisis are truly additive
+  - id: talk-flow
+    tree: conflict
+    role: cloud_requirement
+    statement: Keep the spontaneous, intuitive flow of deep conversation
+  - id: talk-focus
+    tree: conflict
+    role: cloud_requirement
+    statement: Keep the focus, clarity and alignment the trees bring
+  - id: talk-free
+    tree: conflict
+    role: cloud_prerequisite
+    statement: Leave contribution unstructured
+  - id: talk-structure
+    tree: conflict
+    role: cloud_prerequisite
+    statement: Work through the trees directly
+  - id: talk-bridge
+    tree: conflict
+    role: injection
+    statement: 'A bridge: people carry on talking as they always have, and their points are placed in the trees'
+  - id: ude-lost
+    tree: current_reality
+    role: undesirable_effect
+    statement: Groups make real intellectual progress in conversation, but that progress is usually lost
+  links:
+  - from: talk-flow
+    to: talk-objective
+    relation: necessary_for
+  - from: talk-focus
+    to: talk-objective
+    relation: necessary_for
+  - from: talk-flow
+    to: talk-free
+    relation: requires
+  - from: talk-focus
+    to: talk-structure
+    relation: requires
+  - from: talk-free
+    to: talk-structure
+    relation: conflicts_with
+    assumption: Structure has to be added by whoever is talking, at the moment they talk
+  - from: talk-bridge
+    to: talk-structure
+    relation: invalidates_assumption
+  question: Who, or what, places a conversation's points in the trees?
+- date: '2026-06-09T02:47:00+00:00'
+  speaker: Robert Bunge
+  title: 'Robert: the progress lives in the people'
+  summary: Robert questions the diagram's problem statement. The learning persists in the participants, as it did
+    for his students twenty years on, even when nothing is written down. Groups that persist are welcome, "so much
+    the better", but less formal encounters count too.
+  source: 'Forum, 2R Prerequisite Tree: How to Cause the Change?, post 7 (9 June)'
+  where: https://forum.secondrenaissance.net/t/2r-prerequisite-tree-how-to-cause-the-change/750
+  words: |-
+    From the problem statement, "Groups make real intellectual progress in conversation, but that progress is usually lost", I have a rather different take.
+
+    The missing link here is the relationship between group conversation and personal development. To me, the educational value gleaned from the group conversational encounter persists in the participants, even if everyone goes separate ways after the session and the group as such creates no artifacts. Most of the college classes I ever taught where like that. Yet, following my students from as far back as 20 years ago, many have grown into very responsible positions, and they give their work in school with me back in the day some credit for that.
+
+    If we can form groups that persist for extended duration, so much the better! But there can also be things to be gained from less formal encounters.
+  add:
+  - id: robert-persists
+    tree: current_reality
+    role: observation
+    basis: participant_report
+    statement: What participants learn in group conversation persists in them, even when the group keeps no artifacts
+  links:
+  - from: robert-persists
+    to: ude-lost
+    relation: challenges
+  question: Progress on what, exactly?
+- date: '2026-06-09T03:26:00+00:00'
+  speaker: David Joseph
+  title: Progress on what?
+  summary: 'David''s answer: individuals do grow, but the conversation itself does not. A group adopts a new charter,
+    nothing changes, and months later the same discussion starts again. What is lost is the coherence of the group''s
+    shared vision. The symptom is restated.'
+  source: 'Forum, 2R Prerequisite Tree: How to Cause the Change?, post 8 (9 June)'
+  where: https://forum.secondrenaissance.net/t/2r-prerequisite-tree-how-to-cause-the-change/750
+  words: |-
+    I think the key question is, progress on what? Saying that the progress is lost isn't saying that the individuals don't develop, it's saying that the conversation itself often doesn't develop.
+
+    For example, members of a certain discussion group may rightly feel they've "learned something" from having taken part in certain discussions - but often it isn't about the subject itself, it's about the group dynamic, themselves, or something meta to the discussion.
+
+    Suppose a group of researchers has a passionate discussion about a topic that seems important, and minds/stances are changes for several participants. For example, "our group needs to be politically active" is a new group charter that is adopted. But two weeks later, nothing has really changed for a variety of reasons (e.g. inertia, the cost of change, etc). Several months later, the same discussion gets taken up again, because it was important after all and the conditions that gave rise to it haven't changed - and this is what is meant by intellectual progress for a group. It's about the coherence of the group's shared vision, not about the individual members' development.
+  reword:
+  - id: ude-lost
+    new: ude-recurs
+    statement: Individuals learn, but the group's shared vision does not hold what was agreed, so the same discussions
+      start again months later
+  add:
+  - id: david-shared
+    tree: current_reality
+    role: observation
+    basis: participant_report
+    statement: Group progress means the coherence of the shared vision, not the members' own development
+  links:
+  - from: david-shared
+    to: ude-recurs
+    relation: supports
+  - from: ude-recurs
+    to: ic-trust
+    relation: contributes_to
+  question: How could conversation add up instead of going round in circles?
+- date: '2026-06-09T08:14:00+00:00'
+  speaker: Robert Bunge
+  title: 'Robert: feel the spark first'
+  summary: 'Robert answers with his larger sense of progress: groups find their moment or fade, so he places many
+    small bets and joins what is already happening. In David''s example he feels no spark: a group that keeps returning
+    to aspirational ideas with no action attached is not really feeling it.'
+  source: 'Forum, 2R Prerequisite Tree: How to Cause the Change?, post 9 (9 June)'
+  where: https://forum.secondrenaissance.net/t/2r-prerequisite-tree-how-to-cause-the-change/750
+  words: |-
+    … Growing a research group that persists over time is a fine objective. Sometimes it works, sometimes not. Sometimes such groups find their moment. Sometimes they fade and wither. My larger sense of "progress" makes room for all of that. …
+
+    … In your example above, I'm not really feeling the "spark". … But feeling the pull itself is where it all really begins. A group that keeps cycling back to aspirational ideas with no action attached is not really feeling it, IMO.
+  add:
+  - id: robert-spark
+    tree: current_reality
+    role: observation
+    basis: participant_report
+    statement: A group that keeps cycling back to aspirational ideas with no action attached is not really feeling
+      the pull; feeling it is where it all begins
+  links:
+  - from: robert-spark
+    to: ude-recurs
+    relation: refines
+  question: What turns a recurring conversation into action?
+- date: '2026-06-10T12:00:00+00:00'
+  dated: approximate
+  speaker: David Joseph
+  title: A stewarded commons
+  summary: 'David had said he would update the other affected trees in their threads. The repository''s copy of
+    the conflict resolution tree has a first cloud to match: one author keeping the trees coherent, or the wider
+    group revising them and risking endless discussion. Its way out is a bounded governance protocol, and a new
+    rule: "The trees are neither personal property nor open-edit chaos. They are stewarded commons." (When it was
+    posted is not in the record.)'
+  source: The updated conflict resolution tree (docs/ltp_trees/Conflict Resolution_ Second Renaissance.md, CRD 0)
+  where: reasoncommons repository
+  words_note: The document's own text; it reads as drafted with an AI assistant.
+  words: |-
+    CRD 0 — Strategic Coherence vs. Distributed Legitimacy
+
+    Objective: Use the LTP trees to guide effective Second Renaissance R&D.
+
+    …
+
+    Conflict: Centralized stewardship seems efficient but risks illegitimacy and blind spots. Collective revision seems legitimate but risks endless discussion, diffusion, and paralysis.
+
+    Hidden assumption: The group must choose between author-controlled coherence and open-ended collective editing.
+
+    Injection: Create a bounded tree-governance protocol: distributed input, explicit criteria, accountable stewards, transparent decision rules, and time-bounded revision cycles.
+
+    New operating rule: The trees are neither personal property nor open-edit chaos. They are stewarded commons.
+  add:
+  - id: gov-objective
+    tree: conflict
+    role: cloud_objective
+    statement: Use the trees to guide effective Second Renaissance research and development
+  - id: gov-coherence
+    tree: conflict
+    role: cloud_requirement
+    statement: Maintain strategic coherence, clarity and momentum
+  - id: gov-legitimacy
+    tree: conflict
+    role: cloud_requirement
+    statement: Ensure distributed legitimacy, plural intelligence and revisability
+  - id: gov-author
+    tree: conflict
+    role: cloud_prerequisite
+    statement: Let the trees' creator or a small strategy group maintain them decisively
+  - id: gov-collective
+    tree: conflict
+    role: cloud_prerequisite
+    statement: Let the wider group review, challenge and revise the trees collectively
+  - id: gov-protocol
+    tree: conflict
+    role: injection
+    statement: 'A bounded tree-governance protocol: distributed input, explicit criteria, accountable stewards,
+      transparent decision rules and time-bounded revision cycles. The trees are stewarded commons.'
+  - id: inj-stewardship
+    tree: future_reality
+    role: injection
+    statement: Establish a lightweight stewardship and revision protocol for the trees
+  links:
+  - from: gov-coherence
+    to: gov-objective
+    relation: necessary_for
+  - from: gov-legitimacy
+    to: gov-objective
+    relation: necessary_for
+  - from: gov-coherence
+    to: gov-author
+    relation: requires
+  - from: gov-legitimacy
+    to: gov-collective
+    relation: requires
+  - from: gov-author
+    to: gov-collective
+    relation: conflicts_with
+    assumption: The group must choose between author-controlled coherence and open-ended collective editing
+  - from: gov-protocol
+    to: gov-author
+    relation: invalidates_assumption
+  - from: inj-stewardship
+    to: de-adoption
+    relation: enables
+  question: What would a bounded, time-boxed way of revising the trees look like?
+- date: '2026-06-30T09:28:00+02:00'
+  dated: day
+  speaker: David Joseph
+  title: What counts as throughput
+  summary: 'The first definition of throughput is hard to monitor and far from the concerns of people who want to
+    contribute. David proposes another, framed around contributions: throughput is when hidden contribution becomes
+    real, offered, witnessed, and begins to help.'
+  source: Discord message to Rufus Pollock (30 June), quoted in David Joseph's account of June and July 2026, written
+    as background for an AI assistant (reasoncommons repository, docs/prompts/LTP_BACKGROUND_PROMPT.md)
+  where: reasoncommons repository, docs/prompts/LTP_BACKGROUND_PROMPT.md
+  words: '@Rufus I''ve been considering our definition of throughput. Some thoughts: The current definition is:
+    Throughput = the rate at which real transformation is durably adopted by people, groups, or institutions. I
+    think the way this is formulated makes it difficult to monitor and also seems removed from the real lfe concerns
+    of those who would like to contribute to the the 2R movement. Here''s another definitinon we could try. Thoughts?
+    Throughput is when hidden contribution becomes real, offered, witnessed, and begins to help. We could reformulate
+    the goal in terms of contributions made by those who are in the 2R ecosystem, and this definition makes this
+    trac(k|t)able. This makes the goal more salient for the individuals whose actions lead to throughput.'
+  goal:
+    statement: 'Co-initiate a Second Renaissance: a conscious transformation of foundational views, values, practices,
+      and institutions toward a wiser, weller, regenerative civilization.'
+    measure: 'Throughput (proposed 30 June): hidden contribution becomes real, offered, witnessed, and begins to
+      help'
+  add:
+  - id: david-contribution
+    tree: prerequisite
+    role: observation
+    basis: participant_report
+    statement: 'Proposed definition: throughput is when hidden contribution becomes real, offered, witnessed, and
+      begins to help'
+  links:
+  - from: david-contribution
+    to: io-throughput
+    relation: supports
+  question: 'Whose throughput is this: the movement''s, or the research circle''s?'
+- date: '2026-07-02T10:21:00+02:00'
+  dated: day
+  speaker: David Joseph
+  title: The research circle's throughput
+  summary: 'Rufus asks whether they mean the research circle''s throughput. David separates the two: contribution
+    is the movement''s throughput, and the research circle''s is the trees getting better, as when a talk or paper
+    leads to the trees being duly updated after deliberation.'
+  source: Discord message (2 July), quoted in David Joseph's account of June and July 2026, written as background
+    for an AI assistant (reasoncommons repository, docs/prompts/LTP_BACKGROUND_PROMPT.md)
+  where: reasoncommons repository, docs/prompts/LTP_BACKGROUND_PROMPT.md
+  words: 'Good question. Let me make it clear what I''m assuming here so we don''t talk at cross purposes: … If
+    we think of the goal in these terms, what we''re really hoping for is that the 2R LTP trees are improved. For
+    example, suppose there''s something our trees are currently neglecting (e.g. bioregionalism, as some might say).
+    Someone gives a presentation in the 2R research group, or writes a paper, and the outcome is that the trees
+    are duly updated (after some deliberation by a subset of the research circle). That''s throughput for the research
+    group.'
+  add:
+  - id: david-circle
+    tree: prerequisite
+    role: observation
+    basis: participant_report
+    statement: For the research circle, throughput is the 2R trees being duly improved after deliberation
+  links:
+  - from: david-circle
+    to: io-decide
+    relation: supports
+  question: Does improving the trees count as the research circle's throughput?
+- date: '2026-07-02T11:27:00+02:00'
+  dated: day
+  speaker: Rufus Pollock
+  title: 'Rufus: yes, better trees'
+  summary: 'Rufus agrees: improving the 2R trees, perhaps in specific ways, is exactly the research circle''s throughput.'
+  source: Discord message (2 July), quoted in David Joseph's account of June and July 2026, written as background
+    for an AI assistant (reasoncommons repository, docs/prompts/LTP_BACKGROUND_PROMPT.md)
+  where: reasoncommons repository, docs/prompts/LTP_BACKGROUND_PROMPT.md
+  words: Yes, improving 2R LTP trees (perhaps in specific ways) would be exactly the kind of throughput for the
+    research group
+  add:
+  - id: rufus-circle
+    tree: prerequisite
+    role: observation
+    basis: participant_report
+    statement: Improving the 2R trees, perhaps in specific ways, is exactly the research circle's throughput
+  links:
+  - from: rufus-circle
+    to: david-circle
+    relation: supports
+  question: If better trees are the measure, how will anyone know the trees got better?
+- date: '2026-07-04T09:00:00+02:00'
+  dated: approximate
+  speaker: David Joseph
+  title: Trees at three scales
+  summary: Trees need not have one top level that everyone must conform to. There could be individual, group and
+    everyone trees; the Second Renaissance is one group among many, groups with aligned visions could graft their
+    trees, and an everyone tree could emerge rather than be imposed.
+  source: David Joseph's account of June and July 2026, written as background for an AI assistant (reasoncommons
+    repository, docs/prompts/LTP_BACKGROUND_PROMPT.md), item 5
+  where: reasoncommons repository, docs/prompts/LTP_BACKGROUND_PROMPT.md
+  words: |-
+    … As mentioned before, I've been realizing that the trees have different scales/levels of resolution. And then it dawned on me that 2R's version of the trees, as we've defined them, don't necessarily have to be taken as the top level version to which other ambitions must conform. Instead there could be different levels:
+
+    individual
+    group
+    everyone
+
+    2R could fit into the group bracket. Some other group with an aligned but different vision could also have a group-level set of trees. Then, the possibility of grafting or combining these visions in some way would arise. Instead of pre-defining the everyone tree, it could be arrived at through emergence.
+  add:
+  - id: inj-scales
+    tree: future_reality
+    role: injection
+    statement: Keep trees at individual, group and everyone scales; let aligned groups graft their trees, and let
+      an everyone tree emerge rather than be imposed
+  - id: de-join-forces
+    tree: future_reality
+    role: desired_effect
+    statement: Groups with aligned but different visions join forces without one vision being imposed on the others
+  links:
+  - from: inj-scales
+    to: de-join-forces
+    relation: causes
+  notes:
+  - 'Trees at several scales, and grafting one group''s trees onto another''s, cannot yet be shown in Reason Commons:
+    a goal holds one set of trees.'
+  question: How would a group's trees be grafted onto another's?
+- date: '2026-07-12T14:43:00+00:00'
+  speaker: curious_reader
+  title: From individual to group
+  summary: A month on, a new voice joins the goal tree thread, connecting it to the loop of inner, cultural and
+    system change, governance models and open protocols, and asking how to go from individual to group. (The link
+    to the scales idea is the editor's.)
+  source: 'Forum, 2R Goal Tree: what is expected, post 7 (12 July)'
+  where: https://forum.secondrenaissance.net/t/2r-goal-tree-what-is-expected/746
+  words: … There are also multiple effects working here... How can we go from individual to group?
+  add:
+  - id: reader-question
+    tree: future_reality
+    role: observation
+    basis: participant_report
+    statement: Inner change, cultural change and system change feed one another; the open question is how to go
+      from individual to group
+  links:
+  - from: reader-question
+    to: inj-scales
+    relation: supports
+  question: What has to be true for the trees to be ready for this?
+- date: '2026-07-23T16:40:46+02:00'
+  speaker: David Joseph
+  title: One model, and a first next action
+  summary: 'The five June documents are reconstructed as one evidence-backed model. Eight conditions become three,
+    the prerequisites become one spine that starts with a stewarded model, and a transition tree is added because
+    the documents stopped short of one. Its first action: one bounded, stewarded review of the goal, the main problems
+    and the constraint hypothesis.'
+  source: 'reasoncommons commit 0f637f7 (23 July): ltp/01-project-model.md, ltp/08-next-action.md, ltp/ltp-model.yaml'
+  where: reasoncommons repository
+  words_note: Text of the model files David committed; it was produced by an analysis run over the June documents.
+  words: |-
+    … The supplied CRT explicitly calls itself provisional and says its UDEs and causal arrows must be tested against lived evidence. The supplied PRT places "decide how the trees get updated" and "validate and revise the trees enough for provisional use" before throughput definition and the conversion pathway.
+
+    Building the conversion architecture immediately would act on RC-1 as if it were confirmed. ACT-1 is the smallest safe action that can distinguish between the current model and plausible rivals.
+  withdraw:
+  - id: csf-diagnosis
+    reason: Condensed into three conditions in the reconstructed model; a shared diagnosis is no longer a separate
+      condition.
+  - id: csf-vision
+    reason: Not among the three conditions in the reconstructed model. Robert's objection to it stays on record.
+  - id: csf-sangha
+    reason: Folded into the condition that proven practices stabilise in pockets, as a necessary condition (sangha
+      support).
+  - id: csf-movement
+    reason: Folded into the condition that practices become responsibly transmissible.
+  - id: csf-institutions
+    reason: Institutional adoption moved to the end of the behavioural flow; it is not a condition in the reconstructed
+      goal tree.
+  - id: csf-transition
+    reason: Not among the three conditions in the reconstructed model.
+  - id: io-validate
+    reason: 'Merged into the first intermediate objective: a stewarded, versioned model accepted for provisional
+      use.'
+  model:
+    file: sample-trees.ltp.yaml
+    replaces:
+      goal-g-1: g
+      goal-csf-1: csf-practice
+      goal-csf-3: csf-pockets
+      goal-nc-6: nc-commons
+      current-reality-rc-0: crc-governance
+      current-reality-rc-1: crc-pathway
+      current-reality-rc-2: crc-throughput
+      current-reality-rc-3: crc-rhythm
+      current-reality-ude-1: ude-resonate
+      current-reality-ude-2: ude-busy
+      current-reality-ude-3: ude-burnout
+      current-reality-ude-4: ude-next-step
+      current-reality-ude-5: ude-pockets
+      current-reality-ude-6: ude-replication
+      conflict-co-1: cloud-objective
+      conflict-need-1: cloud-visible
+      conflict-need-2: cloud-embodied
+      conflict-opt-1: cloud-movement
+      conflict-opt-2: cloud-monastery
+      future-reality-inj-0: inj-stewardship
+      future-reality-inj-1: inj-pockets
+      future-reality-inj-2: inj-throughput
+      future-reality-inj-3: inj-pathway
+      future-reality-de-6: de-adoption
+      prerequisite-inj-1: prt-objective
+      prerequisite-obs-2: obs-throughput
+      prerequisite-io-1: io-decide
+      prerequisite-io-2: io-throughput
+      prerequisite-io-3: io-entry
+      prerequisite-io-4: io-practice
+  loop:
+    test:
+      id: review
+      statement: One bounded, stewarded review of the goal, the priority problems and the constraint hypothesis
+      carries_out: transition-act-1
+      scope: The Second Renaissance research circle and the participants the trees affect
+      forecast:
+      - measure: Reviewed items with a recorded disposition
+        expected: A dated model records confirmed, disputed and still-provisional items, the evidence for each,
+          a named steward, a decision rule and the next review date
+        scope: The goal, the top three problems, the constraint hypothesis and its key causal chain
+        denominator: Items reviewed
+      stop_condition: The review runs past its time box, or disagreement is being smoothed over to reach consensus
+    action:
+      statement: 'Hold the stewarded review: invite the people the trees affect, circulate the model first, agree
+        what ''good enough for provisional use'' means, and keep minority reports'
+      owner: The 2R research circle (steward to be named)
+      execution: planned
+  question: Who will steward the review, and when?
+- date: '2026-07-30T15:18:24+02:00'
+  speaker: David Joseph
+  title: Only two people use the trees
+  summary: 'David rebuilds the research circle''s own trees. The first symptom recorded is blunt: nobody except
+    Rufus and David is using the trees, so there is no buy-in.'
+  source: 'reasoncommons commit ed996d9 (30 July): the 2R Research Circle model, UDE-1'
+  where: reasoncommons repository, dashboard/projects/2r-research-circle/model.yaml
+  words_note: Text of the research circle model David committed.
+  words: Nobody except Rufus and David is using LTP, so there is a lack of buy-in for it.
+  add:
+  - id: two-users
+    tree: current_reality
+    role: observation
+    basis: participant_report
+    statement: Nobody except Rufus and David is using the trees, so there is a lack of buy-in
+  links:
+  - from: two-users
+    to: crc-governance
+    relation: supports
+  question: Why would anyone else start using the trees?
+- date: '2026-07-30T15:42:27+02:00'
+  speaker: Rufus Pollock
+  title: Reason Commons
+  summary: 'The project gets a name, chosen for the collective angle: a commons is a shared resource, not one person''s
+    argument. It echoes the June rule that the trees are a stewarded commons.'
+  source: 'reasoncommons commit 3bf75fd (30 July): docs/brand-and-domain-naming.md'
+  where: reasoncommons repository
+  words_note: Text of the naming memo Rufus committed.
+  words: |-
+    … Top recommendation: Reason Commons
+
+    "Commons" = collective/shared resource, not one person's argument — carries the differentiator (collective alignment) without needing the word "collective."
+
+    "Reason" = broad, accessible, no LTP jargon, still signals logic/structure.
+
+    …
+
+    Decision: going with Reason Commons.
+  notes:
+  - '30 July: the work on a stewarded commons for the trees is named Reason Commons.'
+  question: What would make the trees easy enough to contribute to?
+- date: '2026-08-30T12:00:00+02:00'
+  dated: day
+  speaker: Rufus Pollock
+  title: The forum doesn't remember
+  summary: 'An explainer for the movement names what goes wrong: a claim buried in a long white paper or a forum
+    thread has no address, so nobody can dispute or improve it precisely. It sharpens the conversation-or-structure
+    conflict: the assumption that structure must be added by the contributor, at the moment they contribute, is
+    no longer true in the age of AI.'
+  source: Explainer, The Forum Doesn't Remember, and Doesn't Cumulate (30 August)
+  where: reasoncommons repository, explainers/second-renaissance-plain/index.md
+  words_note: Text of the explainer Rufus published.
+  words: |-
+    … But a claim buried in a paragraph on page forty has no address. You can't point at it, so you can't disagree with it precisely or improve it.
+
+    …
+
+    Both sides serve the same goal, so rather than pick one, look for the assumption that makes them look opposed: the structure has to be put there by a person, probably the person contributing, at the moment they contribute.
+
+    That assumption is no longer true in the age of AI.
+
+    …
+
+    So let the conversation be a conversation. …
+
+    Afterwards, separately, AI reads the thread against the tree and proposes where things belong: this sentence supports that condition, this one challenges that link, this one is a claim the tree has nowhere to put yet.
+
+    Then a person or a small group, with AI assistance where it helps, decides what actually merges into the tree.
+  reword:
+  - id: talk-objective
+    new: talk-compounds
+    statement: A group whose thinking compounds toward its goal
+  - id: talk-bridge
+    new: talk-separate
+    statement: 'Separate the acts: the conversation stays a conversation; afterwards AI reads it against the trees
+      and proposes where each point belongs; a person or small group, with AI assistance where it helps, decides
+      what merges'
+  add:
+  - id: ude-no-address
+    tree: current_reality
+    role: undesirable_effect
+    statement: A precise claim in a forum thread or a long white paper has no address, so nobody can dispute or
+      improve it
+  links:
+  - from: ude-no-address
+    to: ude-recurs
+    relation: contributes_to
+  question: Can AI's placement be trusted enough for a group to review it?
+- date: '2026-09-04T01:15:03+02:00'
+  speaker: David Joseph
+  title: Seven weeks, no change adopted
+  summary: 'The research circle''s throughput is now counted from the shared model''s history: each statement created,
+    reworded or deleted in a committed revision counts once. From 20 July to 31 August the count is zero every week:
+    no change was committed to the shared Second Renaissance trees.'
+  source: 'reasoncommons commit 084a391 (4 September): dashboard/projects/2r-research-circle/throughput.yaml'
+  where: reasoncommons repository
+  words_note: Text of the throughput file David committed.
+  words: |-
+    Each stable entity ID created, semantically updated, or deleted in a committed mainline revision of the canonical Second Renaissance model counts once per revision. This unit follows the July 2026 agreement between David and Rufus that duly improved 2R LTP trees are the research group's throughput.
+
+    2026-07-20: 0 · 2026-07-27: 0 · 2026-08-03: 0 · 2026-08-10: 0 · 2026-08-17: 0 · 2026-08-24: 0 · 2026-08-31: 0
+  observed: true
+  add:
+  - id: zero-weeks
+    tree: current_reality
+    role: evidence
+    basis: observed
+    statement: 'From 20 July to 31 August, no change was committed to the shared Second Renaissance model: zero
+      a week for seven weeks'
+  links:
+  - from: zero-weeks
+    to: crc-governance
+    relation: supports
+  question: If the trees cannot yet be changed together, what has to come first?
+- date: '2026-09-04T16:50:01+02:00'
+  speaker: David Joseph
+  title: A room's contributions, read against the tree
+  summary: For a talk to the 2R research group, a prototype reads a room's written contributions against the goal
+    tree and proposes, for each, whether it extends, supports, challenges or does not fit, for the group to accept,
+    edit or reject. Nothing merges on its own.
+  source: 'reasoncommons changelog, 4 September: The room''s contributions, proposed against the tree'
+  where: reasoncommons repository, changelog.md
+  words_note: Text of the changelog entry David committed.
+  words: 'A new contribution-proposals skill turns a batch of raw participant contributions … into one reviewable
+    proposal each for how it might extend, support, challenge, or fail to fit an existing tree, and renders the
+    set as a page the group works through together: accept, edit, or reject … Nothing merges.'
+  add:
+  - id: proposals-prototype
+    tree: conflict
+    role: observation
+    basis: participant_report
+    statement: A prototype proposes where each written contribution fits the goal tree, and the group accepts, edits
+      or rejects each proposal
+  links:
+  - from: proposals-prototype
+    to: talk-separate
+    relation: supports
+  final: true
+  question: 'The first prerequisite since June is still open: decide together how the trees change. Who will steward
+    a time-boxed review of the goal, the main problems and the constraint hypothesis, and when?'
+  why: 'Every later step (a throughput definition, an entry path, recurring practice) assumes trees the group has
+    accepted. The count shows no change to the trees from late July through August, and nothing merges into them
+    yet: the first prerequisite from June, deciding together how the trees change, is still open.'
