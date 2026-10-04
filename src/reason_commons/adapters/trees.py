@@ -31,15 +31,17 @@ ROLE_LABELS = {
     "transition_need": "WHY IT MUST CHANGE", "transition_action": "ACTION",
     "transition_expected_effect": "WHAT WE EXPECT TO SEE", "observation": "OBSERVATION", "evidence": "EVIDENCE",
 }
-# Colour families for the terminal: what we want, what is wrong, what we do.
+# Colour families for the terminal: what we want, what is wrong, what we do, and what we think we must do.
+# They name the theme's families (adapters/themes.py) rather than colours; the TUI resolves them.
+WANT, WRONG, DO, PROPOSE = "$stood-behind", "$disagreed", "$hand", "$proposed"
 ROLE_STYLES = {
-    "goal": "green", "critical_success_factor": "green", "necessary_condition": "green",
-    "desired_effect": "green", "transition_expected_effect": "green", "cloud_objective": "green",
-    "undesirable_effect": "dark_orange", "obstacle": "dark_orange", "intermediate_cause": "dark_orange",
-    "root_cause": "red", "critical_root_cause": "red",
-    "cloud_requirement": "blue", "injection": "blue", "intermediate_objective": "blue",
-    "implementation_objective": "blue", "transition_need": "blue", "transition_existing_reality": "blue",
-    "cloud_prerequisite": "magenta", "transition_action": "magenta",
+    "goal": WANT, "critical_success_factor": WANT, "necessary_condition": WANT,
+    "desired_effect": WANT, "transition_expected_effect": WANT, "cloud_objective": WANT,
+    "undesirable_effect": WRONG, "obstacle": WRONG, "intermediate_cause": WRONG,
+    "root_cause": "bold " + WRONG, "critical_root_cause": "bold " + WRONG,
+    "cloud_requirement": DO, "injection": DO, "intermediate_objective": DO,
+    "implementation_objective": DO, "transition_need": DO, "transition_existing_reality": DO,
+    "cloud_prerequisite": PROPOSE, "transition_action": PROPOSE,
 }
 # How a claim drawn below relates to the claim above it, read top down.
 BELOW = {"necessary_for": "needs", "causes": "because", "contributes_to": "partly because",
@@ -120,7 +122,7 @@ def tree_lines(tree, width=80, fresh=()):
         if claim.get("basis"):
             header.append(("  " + BASIS[claim["basis"]], "dim"))
         if ref in fresh:
-            header.append(("  NEW", "bold cyan"))
+            header.append(("  NEW", "bold " + DO))
         lines.append(header)
         for line in wrap(claim["statement"], rest):
             lines.append([(rest, "dim"), (line, "")])
@@ -136,7 +138,7 @@ def tree_lines(tree, width=80, fresh=()):
             forecast = "; ".join(f for f in test["forecast"] if f) or "none"
             result = "; ".join(test["results"]) or "not observed yet"
             for line in wrap(f"◆ Test: {test['statement']} · forecast {forecast} · result {result}", rest):
-                lines.append([(rest, "dim"), (line, "green")])
+                lines.append([(rest, "dim"), (line, WANT)])
         # Short branches first, so a long chain does not separate a claim from its leaves.
         below = sorted(children[ref], key=lambda pair: (bool(children[pair[1]]), _number(pair[1])))
         for index, (link, child) in enumerate(below):

@@ -25,6 +25,7 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Footer, Input, Label, Markdown, OptionList, Static, TextArea
 from textual.widgets.option_list import Option
 
+from reason_commons.adapters import themes
 from reason_commons.adapters.guided import STEPS
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
 from reason_commons.adapters.settings import Settings, describe
@@ -113,7 +114,7 @@ consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
 | Esc | Leave the editor to browse; your text stays |
 | Ctrl+T | Open the trees; press again to go back to the current question |
 | Ctrl+N | In the Trees view: the next tree, then all six together |
-| Ctrl+P | Actions: export, retry, change consultant, quit |
+| Ctrl+P | Actions: export, retry, change consultant, theme, quit |
 | F1 | This help |
 | Ctrl+Q | Save and quit |
 
@@ -123,6 +124,14 @@ The **built-in guide** works offline and asks the loop's questions in order.
 **Anthropic** (needs `ANTHROPIC_API_KEY`) or **LM Studio** (a local model) give
 adaptive questions and advice. Ctrl+P switches for this session; **Settings** on
 the home screen saves your name, consultant and model for next time.
+
+## Themes
+
+Twelve voices from the Reason Commons web app, each light or dark. Ctrl+P,
+**Theme** (or **Theme** on the home screen) previews them as you move: arrows
+up and down choose a voice, left and right choose light or dark, Enter keeps it.
+The choice is saved as `theme:` in your settings file; `--theme` or
+`REASON_COMMONS_THEME` overrides it for one run.
 
 New to it? **Take the guided tour** from the home screen: a practice goal with
 coaching at each step and example answers. **Explore a real commons** shows how a
@@ -386,7 +395,99 @@ class ExportScreen(PathScreen):
                          "Enter exports. Use a new file name. Esc cancels.")
 
 
-class ReasonCommonsApp(App):
+class ThemeScreen(ModalScreen):
+    """Every voice, previewed as you move. Enter keeps it; Esc puts back the one you had."""
+
+    BINDINGS = [Binding("escape", "cancel", "Back"), Binding("left", "mode('light')", "Light"),
+                Binding("right", "mode('dark')", "Dark")]
+
+    def __init__(self, current):
+        super().__init__()
+        self.original = current
+        self.voice, self.mode = themes.split_name(current)
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="dialog"):
+            yield Label("Theme", classes="dialog-title")
+            yield Static(id="theme-mode")
+            yield OptionList(*[Option(option_label(themes.title(voice), description), id=voice)
+                               for voice, (_, _, description) in themes.VOICES.items()], id="themes")
+            yield Label("↑↓ choose a voice, ←→ light or dark. Enter keeps it, Esc puts back the one you had.",
+                        classes="hint")
+
+    def on_mount(self):
+        self.query_one("#themes", OptionList).highlighted = list(themes.VOICES).index(self.voice)
+        self.preview()
+
+    @on(OptionList.OptionHighlighted)
+    def highlighted(self, event):
+        self.voice = event.option.id
+        self.preview()
+
+    @on(OptionList.OptionSelected)
+    def chosen(self, event):
+        self.voice = event.option.id
+        self.dismiss(themes.theme_name(self.voice, self.mode))
+
+    def action_mode(self, mode):
+        self.mode = mode
+        self.preview()
+
+    def action_cancel(self):
+        self.app.theme = self.original
+        self.dismiss(None)
+
+    def preview(self):
+        self.app.theme = themes.theme_name(self.voice, self.mode)
+        marks = [f"[b]● {mode.capitalize()}[/b]" if mode == self.mode else f"[dim]○ {mode.capitalize()}[/]"
+                 for mode in themes.MODES]
+        self.query_one("#theme-mode", Static).update("   ".join(marks))
+
+
+class ThemedApp(App):
+    """Opens in the chosen voice (``$REASON_COMMONS_THEME``, filled from settings) and remembers a new one.
+
+    Only the Reason Commons voices are offered; Textual's own themes are not.
+    """
+
+    def __init__(self, settings=None):
+        super().__init__()
+        self.settings = settings
+        for theme in themes.THEMES.values():
+            self.register_theme(theme)
+        requested = os.environ.get(themes.ENVIRONMENT)
+        self._unknown_theme = requested if requested and not themes.resolve(requested) else None
+        self.theme = themes.resolve(requested) or themes.DEFAULT_THEME
+        for name in set(self.available_themes) - set(themes.THEMES):
+            self.unregister_theme(name)
+
+    def on_mount(self):
+        if self._unknown_theme:
+            self.notify(f"No theme called {self._unknown_theme!r}; using {themes.title(self.theme)}. "
+                        "Ctrl+P, Theme lists them.", severity="warning", timeout=8)
+
+    def action_change_theme(self):
+        self.push_screen(ThemeScreen(self.theme), self.keep_theme)
+
+    def keep_theme(self, name):
+        """Use this theme from now on: for this run, and in the settings file once there is one."""
+        if not name:
+            return
+        self.theme = name
+        os.environ[themes.ENVIRONMENT] = name
+        if self.settings is None:
+            return
+        self.settings.set(name, "theme")
+        if self.settings.exists:  # before first start finishes, setup saves it with the rest
+            try:
+                saved = Settings.load(self.settings.path)
+                saved.set(name, "theme")
+                saved.save()
+            except OSError as exc:
+                self.notify(f"Theme in use, but not saved ({exc}).", severity="error", timeout=8)
+
+
+class ReasonCommonsApp(ThemedApp):
     TITLE = "Reason Commons"
     COMMAND_PALETTE_DISPLAY = "Actions"
     CSS = """
@@ -397,7 +498,7 @@ class ReasonCommonsApp(App):
     #body { height: 1fr; }
     #views { width: 16; border: none; background: transparent; color: $text-muted; padding: 0 0 0 1; }
     #views > .option-list--option-highlighted { background: $boost; color: $text; text-style: bold; }
-    #views:focus > .option-list--option-highlighted { background: $accent 40%; }
+    #views:focus > .option-list--option-highlighted { background: $hand-tint; color: $foreground; }
     #views.hidden, #views-button.hidden { display: none; }
     #main { border: none; border-left: blank; padding: 0 1; }
     #main:focus { border-left: heavy $accent; }
@@ -406,42 +507,43 @@ class ReasonCommonsApp(App):
     #canvas.hidden { display: none; }
     #content MarkdownH2 { margin: 0; color: $text-muted; background: transparent; text-style: bold; }
     #content MarkdownH3 { margin: 1 0 0 0; color: $text-muted; background: transparent; text-style: bold; }
-    #response { height: auto; border: round $panel-lighten-2; padding: 0 1;
+    #response { height: auto; border: $frame $border-blurred; padding: 0 1;
                 border-title-color: $text-muted; border-subtitle-color: $text-muted; }
-    #response:focus-within { border: round $accent; }
+    #response:focus-within { border: $frame $accent; }
     #editor { height: auto; min-height: 3; max-height: 10; border: none; }
     #controls { height: 1; }
     #controls Button { min-width: 8; height: 1; border: none; margin-right: 1; background: transparent;
                        color: $text-muted; text-style: none; }
     #controls Button:hover { color: $text; }
-    #controls #send { background: $primary; color: $text; text-style: bold; }
+    #controls #send { background: $primary; color: $background; text-style: bold; }
     #controls #retry { color: $warning; }
     #controls #finish { color: $success; }
-    #controls Button:focus, #controls #send:focus { background: $accent; color: $text; text-style: bold; }
+    #controls Button:focus, #controls #send:focus { background: $hand-tint; color: $foreground; text-style: bold; }
     #retry.hidden, #fill.hidden, #finish.hidden { display: none; }
-    #coach { height: auto; max-height: 5; border: round $panel-lighten-2; padding: 0 1; }
+    #coach { height: auto; max-height: 5; border: $frame $border-blurred; padding: 0 1; }
     #coach.hidden { display: none; }
-    #moment { height: auto; border: round $panel-lighten-2; padding: 0 1; }
-    #moment:focus-within { border: round $accent; }
+    #moment { height: auto; border: $frame $border-blurred; padding: 0 1; }
+    #moment:focus-within { border: $frame $accent; }
     #moment-text { height: auto; color: $text-muted; }
     #moment-controls { height: 1; }
     #moment-controls Button { min-width: 8; height: 1; border: none; margin-right: 1; background: transparent;
                               color: $text-muted; text-style: none; }
     #moment-controls Button:hover { color: $text; }
     #moment-controls #own { color: $success; }
-    #moment-controls Button:focus { background: $accent; color: $text; text-style: bold; }
+    #moment-controls Button:focus { background: $hand-tint; color: $foreground; text-style: bold; }
     #timeline > .option-list--option-highlighted { background: $boost; }
-    #timeline:focus > .option-list--option-highlighted { background: $accent 40%; }
+    #timeline:focus > .option-list--option-highlighted { background: $hand-tint; color: $foreground; }
     #moment.hidden, #response.hidden, #timeline.hidden, .story-only.hidden { display: none; }
     #timeline { height: auto; max-height: 100%; border: none; margin-top: 1; background: transparent; }
     .step-count { color: $text-muted; }
     Step #dialog, Checking #dialog { padding: 0 2; }
     .explanation { margin-bottom: 1; }
     #choices { height: auto; max-height: 16; }
-    ChoiceScreen, PathScreen, HelpScreen, Step, Checking { align: center middle; }
+    ChoiceScreen, PathScreen, HelpScreen, ThemeScreen, Step, Checking { align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
-    HelpScreen #dialog { height: 90%; }
+    HelpScreen #dialog, ThemeScreen #dialog { height: 90%; }
+    #themes { height: 1fr; margin-top: 1; }
     .dialog-title { text-style: bold; margin-bottom: 1; }
     .hint { color: $text-muted; margin-top: 1; }
     """
@@ -456,8 +558,9 @@ class ReasonCommonsApp(App):
         Binding("right", "later", "Later"),
     ]
 
-    def __init__(self, store, speaker, provider, open_application, consultant_factory, tour=False, story=None):
-        super().__init__()
+    def __init__(self, store, speaker, provider, open_application, consultant_factory, tour=False, story=None,
+                 settings=None):
+        super().__init__(settings)
         self.store, self.speaker, self.provider, self.tour = str(store), speaker, provider, tour
         # A story is read, not answered: its goal opens read-only with its chapters for narration.
         self.story = story
@@ -507,7 +610,10 @@ class ReasonCommonsApp(App):
         yield Footer()
 
     def on_mount(self):
+        super().on_mount()
         self.title = "Reason Commons"
+        # The trees are drawn in the theme's colours, so they are redrawn with it.
+        self.theme_changed_signal.subscribe(self, lambda _: self.workspace_value and self.render_all())
         cursor = self.case.inspect()["cursor"] or {}
         self.refresh_workspace()
         if cursor.get("draft"):
@@ -811,7 +917,7 @@ class ReasonCommonsApp(App):
         for line in trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown,
                                 fresh=fresh):
             for part, style in line:
-                text.append(part, style=style or None)
+                text.append(part, style=themed(style, self.theme_variables) or None)
             text.append("\n")
         return text
 
@@ -1227,6 +1333,8 @@ class ReasonCommonsApp(App):
             if key != self.provider:
                 yield SystemCommand(f"Consultant: {label}", "Use this consultant from now on",
                                     lambda key=key: self.switch_provider(key))
+        yield SystemCommand("Theme", f"How Reason Commons looks; now {themes.title(self.theme)}",
+                            self.action_change_theme)
         yield SystemCommand("Help", "Keys and how the loop works (F1)", self.action_help)
         yield SystemCommand("Save and quit", "Keep your draft and close (Ctrl+Q)", self.action_quit)
 
@@ -1355,7 +1463,7 @@ class NewGoalScreen(ModalScreen):
         self.dismiss(event.value.strip() or None)
 
 
-class GoalsApp(App):
+class GoalsApp(ThemedApp):
     """Home screen: how to begin on first start, then your goals. Returns what to open next.
 
     With ``settings`` that were never saved, it first offers the ways to start: set up and
@@ -1368,15 +1476,15 @@ class GoalsApp(App):
     #home { padding: 1 2; }
     #home-title { text-style: bold; color: $accent; }
     #home-intro { margin: 1 0; }
-    #goals { height: auto; max-height: 1fr; border: round $accent; }
+    #goals { height: auto; max-height: 1fr; border: $frame $accent; }
     """
     BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help")]
 
     def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None, start_new=False):
-        super().__init__()
+        super().__init__(settings)
         self.root, self._list, self.start_new = Path(root), list_goals, start_new
         self._create = create or self._create_case
-        self.settings, self._checks = settings, checks
+        self._checks = checks
         self.goals = []
 
     @property
@@ -1392,6 +1500,7 @@ class GoalsApp(App):
         yield Footer()
 
     def on_mount(self):
+        super().on_mount()
         self.goals = self._list(self.root)
         self.show_options()
         if self.start_new:
@@ -1426,6 +1535,7 @@ class GoalsApp(App):
                        Option("  Take the guided tour (practice goal, about 5 minutes)", id="tour")]
             if self.settings is not None:
                 options.append(Option(f"  Settings: {escape(describe(self.settings))}", id="settings"))
+            options.append(Option(f"  Theme: {escape(themes.title(self.theme))}", id="theme"))
             highlighted = len(options) if self.goals else 0
             for index, goal in enumerate(self.goals):
                 label = f"{goal['name']}   ·   {goal['step']}   ·   {str(goal['changed'])[:10]}"
@@ -1442,6 +1552,8 @@ class GoalsApp(App):
             self.exit(choice)
         elif choice in ("setup", "settings"):
             self.setup(first_run=choice == "setup")
+        elif choice == "theme":
+            self.action_change_theme()
         elif choice == "start":
             # The defaults setup would offer; the next screen names the goal.
             self.settings.set(self.settings.get("name") or login_name() or "Me", "name")
@@ -1487,6 +1599,24 @@ class GoalsApp(App):
 
     def action_help(self):
         self.push_screen(HelpScreen())
+
+    def keep_theme(self, name):
+        super().keep_theme(name)
+        if name and not self.first_run:  # the first-start menu has no Theme row
+            self.show_options()
+            goals = self.query_one("#goals", OptionList)
+            goals.highlighted = goals.get_option_index("theme")
+
+
+def themed(style, variables):
+    """A drawing style with its colour families (``$hand``, ``$disagreed`` …) in the current theme's colours.
+
+    A family colour replaces ``dim``: each is chosen to stay readable on the ground, and dimming would undo that.
+    """
+    words = style.split()
+    if any(word.startswith("$") for word in words):
+        words = [variables.get(word[1:], "") if word.startswith("$") else word for word in words if word != "dim"]
+    return " ".join(words)
 
 
 def option_label(title, detail):
@@ -1552,7 +1682,8 @@ def run_tour(speaker=None):
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False, story=None):
     """Create the case if the folder does not exist yet, then open the workspace."""
     from reason_commons.bootstrap import configured_consultant, create_case, open_case
-    Settings.load().apply()  # fills in only what flags and the environment leave unset
+    settings = Settings.load()
+    settings.apply()  # fills in only what flags and the environment leave unset
     store = Path(os.path.expanduser(store)).resolve()
     provider = provider or os.environ.get("REASON_COMMONS_PROVIDER") or "guided"
     speaker = speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
@@ -1562,5 +1693,5 @@ def run(store, name=None, speaker=None, provider=None, model=None, base_url=None
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()
     app = ReasonCommonsApp(store, speaker, provider, lambda consultant: open_case(store, consultant=consultant),
-                           factory, tour=tour, story=story)
+                           factory, tour=tour, story=story, settings=settings)
     return app.run()

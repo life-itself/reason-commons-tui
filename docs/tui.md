@@ -234,7 +234,8 @@ is kept as a note.
 
 `tui` and `resume` also take `--speaker NAME` (the name recorded with your
 answers; default: your login name), `--provider guided|anthropic|lm-studio`,
-`--model` and `--base-url`. `tui` takes `--name` for a new goal's name. Commands
+`--model` and `--base-url`. `tui` takes `--name` for a new goal's name. Every
+way of opening the workspace takes `--theme` (see [Themes](#themes)). Commands
 for scripts and AI agents are listed by `reason-commons --help`.
 
 ## Settings
@@ -256,8 +257,50 @@ your shell instead, for example in `~/.zshrc` on a Mac:
 | `REASON_COMMONS_LM_STUDIO_URL` | LM Studio server address | `http://127.0.0.1:1234/v1` |
 | `REASON_COMMONS_LM_STUDIO_MODEL` | LM Studio model ID | the only loaded model |
 | `LM_STUDIO_API_TOKEN` | LM Studio token, if your server needs one | none |
+| `REASON_COMMONS_THEME` | Colour theme (see [Themes](#themes)) | `commons-dark` |
 
 Keys and server addresses are never written into your goals or exports.
+
+## Themes
+
+The workspace speaks in the same twelve voices as the Reason Commons web app, each
+in a light form (the web palette) and a dark form (the same hues for a dark
+terminal). Choose one in the app, and it is kept:
+
+- **In the app:** Ctrl+P, **Theme**, or **Theme** on the goals list. Moving through
+  the list previews each voice; Left and Right switch between light and dark; Enter
+  keeps it and Esc puts back the one you had.
+- **In your settings file:** `theme: tanizaki-dark`. The app writes this line when
+  you choose in the app.
+- **For one run:** `reason-commons --theme "Shadows dark"`, or
+  `REASON_COMMONS_THEME=goethe` in your shell, which wins over the settings file.
+
+A theme is named by its id or its label, in any case, with `dark` or `light`
+after it if you like:
+
+| Id | Label | Reads its colours from |
+| --- | --- | --- |
+| `commons` | Commons | the public voice, and the default |
+| `organic` | Organic | cream and earth |
+| `schopenhauer` | Schopenhauer | graphite ink and one judgment colour |
+| `goethe` | Goethe | the polarity of yellow and blue |
+| `steiner` | Steiner | image and lustre |
+| `al-haytham` | Optics | Ibn al-Haytham: the instrument plane |
+| `tanizaki` | Shadows | Jun'ichirō Tanizaki: smoked parchment, no white anywhere |
+| `suhrawardi` | Illumination | Suhrawardi: presence through degrees of light |
+| `wittgenstein` | Grammar | Ludwig Wittgenstein: four hues that exclude one another |
+| `yoruba` | Chromatics | Yorùbá chromatics; the mapping is ours, not the tradition's |
+| `wuxing` | Five Phases | Wǔsè / Wǔxíng; the four assignments are ours |
+| `khipu` | Channels | Inka khipu; the theme that leans least on hue |
+
+Every theme keeps the web app's four colour families apart: the **hand** (yours to
+act on: Send, focus, the frame around what you are editing), **proposed** (not yet
+in the record), **stood behind** (relied upon) and **disagreed** (reality pushed
+back, or something going wrong). In the Trees view, what you want is drawn in
+stood behind, what is wrong in disagreed, what you do in the hand and what you
+think you must do in proposed. Every coloured word clears WCAG AA contrast on its
+background. Fonts are your terminal's; rounded frames stand in for the web's soft
+corners, and square frames for its hard-edged voices.
 
 ## The goal folder
 

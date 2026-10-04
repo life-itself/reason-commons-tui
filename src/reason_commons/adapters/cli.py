@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -25,7 +26,7 @@ everyday use:
   reason-commons --version            Show the version
 
 The workspace works offline with a built-in guide. Inside it, F1 shows help and
-Ctrl+P switches to Claude or a local model."""
+Ctrl+P switches to Claude or a local model, or changes the theme."""
 
 ADVANCED = """\
 advanced (scripts, AI agents and diagnostics):
@@ -34,11 +35,25 @@ advanced (scripts, AI agents and diagnostics):
   your goals are kept."""
 
 
+def theme_choice(value):
+    """A theme name for --theme, from an id or label in any case, light or dark (``"Shadows dark"``)."""
+    from reason_commons.adapters import themes
+    name = themes.resolve(value)
+    if not name:
+        raise argparse.ArgumentTypeError(f"no theme called {value!r}; choose from {', '.join(themes.THEME_NAMES)}")
+    return name
+
+
+THEME_HELP = ("Colour theme for this run: one of the twelve voices of the web app, light or dark, for example "
+              "commons-dark or tanizaki; otherwise REASON_COMMONS_THEME, your settings, then commons-dark")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="reason-commons", usage="reason-commons [COMMAND] ...",
                                      description=EVERYDAY, epilog=ADVANCED,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--version", action="version", version=__version__)
+    parser.add_argument("--theme", type=theme_choice, help=THEME_HELP)
     commands = parser.add_subparsers(dest="command", metavar="COMMAND", help=argparse.SUPPRESS, prog="reason-commons")
     for name, summary in (("tui", "Open a goal in the terminal workspace, creating the folder if needed"),
                           ("resume", "Open an existing goal in the terminal workspace")):
@@ -53,6 +68,7 @@ def main(argv=None):
                                help="Consultant; otherwise REASON_COMMONS_PROVIDER or guided (offline)")
         workspace.add_argument("--model", help="Selected provider's model ID")
         workspace.add_argument("--base-url", help="Selected provider's URL")
+        workspace.add_argument("--theme", type=theme_choice, default=argparse.SUPPRESS, help=THEME_HELP)
     new = commands.add_parser("new", help="Create a durable minimal case (p0)")
     new.add_argument("--store", required=True)
     new.add_argument("--name", default="Untitled case")
@@ -126,6 +142,8 @@ def main(argv=None):
                 raise ValueError("The workspace needs an interactive terminal; use show/inspect for offline reads")
             if args.command == "resume" and not Path(args.store).expanduser().exists():
                 raise ValueError(f"No goal at {args.store}; use 'reason-commons tui {args.store}' to start one")
+            if args.theme:  # a flag wins over the environment and settings, which only fill what is unset
+                os.environ["REASON_COMMONS_THEME"] = args.theme
             try:
                 from reason_commons.adapters.tui import run, run_home
             except ImportError:
