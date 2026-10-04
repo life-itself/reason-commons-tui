@@ -33,6 +33,20 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 
 On the goals list: arrows choose, Enter opens, F1 shows help, Ctrl+Q quits.
 
+## First start, settings and the tour
+
+The first time, `reason-commons` offers four ways to start: set up and start a
+first goal, take the guided tour, look around a finished example, or skip setup.
+Setup asks for your name (recorded with your answers), the consultant and, for
+Claude or LM Studio, checks the connection and lets you choose a model. Esc goes
+back a step; leaving setup changes nothing. **Settings** on the home screen runs
+it again.
+
+The guided tour opens a practice goal with the built-in guide. A coaching strip
+explains each of the six steps; **Example answer** puts the tutorial's answer in
+the box and **Finish tour** returns to the home screen. The practice goal is
+deleted afterwards.
+
 ## Views
 
 Browsing views never calls the consultant.
@@ -73,7 +87,7 @@ is kept as a note.
 
 | Command | What it does |
 | --- | --- |
-| `reason-commons` | Show your goals; open one, start one or look at a finished example |
+| `reason-commons` | The first time, the ways to start; then your goals: open one, start one, the tour, the finished example or Settings |
 | `reason-commons tui FOLDER` | Open a goal in that folder, creating it if needed |
 | `reason-commons resume FOLDER` | Open an existing goal; never creates one |
 | `reason-commons export FOLDER FILE` | Write a portable `.reasoncase` copy |
@@ -89,13 +103,18 @@ for scripts and AI agents are listed by `reason-commons --help`.
 
 ## Settings
 
-Set these in your shell, for example in `~/.zshrc` on a Mac.
+Setup saves your name, consultant, model, Claude key and LM Studio address in
+`~/.config/reason-commons/settings.yaml` (or `$XDG_CONFIG_HOME/reason-commons/`;
+`REASON_COMMONS_CONFIG` names another file), readable only by you. Command-line
+options win over environment variables, which win over that file. To set them in
+your shell instead, for example in `~/.zshrc` on a Mac:
 
 | Variable | Effect | Default |
 | --- | --- | --- |
 | `REASON_COMMONS_HOME` | Folder that holds your goals | `~/ReasonCommons` |
+| `REASON_COMMONS_CONFIG` | Personal settings file written by setup | `~/.config/reason-commons/settings.yaml` |
 | `REASON_COMMONS_PROVIDER` | Consultant at start: `guided`, `anthropic` or `lm-studio` | `guided` |
-| `REASON_COMMONS_SPEAKER` | Name recorded with your answers | your login name |
+| `REASON_COMMONS_SPEAKER` | Name recorded with your answers | the name from setup, else your login name |
 | `ANTHROPIC_API_KEY` | Key for Claude | none |
 | `REASON_COMMONS_ANTHROPIC_MODEL` | Claude model ID | `claude-sonnet-5-5` |
 | `REASON_COMMONS_LM_STUDIO_URL` | LM Studio server address | `http://127.0.0.1:1234/v1` |

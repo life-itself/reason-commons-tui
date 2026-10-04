@@ -7,6 +7,13 @@ test itself runs in your real life for as long as you choose. You need nothing b
 Reason Commons itself ([install it](../README.md#try-it)); the built-in guide works
 offline.
 
+Prefer to learn inside the app? Choose **Take the guided tour** on the first
+screen or the home screen. It is this tutorial as a practice goal: a coaching
+strip explains each step, **Example answer** fills in Mira's words, and nothing is
+kept.
+
+![The guided tour: a coaching strip above the answer box explains step 1 of 6, and Example answer has filled in Mira's goal](images/tour.png)
+
 We follow Mira, who organises open evenings for a Second Renaissance group. Many
 people come once and are inspired, but few find their way into regular practice.
 Mira takes one action from the group's [Transition Tree](the-trees.md#transition-tree-what-exactly-do-we-do)

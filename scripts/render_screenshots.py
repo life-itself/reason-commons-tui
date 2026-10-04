@@ -43,12 +43,15 @@ def workspace(path):
                             lambda provider: configured_consultant(provider=provider))
 
 
-async def shoot(app, name, size, before=None):
+async def shoot(app, name, size, before=None, steps=None):
     async with app.run_test(size=size) as pilot:
         await pilot.pause()
         if before:
             before(app)
             await pilot.pause()
+        if steps:
+            await steps(app, pilot)
+            await pilot.pause(0.3)
         app.save_screenshot(filename=f"{name}.svg", path=str(OUT))
 
 
@@ -60,6 +63,7 @@ async def render(folder):
     create_case(goals / "map-review", "Agree how our strategy map gets reviewed",
                 clock=FixedClock("2026-10-02T07:00:00+00:00")).close()
     await shoot(GoalsApp(goals), "home", (100, 22))
+    await first_start(folder)
     create_case(folder / "new", "my-first-goal").close()
     await shoot(workspace(folder / "new"), "welcome", (120, 36))
     await shoot(workspace(goals / "first-practice"), "in-progress", (120, 36))
@@ -73,6 +77,50 @@ async def render(folder):
     await shoot(workspace(finished), "tutorial-trees", (120, 36), before=lambda app: app.show_tree("transition"))
     await shoot(workspace(finished), "trees-current-reality", (120, 56),
                 before=lambda app: app.show_tree("current_reality"))
+
+
+async def first_start(folder):
+    """The first-start choices, two setup steps and the tour's coaching."""
+    from reason_commons.adapters.settings import Settings
+    models = [("claude-opus-5-5", "Claude Opus 5.5"), ("claude-sonnet-5-5", "Claude Sonnet 5.5"),
+              ("claude-haiku-4-5-20251001", "Claude Haiku 4.5")]
+    os.environ["USER"] = "mira"
+
+    def fresh():
+        return GoalsApp(folder / "empty", settings=Settings.load(folder / "no-settings.yaml"),
+                        checks={"anthropic": lambda key: (models, None)})
+
+    async def answer(app, pilot, value=None, key=None):
+        await pilot.pause()
+        if key is None:
+            app.screen.query_one("Input").value = value
+        else:
+            choices = (app.screen.query("#choices") or app.screen.query("#goals")).first()
+            choices.highlighted = [option.id for option in choices.options].index(key)
+        await pilot.press("enter")
+        await pilot.pause(0.2)
+
+    async def to_consultant(app, pilot):
+        await answer(app, pilot, key="setup")
+        await answer(app, pilot, "Mira")
+
+    async def to_model(app, pilot):
+        await to_consultant(app, pilot)
+        await answer(app, pilot, key="anthropic")
+        await answer(app, pilot, "sk-ant-example")
+        await pilot.pause(0.3)
+
+    await shoot(fresh(), "first-start", (100, 30))
+    await shoot(fresh(), "setup-consultant", (100, 30), steps=to_consultant)
+    await shoot(fresh(), "setup-model", (100, 30), steps=to_model)
+    create_case(folder / "tour", "Practice: your first loop").close()
+    tour = ReasonCommonsApp(folder / "tour", SPEAKER, "guided",
+                            lambda consultant: open_case(folder / "tour", consultant=consultant),
+                            lambda provider: configured_consultant(provider=provider), tour=True)
+
+    async def fill(app, pilot):
+        app.query_one("#fill").press()
+    await shoot(tour, "tour", (120, 36), steps=fill)
 
 
 def can_make_png():

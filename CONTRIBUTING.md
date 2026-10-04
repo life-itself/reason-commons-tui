@@ -27,6 +27,7 @@ repository.
 | p0 durable case engine | Implemented: revisions, YAML storage, export/import, retry, consultant ports, CLI, MCP |
 | Terminal workspace (TUI) | First personal-use slice of p1: `reason-commons tui`, built with Textual |
 | Built-in guide | Offline consultant (`guided`) that walks the loop without a model or key |
+| First start | Ways to begin, setup (name, consultant, checked key and model), Settings and the in-app guided tour (`adapters/onboarding.py`, `adapters/settings.py`) |
 | Six trees | Tree statements, links and withdrawals (p2, S128–S134); Trees view, `trees` command, `.ltp.yaml` import/export |
 | Full p1 contract | Not yet delivered: `--accessible`, speaker switching, 80×24 specimens, usability evidence |
 | p2 and later | Consulting-quality gates, review loop acceptance, joint causes and rival routes remain later work |

@@ -182,12 +182,24 @@ reason-commons
 That is all; there is no Python setup to manage. To update later, run
 `uv tool upgrade reason-commons`.
 
-`reason-commons` opens a list of your goals. Start a new one, or look around the
-finished open-evening example first: it carries the group's whole analysis, so
-Ctrl+T shows all six trees. A new goal opens with a short welcome and one
+The first time, `reason-commons` asks how you would like to start: set up and
+start your first goal, take the guided tour, look around a finished example, or
+skip setup and use the offline guide.
+
+![The first screen offers four ways to start: set up and start a first goal, take the guided tour, look around a finished example, or skip setup](docs/images/first-start.png)
+
+Setup takes about a minute: your name, then who asks the questions (the offline
+guide, Claude or a local model in LM Studio). For Claude you paste an API key; it
+is checked and you choose from the models your key can use. Change any of it later
+under **Settings** on the home screen. The guided tour walks one whole loop on a
+practice goal, with example answers one button away; nothing from it is kept.
+
+After that, `reason-commons` opens a list of your goals. Start a new one, or look
+around the finished open-evening example: it carries the group's whole analysis,
+so Ctrl+T shows all six trees. A new goal opens with a short welcome and one
 question; you answer in ordinary words, Enter adds a line and Ctrl+S sends.
 
-![The home screen lists goals with their current step, plus Start a new goal and a finished example](docs/images/home.png)
+![The home screen lists goals with their current step, plus Start a new goal, a finished example and the guided tour](docs/images/home.png)
 
 Everything is saved as you type, including an unsent draft. Quit with Ctrl+Q and
 `reason-commons` takes you back to where you were.
