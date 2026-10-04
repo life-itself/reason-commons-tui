@@ -7,12 +7,17 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 
 | Part | What it shows |
 | --- | --- |
-| Top line | The goal's name, your name, whether everything is saved, the current step and the consultant |
-| Pinned line | Your goal, safeguards and current test with its forecast |
-| Loop line | Goal → Test + forecast → Action → Observe → Review; ✓ marks finished steps and > the current one |
-| Middle | The current question and what it builds on, or the view you chose |
-| Views list | On terminals 100 columns or wider; otherwise use **Views** |
-| Answer box | Your answer; all typing is literal, including `?`, `q` and numbers |
+| Top line | The goal's name, your name, whether everything is saved (or *Asking …* while the consultant works, *Answer ready* when its reply waits on **Next step**), the view, and on the right which control has the keyboard |
+| Pinned lines | Your goal and safeguards; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
+| Loop line | Goal, Test + forecast, Action, Observe, Review: ✓ finished, ● current, ○ still to come |
+| Middle | The current question and what it builds on (at review: the original forecast beside the result), or the view you chose |
+| Views list | On terminals 100 columns or wider; narrower, the **Views** button takes its place |
+| Answer box | Your answer; all typing is literal, including `?`, `q` and numbers. Its frame says who you answer as and who **Send** asks, and turns bright while you type. It grows as you write |
+
+On a small terminal (80×24) the views list gives way to the **Views** button, and
+the forecast and the result stack one above the other:
+
+![The review question at 80 by 24: the original forecast, 6 of 30 newcomers, directly above the reported result, 9 of 31, under a one-line goal that ends in an ellipsis](images/review-80x24.png)
 
 ## Keys and controls
 
@@ -23,10 +28,10 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the answer box to browse; your text stays |
 | Ctrl+T | Open the trees; press again to go back to the current question |
-| Ctrl+N | Next tree: the six trees one at a time, then all six together |
+| Ctrl+N | In the Trees view: the next tree, one at a time, then all six together |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations, or ask the consultant for advice or a different question |
-| **Views** | Switch view (also the list on the left) |
+| **Views** | Switch view, when the list on the left does not fit |
 | Ctrl+P (**Actions**) | Export, import or export trees, retry, change consultant, views, help, quit |
 | F1 | Help |
 | Ctrl+Q | Save your draft and quit |
@@ -35,9 +40,10 @@ On the goals list: arrows choose, Enter opens, F1 shows help, Ctrl+Q quits.
 
 ## First start, settings and the tour
 
-The first time, `reason-commons` offers four ways to start: set up and start a
-first goal, take the guided tour, look around a finished example, or skip setup.
-Setup asks for your name (recorded with your answers), the consultant and, for
+The first time, `reason-commons` offers four ways to start: start a first goal
+straight away (the offline guide, with your login name), choose who asks the
+questions first, take the guided tour, or look around a finished example. Choosing
+first asks for your name (recorded with your answers), the consultant and, for
 Claude or LM Studio, checks the connection and lets you choose a model. Esc goes
 back a step; leaving setup changes nothing. **Settings** on the home screen runs
 it again.
@@ -58,7 +64,7 @@ Browsing views never calls the consultant.
 | Trees | The six thinking-process trees, drawn from what was recorded; each branch says how a statement relates to the one above it |
 | Tests | Each test with its original forecast next to the reported result, and reviews |
 | Actions | Planned actions |
-| Everything | All saved records |
+| Reasoning | All saved records, and what is still open |
 | Your words | Your answers, exactly as written |
 | History | Every saved revision with its time |
 

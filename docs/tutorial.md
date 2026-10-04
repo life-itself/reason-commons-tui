@@ -22,8 +22,9 @@ own goal if you have one, or copy Mira's answers to get a feel for it first.
 
 ## 1. Start a goal
 
-Run `reason-commons`, choose **Start a new goal** and give it a short name, such as
-"From open evening to first practice". The workspace opens with one question.
+Run `reason-commons`, choose **Start my first goal** (later, **Start a new goal**)
+and give it a short name, such as "From open evening to first practice". The
+workspace opens with one question: what would count as better?
 
 Type in the box at the bottom. **Enter** starts a new line; **Ctrl+S** sends. Mira
 writes:
@@ -61,11 +62,12 @@ Mira picks:
 > End each open evening with one clear invitation: the date of a first practice,
 > what it asks of you, and that no is a fine answer.
 
-Then the most important question: **what do you expect to happen?** Write it down
-now, with a number if you can. This original forecast is saved before any result
+Then the most important question: **what do you expect to happen?** The guide
+repeats the change you just wrote, so you forecast exactly that. Write it down now,
+with a number if you can. This original forecast is saved before any result
 exists, and it never changes.
 
-![The guide asks for a forecast; Goal is ticked and Test + forecast is current](images/tutorial-forecast.png)
+![The guide repeats the change Mira chose and asks for a forecast, with the goal's measure underneath; Goal is ticked and Test + forecast is current](images/tutorial-forecast.png)
 
 > 6 of 30 newcomers come to a first practice within 3 weeks
 
@@ -96,16 +98,17 @@ what actually happened. Report what you observed, separately from what you hoped
 
 ## 6. Review against your forecast
 
-The guide puts your original forecast in front of you, in its exact words. Check
-your safeguards first, then decide: keep, adjust or drop the change.
+The review question puts your original forecast, in its exact words, next to what
+you reported, with your safeguards underneath. Check the safeguards first, then
+decide: keep, adjust or drop the change.
 
-![The review question quotes the original forecast and asks to keep, adjust or drop](images/tutorial-review.png)
+![The review question: the original forecast, 6 of 30 newcomers, beside the reported result, 9 of 31, with the two safeguards listed below to check against the report](images/tutorial-review.png)
 
 > Keep it. I forecast 6 of 30 and got 9 of 31, and both safeguards held.
 > Next I will test whether people come back for a second session.
 
-Open **Tests** (in the list on the left, or **Views**) to see the forecast and the
-result side by side:
+**Tests** (in the list on the left, or **Views**) keeps every test with its
+forecast and result side by side:
 
 ![The Tests view shows the forecast, 6 of 30 newcomers, next to the result, 9 of 31](images/forecast-vs-result.png)
 

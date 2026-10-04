@@ -36,9 +36,15 @@ DEFAULT_LM_STUDIO_URL = "http://127.0.0.1:1234/v1"
 
 
 def login_name():
-    """A friendly default for the name field: the login name, capitalised."""
-    name = os.environ.get("USER") or os.environ.get("USERNAME") or ""
-    return name[:1].upper() + name[1:]
+    """A friendly default for the name field: the account's first name, else the login name, capitalised."""
+    login = os.environ.get("USER") or os.environ.get("USERNAME") or ""
+    try:
+        import pwd
+        account = pwd.getpwuid(os.getuid())
+    except (ImportError, KeyError):
+        account = None
+    full = account.pw_gecos.split(",")[0].split() if account and account.pw_name == login else []
+    return full[0] if full else login[:1].upper() + login[1:]
 
 
 # ----- steps -------------------------------------------------------------------------
@@ -338,8 +344,8 @@ COACH = {
     "action": "Name the very next action and when. For real, you would now press [b]Ctrl+Q[/b] and go do "
               "it; everything, even a half-written answer, is saved. In the tour, time skips ahead.",
     "observe": "Some weeks later... Report what actually happened, separately from what you hoped.",
-    "review": "The guide quotes your original forecast word for word. Check the safeguards first, then "
-              "decide: keep, adjust or drop the change.",
+    "review": "Your original forecast, word for word, now sits next to what you reported. Check the "
+              "safeguards first, then decide: keep, adjust or drop the change.",
     "done": "[b]Loop complete.[/b] Look around before you go: [b]Views[/b] then [i]Tests[/i] puts your forecast "
             "next to the result; [b]Ctrl+T[/b] opens the six trees (Claude or a local model grows them as "
             "you talk); [b]Ctrl+P[/b] lists every action, including changing consultant. Press "

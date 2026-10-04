@@ -148,8 +148,9 @@ A goals home screen follows: plain `reason-commons` in a terminal lists the case
 folders under `~/ReasonCommons` (or `REASON_COMMONS_HOME`) and starts new ones with
 `create_case`, reading each through read-only `open_case`/`inspect`. Without a
 terminal it still prints help. The header shows "Saved"; revisions stay in History.
-The workspace draws the loop under the pinned context (current step marked) and a
-small workflow diagram on the welcome screen; record IDs stay out of the views. The
+The workspace draws the loop under the pinned context (✓ done, ● current, ○ to come);
+the welcome screen asks one question, with the workflow diagram behind Explain this.
+Record IDs stay out of the views. The
 home screen offers a finished, fictional example built through `retain_input` and
 `consult` with the built-in guide in a temporary folder that is removed afterwards.
 The README now leads with screenshots rendered from the running workspace by
@@ -159,6 +160,17 @@ User docs follow the four Diataxis kinds from `docs/README.md`: a tutorial with
 step screenshots (`tutorial.md`), how-to guides (`use-a-model.md`,
 `back-up-and-share.md`, `skill-use.md`), a reference (`tui.md`) and an explanation
 (`the-loop.md`). They describe shipped behaviour only; no new scenario is claimed.
+
+A UX pass ([TUI-UX-PLAN.md](../TUI-UX-PLAN.md)) moves the workspace towards the
+p1/p2 contract, in the adapters only. At review, Next step puts each original
+forecast beside the reported results, matched by measure name alone and with no
+verdicts, followed by the goal's safeguards (towards S121). The guide quotes the
+change while it is being forecast (S04). The goal band never clips silently, and
+the context under a question leaves out what the band shows (S68). The header names
+the focused control (S114). A reply that arrives while someone browses no longer
+changes their view (S118). The first start leads with starting a goal. Adapter
+tests cover each of these; the scenario steps and participant checks are still
+outstanding, so no p1 or p2 scenario is claimed.
 
 The README and docs now illustrate the six LTP trees with the Second Renaissance
 analysis from the reasoncommons guide (`docs/the-trees.md`, pictures drawn by
