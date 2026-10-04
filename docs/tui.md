@@ -7,12 +7,12 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 
 | Part | What it shows |
 | --- | --- |
-| Top line | The goal's name, your name, whether everything is saved, the current step and the consultant |
+| Top line | The goal's name, your name, whether everything is saved (or *Asking …* while the consultant works, *Answer ready* when its reply waits on **Next step**), the view, and on the right which control has the keyboard |
 | Pinned lines | Your goal and safeguards; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
-| Loop line | Goal → Test + forecast → Action → Observe → Review; ✓ marks finished steps and > the current one |
+| Loop line | Goal, Test + forecast, Action, Observe, Review: ✓ finished, ● current, ○ still to come |
 | Middle | The current question and what it builds on (at review: the original forecast beside the result), or the view you chose |
-| Views list | On terminals 100 columns or wider; otherwise use **Views** |
-| Answer box | Your answer; all typing is literal, including `?`, `q` and numbers |
+| Views list | On terminals 100 columns or wider; narrower, the **Views** button takes its place |
+| Answer box | Your answer; all typing is literal, including `?`, `q` and numbers. Its frame says who you answer as and who **Send** asks, and turns bright while you type. It grows as you write |
 
 ## Keys and controls
 
@@ -23,10 +23,10 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the answer box to browse; your text stays |
 | Ctrl+T | Open the trees; press again to go back to the current question |
-| Ctrl+N | Next tree: the six trees one at a time, then all six together |
+| Ctrl+N | In the Trees view: the next tree, one at a time, then all six together |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations, or ask the consultant for advice or a different question |
-| **Views** | Switch view (also the list on the left) |
+| **Views** | Switch view, when the list on the left does not fit |
 | Ctrl+P (**Actions**) | Export, import or export trees, retry, change consultant, views, help, quit |
 | F1 | Help |
 | Ctrl+Q | Save your draft and quit |
@@ -58,7 +58,7 @@ Browsing views never calls the consultant.
 | Trees | The six thinking-process trees, drawn from what was recorded; each branch says how a statement relates to the one above it |
 | Tests | Each test with its original forecast next to the reported result, and reviews |
 | Actions | Planned actions |
-| Everything | All saved records |
+| Reasoning | All saved records, and what is still open |
 | Your words | Your answers, exactly as written |
 | History | Every saved revision with its time |
 

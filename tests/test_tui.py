@@ -161,9 +161,9 @@ def test_header_says_saved_without_engine_revision(tmp_path):
         app = launch(path, {"guided": GuidedConsultant()})
         async with app.run_test(size=(120, 40)) as pilot:
             await pilot.pause()
-            return str(app.query_one("#status").render())
-    status = asyncio.run(run())
-    assert "Saved" in status and "r0" not in status
+            return screen_text(app).splitlines()
+    status = next(line for line in asyncio.run(run()) if "Plain · David" in line)
+    assert "Saved" in status and not re.search(r"\br\d{4}\b", status)
 
 
 def test_bare_command_without_a_terminal_prints_everyday_help():
@@ -181,8 +181,8 @@ def test_loop_line_marks_done_and_current_steps():
     assert loop_stage({"data": {"decision": "Review against the forecast"}}) == "review"
     assert loop_stage({"data": {"decision": "Something else entirely"}}) is None
     line = loop_line("action")
-    assert "✓ Goal" in line and "✓ Test + forecast" in line and "> Action" in line and "✓ Observe" not in line
-    assert ">" not in loop_line(None).replace("→", "")
+    assert "✓ Goal" in line and "✓ Test + forecast" in line and "● Action" in line and "○ Observe" in line
+    assert not any(mark in loop_line(None) for mark in "✓●○")
 
 
 def test_welcome_draws_the_loop_and_the_strip_follows_progress(tmp_path):
@@ -194,10 +194,10 @@ def test_welcome_draws_the_loop_and_the_strip_follows_progress(tmp_path):
         async with app.run_test(size=(80, 24)) as pilot:
             await pilot.pause()
             assert "One small test" in app.render_next()
-            assert "> Goal" in str(app.query_one("#loop").render())
+            assert "● Goal" in str(app.query_one("#loop").render())
             for answer in ("Sleep better", "", "", "Phone in the kitchen"):
                 await send(app, pilot, answer)
-            assert "> Test + forecast" in str(app.query_one("#loop").render())
+            assert "● Test + forecast" in str(app.query_one("#loop").render())
             assert "One small test" not in app.render_next()
     asyncio.run(run())
 
@@ -331,3 +331,59 @@ def test_band_marks_a_cut_and_the_goal_view_shows_it_all(tmp_path):
             await pilot.pause()
             assert goal.replace("-", "\\-").replace(".", "\\.") in app.query_one("#content").source
     asyncio.run(run())
+
+
+def test_a_reply_never_moves_the_person_out_of_what_they_are_reading(tmp_path):
+    """S118: an answer arriving while History is open leaves the view and focus alone."""
+    import threading
+    path = tmp_path / "case"
+    create_case(path, "Waiting").close()
+    release = threading.Event()
+
+    class Slow(GuidedConsultant):
+        def propose(self, request):
+            release.wait(5)
+            return super().propose(request)
+
+    async def run():
+        app = launch(path, {"guided": Slow()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.query_one("#editor").load_text("Calmer mornings")
+            await pilot.press("ctrl+s")
+            await pilot.pause()
+            assert "Asking the offline guide…" in screen_text(app)
+            app.show_view("history")
+            await pilot.pause()
+            release.set()
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            assert app.view_name == "history" and app.focused.id == "editor"
+            assert "Answer ready" in screen_text(app)
+            app.show_view("next")
+            await pilot.pause()
+            assert "Answer ready" not in screen_text(app)
+            assert app.workspace_value["question"]["data"]["purpose"] == "guided:goal_measure"
+    asyncio.run(run())
+
+
+def test_header_names_the_focused_control_and_routes_are_not_duplicated(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Focus").close()
+
+    async def run(size):
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=size) as pilot:
+            await pilot.pause()
+            assert "Focus: Answer" in screen_text(app)
+            await pilot.press("escape")
+            await pilot.pause()
+            assert "Focus: Reading" in screen_text(app)
+            # Next tree is offered only where it means something.
+            assert not app.check_action("next_tree", ()) and "Next tree" not in screen_text(app)
+            app.show_view("trees")
+            await pilot.pause()
+            assert app.check_action("next_tree", ())
+            # The Views button appears only when the destinations list does not fit.
+            return app.query_one("#views").has_class("hidden"), app.query_one("#views-button").has_class("hidden")
+    assert asyncio.run(run((120, 40))) == (False, True)
+    assert asyncio.run(run((80, 24))) == (True, False)

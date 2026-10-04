@@ -34,9 +34,15 @@ from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, trees_lines
 
 TOUR_FINISHED = "tour-finished"
 PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claude", "lm-studio": "LM Studio (local)"}
+# Who receives what you send, named where you send it.
+SEND_TO = {"guided": "the offline guide", "anthropic": "Claude", "lm-studio": "your local model"}
 TREE_ORDER = list(TREE_TITLES)
 VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"), ("actions", "Actions"),
-               ("reasoning", "Everything"), ("sources", "Your words"), ("history", "History")]
+               ("reasoning", "Reasoning"), ("sources", "Your words"), ("history", "History")]
+# The control that has keyboard focus, named in the header.
+FOCUS_NAMES = {"editor": "Answer", "send": "Send", "fill": "Example answer", "retry": "Retry",
+               "explain": "Explain this", "moves": "Other moves", "views-button": "Views", "actions": "Actions",
+               "finish": "Finish tour", "views": "Views list", "main": "Reading"}
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
         ("review", "Review")]
 GUIDED_STAGE = {"goal": "goal", "goal_measure": "goal", "goal_protect": "goal", "test_change": "test",
@@ -102,7 +108,7 @@ consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the editor to browse; your text stays |
 | Ctrl+T | Open the trees; press again to go back to the current question |
-| Ctrl+N | Next tree: the six trees one at a time, then all six together |
+| Ctrl+N | In the Trees view: the next tree, then all six together |
 | Ctrl+P | Actions: export, retry, change consultant, quit |
 | F1 | This help |
 | Ctrl+Q | Save and quit |
@@ -131,19 +137,18 @@ def loop_stage(question):
     return next((stage for stage, words in STAGE_WORDS if any(word in decision for word in words)), None)
 
 
-def loop_line(stage):
-    """The loop drawn as one line: done steps ticked, the current one marked; symbols carry the meaning."""
+def loop_line(stage, wide=True):
+    """The loop drawn as one line: ✓ done, ● current, ○ still to come; symbols carry the meaning.
+
+    When the step cannot be told (another consultant's own question), no step is marked.
+    """
     keys = [key for key, _ in LOOP]
-    now = keys.index(stage) if stage in keys else -1
-    parts = []
-    for index, (key, label) in enumerate(LOOP):
-        if index == now:
-            parts.append(f"[b reverse] > {label} [/]")
-        elif index < now:
-            parts.append(f"[dim]✓ {label}[/]")
-        else:
-            parts.append(label)
-    return " → ".join(parts) + ("   [dim](then the loop starts again)[/]" if stage == "review" else "")
+    if stage not in keys:
+        return "[dim]" + "  ·  ".join(name for _, name in LOOP) + "[/]"
+    now = keys.index(stage)
+    parts = [f"[b]● {name}[/b]" if index == now else f"[dim]{'✓' if index < now else '○'} {name}[/]"
+             for index, (_, name) in enumerate(LOOP)]
+    return "  ".join(parts) + ("   [dim]then a new loop begins[/]" if stage == "review" and wide else "")
 
 
 def md(value):
@@ -239,7 +244,7 @@ def comparison_block(workspace, comparison, wide):
     parts = [Text.assemble(("TEST  ", "bold dim"), str(test["statement"]))]
     for forecast in forecasts:
         found = results(forecast.get("measure"))
-        parts += [Text(""), Text("Measure: " + str(forecast.get("measure") or "not stated"), style="dim")]
+        parts += [Text("")] * wide + [Text("Measure: " + str(forecast.get("measure") or "not stated"), style="dim")]
         expected = Group(Text(str(forecast.get("expected") or "not stated")),
                          *[q for q in [qualifiers(forecast)] if q])
         before, after = heading("ORIGINAL FORECAST", "saved before any result"), result_heading(found)
@@ -375,26 +380,35 @@ class ReasonCommonsApp(App):
     COMMAND_PALETTE_DISPLAY = "Actions"
     CSS = """
     Screen { layout: vertical; }
-    #status { height: 1; background: $primary; color: $text; padding: 0 1; }
+    #status { height: 1; padding: 0 1; color: $text-muted; }
     #pinned { height: auto; background: $boost; padding: 0 1; }
-    #loop { height: 1; padding: 0 1; color: $text; }
+    #loop { height: 1; padding: 0 1; }
     #body { height: 1fr; }
-    #views { width: 18; border: round $panel; }
-    #views.hidden { display: none; }
-    #main { border: round $panel; padding: 0 1; }
+    #views { width: 16; border: none; background: transparent; color: $text-muted; padding: 0 0 0 1; }
+    #views > .option-list--option-highlighted { background: $boost; color: $text; text-style: bold; }
+    #views:focus > .option-list--option-highlighted { background: $accent 40%; }
+    #views.hidden, #views-button.hidden { display: none; }
+    #main { border: none; border-left: blank; padding: 0 1; }
+    #main:focus { border-left: heavy $accent; }
     #content { margin: 0; }
     #canvas { margin: 0 0 1 0; padding: 0 2; }
     #canvas.hidden { display: none; }
-    #content MarkdownH2 { margin: 0 0 1 0; }
+    #content MarkdownH2 { margin: 0 0 1 0; color: $text-muted; background: transparent; text-style: bold; }
     #content MarkdownH3 { margin: 1 0 1 0; }
-    #main:focus-within, #main:focus { border: round $accent; }
-    #response { height: auto; border: round $accent; padding: 0 1; }
-    #response-label { color: $text-muted; }
-    #editor { height: 6; border: none; }
-    #controls { height: 1; margin-top: 1; }
-    #controls Button { min-width: 8; height: 1; border: none; margin-right: 1; }
+    #response { height: auto; border: round $panel-lighten-2; padding: 0 1;
+                border-title-color: $text-muted; border-subtitle-color: $text-muted; }
+    #response:focus-within { border: round $accent; }
+    #editor { height: auto; min-height: 3; max-height: 10; border: none; }
+    #controls { height: 1; }
+    #controls Button { min-width: 8; height: 1; border: none; margin-right: 1; background: transparent;
+                       color: $text-muted; text-style: none; }
+    #controls Button:hover { color: $text; }
+    #controls #send { background: $primary; color: $text; text-style: bold; }
+    #controls #retry { color: $warning; }
+    #controls #finish { color: $success; }
+    #controls Button:focus, #controls #send:focus { background: $accent; color: $text; text-style: bold; }
     #retry.hidden, #fill.hidden, #finish.hidden { display: none; }
-    #coach { height: auto; max-height: 5; border: round $warning; padding: 0 1; }
+    #coach { height: auto; max-height: 5; border: round $panel-lighten-2; padding: 0 1; }
     #coach.hidden { display: none; }
     .step-count { color: $text-muted; }
     Step #dialog, Checking #dialog { padding: 0 2; }
@@ -411,7 +425,7 @@ class ReasonCommonsApp(App):
         Binding("ctrl+s", "send", "Send", priority=True),
         Binding("escape", "browse", "Browse", show=False),
         Binding("ctrl+t", "trees", "Trees", priority=True),
-        Binding("ctrl+n", "next_tree", "Next tree", priority=True),
+        Binding("ctrl+n", "next_tree", "Next tree", priority=True),  # shown and active in Trees only
         Binding("f1", "help", "Help"),
         Binding("ctrl+q", "quit", "Save & quit", priority=True),
     ]
@@ -421,7 +435,7 @@ class ReasonCommonsApp(App):
         self.store, self.speaker, self.provider, self.tour = str(store), speaker, provider, tour
         self._open, self._consultant_factory = open_application, consultant_factory
         self.case = open_application(consultant_factory(provider))
-        self.view_name, self.explain, self.busy = "next", False, False
+        self.view_name, self.explain, self.busy, self.answer_ready = "next", False, False, False
         self.workspace_value, self._restoring, self._save_timer = None, False, None
         # Which tree the Trees view shows: one of TREE_ORDER, "all", or None until first chosen.
         self.tree_choice = None
@@ -438,7 +452,6 @@ class ReasonCommonsApp(App):
                 yield Static(id="canvas")
         yield Static(id="coach", classes="" if self.tour else "hidden")
         with Vertical(id="response"):
-            yield Label(id="response-label")
             yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
             with Horizontal(id="controls"):
                 yield Button("Send", id="send", variant="primary")
@@ -466,29 +479,51 @@ class ReasonCommonsApp(App):
         if cursor.get("view") in dict(VIEW_LABELS) and cursor["view"] != "next":
             self.show_view(cursor["view"])
         self.query_one("#editor").focus()
+        self.watch(self.screen, "focused", lambda _: self.render_status())
         self.on_resize()
 
     def on_resize(self, event=None):
-        self.query_one("#views").set_class(self.size.width < 100, "hidden")
-        self.query_one("#editor").styles.height = 3 if self.size.height < 30 else 6
+        # The destinations list needs room; without it, the Views button reaches the same views.
+        wide = self.size.width >= 100
+        self.query_one("#views").set_class(not wide, "hidden")
+        self.query_one("#views-button").set_class(wide, "hidden")
+        self.query_one("#editor").styles.max_height = 5 if self.size.height < 30 else 10
         if self.workspace_value is not None:  # the band, comparisons and welcome depend on the width
             self.render_all()
+
+    def check_action(self, action, parameters):
+        return self.view_name == "trees" if action == "next_tree" else True
 
     # ----- reading ------------------------------------------------------
     def refresh_workspace(self):
         self.workspace_value = self.case.workspace(view=self.view_name)
         self.render_all()
 
+    def render_status(self):
+        """One quiet line: goal, speaker, save state and view, and the control that has focus."""
+        w = self.workspace_value
+        if w is None:
+            return
+        state = (f"Asking {self.send_to()}…" if self.busy else "Answer ready" if self.answer_ready else "Saved")
+        line = Table.grid(expand=True)
+        line.add_column(no_wrap=True, overflow="ellipsis")
+        line.add_column(justify="right", no_wrap=True)
+        focused = FOCUS_NAMES.get(getattr(self.screen.focused, "id", None), "")
+        line.add_row(Text.assemble((w["case_name"], "bold"), f" · {self.speaker} · ",
+                                   (state, "bold" if self.answer_ready else ""),
+                                   f" · {dict(VIEW_LABELS)[self.view_name]}"),
+                     f"Focus: {focused}" if focused else "")
+        self.query_one("#status", Static).update(line)
+
+    def send_to(self):
+        return SEND_TO.get(self.provider, self.provider)
+
     def render_all(self):
         w = self.workspace_value
-        question = (w["question"] or {}).get("data", {})
-        step = question.get("decision") or ("Start" if not w["question"] else "Next question")
-        consultant = PROVIDERS.get(self.provider, self.provider)
-        state = "asking the consultant..." if self.busy else "Saved"
-        self.query_one("#status", Static).update(
-            f"[b]{escape(w['case_name'])}[/b]  |  {escape(self.speaker)}  |  {state}  |  "
-            f"{escape(step)}  |  {escape(consultant)}")
-        self.query_one("#loop", Static).update("" if w["historical"] else loop_line(loop_stage(w["question"])))
+        self.render_status()
+        self.refresh_bindings()
+        self.query_one("#loop", Static).update(
+            "" if w["historical"] else loop_line(loop_stage(w["question"]), wide=self.size.width >= 100))
         content = self.render_next() if self.view_name == "next" else self.render_view()
         self.query_one("#content", Markdown).update(content)
         drawing = {"trees": self.render_trees, "next": self.render_context,
@@ -505,9 +540,9 @@ class ReasonCommonsApp(App):
             state = self.tour_state()
             self.query_one("#coach", Static).update(coach_text(state))
             self.query_one("#fill").set_class(state not in EXAMPLE_ANSWERS, "hidden")
-        self.query_one("#response-label", Label).update(
-            f"Answer as {escape(self.speaker)}  ·  Enter: new line  ·  Ctrl+S or Send: send to the "
-            f"{'guide' if self.provider == 'guided' else 'consultant'}")
+        response = self.query_one("#response")
+        response.border_title = f"Answer as {escape(self.speaker)}"
+        response.border_subtitle = f"Enter adds a line · Send asks {escape(self.send_to())}"
 
     def tour_state(self):
         return tour_state(self.workspace_value["question"], self.case.inspect()["case"]["records"])
@@ -590,10 +625,12 @@ class ReasonCommonsApp(App):
         rows.add_column(style="bold dim", max_width=24)
         rows.add_column()
         pinned = (self.pinned_goal() or {}).get("ref")
+        measures = {f.get("measure") for c in compared for f in c["test"]["data"].get("forecast") or []}
         for record in w["records"]:
             if record["kind"] != "intervention" and record["ref"] not in drawn:
                 for name, value in context_rows(w, record, pinned):
-                    rows.add_row(name, Text(str(value)))
+                    if not (name == "Measure" and value in measures):  # already above, with its forecast
+                        rows.add_row(name, Text(str(value)))
         if rows.row_count:
             parts += [Text("")] * bool(parts) + [rows]
         return Group(*parts) if parts else None
@@ -612,7 +649,7 @@ class ReasonCommonsApp(App):
     def render_view(self):
         w, view = self.workspace_value, self.view_name
         title = dict(VIEW_LABELS)[view]
-        lines = [f"## {title}", "", "_Browsing is local and never asks the consultant._", ""]
+        lines = [f"## {title}", ""]
         if view == "history":
             for item in reversed(w["history"]):
                 lines.append(f"- Revision {item['revision']} | {md(item['timestamp'])}")
@@ -672,6 +709,9 @@ class ReasonCommonsApp(App):
 
     def show_view(self, name):
         self.view_name = name
+        self.answer_ready = self.answer_ready and name != "next"
+        views = self.query_one("#views", OptionList)
+        views.highlighted = [key for key, _ in VIEW_LABELS].index(name)
         self.refresh_workspace()
         self.query_one("#main").scroll_home(animate=False)
         self.schedule_checkpoint()
@@ -748,10 +788,8 @@ class ReasonCommonsApp(App):
         self.show_view("trees")
 
     def action_explain(self):
-        if self.view_name != "next":
-            self.view_name = "next"
         self.explain = not self.explain
-        self.refresh_workspace()
+        self.show_view("next")
 
     def action_other_moves(self):
         options = [("explain", "Understand why this question     LOCAL"),
@@ -819,8 +857,9 @@ class ReasonCommonsApp(App):
             if sent:
                 editor.clear()
             self.explain = False
-            self.view_name = "next" if text is not None or self.view_name == "next" else self.view_name
-            self.notify("Saved.")
+            # Never move the person: a reply that arrives while they browse waits on Next step.
+            self.answer_ready = self.view_name != "next"
+            self.notify("Answer ready: Next step shows the new question." if self.answer_ready else "Saved.")
         elif result.get("input_retained"):
             if sent:
                 editor.clear()  # the words are retained in the case; Retry reuses them
