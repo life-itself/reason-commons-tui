@@ -120,6 +120,7 @@ def test_story_opens_read_only_on_the_next_action_and_steps_through_history(stor
             await pilot.press("enter")
             await pilot.pause()
             assert app.revision == 1 and app.view_name == "next"
+            assert app.query_one("#views").highlighted == 0  # the list follows to Next step
             app.query_one("#now").press()
             await pilot.pause()
             assert app.revision is None

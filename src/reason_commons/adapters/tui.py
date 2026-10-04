@@ -987,8 +987,8 @@ class ReasonCommonsApp(App):
 
     @on(OptionList.OptionSelected, "#timeline")
     def moment_selected(self, event):
-        self.view_name = "next"
-        self.go_to(int(event.option.id))
+        self.revision = int(event.option.id)  # set first, so the step page opens directly
+        self.show_view("next")
 
     def shown_tree(self):
         """The tree on screen: the last one chosen, else the first that has statements."""

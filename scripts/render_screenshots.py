@@ -53,6 +53,8 @@ async def shoot(app, name, size, before=None, steps=None):
             await steps(app, pilot)
             await pilot.pause(0.3)
         app.save_screenshot(filename=f"{name}.svg", path=str(OUT))
+        if getattr(app, "_save_timer", None):
+            app._save_timer.stop()  # a pending draft save must not fire while the app shuts down
 
 
 async def render(folder):
@@ -79,6 +81,107 @@ async def render(folder):
     await real_commons(folder)
     await shoot(workspace(finished), "trees-current-reality", (120, 56),
                 before=lambda app: app.show_tree("current_reality"))
+    await more_workspace(folder, goals, finished)
+    await more_home(folder, goals)
+
+
+async def more_workspace(folder, goals, finished):
+    """Every other view, the trees not shown above, the dialogs, the palette and the narrow layout."""
+    for view, name in (("goal", "view-goal"), ("actions", "view-actions"), ("reasoning", "view-reasoning"),
+                       ("sources", "view-sources"), ("history", "view-history")):
+        await shoot(workspace(finished), name, (120, 36), before=lambda app, view=view: app.show_view(view))
+    for tree, name, height in (("goal", "tree-goal", 36), ("conflict", "tree-evaporating-cloud", 44),
+                               ("future_reality", "tree-future-reality", 56), ("prerequisite", "tree-prerequisite", 44),
+                               ("all", "tree-all-six", 60)):
+        await shoot(workspace(finished), name, (120, height), before=lambda app, tree=tree: app.show_tree(tree))
+    # Looking back: an ordinary goal at an earlier step, read-only.
+    def step_back(app):
+        app.go_to(8)
+        app.show_view("next")  # the example opens on Tests; a step reads best on its own page
+    await shoot(workspace(finished), "history-moment", (120, 36), before=step_back)
+    create_case(folder / "bare", "Agree how our strategy map gets reviewed").close()
+    await shoot(workspace(folder / "bare"), "trees-empty", (120, 30), before=lambda app: app.show_view("trees"))
+    await shoot(workspace(finished), "explain-this", (120, 36), steps=press("explain"))
+    await shoot(workspace(goals / "first-practice"), "explain-question", (120, 36), steps=press("explain"))
+    await shoot(workspace(goals / "first-practice"), "other-moves", (120, 36), steps=press("moves"))
+    await shoot(workspace(goals / "first-practice"), "views-menu", (80, 30), steps=press("views-button"))
+    await shoot(workspace(goals / "first-practice"), "workspace-narrow", (80, 30))
+    await shoot(workspace(goals / "first-practice"), "help", (120, 36), steps=keys("f1"))
+    await shoot(workspace(finished), "actions-palette", (120, 36), steps=keys("ctrl+p"))
+    await shoot(workspace(finished), "actions-palette-search", (120, 36), steps=keys("ctrl+p", text="trees"))
+    await shoot(workspace(finished), "export-case", (120, 36), steps=call("action_export"))
+    await shoot(workspace(finished), "export-trees", (120, 36), steps=call("action_export_trees"))
+    await shoot(workspace(finished), "import-trees", (120, 36), steps=call("action_import_trees"))
+
+    async def draft(app, pilot):
+        app.query_one("#editor").text = "Newcomers book a first practice before they leave the open evening."
+        await pilot.pause()
+    await shoot(workspace(goals / "first-practice"), "answer-draft", (120, 36), steps=draft)
+
+    class Offline:
+        def propose(self, request):
+            raise ConnectionError("offline")
+    offline = folder / "offline"
+    build_sample(offline, answers=ANSWERS[:2], view="next", name=GOAL, clock=FixedClock("2026-10-14T20:00:00+00:00"))
+    app = ReasonCommonsApp(offline, SPEAKER, "anthropic", lambda consultant: open_case(offline, consultant=Offline()),
+                           lambda provider: Offline())
+
+    async def fail(app, pilot):
+        app.query_one("#editor").text = "Mira's group, six of us, runs the sign-up sheet."
+        app.action_send()
+        await pilot.pause(0.5)
+    await shoot(app, "consultant-unavailable", (120, 36), steps=fail)
+
+
+def press(button):
+    async def steps(app, pilot):
+        app.query_one(f"#{button}").press()
+        await pilot.pause(0.3)
+    return steps
+
+
+def keys(*names, text=None):
+    async def steps(app, pilot):
+        await pilot.press(*names)
+        await pilot.pause(0.3)
+        if text:
+            await pilot.press(*text)
+            await pilot.pause(0.3)
+    return steps
+
+
+def call(method):
+    async def steps(app, pilot):
+        getattr(app, method)()
+        await pilot.pause(0.3)
+    return steps
+
+
+def highlight_settings(app):
+    goals = app.query_one("#goals")
+    goals.highlighted = [option.id for option in goals.options].index("settings")
+
+
+async def more_home(folder, goals):
+    """The goals list's dialogs and its help."""
+    from reason_commons.adapters.settings import Settings
+    settings = Settings.load(folder / "settings.yaml")
+    settings.set("Mira", "name")
+    settings.set("guided", "consultant")
+    settings.save()
+
+    def home():
+        return GoalsApp(goals, settings=settings)
+
+    async def new_goal(app, pilot):
+        app.query_one("#goals").highlighted = 0
+        await pilot.press("enter")
+        await pilot.pause(0.3)
+        app.screen.query_one("Input").value = "A clear next step after open evenings"
+        await pilot.pause(0.2)
+    await shoot(home(), "new-goal", (100, 22), steps=new_goal)
+    await shoot(home(), "home-help", (100, 30), steps=keys("f1"))
+    await shoot(home(), "home-settings", (100, 22), before=highlight_settings)
 
 
 async def real_commons(folder):
