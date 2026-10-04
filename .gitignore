@@ -9,6 +9,8 @@ dist/
 .evaluation-runs/
 .reason-commons/
 .codex/config.toml
+# Rendered by scripts/video/demo.tape; share through a GitHub upload, not git
+docs/video/
 
 # --- GitHub Python template ---
 # Byte-compiled / optimized / DLL files
