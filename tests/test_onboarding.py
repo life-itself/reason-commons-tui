@@ -46,6 +46,17 @@ def test_settings_round_trip_privately_and_never_override_the_environment(tmp_pa
     assert environment["REASON_COMMONS_PROVIDER"] == "anthropic"
 
 
+def test_default_name_is_the_accounts_first_name(monkeypatch):
+    import pwd
+    from types import SimpleNamespace
+    from reason_commons.adapters.onboarding import login_name
+    monkeypatch.setenv("USER", "djoseph")
+    monkeypatch.setattr(pwd, "getpwuid", lambda uid: SimpleNamespace(pw_name="djoseph", pw_gecos="David Joseph,,,"))
+    assert login_name() == "David"
+    monkeypatch.setattr(pwd, "getpwuid", lambda uid: SimpleNamespace(pw_name="djoseph", pw_gecos=""))
+    assert login_name() == "Djoseph"
+
+
 def test_unreadable_settings_count_as_first_start(tmp_path):
     path = tmp_path / "settings.yaml"
     path.write_text("name: [unclosed")

@@ -36,9 +36,15 @@ DEFAULT_LM_STUDIO_URL = "http://127.0.0.1:1234/v1"
 
 
 def login_name():
-    """A friendly default for the name field: the login name, capitalised."""
-    name = os.environ.get("USER") or os.environ.get("USERNAME") or ""
-    return name[:1].upper() + name[1:]
+    """A friendly default for the name field: the account's first name, else the login name, capitalised."""
+    login = os.environ.get("USER") or os.environ.get("USERNAME") or ""
+    try:
+        import pwd
+        account = pwd.getpwuid(os.getuid())
+    except (ImportError, KeyError):
+        account = None
+    full = account.pw_gecos.split(",")[0].split() if account and account.pw_name == login else []
+    return full[0] if full else login[:1].upper() + login[1:]
 
 
 # ----- steps -------------------------------------------------------------------------
