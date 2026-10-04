@@ -113,7 +113,8 @@ def tree_lines(tree, width=80):
             lines.append(header + [("↑ see above: ", "dim"), (textwrap.shorten(claim["statement"], 50), "")])
             return
         drawn.add(ref)
-        header.append((ROLE_LABELS[claim["role"]], "bold " + ROLE_STYLES.get(claim["role"], "")))
+        # The statement is what people read; its role label is a quieter, coloured tag above it.
+        header.append((ROLE_LABELS[claim["role"]], "dim " + ROLE_STYLES.get(claim["role"], "")))
         if claim.get("basis"):
             header.append(("  " + BASIS[claim["basis"]], "dim"))
         lines.append(header)

@@ -672,9 +672,7 @@ class ReasonCommonsApp(App):
                     name = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])})"
                     tabs.append(f"**▸ {name}**" if tree["tree"] == shown else name)
                 tabs.append("**▸ All six**" if shown == "all" else "All six")
-                lines += [" · ".join(tabs), "",
-                          "_**Ctrl+N** next tree · **Ctrl+T** back to the question · Ctrl+P **Export trees** "
-                          "writes an `.ltp.yaml` file_"]
+                lines += [" · ".join(tabs)]
             return "\n".join(lines)
         if view == "tests":
             if not w["comparisons"]:
