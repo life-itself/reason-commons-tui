@@ -112,18 +112,33 @@ forecast and result side by side:
 
 ![The Tests view shows the forecast, 6 of 30 newcomers, next to the result, 9 of 31](images/forecast-vs-result.png)
 
-## 7. See where the test sits in the trees
+## 7. See a real commons, and where a test like Mira's sits
 
-On the home screen, choose **Look around a finished example first**. It is Mira's
-loop, together with her group's whole analysis. Press **Ctrl+T**: the Trees view
-opens, and the line at the top lists all six trees and how many statements each
-holds. Press **Ctrl+N** until the Transition Tree is on screen. Its third action,
-a next step from a public contact into a first practice, is the test Mira just ran.
-This is the moment to look: the trees show which actions nobody has tested yet,
-and which cause or assumption a surprising result calls into question. That is
-where the next loop comes from.
+Mira is invented; the analysis her action comes from is not. On the home screen,
+choose **Explore a real commons**. It opens the Second Renaissance's shared
+reasoning as it stands now, read-only, with the one action it says comes next: a
+time-boxed, stewarded review of the trees.
+
+![The real commons opens on its next action, with a strip below for stepping back through how it got here](images/story-now.png)
+
+Press **←** (or **◀ Earlier**) to step back through how it got here, one saved step
+at a time: David's first goal tree on the forum, Robert's objections, the move to
+decide how the trees get updated before defining throughput, and so on. Each step
+shows who said it, when, their exact words and what changed in the trees.
+**History** lists every step; Enter opens one.
+
+![Step 6: David's words, the source, and what changed in the trees](images/story-moment.png)
+
+Press **Ctrl+T**: the Trees view opens, and the line at the top lists all six trees
+and how many statements each holds. Press **Ctrl+N** until the Transition Tree is on
+screen. Its third action, a next step from a public contact into a first practice,
+is the kind of test Mira ran. This is the moment to look: the trees show which
+actions nobody has tested yet, and which cause or assumption a surprising result
+calls into question. That is where the next loop comes from.
 
 ![The Trees view showing the Transition Tree: each action with what we expect to see and why it must change; the line at the top lists all six trees with their sizes](images/tutorial-trees.png)
+
+**Start my own goal** takes you from there to a new goal of your own.
 
 Your own goal starts with empty trees. With Claude or a local model as your
 consultant, tell it what causes a problem, which conflict keeps you stuck, what

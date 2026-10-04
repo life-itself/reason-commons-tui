@@ -76,9 +76,26 @@ async def render(folder):
     finished = build_sample(folder / "finished", name=GOAL, clock=FixedClock("2026-11-09T09:00:00+00:00"))
     await shoot(workspace(finished), "forecast-vs-result", (120, 36))
     await shoot(workspace(finished), "trees-view", (120, 36), before=lambda app: app.show_view("trees"))
-    await shoot(workspace(finished), "tutorial-trees", (120, 36), before=lambda app: app.show_tree("transition"))
+    await real_commons(folder)
     await shoot(workspace(finished), "trees-current-reality", (120, 56),
                 before=lambda app: app.show_tree("current_reality"))
+
+
+async def real_commons(folder):
+    """The packaged Second Renaissance story: now, one step back in time, and its Transition Tree."""
+    from importlib.resources import files
+    from reason_commons.adapters.story import load_story
+    from reason_commons.adapters.tui import STORY_ARCHIVE
+    from reason_commons.bootstrap import import_case
+    path = folder / "real-commons"
+    import_case(str(files("reason_commons.adapters").joinpath(STORY_ARCHIVE)), str(path)).close()
+
+    def story():
+        return ReasonCommonsApp(path, SPEAKER, "guided", lambda consultant: open_case(path, consultant=consultant),
+                                lambda provider: configured_consultant(provider=provider), story=load_story())
+    await shoot(story(), "story-now", (120, 36))
+    await shoot(story(), "story-moment", (120, 36), before=lambda app: app.go_to(6))
+    await shoot(story(), "tutorial-trees", (120, 36), before=lambda app: app.show_tree("transition"))
 
 
 async def first_start(folder):

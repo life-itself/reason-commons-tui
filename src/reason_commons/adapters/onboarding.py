@@ -312,7 +312,7 @@ async def run_setup(app, settings, first_run, checks=None):
             if first_run:
                 options = [("goal", "Start my first goal"),
                            ("tour", "Take the guided tour first (about 5 minutes, nothing is kept)"),
-                           ("sample", "Look around a finished example first")]
+                           ("sample", "Explore a real commons first")]
             else:
                 options = [("home", "Back to my goals")]
             answer = await app.push_screen_wait(ChoiceStep(

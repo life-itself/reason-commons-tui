@@ -29,10 +29,12 @@ from reason_commons.adapters.guided import STEPS
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
 from reason_commons.adapters.settings import Settings, describe
 from reason_commons.adapters.rendering import _literal
+from reason_commons.adapters.timeline import change_summary, day, next_action, revision_changes
 from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, trees_lines
 
 
 TOUR_FINISHED = "tour-finished"
+STORY_OWN_GOAL, STORY_HOME = "story-own-goal", "story-home"
 PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claude", "lm-studio": "LM Studio (local)"}
 # Who receives what you send, named where you send it.
 SEND_TO = {"guided": "the offline guide", "anthropic": "Claude", "lm-studio": "your local model"}
@@ -121,7 +123,14 @@ adaptive questions and advice. Ctrl+P switches for this session; **Settings** on
 the home screen saves your name, consultant and model for next time.
 
 New to it? **Take the guided tour** from the home screen: a practice goal with
-coaching at each step and example answers. Nothing from it is kept.
+coaching at each step and example answers. **Explore a real commons** shows how a
+movement's shared reasoning grew, step by step. Nothing from either is kept.
+
+## Looking back
+
+**History** lists every saved step: when, who, and what changed. Enter opens that
+moment exactly as it was; ← and → step through, **Back to now** returns. Nothing
+can be changed while looking back.
 """
 
 
@@ -410,6 +419,12 @@ class ReasonCommonsApp(App):
     #retry.hidden, #fill.hidden, #finish.hidden { display: none; }
     #coach { height: auto; max-height: 5; border: round $panel-lighten-2; padding: 0 1; }
     #coach.hidden { display: none; }
+    #moment { height: auto; border: round $secondary; padding: 0 1; }
+    #moment-text { height: auto; max-height: 5; }
+    #moment-controls { height: 1; margin-top: 1; }
+    #moment-controls Button { min-width: 8; height: 1; border: none; margin-right: 1; }
+    #moment.hidden, #response.hidden, #timeline.hidden, .story-only.hidden { display: none; }
+    #timeline { height: auto; max-height: 100%; border: none; margin-top: 1; }
     .step-count { color: $text-muted; }
     Step #dialog, Checking #dialog { padding: 0 2; }
     .explanation { margin-bottom: 1; }
@@ -428,11 +443,18 @@ class ReasonCommonsApp(App):
         Binding("ctrl+n", "next_tree", "Next tree", priority=True),  # shown and active in Trees only
         Binding("f1", "help", "Help"),
         Binding("ctrl+q", "quit", "Save & quit", priority=True),
+        Binding("left", "earlier", "Earlier", show=False),
+        Binding("right", "later", "Later", show=False),
     ]
 
-    def __init__(self, store, speaker, provider, open_application, consultant_factory, tour=False):
+    def __init__(self, store, speaker, provider, open_application, consultant_factory, tour=False, story=None):
         super().__init__()
         self.store, self.speaker, self.provider, self.tour = str(store), speaker, provider, tour
+        # A story is read, not answered: its goal opens read-only with its chapters for narration.
+        self.story = story
+        self.chapters = {n: c for n, c in enumerate(story["chapters"], start=1)} if story else {}
+        # None while looking at the live goal; otherwise the past revision on screen.
+        self.revision, self._history = None, None
         self._open, self._consultant_factory = open_application, consultant_factory
         self.case = open_application(consultant_factory(provider))
         self.view_name, self.explain, self.busy, self.answer_ready = "next", False, False, False
@@ -450,8 +472,19 @@ class ReasonCommonsApp(App):
             with VerticalScroll(id="main"):
                 yield Markdown(id="content")
                 yield Static(id="canvas")
+                yield OptionList(id="timeline", classes="hidden")
         yield Static(id="coach", classes="" if self.tour else "hidden")
-        with Vertical(id="response"):
+        story_only = "story-only" + ("" if self.story else " hidden")
+        with Vertical(id="moment", classes="" if self.story else "hidden"):
+            yield Static(id="moment-text")
+            with Horizontal(id="moment-controls"):
+                yield Button("◀ Earlier", id="earlier")
+                yield Button("Later ▶", id="later")
+                yield Button("Back to now", id="now")
+                yield Button("From the beginning", id="first", classes=story_only)
+                yield Button("Start my own goal", id="own", variant="success", classes=story_only)
+                yield Button("Back to start", id="home", classes=story_only)
+        with Vertical(id="response", classes="hidden" if self.story else ""):
             yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
             with Horizontal(id="controls"):
                 yield Button("Send", id="send", variant="primary")
@@ -478,13 +511,19 @@ class ReasonCommonsApp(App):
             self.tree_choice = cursor["display"]["tree"]
         if cursor.get("view") in dict(VIEW_LABELS) and cursor["view"] != "next":
             self.show_view(cursor["view"])
-        self.query_one("#editor").focus()
+        self.query_one("#earlier" if self.story else "#editor").focus()
         self.watch(self.screen, "focused", lambda _: self.render_status())
         self.on_resize()
+
+    MOMENT_LABELS = {"earlier": ("◀ Earlier", "◀ Earlier"), "later": ("Later ▶", "Later ▶"),
+                     "now": ("Back to now", "Now"), "first": ("From the beginning", "First"),
+                     "own": ("Start my own goal", "My own goal"), "home": ("Back to start", "Start screen")}
 
     def on_resize(self, event=None):
         # The destinations list needs room; without it, the Views button reaches the same views.
         wide = self.size.width >= 100
+        for key, labels in self.MOMENT_LABELS.items():
+            self.query_one("#" + key, Button).label = labels[not wide]
         self.query_one("#views").set_class(not wide, "hidden")
         self.query_one("#views-button").set_class(wide, "hidden")
         self.query_one("#editor").styles.max_height = 5 if self.size.height < 30 else 10
@@ -492,12 +531,38 @@ class ReasonCommonsApp(App):
             self.render_all()
 
     def check_action(self, action, parameters):
-        return self.view_name == "trees" if action == "next_tree" else True
+        if action == "next_tree":
+            return self.view_name == "trees"
+        if action == "send" and (self.story or getattr(self, "revision", None) is not None):
+            return False
+        return True
 
     # ----- reading ------------------------------------------------------
     def refresh_workspace(self):
-        self.workspace_value = self.case.workspace(view=self.view_name)
+        self.workspace_value = self.case.workspace(view=self.view_name, revision=self.revision)
         self.render_all()
+
+    # ----- history ------------------------------------------------------
+    def history(self):
+        """Every saved revision with what it changed (cached until the next save)."""
+        if self._history is None:
+            snapshots = self.case.history()["revisions"]
+            sources = self.case.sources()["sources"]
+            self._history = {"snapshots": snapshots, "entries": revision_changes(snapshots, sources)}
+        return self._history
+
+    def live_revision(self):
+        return self.history()["snapshots"][-1]["revision"]
+
+    def viewed_records(self):
+        if self.revision is None:
+            return self.case.inspect()["case"]["records"]
+        return self.history()["snapshots"][self.revision]["records"]
+
+    def when(self, entry):
+        chapter = self.chapters.get(entry["revision"], {})
+        mark = "≈ " if chapter.get("dated") == "approximate" else ""
+        return mark + day(entry["timestamp"])
 
     def render_status(self):
         """One quiet line: goal, speaker, save state and view, and the control that has focus."""
@@ -505,13 +570,19 @@ class ReasonCommonsApp(App):
         if w is None:
             return
         state = (f"Asking {self.send_to()}…" if self.busy else "Answer ready" if self.answer_ready else "Saved")
+        who = self.story["reader"] if self.story else self.speaker
+        where = dict(VIEW_LABELS)[self.view_name]
+        if self.story or self.revision is not None:
+            live = self.live_revision()
+            shown = live if self.revision is None else self.revision
+            state = "Now" if self.revision is None else f"Step {shown} of {live}"
+            where = f"{where} · {self.when(self.history()['entries'][shown])}"
         line = Table.grid(expand=True)
         line.add_column(no_wrap=True, overflow="ellipsis")
         line.add_column(justify="right", no_wrap=True)
         focused = FOCUS_NAMES.get(getattr(self.screen.focused, "id", None), "")
-        line.add_row(Text.assemble((w["case_name"], "bold"), f" · {self.speaker} · ",
-                                   (state, "bold" if self.answer_ready else ""),
-                                   f" · {dict(VIEW_LABELS)[self.view_name]}"),
+        line.add_row(Text.assemble((w["case_name"], "bold"), f" · {who} · ",
+                                   (state, "bold" if self.answer_ready else ""), f" · {where}"),
                      f"Focus: {focused}" if focused else "")
         self.query_one("#status", Static).update(line)
 
@@ -523,7 +594,8 @@ class ReasonCommonsApp(App):
         self.render_status()
         self.refresh_bindings()
         self.query_one("#loop", Static).update(
-            "" if w["historical"] else loop_line(loop_stage(w["question"]), wide=self.size.width >= 100))
+            "" if w["historical"] or self.story else loop_line(loop_stage(w["question"]), wide=self.size.width >= 100))
+        self.query_one("#loop").display = not self.story
         content = self.render_next() if self.view_name == "next" else self.render_view()
         self.query_one("#content", Markdown).update(content)
         drawing = {"trees": self.render_trees, "next": self.render_context,
@@ -534,6 +606,20 @@ class ReasonCommonsApp(App):
             canvas.update(drawing)
         # The band never repeats what the view is showing: safeguards move into a comparison.
         self.query_one("#pinned", Static).update(self.band(protect=not self.shows_safeguards()))
+        timeline = self.query_one("#timeline", OptionList)
+        timeline.set_class(self.view_name != "history", "hidden")
+        if self.view_name == "history":
+            self.fill_timeline(timeline)
+        looking_back = self.revision is not None
+        self.query_one("#moment").set_class(not (self.story or looking_back), "hidden")
+        self.query_one("#response").set_class(bool(self.story) or looking_back, "hidden")
+        if self.story or looking_back:
+            self.query_one("#moment-text").styles.max_height = 2 if self.size.height < 30 else 5
+            self.query_one("#moment-text", Static).update(self.moment_text())
+            self.query_one("#later").disabled = not looking_back
+            self.query_one("#now").disabled = not looking_back
+            self.query_one("#earlier").disabled = self.revision == 0
+            self.query_one("#first").disabled = self.revision == 1
         retryable = self.retryable()
         self.query_one("#retry").set_class(not retryable, "hidden")
         if self.tour:
@@ -560,9 +646,14 @@ class ReasonCommonsApp(App):
         grid.add_column(style="bold", width=7, no_wrap=True)
         grid.add_column()
         grid.add_row("Goal", Text(clip(goal["data"]["statement"], width, 2 if self.size.height >= 30 else 1)))
-        if protect:
+        if protect and not self.story:
             protections = " · ".join(goal["data"].get("protections") or []) or "none recorded"
             grid.add_row("Protect", Text(clip(protections, width, 1)))
+        upcoming = next_action(self.viewed_records())
+        if upcoming:
+            data = upcoming["action"]["data"]
+            owner = f" ({data['owner']})" if data.get("owner") else ""
+            grid.add_row("Next", Text(clip(data["statement"] + owner, width, 1)))
         return grid
 
     def pane_width(self):
@@ -585,6 +676,10 @@ class ReasonCommonsApp(App):
         return [a for a in self.workspace_value["available_actions"] if a["capability"] == "retry"]
 
     def render_next(self):
+        if self.revision is not None:
+            return self.render_moment()
+        if self.story:
+            return self.render_story_now()
         w = self.workspace_value
         lines = []
         if w["question"]:
@@ -651,8 +746,8 @@ class ReasonCommonsApp(App):
         title = dict(VIEW_LABELS)[view]
         lines = [f"## {title}", ""]
         if view == "history":
-            for item in reversed(w["history"]):
-                lines.append(f"- Revision {item['revision']} | {md(item['timestamp'])}")
+            lines.append("Every saved step, oldest first: when, who, and what changed. "
+                         "Tab to the list, arrows choose, Enter opens that moment; nothing there can be changed.")
             return "\n".join(lines)
         if view == "sources":
             sources = [s for s in w["sources"].values() if "request_id" in s]
@@ -692,11 +787,179 @@ class ReasonCommonsApp(App):
         width = max(40, self.query_one("#main").size.width - 6)
         text = Text()
         shown = self.shown_tree()
-        for line in trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown):
+        fresh = self.history()["entries"][self.revision]["fresh"] if self.revision is not None else ()
+        for line in trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown,
+                                fresh=fresh):
             for part, style in line:
                 text.append(part, style=style or None)
             text.append("\n")
         return text
+
+    # ----- looking back -------------------------------------------------
+    def fill_timeline(self, timeline):
+        entries = self.history()["entries"]
+        options = []
+        for entry in entries:
+            if entry["revision"] == 0:
+                label = Text(f"{self.when(entry)}  ·  The goal was created", style="dim")
+            else:
+                title = (self.chapters.get(entry["revision"], {}).get("title") or entry["decision"]
+                         or "Saved")
+                label = Text()
+                label.append(f"{self.when(entry)}  ·  {entry['speaker'] or 'unknown'}  ·  ", style="dim")
+                label.append(title, style="bold")
+                label.append("\n   " + change_summary(entry["counts"]), style="dim")
+            if entry["revision"] == len(entries) - 1:
+                label.append("   ← now", style="bold")
+            options.append(Option(label, id=str(entry["revision"])))
+        current = timeline.highlighted
+        timeline.clear_options()
+        timeline.add_options(options)
+        timeline.highlighted = current if current is not None and current < len(options) else (
+            self.revision if self.revision is not None else len(options) - 1)
+
+    def moment_text(self):
+        entries = self.history()["entries"]
+        if self.revision is None:
+            if self.story:
+                return (f"[b]Now[/b]  ·  as of {escape(self.story['as_of'])}  ·  {len(entries) - 1} steps to get "
+                        f"here  ·  [dim]← → step through[/dim]\n"
+                        f"{escape(' '.join(self.story['intro'].split()))}\n"
+                        f"[dim]{escape(' '.join(self.story['fidelity'].split()))}[/dim]")
+            return ""
+        entry = entries[self.revision]
+        chapter = self.chapters.get(self.revision)
+        head = (f"[b]Step {self.revision} of {len(entries) - 1}[/b]  ·  {escape(self.when(entry))}  ·  "
+                f"{escape(entry['speaker'] or '')}")
+        if self.revision == 0:
+            return head + "\n[b]The goal was created.[/b] Nothing was recorded yet."
+        title = (chapter or {}).get("title") or entry["decision"] or "Saved"
+        body = " ".join((chapter or {}).get("summary", "").split()) or change_summary(entry["counts"])
+        hint = "" if self.story else "  [dim]Looking back: nothing here can be changed.[/dim]"
+        return f"{head}\n[b]{escape(title)}[/b]{hint}\n{escape(body)}"
+
+    def render_moment(self):
+        history = self.history()
+        entry = history["entries"][self.revision]
+        chapter = self.chapters.get(self.revision, {})
+        title = chapter.get("title") or entry["decision"] or "Saved"
+        if self.revision == 0:
+            return "## The goal was created\n\nNothing had been recorded yet."
+        lines = [f"## {md(title)}", "", f"**{md(entry['speaker'] or 'unknown')}**  ·  {md(self.when(entry))}", ""]
+        paragraphs = [md(part).replace("\n", "  \n> ") for part in (entry["text"] or "").split("\n\n")]
+        lines += ["> " + "\n>\n> ".join(paragraphs), ""]
+        if chapter.get("words_note"):
+            lines += [f"*{md(chapter['words_note'])}*", ""]
+        if chapter.get("source"):
+            lines += [f"*Source: {md(chapter['source'])}*", ""]
+        lines += ["### What changed", "", change_summary(entry["counts"]), ""]
+        before = {r["ref"]: r for r in history["snapshots"][self.revision - 1]["records"]}
+        now = history["snapshots"][self.revision]["records"]
+        everything = {**before, **{r["ref"]: r for r in now}}
+        for record in (r for r in now if r["ref"] not in before):
+            data = record["data"]
+            if record["kind"] == "claim":
+                where = f"{TREE_TITLES[data['tree']][0]}, {ROLE_LABELS[data['role']].lower()}"
+                if data.get("replaces"):
+                    old = everything[data["replaces"]]["data"]["statement"]
+                    lines.append(f"- **Reworded** ({where}): {md(data['statement'])}  \n  *was:* {md(old)}")
+                else:
+                    lines.append(f"- **{where}:** {md(data['statement'])}")
+            elif record["kind"] == "retraction":
+                target = everything.get(data["target_ref"], {}).get("data", {})
+                lines.append(f"- **Withdrawn:** {md(target.get('statement') or data['target_ref'])}  \n"
+                             f"  *why:* {md(data['reason'])}")
+            elif record["kind"] == "goal":
+                lines.append(f"- **Goal:** {md(data['statement'])}" +
+                             (f"  \n  *measure:* {md(data['measure'])}" if data.get("measure") else ""))
+            elif record["kind"] == "test":
+                forecast = "; ".join(f.get("expected") or "" for f in data.get("forecast") or [])
+                lines.append(f"- **Test:** {md(data['statement'])}  \n  *forecast, written first:* {md(forecast)}")
+            elif record["kind"] == "action":
+                lines.append(f"- **Action planned:** {md(data['statement'])}")
+            elif record["kind"] == "note":
+                lines.append(f"- **Note:** {md(data['text'])}")
+        question = (self.workspace_value["question"] or {}).get("data", {})
+        if question.get("primary_prompt"):
+            lines += ["", "### What was open then", "", f"**{md(question['primary_prompt'])}**"]
+        return "\n".join(lines)
+
+    def render_story_now(self):
+        records = self.viewed_records()
+        upcoming = next_action(records)
+        lines = []
+        if upcoming:
+            action, test, claim = upcoming["action"]["data"], (upcoming["test"] or {}).get("data", {}), upcoming["claim"]
+            lines += ["## The next action", "", f"**{md(action['statement'])}**", ""]
+            if action.get("owner"):
+                lines.append(f"Owner: {md(action['owner'])}  ")
+            if claim:
+                lines.append(f"Carries out, from the {TREE_TITLES[claim['data']['tree']][0]}: "
+                             f"{md(claim['data']['statement'])}  ")
+            for forecast in test.get("forecast") or []:
+                lines.append(f"What we expect to see: {md(forecast.get('expected'))}  ")
+            if test.get("stop_condition"):
+                lines.append(f"Stop if: {md(test['stop_condition'])}")
+            lines.append("")
+        question = (self.workspace_value["question"] or {}).get("data", {})
+        if question.get("primary_prompt"):
+            lines += [f"> **{md(question['primary_prompt'])}**", ">", "> " + md(question.get("rationale", "")), ""]
+        entries = self.history()["entries"]
+        first = next((e for e in entries if e["revision"] == 1), entries[0])
+        lines += ["---", "", "### How it got here", "",
+                  f"{len(entries) - 1} steps, from {day(first['timestamp'])} to {day(entries[-1]['timestamp'])}, "
+                  f"by {len({e['speaker'] for e in entries if e['speaker']})} people. Press **◀ Earlier** (or ←) "
+                  "to step back one at a time, **From the beginning** to start at the first, or open **History** "
+                  "for the whole timeline. **Ctrl+T** shows the trees as they stand now."]
+        return "\n".join(lines)
+
+    def go_to(self, revision):
+        """Show a past revision, or the live goal with None."""
+        live = self.live_revision()
+        if revision is not None and (revision >= live or revision < 0):
+            revision = None if revision >= live else 0
+        self.revision = revision
+        self.refresh_workspace()
+        self.query_one("#main").scroll_home(animate=False)
+
+    def action_earlier(self):
+        if self.story or self.revision is not None:
+            current = self.live_revision() if self.revision is None else self.revision
+            if current > 0:
+                self.go_to(current - 1)
+
+    def action_later(self):
+        if self.revision is not None:
+            self.go_to(self.revision + 1)
+
+    @on(Button.Pressed, "#earlier")
+    def earlier_pressed(self):
+        self.action_earlier()
+
+    @on(Button.Pressed, "#later")
+    def later_pressed(self):
+        self.action_later()
+
+    @on(Button.Pressed, "#now")
+    def now_pressed(self):
+        self.go_to(None)
+
+    @on(Button.Pressed, "#first")
+    def first_pressed(self):
+        self.go_to(1)
+
+    @on(Button.Pressed, "#own")
+    def own_pressed(self):
+        self.exit(STORY_OWN_GOAL)
+
+    @on(Button.Pressed, "#home")
+    def home_pressed(self):
+        self.exit(STORY_HOME)
+
+    @on(OptionList.OptionSelected, "#timeline")
+    def moment_selected(self, event):
+        self.view_name = "next"
+        self.go_to(int(event.option.id))
 
     def shown_tree(self):
         """The tree on screen: the last one chosen, else the first that has statements."""
@@ -807,6 +1070,10 @@ class ReasonCommonsApp(App):
         self.push_screen(ChoiceScreen("Other moves. Nothing is sent until you choose an item.", options), chosen)
 
     def action_send(self, intent="answer"):
+        if self.story or self.revision is not None:
+            self.notify("This is a record of what happened; nothing here can be changed. "
+                        + ("Start your own goal to write." if self.story else "Back to now to answer."))
+            return
         if self.busy:
             self.notify("Still waiting for the consultant. You can keep browsing.")
             return
@@ -848,6 +1115,7 @@ class ReasonCommonsApp(App):
 
     def _submitted(self, result, text):
         self.set_busy(False, refresh=False)
+        self._history = None
         editor = self.query_one("#editor", TextArea)
         status = result["status"]
         sent = text is not None and editor.text == text
@@ -883,7 +1151,7 @@ class ReasonCommonsApp(App):
         self._save_timer = self.set_timer(0.8, self.checkpoint)
 
     def checkpoint(self):
-        if self.busy or self.workspace_value is None:
+        if self.busy or self.workspace_value is None or self.story or self.revision is not None:
             return
         editor = self.query_one("#editor", TextArea)
         draft = editor.text
@@ -919,6 +1187,10 @@ class ReasonCommonsApp(App):
             label = TREE_TITLES[key][0] if key in TREE_TITLES else "All six trees"
             yield SystemCommand(f"Tree: {label}", "Show this tree in the Trees view (Ctrl+N cycles)",
                                 lambda key=key: self.show_tree(key))
+        yield SystemCommand("History: step back", "Show the goal as it was one step earlier (←)", self.action_earlier)
+        if self.revision is not None:
+            yield SystemCommand("History: step forward", "One step later (→)", self.action_later)
+            yield SystemCommand("History: back to now", "Return to the goal as it is now", lambda: self.go_to(None))
         yield SystemCommand("Export case", "Write a portable .reasoncase copy", self.action_export)
         yield SystemCommand("Import trees", "Bring in trees from an .ltp.yaml file", self.action_import_trees)
         yield SystemCommand("Export trees", "Write the trees to an .ltp.yaml file", self.action_export_trees)
@@ -1058,7 +1330,7 @@ class GoalsApp(App):
     """Home screen: how to begin on first start, then your goals. Returns what to open next.
 
     With ``settings`` that were never saved, it first offers the ways to start: set up and
-    start a goal, the guided tour, the finished example, or skipping setup.
+    start a goal, the guided tour, the real commons, or skipping setup.
     """
 
     TITLE = "Reason Commons"
@@ -1071,9 +1343,9 @@ class GoalsApp(App):
     """
     BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help")]
 
-    def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None):
+    def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None, start_new=False):
         super().__init__()
-        self.root, self._list = Path(root), list_goals
+        self.root, self._list, self.start_new = Path(root), list_goals, start_new
         self._create = create or self._create_case
         self.settings, self._checks = settings, checks
         self.goals = []
@@ -1093,6 +1365,8 @@ class GoalsApp(App):
     def on_mount(self):
         self.goals = self._list(self.root)
         self.show_options()
+        if self.start_new:
+            self.new_goal()
 
     def show_options(self):
         loop = "goal → test with a forecast → action → observation → review"
@@ -1110,15 +1384,16 @@ class GoalsApp(App):
                        Option(option_label("Take the guided tour",
                                            "Practise one whole loop with example answers. About 5 minutes; "
                                            "nothing is kept."), id="tour"),
-                       Option(option_label("Look around a finished example",
-                                           "Mira's completed loop and her group's six trees."), id="sample")]
+                       Option(option_label("Explore a real commons",
+                                           "How the Second Renaissance's shared reasoning grew, step by step, "
+                                           "and the one action it says comes next."), id="sample")]
             highlighted = 0
         else:
             intro = f"Make progress on a goal that matters, one small loop at a time: {loop}."
             if not self.goals:
                 intro += "\n\nYou have no goals yet. Start one below; it is saved as you go."
             options = [Option("+ Start a new goal", id="new"),
-                       Option("  Look around a finished example (nothing you do there is kept)", id="sample"),
+                       Option("  Explore a real commons: the Second Renaissance, step by step", id="sample"),
                        Option("  Take the guided tour (practice goal, about 5 minutes)", id="tour")]
             if self.settings is not None:
                 options.append(Option(f"  Settings: {escape(describe(self.settings))}", id="settings"))
@@ -1203,22 +1478,39 @@ def run_home(speaker=None, provider=None, model=None, base_url=None, settings=No
     options = {"speaker": speaker, "provider": provider, "model": model, "base_url": base_url}
     settings = settings or Settings.load()
     settings.apply()
+    start_new = False
     while True:
-        store = GoalsApp(goals_home(), settings=settings).run()
+        store = GoalsApp(goals_home(), settings=settings, start_new=start_new).run()
+        start_new = False
         if store == TOUR:
             if run_tour(speaker) != TOUR_FINISHED:
                 return
         elif store == SAMPLE:
-            from reason_commons.adapters.sample import build_sample
-            with tempfile.TemporaryDirectory(prefix="reason-commons-example-") as folder:
-                path = build_sample(Path(folder) / "example")
-                run(path, **{**options, "provider": provider or "guided"})
-            return
+            outcome = run_story()
+            if outcome == STORY_OWN_GOAL:
+                start_new = True
+                continue
+            if outcome != STORY_HOME:
+                return
         elif store is not None:
             run(store, **options)
             return
         else:
             return
+
+
+STORY_ARCHIVE = "stories/second-renaissance.reasoncase"
+
+
+def run_story():
+    """The example: a real commons opened read-only from its packaged history."""
+    from importlib.resources import as_file, files
+    from reason_commons.adapters.story import load_story
+    from reason_commons.bootstrap import import_case
+    with tempfile.TemporaryDirectory(prefix="reason-commons-story-") as folder:
+        with as_file(files("reason_commons.adapters").joinpath(STORY_ARCHIVE)) as archive:
+            import_case(str(archive), str(Path(folder) / "story")).close()
+        return run(Path(folder) / "story", provider="guided", story=load_story())
 
 
 def run_tour(speaker=None):
@@ -1228,7 +1520,7 @@ def run_tour(speaker=None):
                    provider="guided", tour=True)
 
 
-def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False):
+def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False, story=None):
     """Create the case if the folder does not exist yet, then open the workspace."""
     from reason_commons.bootstrap import configured_consultant, create_case, open_case
     Settings.load().apply()  # fills in only what flags and the environment leave unset
@@ -1241,5 +1533,5 @@ def run(store, name=None, speaker=None, provider=None, model=None, base_url=None
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()
     app = ReasonCommonsApp(store, speaker, provider, lambda consultant: open_case(store, consultant=consultant),
-                           factory, tour=tour)
+                           factory, tour=tour, story=story)
     return app.run()
