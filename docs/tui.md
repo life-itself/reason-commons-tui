@@ -8,7 +8,7 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Part | What it shows |
 | --- | --- |
 | Top line | The goal's name, your name, whether everything is saved (or *Asking …* while the consultant works, *Answer ready* when its reply waits on **Next step**), the view, and on the right which control has the keyboard |
-| Pinned lines | Your goal and safeguards; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
+| Pinned lines | Your goal and safeguards, and the open **Action**; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
 | Loop line | Goal, Test + forecast, Action, Observe, Review: ✓ finished, ● current, ○ still to come |
 | Middle | The current question and what it builds on (at review: the original forecast beside the result), or the view you chose |
 | Views list | On terminals 100 columns or wider; narrower, the **Views** button takes its place |
@@ -75,19 +75,24 @@ safeguards, review date, stop condition).
 ## Looking back
 
 Every goal keeps each saved step. **History** lists them oldest first, with the
-date, who answered and what changed (statements added, reworded or withdrawn,
-links, tests). Enter opens that moment: the goal exactly as it was, with the words
-that produced it, what changed, and the trees with that step's new statements
-marked NEW. **← / →** (or **◀ Earlier**, **Later ▶**) step through; **Back to now**
-returns. Nothing can be changed while looking back, and your unsent draft waits.
+date, who answered, the question they answered and what changed (statements added,
+reworded or withdrawn, links, tests). Tab to the list; Enter opens that moment: the
+goal exactly as it was, the question, the words that answered it, what changed, and
+what was asked next. The Trees view then marks that step's new statements NEW.
+**← / →** (or **◀ Earlier**, **Later ▶**, shown in the footer while you look back)
+step through; **Back to now** returns. The top line says *Read-only*; nothing can be
+changed while looking back, and your unsent draft waits.
 
-A **Next action** line under the goal shows the open action (planned, its test not
-yet observed) and its owner.
+An **Action** line under the goal shows the open action (planned, its test not yet
+observed) and its owner, except where the screen already shows that action.
 
 **Explore a real commons** on the home screen opens the Second Renaissance's shared
-reasoning this way, read-only: its quoted words are real and dated, the tree
-changes are an editor's reading of each step, and approximate dates are marked ≈.
-**Start my own goal** and **Back to start** leave it; nothing there is kept.
+reasoning this way, read-only. It leads with the decision the story is waiting on,
+then the action's owner, what it carries out, what to expect and when to stop. Each
+step back shows the editor's narration in italics above the quoted words; the words
+are real and dated, the tree changes are an editor's reading, and approximate dates
+are marked ≈. **Start my own goal** and **Back to start** leave it; nothing there is
+kept.
 
 ## The trees
 
