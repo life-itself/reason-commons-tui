@@ -129,8 +129,9 @@ Help covers the controls; **Explain this** covers the reasoning behind a questio
 | Esc | Leave the editor to browse, your text kept; elsewhere, back to where you were before looking around |
 | Ctrl+T | Open the trees; press again to go back to the question and your draft |
 | ↑ / ↓ | In the Trees view: choose a statement |
-| Enter | In the Trees view: the chosen statement's details in full |
-| Ctrl+N | In the Trees view: the next tree, then all six together |
+| Space | In the Trees view: fold the chosen statement's branches away, or unfold them |
+| Enter | In the Trees view: the chosen statement's details in full; in all six, its tree |
+| Ctrl+N | In the Trees view: the next tree, then all six again |
 | Ctrl+P, or **Commands** | Every command, each marked local or asking the consultant |
 | In a menu | Type to filter, arrows choose, Enter activates; **Back** or Esc returns |
 | F1, or **Help** | This help |
@@ -150,9 +151,13 @@ Everything is saved in the case folder as you go. Closing the app keeps your dra
 
 ## The trees
 
-The **Trees** view (Ctrl+T) draws the six thinking-process trees, one at a
-time: Goal, Current Reality, Evaporating Cloud, Future Reality, Prerequisite and
-Transition. Ctrl+N moves to the next tree, and after the sixth shows all six together. They grow as you
+The **Trees** view (Ctrl+T) draws the six thinking-process trees: Goal, Current
+Reality, Evaporating Cloud, Future Reality, Prerequisite and Transition. It opens on
+all six, each folded at what it is for; Space unfolds a branch and Enter opens its
+tree. The six are listed under Trees in Views, and Ctrl+N steps through them. Each
+line reads as a sentence ("because: …"), with the statement's role after it and the
+assumption behind the link under it; a complete Evaporating Cloud is drawn as its
+five boxes. They grow as you
 talk: tell the consultant what causes a problem, what conflict keeps you stuck,
 what stands in the way or what you plan to do, and it records each statement in
 its tree, linked to the others. Ask it to reword or drop something and the tree
@@ -161,10 +166,11 @@ the Transition Tree, and its forecast and result then show under that action.
 After a reply that changed the trees, the question says what changed, and the
 Trees view marks those statements NEW or REWORDED.
 
-In the Trees view, ↑ and ↓ choose a statement. Its details (every link read from
-its side, with the assumption behind it; the tests that carry it out; earlier
-wordings; and who said it, when, in their own words) sit beside the trees on a
-wide terminal. Enter shows them full screen; Esc returns.
+In the Trees view, ↑ and ↓ choose a statement. Its details (the question worth
+asking of it; every link read from its side, with the assumption behind it; the
+tests that carry it out; earlier wordings; and who said it, when, in their own
+words) sit beside the trees on a wide terminal. Enter shows them full screen; Esc
+returns.
 
 The built-in guide does not add to the trees; Anthropic or LM Studio do. Any
 consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
@@ -192,7 +198,8 @@ movement's shared reasoning grew, step by step. Nothing from either is kept.
 
 ## Looking back
 
-**History** lists every saved step: when, who, and what changed. Enter opens that
+**History** lists every saved step, one row each: when, the question it answered
+and what changed. Enter opens that
 moment exactly as it was; ← and → step through, **Back to now** returns. Nothing
 can be changed while looking back.
 """

@@ -2,7 +2,7 @@
 
 **See a hard problem whole, as connected trees, then change it one honest test at a time.**
 
-![The Trees view showing a Current Reality Tree: the symptom "the group is busy while durable-adoption throughput remains low" at the top, with root causes and further symptoms branching below it as "because" and "partly because", each with its assumption in grey](docs/images/trees-current-reality.png)
+![The Trees view showing a Current Reality Tree: the symptom "the group is busy while durable-adoption throughput remains low" at the top, and below it each cause reads as a sentence led by "because" or "partly because", with its role after it and the assumption behind the link under a dotted rule; a chain of symptoms runs down one spine instead of drifting right, and the six trees are listed under Trees on the left](docs/images/trees-current-reality.png)
 
 Reason Commons is a calm terminal workspace for reasoning about change: what you are
 aiming for, what is really in the way, which conflict keeps you stuck and what to
@@ -75,10 +75,16 @@ linked to the others. Ask it to reword or drop something and the tree changes,
 while the earlier wording stays in the history. Every arrow shows the assumption
 it rests on, so you can see where to push back.
 
-Press **Ctrl+T** to open the Trees view and **Ctrl+N** to step from one tree to
-the next; after the sixth it shows all six together. **↑** and **↓** choose a
-statement and show where it came from, what it links to and the assumption behind
-each link. After each reply, the question says what changed in the trees. Trees you already have come
+Press **Ctrl+T** to open the trees. The first time, they open on **All six**: every
+tree folded at what it is for, so you see the whole before going into one.
+**Space** unfolds a branch and **Enter** opens its tree; the six are also listed under
+**Trees** on the left, and **Ctrl+N** steps through them. Each line reads as a
+sentence ("because: the group lacks a cadence"), with the statement's role after it
+and the assumption behind the link underneath; a chain runs down one spine, so a
+Prerequisite Tree reads as a ladder. A complete Evaporating Cloud is drawn as its
+five boxes, both sides at equal weight. **↑** and **↓** choose a statement and show
+the question worth asking of it, what it links to and where it came from. After
+each reply, the question says what changed in the trees. Trees you already have come
 in from an `.ltp.yaml` file and go out the same way (**Ctrl+P**, then **Import
 trees** or **Export trees**).
 
@@ -166,8 +172,9 @@ More: [use Claude or a local model](docs/use-a-model.md) and
 
 - **One folder per goal.** Goals live in `~/ReasonCommons` (or `REASON_COMMONS_HOME`)
   as plain YAML. Settings and keys are kept elsewhere and never go into a goal.
-- **A history you can step through.** **History** lists every saved step: when,
-  who, and what changed. Open one to see the goal as it was then, and step with
+- **A history you can step through.** **History** lists every saved step on one
+  row: when, the question it answered and what changed (and who, once more than
+  one person has written). Open one to see the goal as it was then, and step with
   ← and →.
 - **Move and share.** Export a goal as a portable `.reasoncase` file and import it
   elsewhere, with its whole history.

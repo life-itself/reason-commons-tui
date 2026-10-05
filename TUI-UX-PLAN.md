@@ -44,6 +44,38 @@ frame does, but S68 (not yet delivered) says the pinned header shows "focus", wh
 puts in the frame instead; S07 and S119 call the list of every action **Actions**, which is now
 **Commands** on screen, and their steps map one to the other. Neither scenario's text was changed.
 
+## Trees and remaining views revision
+
+A design review, [Reading the Trees](https://claude.ai/artifact/P4yTnAE5rXGhS9CHZdBfm5), looked at the
+views the navigation revision did not reach, the Trees view above all, and kept the method's
+vocabulary whole: the six trees, their questions, every role label, relation word and assumption.
+Where it differs from the rows above, this revision wins; [TUI-DESIGN.md](TUI-DESIGN.md#hierarchy-names-and-focus)
+holds the rules.
+
+| Finding | Change |
+| --- | --- |
+| The capitalised role label was the loudest line of every statement | The statement opens its line, led in by its relation word ("because: …"); the role is a trailing tag in its colour family |
+| A chain stepped one indent right per link (six levels in the Prerequisite Tree) | A statement whose only deeper branch is its last continues the spine at the same indent: a ladder, not a staircase |
+| Nothing said which way to read a tree | Each tree's page gives its name, its question and a reading key |
+| The tree switcher was a wrapping run of underlined links | The six trees are listed under **Trees** in the Views list (the list is 23 columns wide); a one-line strip names them when the list is hidden |
+| *All six* was the six trees end to end, about 220 rows | *All six* is the overview, folded at what each tree is for; Space folds and unfolds, Enter opens a tree. A short branch, or one the last reply added to, stays open |
+| The Evaporating Cloud's conflict was an aside line under one side | A complete Cloud is five boxes, both sides at equal weight, with numbered assumptions; a missing one is shown as missing |
+| Selection and focus were both purple bars | The chosen statement is a tinted band; focus stays the frame |
+| The details showed a record id and named a file's attribution as a person | No id; *Worth asking* leads, with the tree's question from the rendering contract; a file reads as a file |
+| Assumptions looked like footnotes | They hang under their link after a dotted rule (┆) |
+| The Future Reality Tree put its negative branches first | Desired effects first, then what could go wrong |
+| The answer box took six rows under every view, its question out of sight | Outside Next step it names its question and folds to one line while empty |
+| Goal, Loop actions and Reasoning were bold-label prose; Reasoning put what is still open last | The aligned label column; Reasoning leads with what is still open and gives each tree one line |
+| History drew each step's change under its row, where it read as the next row's | One row per step, in columns; who wrote it only when more than one person has |
+| Commands took two lines each, so 7 fitted | One line each, still marked local or consultant |
+
+Four decisions were the participant's to make, and all four were accepted: the boxed Cloud ahead
+of the p3–p5 canvases (TUI-DESIGN's delivery gate now says so), the folding answer box, a first
+visit opening on all six, and *Worth asking*. Folding is interface state and stays with the session.
+No scenario text changed. Two acceptance steps read the drawing's words and were updated with it:
+S119 splits a command's name from its detail at " · " instead of a new line, and S128 finds
+"└─ because: " before the cause rather than "└─ because ─ ROOT CAUSE".
+
 ## The short version
 
 The specification already describes the quiet tool the design-retreat answer
