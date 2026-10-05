@@ -299,3 +299,28 @@ Writing them found and fixed what the workspace lacked:
 
 Each new behavior was shown to be caught by its scenario when broken in a scratch
 copy.
+
+### Menus (S10, S55, S57, S63, S70, S107)
+
+Six more p1 scenarios followed, bringing p1 to 28 of 32. Other moves, Actions
+(Ctrl+P) and Views now share one menu, which replaces Textual's command palette:
+
+- **Filtered by typing, with an honest dead end.** The filter has focus; with
+  nothing matching, Enter activates nothing and the menu says "No matches" with
+  **Clear filter** and **Back** (S10, S57).
+- **Inspect evidence** in Other moves shows the saved words and files the current
+  question rests on, locally (S55).
+- **A menu belongs to its question.** It is bound to the question and revision it
+  opened on. If a reply moves the case on while it is open, choosing does nothing:
+  the menu shows a notice and the current choices, and a new choice is needed (S63).
+  Other moves therefore stays available while a reply is pending; its local items
+  work, and a move that asks the consultant is refused until the reply is in.
+- **Menus survive a restart.** The open menu (filter, choice and binding) is kept in
+  the cursor's `menu` field. On resume it reopens with the question it belongs to,
+  only if that question and revision are still current (S70). A kept choice from a
+  later delivery profile, such as "Record position", is refused locally with a note;
+  nothing is sent and the draft stays (S107).
+
+Still outstanding in p1: S49 (the accessible ordered presentation), S68 (Compact
+display and a Case context control), S69 (a breach kept visible while browsing) and
+S73 (the participant study).
