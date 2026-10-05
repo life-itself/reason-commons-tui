@@ -9,6 +9,7 @@ deterministic where it can be, and honest about what it does not prove.
 |---|---|---|---|
 | **Domain** | Is the rule enforceable with no skill or agent present? | Domain objects directly | `tests/test_domain.py` |
 | **Application acceptance (BDD)** | Does the application do what the scenario says? | Application use cases, with a fixture consultant | `tests/acceptance/` (spec scenarios), `tests/conversation/` (conversation and provider scenarios) |
+| **Interface acceptance (BDD)** | Does the workspace do what a p1 scenario says, through its visible controls? | The real TUI, by keys, with a fixture consultant | `tests/acceptance/steps/workspace_steps.py`, `tests/acceptance/workspace.py` |
 | **Adapter** | Does an adapter honor its port, down to bytes, sockets and exit codes? | The real adapter against a fake or temp resource | `tests/test_storage.py`, `test_anthropic.py`, `test_lm_studio.py`, `test_providers.py`, `test_mcp_*.py`, `test_ltp_conversion.py` |
 | **Skill** | Does an agent use the capabilities correctly? | A skill host or harness over fake ports | `tests/test_skills.py`, `test_skill_agent.py`, `test_invocation.py` |
 | **Live evaluation** | Does a real model do useful work end to end? | A real model, opt-in | `evaluations/`, `scripts/evaluate_lm_studio.py`, `scripts/check_anthropic.py --smoke` |
@@ -33,6 +34,21 @@ so keep them few, retain their evidence, and never make them part of the gate.
   Gherkin.
 - **Isolation.** Each scenario gets its own temporary case. Anything global, such as
   environment variables, is cleared and restored in `environment.py`.
+
+### Interface acceptance (p1)
+
+The p1 scenarios are about the workspace itself: focus, Tab and Enter, literal
+typing, Esc, resizing. Their steps drive the real Textual app headlessly through
+`tests/acceptance/workspace.py`, pressing keys as a person would, and never call
+widget methods to cause an effect. They read outcomes at the application boundary
+(the fixture consultant's calls, revisions, retained inputs and receipts) and from
+what is on screen. Fixtures are still built through use cases: the Forge case of
+the navigation scenarios is eight consultant replies and two tree imports.
+
+Behave steps are synchronous and Textual's pilot is async, so the app runs in one
+long-lived task on its own event loop and each step hands it a job. A step that
+holds a consultant reply back (to browse while it is pending) sets
+`wait_for_replies` to false until it releases it.
 
 ### The specification is immutable by default
 

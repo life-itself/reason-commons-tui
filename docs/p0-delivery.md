@@ -258,3 +258,44 @@ each new test was shown to fail first and to catch a deliberate break. The
 screenshots were regenerated; they had predated the theme change. Still
 outstanding: the p1 scenarios' steps through the TUI, a live-model check that a
 real consultant records tree statements well, and the p3–p5 tree structures.
+
+## P1 workspace scenarios through the TUI (5 October 2026)
+
+22 of the 32 p1 scenarios now run through the real workspace and pass: S07 (all
+seven controls), S08, S09, S11, S12, S13, S47, S51, S54 (all three answers), S56,
+S58, S67, S72 (all four commands), S110, S113, S114, S115, S116, S117, S118, S119
+and S120. `scripts/check_p0.py` runs them by identity, fails unless each runs and
+passes, and prints the ten that are not delivered: S10 and S57 (a menu filter's "No
+matches" with Clear filter and Back), S49 (the accessible ordered presentation),
+S55 (an Inspect evidence alternative), S63 and S70 (menus checkpointed and
+revalidated), S68 and S69 (Compact display and a pinned breach), S73 (the
+first-hour participant study, which automation cannot pass) and S107 (refusing a
+restored out-of-profile action).
+
+The steps are interface acceptance: they drive the Textual app headlessly by keys
+(`tests/acceptance/workspace.py`), read outcomes at the application boundary and on
+screen, and build the Forge case through use cases (eight consultant replies, two
+tree imports). See the [testing strategy](development/testing-strategy.md#interface-acceptance-p1).
+No specification text changed.
+
+Writing them found and fixed what the workspace lacked:
+
+- **A live resize was laid out for the old size.** Textual calls `App.on_resize`
+  before it updates `size`, so shrinking a terminal from 120 to 80 columns kept the
+  destinations list and hid the Views control. The workspace now lays out from the
+  event's size, and drawings are redrawn for their new width (S117).
+- **Esc returns from an inspection.** Opening Explain this, a view, or a past
+  moment remembers where you were; Esc goes back there with the view, scroll
+  position, draft and caret as they were. In the answer box Esc still means
+  "browse" (S11, S13, S116).
+- **Help is a visible control** and opens on the keys and controls, apart from
+  Explain this (S07, S119).
+- **Consultant calls** in Actions counts the consultant's attempts from the saved
+  receipts, with imports counted apart (S07).
+- **Every action says its consequence.** Actions entries say "Local" or "asks the
+  consultant"; Other moves items read "Inspect rationale · local; opens saved
+  explanation" and "Ask another question · asks consultant" (S12, S56, S119).
+- **Menus have a Cancel control** as well as Esc (S113).
+
+Each new behavior was shown to be caught by its scenario when broken in a scratch
+copy.

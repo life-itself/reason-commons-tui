@@ -77,7 +77,8 @@ slice (`adapters/tui.py`) reads `workspace`/`inspect`/`history`/`sources` and wr
 `retain_input`, `consult`, `retry`, `export` and `checkpoint`; importing trees
 goes through `add_source` and `submit` with a deterministic proposal adapter
 (`adapters/ltp_trees.py`), the same path the `trees --import` command uses. Its bindings are
-covered by adapter tests; p1 scenario verification is still outstanding.
+covered by adapter tests, and 22 of the 32 p1 scenarios run through the real workspace as
+interface acceptance steps (`tests/acceptance/steps/workspace_steps.py`); the gate lists the rest.
 
 ## Application surface
 
