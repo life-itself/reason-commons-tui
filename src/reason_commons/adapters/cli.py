@@ -174,7 +174,6 @@ def main(argv=None):
             from reason_commons.adapters.ltp_trees import export_trees, import_trees
             from reason_commons.adapters.trees import plain, trees_lines
             if args.import_file:
-                import os
                 speaker = args.speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
                 summary = import_trees(args.store, args.import_file, speaker)
                 print(f"Brought in {summary['claims']} statements and {summary['links']} links"
