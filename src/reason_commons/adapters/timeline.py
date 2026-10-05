@@ -68,7 +68,14 @@ def change_summary(counts):
 
 def tree_summary(trees):
     """What one revision changed in the trees, tree by tree in their usual order:
-    'Current Reality Tree: 2 statements added · 1 link'."""
+    'Current Reality Tree: 2 statements added · 1 link'. A change to more than two
+    trees (an import, say) is summed: '69 statements added · 61 links, in 6 trees'."""
+    if len(trees) > 2:
+        total = {}
+        for counts in trees.values():
+            for kind, number in counts.items():
+                total[kind] = total.get(kind, 0) + number
+        return f"{change_summary(total)}, in {len(trees)} trees"
     return "; ".join(f"{TREE_TITLES[tree][0]}: {change_summary(trees[tree])}" for tree in TREE_TITLES if tree in trees)
 
 

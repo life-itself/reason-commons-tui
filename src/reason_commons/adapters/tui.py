@@ -101,6 +101,13 @@ what stands in the way or what you plan to do, and it records each statement in
 its tree, linked to the others. Ask it to reword or drop something and the tree
 changes; earlier wording stays in History. A test can carry out an action from
 the Transition Tree, and its forecast and result then show under that action.
+After a reply that changed the trees, the question says what changed, and the
+Trees view marks those statements NEW or REWORDED.
+
+In the Trees view, ↑ and ↓ choose a statement. Its details (every link read from
+its side, with the assumption behind it; the tests that carry it out; earlier
+wordings; and who said it, when, in their own words) sit beside the trees on a
+wide terminal. Enter shows them full screen; Esc returns.
 
 The built-in guide does not add to the trees; Anthropic or LM Studio do. Any
 consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
@@ -114,7 +121,9 @@ consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
 | Ctrl+S, or Tab to **Send** then Enter | Send your answer |
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the editor to browse; your text stays |
-| Ctrl+T | Open the trees; press again to go back to the current question |
+| Ctrl+T | Open the trees; press again to go back to the question and your draft |
+| ↑ / ↓ | In the Trees view: choose a statement |
+| Enter | In the Trees view: the chosen statement's details in full |
 | Ctrl+N | In the Trees view: the next tree, then all six together |
 | Ctrl+P | Actions: export, retry, change consultant, theme, quit |
 | F1 | This help |
@@ -398,7 +407,8 @@ class StatementScreen(ModalScreen):
 
     def fill(self):
         text = self.query_one("#statement-text", Static)
-        text.update(self.build(max(30, text.content_size.width - 1)))
+        # Leave room for the scroll bar that long details bring with them.
+        text.update(self.build(max(30, text.content_size.width - 3)))
 
 
 class HelpScreen(ModalScreen):
@@ -689,6 +699,8 @@ class ReasonCommonsApp(ThemedApp):
         # The trees are drawn in the theme's colours, so they are redrawn with it.
         self.theme_changed_signal.subscribe(self, lambda _: self.workspace_value and self.render_all())
         cursor = self.case.inspect()["cursor"] or {}
+        # Steps saved after this point are this session's; their tree changes are marked.
+        self._opened_revision = self.case.inspect()["case"]["revision"]
         self.refresh_workspace()
         if cursor.get("draft"):
             self._restoring = True
@@ -1007,8 +1019,8 @@ class ReasonCommonsApp(ThemedApp):
         statement carries a bar in the gutter."""
         width = max(40, self.query_one("#main").size.width - 9)
         shown = self.shown_tree()
-        entries = self.history()["entries"]
-        fresh = entries[self.revision if self.revision is not None else -1]["fresh"]
+        step = self.marked_step(live_only=False)
+        fresh = step["fresh"] if step else ()
         spans = []
         lines = trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown,
                             fresh=fresh, spans=spans)
@@ -1268,13 +1280,19 @@ class ReasonCommonsApp(ThemedApp):
         self.revision = int(event.option.id)  # set first, so the step page opens directly
         self.show_view("next")
 
-    def tree_news(self, live_only=True):
-        """What the step on screen changed in the trees, tree by tree: the latest step on the
-        live goal, or the past step being looked at (unless ``live_only``)."""
-        if live_only and (self.story or self.revision is not None):
-            return {}
+    def marked_step(self, live_only=True):
+        """The saved step whose tree changes are named and marked: on the live goal, the latest
+        step if it was saved since the workspace opened (a reply or import just made); otherwise
+        the past step being looked at, unless ``live_only``. None when there is nothing to mark."""
         entries = self.history()["entries"]
-        return entries[self.revision if self.revision is not None else -1]["trees"]
+        if self.revision is not None:
+            return None if live_only else entries[self.revision]
+        return entries[-1] if entries[-1]["revision"] > self._opened_revision else None
+
+    def tree_news(self, live_only=True):
+        """What the marked step changed in the trees, tree by tree."""
+        step = self.marked_step(live_only)
+        return step["trees"] if step else {}
 
     def shown_tree(self):
         """The tree on screen: the last one chosen, else the first that has statements."""

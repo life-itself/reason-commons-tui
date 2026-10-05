@@ -443,7 +443,20 @@ def test_a_reply_that_grows_the_trees_is_named_and_marked_without_moving_the_vie
             assert "REWORDED" in drawing and "We never offer a next step after open evenings" in drawing
             assert "NEW" not in drawing and "We never offer one" not in drawing
             assert "Current Reality Tree: 1 statement reworded" in app.query_one("#content").source
+
+    async def later():
+        # Opened again later, the goal is not marked; History still shows what each step changed.
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.show_view("next")
+            await pilot.pause()
+            assert "In the trees" not in app.query_one("#content").source
+            app.show_view("trees")
+            await pilot.pause()
+            assert "REWORDED" not in str(app.query_one("#canvas").render())
+            assert "changed)" not in app.query_one("#content").source
     asyncio.run(run())
+    asyncio.run(later())
 
 
 def test_choose_a_tree_statement_and_see_where_it_came_from(tmp_path):

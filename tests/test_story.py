@@ -175,3 +175,12 @@ def test_any_goal_can_be_looked_back_on_without_changing_it(tmp_path):
             assert app.query_one("#editor").text == "draft stays"
             return app.workspace_value["revision"]
     assert asyncio.run(run()) == 2
+
+
+def test_tree_summary_names_a_tree_or_two_and_sums_more():
+    from reason_commons.adapters.timeline import tree_summary
+    assert tree_summary({"current_reality": {"claim": 2, "link": 1}}) == "Current Reality Tree: 2 statements added · 1 link"
+    assert tree_summary({"conflict": {"withdrawn": 1}, "goal": {"reworded": 1}}) == (
+        "Goal Tree: 1 statement reworded; Evaporating Cloud: 1 withdrawn")
+    assert tree_summary({"goal": {"claim": 1}, "conflict": {"claim": 2, "link": 1}, "transition": {"claim": 1}}) == (
+        "4 statements added · 1 link, in 3 trees")
