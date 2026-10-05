@@ -47,7 +47,8 @@ def proposal_schema():
                         goal_ref=nullable_text, required_context_refs=text_list(),
                         options={"type": "array", "items": object_schema({"id": text, "label": text,
                             "action": actions}, {"id", "label", "action"})})
-    return object_schema({"schema_version": {"const": SCHEMA}, "delivery_profile": {"const": PROFILE},
+    return object_schema({"schema_version": {"type": "string", "const": SCHEMA},
+                          "delivery_profile": {"type": "string", "const": PROFILE},
                           "request_id": text, "base_revision": {"type": "integer", "minimum": 0},
                           "intervention": object_schema(intervention, INTERVENTION_REQUIRED),
                           "proposed_updates": {"type": "array", "items": {"anyOf": updates}}},

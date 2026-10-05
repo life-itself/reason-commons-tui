@@ -126,3 +126,14 @@ def test_record_cannot_have_null_defining_text_while_optional_unknowns_remain_al
                   if s["properties"]["operation"]["const"] == "record_" + kind)
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate({"operation": "record_" + kind, "data": data, "source_refs": ["in001"]}, schema)
+
+
+def test_proposal_contract_types_its_constants_so_a_number_is_not_a_valid_schema_version():
+    import jsonschema
+    from reason_commons.domain.contract import proposal_schema
+    properties = proposal_schema()["properties"]
+    assert properties["schema_version"] == {"type": "string", "const": "1"}
+    assert properties["delivery_profile"] == {"type": "string", "const": "p2"}
+    jsonschema.validate("1", properties["schema_version"])
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate(1, properties["schema_version"])

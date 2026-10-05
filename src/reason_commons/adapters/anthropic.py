@@ -58,6 +58,8 @@ class AnthropicConsultant:
         self._procedure = files("reason_commons.adapters").joinpath("prompts/consultant.md").read_text(encoding="utf-8")
         self._procedure += ("\n\nANTHROPIC TRANSPORT\nReturn the complete proposal by calling submit_proposal "
                             "exactly once. Supply the proposal as its input, rather than emitting JSON as plain text. "
+                            "Give schema_version and delivery_profile as the exact strings the schema names "
+                            "(schema_version is the string \"1\", never the number 1). "
                             "This is a data return channel, not an executable application capability.")
 
     @classmethod

@@ -260,3 +260,93 @@ copy accepted a follow-up with an authored consultant, preserving revision 1.
 Live consultation on the full imported case requires adequate model context: the
 local Gemma was loaded at 8,192 tokens during conversion. No model inference or
 model reconfiguration was used to convert it.
+
+
+## Live trees check with Anthropic (2026-10-05)
+
+A billed run of `claude-sonnet-5-5` through `reason_commons.bootstrap` in a temporary
+case (not under `~/ReasonCommons`), seven provider calls in all. No key, request body
+or provider response is recorded here; the case text below is the four synthetic
+messages sent as "Sam".
+
+**First smoke: `rejected`.** `scripts/check_anthropic.py --smoke` made a successful
+HTTP call (no HTTP error) but the application refused the proposal: the model
+returned `"schema_version": 1` (a number) where the domain requires the string
+`"1"`. The tool schema said `{"const": "1"}` without a type; LM Studio's strict
+grammar forces a string, but Anthropic tool input is not constrained. Replaying the
+saved proposal offline through a stub consultant reproduced `InvalidCase: Proposal
+belongs to an unsupported schema or delivery profile`, and the same proposal with
+`"1"` saved. The receipt only says "invalid or out-of-profile response rejected",
+so a participant cannot see this cause.
+
+**Fix (authorized):** `domain/contract.py` types `schema_version` and
+`delivery_profile` as `{"type": "string", "const": ...}`, the Anthropic transport
+prompt names the string, and `tests/test_domain.py` fails without the contract
+change. The domain check is unchanged. Full `check_p0.py` passed; the smoke then
+returned `saved` at revision 1.
+
+**Tree check, per message** (all four `saved`, revisions 1-4):
+
+| # | Sam said | Recorded | Next question |
+|---|---|---|---|
+| 1 | "Our orders ship late because priorities change daily, so jobs get interrupted halfway." | Current reality: effect "Orders ship late."; causes "Jobs get interrupted halfway." and "Priorities change daily."; chain priorities → interrupted → late. Also a note and a *provisional* goal with no measure, horizon or protections. No assumptions. | What does success look like (how many on time, by when) and what must not suffer? |
+| 2 | "Sales wants us to change the plan the moment a customer pushes; production needs a stable plan to finish anything." | Conflict: need "Production can finish jobs." requires "Keep a stable plan"; "Change the plan the moment a customer pushes" conflicts with it. Note. No assumptions. | What is Sales protecting by changing right away, and what if the change waited? |
+| 3 | "To protect the plan we could freeze each day's schedule by 9:00 and keep two urgent slots open." | Future reality: one change "Freeze each day's schedule by 9:00 and keep two urgent slots open.", basis `hypothesis`. No effects or links. | How many urgent pushes on a typical day, and what happens to one after 9:00 or when both slots are taken? |
+| 4 | "First step: next Monday I'll tell sales about the 9:00 freeze and the two urgent slots." | Transition: action "Tell sales about the 9:00 freeze and the two urgent slots (planned for next Monday)." No link to the change. | What do you expect to change in two weeks, and what would tell you it is hurting something? |
+
+**Faithfulness.** Statements are close to Sam's words and marked `reported`, except
+the 9:00 freeze, which Claude correctly marked `hypothesis` ("we could"). Small
+liberties: "finish anything" became "finish jobs"; the cloud boxes gain
+parenthetical "(what Sales wants)" / "(what production needs)"; the "because"
+chain was split into three statements. Claude invented no numbers, owners,
+assumptions or effects, and each next question asked for what Sam had not said.
+The one inference is the provisional goal in message 1 ("orders ship on time, while
+protecting important conditions not yet named"), labelled provisional by Claude but
+never stated by Sam.
+
+**Drawing** (`reason-commons trees <case> --width 100`):
+
+```text
+Goal Tree  What must be true for us to reach the goal?
+Nothing in this tree yet.
+
+Current Reality Tree  Why are we not there yet?
+UNDESIRABLE EFFECT  reported
+Orders ship late.
+└─ because ─ CAUSE  reported
+   Jobs get interrupted halfway.
+   └─ because ─ CAUSE  reported
+      Priorities change daily.
+
+Evaporating Cloud  What conflict keeps us stuck?
+NEED  reported
+Production can finish jobs.
+└─ requires ─ WHAT WE THINK WE MUST DO  reported
+   Keep a stable plan (what production needs).
+WHAT WE THINK WE MUST DO  reported
+Change the plan the moment a customer pushes (what Sales wants).
+⚡ conflicts with: Keep a stable plan (what production needs).
+
+Future Reality Tree  If we change this, will it work, and what could go wrong?
+CHANGE WE MAKE  hypothesis
+Freeze each day's schedule by 9:00 and keep two urgent slots open.
+
+Prerequisite Tree  What stands in the way, and what comes first?
+Nothing in this tree yet.
+
+Transition Tree  What exactly do we do next?
+ACTION  reported
+Tell sales about the 9:00 freeze and the two urgent slots (planned for next Monday).
+```
+
+**Judgement.** Honest and correctly placed, but only partly a useful picture. The
+current-reality chain is right and readable. Nothing is invented or in the wrong
+tree. What is missing: the cloud has two of its five boxes (no Sales need, no
+shared objective) and its link has no assumption; the freeze has no link to "keep a
+stable plan" even though Sam said it protects the plan, and no expected effects; the
+Monday action is not linked to the freeze and has no owner or date field; the Goal
+tree is empty although a provisional goal was recorded; the Prerequisite tree is
+empty. The drawing therefore shows six disconnected fragments, not one argument,
+and the freeze → stable plan → fewer interruptions chain Sam implied is not
+drawn. One run of four short messages; this is not a measure of consulting quality
+across cases, and a different run may record or link differently.
