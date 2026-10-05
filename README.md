@@ -49,7 +49,7 @@ The first time, you choose how to begin:
 
 After that, `reason-commons` opens a list of your goals. A goal opens on one
 question; you answer in ordinary words. Enter adds a line, **Ctrl+S** sends,
-**Ctrl+P** lists every action and **Ctrl+Q** quits. Everything is saved as you
+**Ctrl+P** lists every command and **Ctrl+Q** quits. Everything is saved as you
 type, including an unsent draft, and you come back to where you were.
 
 ## How it works
@@ -153,9 +153,9 @@ come from one of three consultants:
 | What you need | Nothing | An Anthropic API key | LM Studio with a chat model loaded |
 | Does your goal leave your computer? | No | Yes: each consultation sends the goal's saved records to Anthropic | No |
 
-The workspace starts with the built-in guide. Choose another under **Settings**
-on the home screen (a Claude key is checked, and you pick from the models it can
-use), or switch for a session with **Ctrl+P**. If a consultation fails, your words
+The workspace starts with the built-in guide. Choose another under F2 **Settings**
+on the home screen, then **You** (a Claude key is checked, and you pick from the models
+it can use), or switch for a session with **Ctrl+P**. If a consultation fails, your words
 are kept and a **Retry** button appears. `reason-commons providers` checks your
 setup without sending anything.
 

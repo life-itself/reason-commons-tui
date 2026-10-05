@@ -174,7 +174,8 @@ forecast beside the reported results, matched by measure name alone and with no
 verdicts, followed by the goal's safeguards (towards S121). The guide quotes the
 change while it is being forecast (S04). The goal band never clips silently, and
 the context under a question leaves out what the band shows (S68). The header names
-the focused control (S114). A reply that arrives while someone browses no longer
+the focused control (S114; since replaced by a focus frame, see
+[Navigation and hierarchy](#navigation-and-hierarchy-redesign-5-october-2026)). A reply that arrives while someone browses no longer
 changes their view (S118). The first start leads with starting a goal. Adapter
 tests cover each of these; the scenario steps and participant checks are still
 outstanding, so no p1 or p2 scenario is claimed.
@@ -324,3 +325,35 @@ Six more p1 scenarios followed, bringing p1 to 28 of 32. Other moves, Actions
 Still outstanding in p1: S49 (the accessible ordered presentation), S68 (Compact
 display and a Case context control), S69 (a breach kept visible while browsing) and
 S73 (the participant study).
+
+## Navigation and hierarchy redesign (5 October 2026)
+
+An outside evaluator's findings on three screens, and a revised mock-up, were built in the
+workspace ([TUI-UX-PLAN.md](../TUI-UX-PLAN.md#navigation-and-hierarchy-revision) lists each
+finding and its change; the rules that remain are in [TUI-DESIGN.md](../TUI-DESIGN.md#hierarchy-names-and-focus)).
+Adapters, docs and screenshots only; no domain, application or specification change, and no
+scenario's text changed. The same 28 of 32 p1 scenarios run through the workspace and pass.
+
+What the scenarios now check differently, because the screen changed:
+
+- **S114** asks that the focused control stay visible. The step now checks that the answer
+  box is the focused control and that its frame is drawn heavy, where it read a "Focus:
+  Answer" label that the header no longer carries.
+- **S07 and S119** call the list of every action **Actions**. On screen it is **Commands**,
+  in the footer, and **Help** is a footer control too; both are reached with Tab and Enter, as
+  the buttons were. The steps map the specification's name onto the control that carries it.
+- **S68** (not yet delivered) says the pinned header shows "focus". The design shows focus as
+  a frame, so that scenario needs a decision before it is delivered.
+
+Found while building it: Tab from the views list must go on to the History timeline (S07's
+`History > …` examples caught that a shortcut straight to the answer box skipped it), a column
+width floor that clipped the day at 40 columns, and a one-frame jump of the answer box when its
+hint moved under the buttons. An independent review then found and had fixed: a footer that
+overflowed at 80 columns and lost Help (hints now shorten, then drop, and Commands and Help stay),
+a click on Commands or Help that rearranged the footer under the pointer and fired another hint, a
+loop line clipped at 58–61 columns, goal names and measures containing `[` read as markup, and a
+Textual floor that was too low (`textual>=6.2`: older versions lack `OptionList.highlighted_option`
+or leave Commands and Help out of the Tab order).
+
+Not built: renaming and deleting a goal, shown in the mock-up's home footer. They need new
+application use cases and scenarios first; see the UX plan.
