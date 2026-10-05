@@ -68,8 +68,8 @@ def test_import_into_a_fresh_case_draws_the_trees_and_keeps_what_they_cannot_hol
     file_ref = next(k for k, v in sources.items() if v.get("name") == "delivery.ltp.yaml")
     assert all(r["source_refs"] == [file_ref] for r in records if r["kind"] in {"claim", "link", "note"})
     drawing = plain(trees_lines(workspace["trees"], 80, only="current_reality"))
-    assert "└─ because ─ ROOT CAUSE\n   Work is committed without regard to capacity.\n" \
-           "   assuming Nothing else limits when work starts." in drawing
+    assert "└─ because: Work is committed without regard to capacity.  · root cause\n" \
+           "   ┆ assuming Nothing else limits when work starts." in drawing
 
 
 def test_import_mid_loop_keeps_the_current_question(tmp_path, source):

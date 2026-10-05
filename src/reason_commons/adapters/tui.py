@@ -36,7 +36,8 @@ from reason_commons.adapters.settings import Settings, summary
 from reason_commons.adapters.rendering import _literal
 from reason_commons.adapters.timeline import (change_summary, day, moment, next_action, revision_changes, short_day,
                                               tree_summary)
-from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, statement_details, trees_lines
+from reason_commons.adapters.trees import (READING, ROLE_LABELS, TREE_TITLES, branches, roots, statement_details,
+                                           trees_lines)
 
 
 TOUR_FINISHED = "tour-finished"
@@ -45,6 +46,11 @@ PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claud
 # Who receives what you send, named where you send it.
 SEND_TO = {"guided": "the offline guide", "anthropic": "Claude", "lm-studio": "your local model"}
 TREE_ORDER = list(TREE_TITLES)
+# In the overview, a branch with at most this many statements below its start is shown whole.
+OVERVIEW_OPEN = 3
+# The trees as the Views list names them under Trees, the overview first. Short enough for the list.
+TREE_NAV = {"all": "All six", "goal": "Goal Tree", "current_reality": "Current Reality", "conflict": "Cloud",
+            "future_reality": "Future Reality", "prerequisite": "Prerequisite", "transition": "Transition"}
 VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"),
                ("actions", "Loop actions"), ("reasoning", "Reasoning"), ("sources", "Your words"),
                ("history", "History")]
@@ -73,6 +79,10 @@ STATUS_TEXT = {"unavailable": "the consultant could not be reached", "rejected":
 BASIS_WORDS = {"participant_report": "reported", "observed": "observed", "hypothesis": "hypothesis"}
 EXECUTION_WORDS = {"unknown": "not known yet", "planned": "planned", "completed": "done", "blocked": "blocked"}
 ATTAINMENT_WORDS = {"unknown": "not known yet", "pending": "pending", "met": "met", "not_met": "not met"}
+# The records the Goal and Loop actions views show; a goal in Loop actions is left to the band and Goal.
+RECORD_KINDS = {"goal": {"goal"}, "actions": {"test", "action"}}
+# What each kind of record is called where Reasoning lists what is still open about it.
+OPEN_KINDS = {"goal": "Goal", "test": "Test", "action": "Action", "observation": "Result", "review": "Review"}
 # Pane width from which a forecast and its results sit side by side rather than one after the other.
 WIDE = 90
 # Controls a person passes through on the way to something else. Esc does not return focus to them:
@@ -397,18 +407,37 @@ def context_rows(workspace, record, pinned_goal):
     return [("Note", d.get("text"))]
 
 
-def styled(lines, variables, marked=None):
-    """Drawing lines as one Text, in the theme's colours. Lines in ``marked`` (a range) carry the
-    selection bar; every other line gets a blank gutter so nothing shifts when the selection moves."""
+def styled(lines, variables, marked=None, width=None, columns=None):
+    """Drawing lines as one Text, in the theme's colours. Lines in ``marked`` (a range) are the chosen
+    statement: a band in the hand's tint, across ``width`` cells, or only across ``columns`` (first, end)
+    when the statement is one of several boxes side by side. Focus is the frame's business, not this."""
     text = Text()
+    tint = themed("on $hand-tint", variables)
     for index, line in enumerate(lines):
-        if marked is not None:
-            chosen = index in marked
-            text.append("▌ " if chosen else "  ", style=themed("bold $hand", variables) if chosen else None)
+        start = len(text)
         for part, style in line:
             text.append(part, style=themed(style, variables) or None)
+        if marked is not None and index in marked:
+            if columns is None:
+                text.append(" " * max(0, (width or 0) - text[start:].cell_len))
+                text.stylize(tint, start, len(text))
+            else:
+                text.stylize(tint, *(start + offset for offset in char_offsets(text.plain[start:], columns)))
         text.append("\n")
     return text
+
+
+def char_offsets(line, columns):
+    """The character positions in ``line`` of the cells from ``columns[0]`` up to ``columns[1]``."""
+    cells, first, last = 0, None, len(line)
+    for position, character in enumerate(line):
+        if first is None and cells >= columns[0]:
+            first = position
+        if cells >= columns[1]:
+            last = position
+            break
+        cells += cell_len(character)
+    return (len(line) if first is None else first), last
 
 
 class TreeCanvas(Static):
@@ -416,7 +445,8 @@ class TreeCanvas(Static):
 
     BINDINGS = [Binding("down", "choose(1)", "Choose", key_display="↑↓"),
                 Binding("up", "choose(-1)", "Choose", show=False),
-                Binding("enter", "details", "Details")]
+                Binding("enter", "details", "Details"),
+                Binding("space", "fold", "Fold")]
 
     def on_mount(self):
         self.can_focus = False
@@ -436,6 +466,9 @@ class TreeCanvas(Static):
 
     def action_details(self):
         self.app.open_statement()
+
+    def action_fold(self):
+        self.app.toggle_fold()
 
 
 class StatementScreen(ModalScreen):
@@ -956,7 +989,7 @@ class ReasonCommonsApp(ThemedApp):
     #loop { width: auto; }
     #measure { width: 1fr; text-align: right; }
     #body { height: 1fr; }
-    #views-pane { width: 20; padding: 0 1; border: blank; border-right: solid $border-blurred; }
+    #views-pane { width: 23; padding: 0 1; border: blank; border-right: solid $border-blurred; }
     #views-pane:focus-within { border: heavy $accent; }
     #views-title { color: $text-muted; text-style: bold; }
     #views-pane:focus-within #views-title { color: $accent; }
@@ -984,6 +1017,8 @@ class ReasonCommonsApp(ThemedApp):
                 border-title-color: $text-muted; border-title-background: transparent; }
     #response:focus-within { border: heavy $accent; border-title-color: $background;
                              border-title-background: $accent; border-title-style: bold; }
+    #response.collapsed #controls, #response.collapsed #hint-below { display: none; }
+    #response.collapsed #editor { min-height: 1; }
     #editor { height: auto; min-height: 3; max-height: 10; border: none; }
     #controls { height: 1; }
     #controls Button { min-width: 8; height: 1; border: none; margin-right: 1; background: transparent;
@@ -1065,6 +1100,8 @@ class ReasonCommonsApp(ThemedApp):
         # The statement chosen in the Trees view (a claim reference), where each drawn statement sits,
         # and the control to give focus back to when Ctrl+T leaves the trees.
         self.selected_claim, self._tree_spans, self._focus_before_trees = None, [], None
+        # What is folded away (interface state, kept for this session): per tree, and opened in the overview.
+        self._folds, self._overview_open = {}, set()
         # Where a local inspection began (view, explanation, past moment, scroll, focus), for Esc.
         self._origin = None
         # The open menu's name, and its state as kept in the cursor (filter, choice, binding).
@@ -1080,7 +1117,7 @@ class ReasonCommonsApp(ThemedApp):
         with Horizontal(id="body"):
             with Vertical(id="views-pane"):
                 yield Static("VIEWS", id="views-title")
-                yield Views(*[Option(self.view_prompt(key), id=key) for key, _ in VIEW_LABELS], id="views")
+                yield Views(*self.view_options(), id="views")
             with Pane(id="column"):
                 with VerticalScroll(id="main"):
                     yield Page(id="content", open_links=False)
@@ -1118,6 +1155,31 @@ class ReasonCommonsApp(ThemedApp):
         """A view's name in the list, with ▸ beside the one that is open."""
         return ("▸ " if key == self.view_name else "  ") + dict(VIEW_LABELS)[key]
 
+    def view_options(self):
+        """The Views list: every view, and under an open Trees view with something in it, the overview
+        and the six trees in the method's order, with ▸ beside the one on screen."""
+        options = []
+        for key, _ in VIEW_LABELS:
+            options.append(Option(self.view_prompt(key), id=key))
+            if key == "trees" and self.view_name == "trees" and self.has_trees():
+                shown = self.shown_tree()
+                options += [Option(("  ▸ " if tree == shown else "    ") + name, id="tree:" + tree)
+                            for tree, name in TREE_NAV.items()]
+        return options
+
+    def has_trees(self):
+        return any(t["claims"] for t in ((self.workspace_value or {}).get("trees") or []))
+
+    def refresh_views(self):
+        """Rebuild the Views list for the open view (and tree), keeping the cursor on what is open."""
+        views = self.query_one("#views", OptionList)
+        options = self.view_options()
+        views.clear_options()
+        views.add_options(options)
+        ids = [option.id for option in options]
+        wanted = "tree:" + self.shown_tree() if "tree:" + self.shown_tree() in ids else self.view_name
+        views.highlighted = ids.index(wanted)
+
     def on_mount(self):
         super().on_mount()
         self.title = "Reason Commons"
@@ -1142,7 +1204,7 @@ class ReasonCommonsApp(ThemedApp):
         if isinstance(cursor.get("menu"), dict):
             self.call_after_refresh(self.restore_menu, cursor["menu"])
         self.query_one("#earlier" if self.story else "#editor").focus()
-        self.watch(self.screen, "focused", lambda _: self.refresh_hints())
+        self.watch(self.screen, "focused", lambda _: (self.refresh_hints(), self.fit_answer_box()))
         self.on_resize()
 
     MOMENT_LABELS = {"earlier": ("◀ Earlier", "◀ Earlier"), "later": ("Later ▶", "Later ▶"),
@@ -1191,6 +1253,28 @@ class ReasonCommonsApp(ThemedApp):
         timeline, page = self.query_one("#timeline"), self.query_one("#content")
         above = page.outer_size.height + max(page.styles.margin.bottom, timeline.styles.margin.top)
         timeline.styles.max_height = max(3, room - above)
+
+    def fit_answer_box(self):
+        """The answer box at the question it answers. On Next step it is the full box under the question;
+        on any other view it names that question in its title and, while empty and not being written in,
+        folds to one line, so the view gets the room. Tab or a click opens it again; a draft keeps it open."""
+        if self.workspace_value is None:
+            return
+        try:
+            response, editor = self.query_one("#response"), self.query_one("#editor", TextArea)
+        except NoMatches:
+            return
+        elsewhere = self.view_name != "next" and self.revision is None and not self.story
+        folded = elsewhere and not editor.text and not response.has_focus_within
+        question = (self.workspace_value["question"] or {}).get("data", {})
+        decision = question.get("decision") or STEPS["goal"][0]
+        response.border_title = Content(f"Answer as {self.speaker}" + (f" · {decision}" if elsewhere else ""))
+        # An example of the answer asked for, faint in an empty box. The tour has its own example button.
+        example = None if self.tour or self.story or self.provider != "guided" else placeholder(self.workspace_value["question"])
+        editor.placeholder = ("Tab here to write; the question is on Next step." if folded else example or "")
+        if response.has_class("collapsed") != folded:
+            response.set_class(folded, "collapsed")
+            self.call_after_refresh(self.fit_reading)
 
     def hint_text(self):
         return f"Enter: new line · Send: get {REPLY_FROM.get(self.provider, f'the reply of {self.provider}')}"
@@ -1266,8 +1350,9 @@ class ReasonCommonsApp(ThemedApp):
         self.render_stepper()
         content = self.render_next() if self.view_name == "next" else self.render_view()
         self.query_one("#content", Markdown).update(content)
-        drawing = {"trees": self.render_trees, "next": self.render_context,
-                   "tests": self.render_tests}.get(self.view_name, lambda: None)()
+        drawing = {"trees": self.render_trees, "next": self.render_context, "tests": self.render_tests,
+                   "goal": self.render_records, "actions": self.render_records,
+                   "reasoning": self.render_reasoning}.get(self.view_name, lambda: None)()
         canvas = self.query_one("#canvas", Static)
         canvas.set_class(drawing is None, "hidden")
         if drawing is not None:
@@ -1301,13 +1386,9 @@ class ReasonCommonsApp(ThemedApp):
             state = self.tour_state()
             self.query_one("#coach", Static).update(coach_text(state))
             self.query_one("#fill").set_class(state not in EXAMPLE_ANSWERS, "hidden")
-        response = self.query_one("#response")
-        response.border_title = Content(f"Answer as {self.speaker}")
         for name in ("#hint", "#hint-below"):
             self.query_one(name, Static).update(escape_markup(self.hint_text()))
-        # An example of the answer asked for, faint in an empty box. The tour has its own example button.
-        example = None if self.tour or self.story or self.provider != "guided" else placeholder(w["question"])
-        self.query_one("#editor", TextArea).placeholder = example or ""
+        self.fit_answer_box()
         self.refresh_hints()
         self.call_after_refresh(self.fit_reading)
 
@@ -1458,17 +1539,68 @@ class ReasonCommonsApp(ThemedApp):
                        for part in [Text("")] * bool(index) + [comparison_block(self.workspace_value, c, wide)]]
                      ) if comparisons else None
 
-    def record_lines(self, record):
-        rows = context_rows(self.workspace_value, record, None)
-        return [f"**{md(name)}:** {md(value)}  " for name, value in rows] + [""]
+    def record_grid(self, records):
+        """Records as one aligned label column, a blank row between records. The goal's safeguards
+        are listed one to a line; a goal in Loop actions is left to the band and the Goal view."""
+        rows = Table.grid(padding=(0, 2))
+        rows.add_column(style="bold dim", max_width=24)
+        rows.add_column()
+        for record in records:
+            if rows.row_count:
+                rows.add_row("", "")
+            for name, value in context_rows(self.workspace_value, record, None):
+                if name == "Protect" and record["kind"] == "goal":
+                    value = "\n".join(record["data"].get("protections") or []) or "none recorded"
+                rows.add_row(name, Text(str(value)))
+        return rows
+
+    def render_records(self):
+        """Goal: the goal in full. Loop actions: each test and the action that carries it out."""
+        records = [r for r in self.workspace_value["records"] if r["kind"] in RECORD_KINDS[self.view_name]]
+        return self.record_grid(records) if records else None
+
+    def render_reasoning(self):
+        """What is still open first, then the loop's records, then the trees as one line each."""
+        w = self.workspace_value
+        records = {r["ref"]: r for r in w["records"]}
+        parts = []
+        if w["uncertainty"]:
+            open_items = {}
+            for item in w["uncertainty"]:
+                kind = records.get(item["ref"], {}).get("kind")
+                what = re.sub(r" is not established\.?$", "", item["message"])
+                open_items.setdefault(OPEN_KINDS.get(kind, "Other"), []).append(what)
+            rows = Table.grid(padding=(0, 2))
+            rows.add_column(style="bold dim", max_width=24)
+            rows.add_column()
+            for name, items in open_items.items():
+                rows.add_row(name, Text(" · ".join(items)))
+            parts += [Text.assemble(("Still open", "bold"), ("  not established yet", "dim")), rows]
+        loop = [r for r in w["records"] if r["kind"] not in ("intervention", "claim", "link", "retraction")]
+        if loop:
+            parts += [Text("")] * bool(parts) + [Text("The loop", style="bold"), self.record_grid(loop)]
+        trees = [t for t in w["trees"] if t["claims"]]
+        withdrawn = [r for r in w["records"] if r["kind"] == "retraction"]
+        if trees or withdrawn:
+            rows = Table.grid(padding=(0, 2))
+            rows.add_column(style="bold dim", max_width=24)
+            rows.add_column()
+            for tree in trees:
+                count = len(tree["claims"])
+                rows.add_row(TREE_TITLES[tree["tree"]][0], Text(f"{count} statement{'s' * (count != 1)}"))
+            for record in withdrawn:
+                rows.add_row("Withdrawn", Text(str(record["data"]["reason"])))
+            parts += [Text("")] * bool(parts) + [Text.assemble(("In the trees", "bold"), ("  Ctrl+T opens them", "dim")),
+                                                 rows]
+        return Group(*parts) if parts else None
 
     def render_view(self):
         w, view = self.workspace_value, self.view_name
         title = dict(VIEW_LABELS)[view]
         lines = [f"## {title}", ""]
         if view == "history":
-            lines.append("Every saved step, oldest first: when, who, and what changed. "
-                         "Tab to the list, arrows choose, Enter opens that moment; nothing there can be changed.")
+            lines.append("Every saved step, oldest first, and what it changed. Enter opens one as it was; "
+                         "nothing there can be changed.")
             return "\n".join(lines)
         if view == "sources":
             sources = [s for s in w["sources"].values() if "request_id" in s]
@@ -1481,55 +1613,112 @@ class ReasonCommonsApp(ThemedApp):
                           "> " + md(source["text"] or "(empty)").replace("\n", "  \n> "), ""]
             return "\n".join(lines) if sources else "\n".join(lines + ["Nothing written yet."])
         if view == "trees":
-            if not any(t["claims"] for t in w["trees"]):
-                if self.provider == "guided":
-                    lines.append("No trees yet. The built-in guide asks the loop's questions in order; it does "
-                                 "not add to the trees. To grow them as you talk, switch to Claude or a local "
-                                 "model: Ctrl+P, **Consultant**. Or bring in trees you already have: Ctrl+P, "
-                                 "**Import trees**.")
-                else:
-                    lines.append("No trees yet. They grow as you talk: tell the consultant what causes the problem, "
-                                 "what conflict keeps you stuck, what stands in the way, or what you plan to do. "
-                                 "Or bring in trees you already have: Ctrl+P, **Import trees**.")
-            else:
-                shown, news = self.shown_tree(), self.tree_news(live_only=False)
-                tabs = []
-                for tree in w["trees"]:
-                    changed = ", changed" if tree["tree"] in news else ""
-                    name = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])}{changed})"
-                    tabs.append(f"**▸ {name}**" if tree["tree"] == shown else f"[{name}](tree:{tree['tree']})")
-                tabs.append("**▸ All six**" if shown == "all" else "[All six](tree:all)")
-                lines += [" · ".join(tabs)]
-                if news:
-                    step = "This step" if self.revision is not None else "The last step"
-                    lines += ["", f"*{step}: {md(tree_summary(news))}. NEW and REWORDED mark those statements.*"]
-            return "\n".join(lines)
+            return self.trees_page()
         if view == "tests":
             if not w["comparisons"]:
                 lines.append("No test yet.")
             return "\n".join(lines)
-        records = [r for r in w["records"] if r["kind"] != "intervention"]
-        if not records:
+        kinds = RECORD_KINDS.get(view)
+        shown = [r for r in w["records"] if (r["kind"] in kinds if kinds else r["kind"] != "intervention")]
+        if not shown and not (view == "reasoning" and w["uncertainty"]):
             lines.append("Nothing recorded here yet.")
-        for record in records:
-            lines += self.record_lines(record)
-        if view == "reasoning" and w["uncertainty"]:
-            lines += ["### Still open", ""] + [f"- {md(u['message'])}" for u in w["uncertainty"]]
         return "\n".join(lines)
+
+    def trees_page(self):
+        """The Trees page above the drawing: the tree's name, its question and which way to read it; for
+        the overview, how it works. With nothing recorded, the six questions and the ways to start."""
+        w = self.workspace_value
+        if not self.has_trees():
+            lines = ["## Trees", "", "No trees yet. They answer six questions about a goal:", ""]
+            lines += [f"- ○ **{name}**: {question}" for name, question in TREE_TITLES.values()]
+            if self.provider == "guided":
+                lines += ["", "To grow them as you talk, switch to Claude or a local model: Ctrl+P, **Consultant**. "
+                              "The built-in guide asks the loop's questions in order; it does not add to the trees."]
+            else:
+                lines += ["", "They grow as you talk: tell the consultant what causes the problem, what conflict "
+                              "keeps you stuck, what stands in the way, or what you plan to do."]
+            lines += ["", "Or bring in trees you already have: Ctrl+P, **Import trees**.", "",
+                      "###### To see six finished trees first: on the home screen, Explore a real commons."]
+            return "\n".join(lines)
+        shown, news = self.shown_tree(), self.tree_news(live_only=False)
+        lines = []
+        if self.query_one("#views").has_class("hidden"):  # no Views list to name the trees: a strip instead
+            strip = [f"**▸ {name}**" if key == shown else name
+                     for key, name in [*list(TREE_NAV.items())[1:], ("all", "All six")]]
+            lines += [" · ".join(strip), ""]
+        if shown == "all":
+            lines += ["## All six trees", "", "Six questions, each folded at what its tree is for.", "",
+                      "###### Space unfolds a branch here; Enter opens its tree."]
+        else:
+            name, question = TREE_TITLES[shown]
+            lines += [f"## {name}", "", question, "", f"###### {READING[shown]}"]
+        if news:
+            step = "This step" if self.revision is not None else "The last step"
+            lines += ["", f"*{step}: {md(tree_summary(news))}. NEW and REWORDED mark those statements.*"]
+        return "\n".join(lines)
+
+    def folded(self):
+        """The statements drawn folded: in the overview every tree's starting statements, except those
+        opened there; in one tree, those folded with Space."""
+        if self.shown_tree() == "all":
+            step = self.marked_step(live_only=False)
+            fresh = set(step["fresh"]) if step else set()
+            starts = set()
+            for tree in self.workspace_value["trees"]:
+                below = branches(tree)
+                for ref in roots(tree):
+                    seen, todo = set(), [ref]
+                    while todo:
+                        for child in below[todo.pop()]:
+                            if child not in seen:
+                                seen.add(child)
+                                todo.append(child)
+                    # A short branch is shown whole, and so is one the last step added to; a long branch,
+                    # or a wholly new one (its start says NEW, its fold how much changed), starts folded.
+                    if len(seen) > OVERVIEW_OPEN and not (seen & fresh and ref not in fresh):
+                        starts.add(ref)
+            return starts ^ self._overview_open
+        return self._folds.get(self.shown_tree(), set())
 
     def render_trees(self):
         """The six trees, drawn from the recorded claims and links, coloured by role; the chosen
-        statement carries a bar in the gutter."""
-        width = max(40, self.query_one("#main").size.width - 9)
+        statement lies on a band of the hand's tint."""
+        if not self.has_trees():
+            self._tree_spans = []
+            return None
+        width = max(40, self.query_one("#main").size.width - 7)
         shown = self.shown_tree()
         step = self.marked_step(live_only=False)
         fresh = step["fresh"] if step else ()
-        spans = []
+        spans, columns = [], {}
         lines = trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown,
-                            fresh=fresh, spans=spans)
+                            fresh=fresh, spans=spans, folded=self.folded(), title=shown == "all", columns=columns)
         self._tree_spans = spans
         chosen = next((range(start, end) for ref, start, end in spans if ref == self.selected_claim), range(0))
-        return styled(lines, self.theme_variables, marked=chosen)
+        return styled(lines, self.theme_variables, marked=chosen, width=width,
+                      columns=columns.get(self.selected_claim))
+
+    def tree_of(self, ref):
+        return next((t for t in self.workspace_value["trees"] if any(c["ref"] == ref for c in t["claims"])), None)
+
+    def chosen_folds(self):
+        """Whether the chosen statement has branches, and whether they are folded now."""
+        ref = self.drawn_selection()
+        tree = self.tree_of(ref) if ref else None
+        if tree is None or not branches(tree)[ref]:
+            return False, False
+        return True, ref in self.folded()
+
+    def toggle_fold(self):
+        """Space in the drawing: fold the chosen statement's branches away, or unfold them."""
+        can, _ = self.chosen_folds()
+        if not can:
+            return
+        ref = self.drawn_selection()
+        target = self._overview_open if self.shown_tree() == "all" else self._folds.setdefault(self.shown_tree(), set())
+        target ^= {ref}
+        self.render_all()
+        self.call_after_refresh(self.keep_statement_in_view)
 
     # ----- choosing and inspecting a statement ---------------------------
     def drawn_selection(self):
@@ -1576,8 +1765,10 @@ class ReasonCommonsApp(ThemedApp):
                 origins.append((f"{source.get('speaker') or 'Someone'}, {day(source.get('timestamp'))}, wrote:",
                                 textwrap.shorten(text, words, placeholder=" …") if words and text else text))
             elif source:
-                by = f", brought in by {source['speaker']}" if source.get("speaker") else ""
-                origins.append((f"From the file {source.get('name') or item['source_ref']}{by}", None))
+                # A file's attribution says what it is ("Imported LTP document; …"), not who brought it in.
+                when = f", brought in {short_day(source['timestamp'])}" if source.get("timestamp") else ""
+                origins.append((f"From the file {source.get('name') or item['source_ref']}{when}",
+                                source.get("speaker")))
         return origins
 
     def statement_text(self, width, words=300):
@@ -1604,22 +1795,45 @@ class ReasonCommonsApp(ThemedApp):
             self.query_one("#main").focus()
 
     def open_statement(self):
-        """Enter on a chosen statement: its details in full, over the trees; Esc returns."""
-        if self.drawn_selection() is not None:
-            self.push_screen(StatementScreen(lambda width: self.statement_text(width, words=None)))
+        """Enter on a chosen statement: its details in full, over the trees (Esc returns); in the
+        overview, the statement's own tree, with it still chosen."""
+        ref = self.drawn_selection()
+        if ref is None:
+            return
+        if self.shown_tree() == "all":
+            self.show_tree(self.tree_of(ref)["tree"])
+            self.statement_focused()
+            return
+        self.push_screen(StatementScreen(lambda width: self.statement_text(width, words=None)))
 
     # ----- looking back -------------------------------------------------
     def fill_timeline(self, timeline):
+        """One row per saved step, in columns: the day (only where it changes), the time, who (only when
+        more than one person has written), the step, and what it changed. A step that changed nothing is quiet."""
         entries = self.history()["entries"]
-        options = []
+        names = {e["speaker"] for e in entries if e["speaker"]}
+        shared = len(names) > 1 or any(not same_person(name, self.speaker) for name in names)
+        rows = []
         for entry in entries:
-            if entry["revision"] == 0:
-                label = Text(f"{self.when(entry)}  ·  The goal was created", style="dim")
-            else:
-                label = Text()
-                label.append(f"{self.when(entry)}  ·  {entry['speaker'] or 'unknown'}  ·  ", style="dim")
-                label.append(self.step_title(entry))
-                label.append("\n   " + change_summary(entry["counts"]), style="dim")
+            when, time = self.when_parts(entry)
+            created = entry["revision"] == 0
+            title = "The goal was created" if created else self.step_title(entry)
+            change = "" if created else change_summary(entry["counts"])
+            rows.append((when, time, (entry["speaker"] or "unknown") if shared and not created else "", title, change))
+        widths = [max(len(row[column]) for row in rows) for column in range(3)]
+        title_width = min(36, max(len(row[3]) for row in rows))
+        options, previous = [], None
+        for entry, (when, time, who, title, change) in zip(entries, rows):
+            quiet = not change or change == "no recorded change"
+            label = Text()
+            label.append((when if when != previous else "").ljust(widths[0]), style="dim")
+            previous = when
+            for value, width in ((time, widths[1]), (who, widths[2])):
+                if width:
+                    label.append("  " + value.ljust(width), style="dim")
+            shown = title if len(title) <= title_width else title[:title_width - 1] + "…"
+            label.append("  " + shown.ljust(title_width), style="dim" if quiet else "")
+            label.append("  " + change, style="dim" if quiet else themed("$stood-behind", self.theme_variables))
             if entry["revision"] == len(entries) - 1:
                 label.append("   ● now", style="dim")
             options.append(Option(label, id=str(entry["revision"])))
@@ -1628,6 +1842,14 @@ class ReasonCommonsApp(ThemedApp):
         timeline.add_options(options)
         timeline.highlighted = current if current is not None and current < len(options) else (
             self.revision if self.revision is not None else len(options) - 1)
+
+    def when_parts(self, entry):
+        """A step's day and time on the person's own clock; a story keeps its own dates and has no times."""
+        if self.story:
+            return self.when(entry), ""
+        stamp = moment(entry["timestamp"])
+        day_part, _, time = stamp.rpartition(", ")
+        return (day_part, time) if day_part and re.fullmatch(r"\d\d:\d\d", time) else (stamp, "")
 
     def step_title(self, entry):
         """A story chapter's title, else the question this step answered."""
@@ -1801,22 +2023,19 @@ class ReasonCommonsApp(ThemedApp):
         return step["trees"] if step else {}
 
     def shown_tree(self):
-        """The tree on screen: the last one chosen, else the first that has statements."""
+        """The tree on screen: the last one chosen, else the overview of all six, where a first visit
+        can see the whole before going into one tree."""
         if self.tree_choice:
             return self.tree_choice
-        trees = (self.workspace_value or {}).get("trees") or []
-        return next((t["tree"] for t in trees if t["claims"]), TREE_ORDER[0])
+        return "all" if self.has_trees() else TREE_ORDER[0]
 
     def show_view(self, name):
         if name != self.view_name:
             self.begin_inspection()
-        previous, self.view_name = self.view_name, name
+        self.view_name = name
         self.answer_ready = self.answer_ready and name != "next"
-        views = self.query_one("#views", OptionList)
-        for key in {previous, name}:
-            views.replace_option_prompt(key, self.view_prompt(key))
-        views.highlighted = [key for key, _ in VIEW_LABELS].index(name)
         self.refresh_workspace()
+        self.refresh_views()
         self.query_one("#main").scroll_home(animate=False)
         if name == "next" and not self.explain and self.revision is None:
             self._origin = None  # back at the live question: nothing to return from
@@ -1838,7 +2057,10 @@ class ReasonCommonsApp(ThemedApp):
     # ----- events -------------------------------------------------------
     @on(OptionList.OptionSelected, "#views")
     def view_selected(self, event):
-        self.show_view(event.option.id)
+        if event.option.id.startswith("tree:"):
+            self.show_tree(event.option.id[5:])
+        else:
+            self.show_view(event.option.id)
 
     @on(Markdown.LinkClicked, "#content")
     def tree_clicked(self, event):
@@ -1919,7 +2141,10 @@ class ReasonCommonsApp(ThemedApp):
         if focus == "views":
             return [("↑↓", "Choose view", None, "Choose"), ("⏎", "Open", "enter"), back], []
         if focus == "canvas":
-            return [choose, ("⏎", "Details", "enter"), ("^n", "Next tree", "ctrl+n"), trees], []
+            can, folded = self.chosen_folds()
+            fold = [("space", "Unfold" if folded else "Fold", "space")] if can else []
+            enter = ("⏎", "Open tree", "enter", "Open") if self.shown_tree() == "all" else ("⏎", "Details", "enter")
+            return [choose, *fold, enter, ("^n", "Next tree", "ctrl+n"), trees], []
         if focus == "timeline":
             return [("↑↓", "Choose step", None, "Choose"), ("⏎", "Open that step", "enter", "Open")], [tab]
         if focus in ("main", "inspector"):
@@ -1935,6 +2160,7 @@ class ReasonCommonsApp(ThemedApp):
     def draft_changed(self):
         if not self._restoring:
             self.schedule_checkpoint()
+        self.fit_answer_box()
 
     # ----- actions ------------------------------------------------------
     def action_browse(self):
@@ -2005,7 +2231,7 @@ class ReasonCommonsApp(ThemedApp):
             return OTHER_MOVES
         if name == "views":
             return VIEW_LABELS
-        return [(key, option_label(title, detail)) for key, title, detail, _ in self.action_list()]
+        return [(key, command_label(title, detail)) for key, title, detail, _ in self.action_list()]
 
     def open_menu(self, name, notice=None, text="", highlighted=None):
         if isinstance(self.screen, MenuScreen) or self.workspace_value is None:
@@ -2635,6 +2861,13 @@ def themed(style, variables):
 def option_label(title, detail):
     text = Text(title, style="bold")
     text.append("\n" + detail, style="dim")
+    return text
+
+
+def command_label(title, detail):
+    """A command on one line: what it is, then, quieter, what it does and whether it asks the consultant."""
+    text = Text(title, style="bold")
+    text.append(" · " + detail, style="dim")
     return text
 
 

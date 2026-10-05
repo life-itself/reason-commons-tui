@@ -9,7 +9,7 @@ import pytest
 pytest.importorskip("textual")
 
 from reason_commons.adapters.guided import GuidedConsultant  # noqa: E402
-from reason_commons.adapters.tui import ReasonCommonsApp, caret_index, caret_location  # noqa: E402
+from reason_commons.adapters.tui import TREE_NAV, ReasonCommonsApp, caret_index, caret_location  # noqa: E402
 from reason_commons.bootstrap import create_case, open_case  # noqa: E402
 from tests.support import ScriptedConsultant, timezone  # noqa: E402
 
@@ -284,17 +284,23 @@ def test_trees_view_draws_imported_trees_and_exports_them(tmp_path):
             assert app.view_name == "trees"
             titles = ["Goal Tree", "Current Reality Tree", "Evaporating Cloud", "Future Reality Tree",
                       "Prerequisite Tree", "Transition Tree"]
-            # One tree at a time; Ctrl+N steps through the six, then shows them all together.
+            # The first visit shows all six, each folded at what its tree is for, named under Trees in Views.
+            drawing = str(app.query_one("#canvas").render())
+            assert all(title in drawing for title in titles) and "▸ 9 below" in drawing
+            assert "## All six trees" in app.query_one("#content").source
+            prompts = [str(o.prompt) for o in app.query_one("#views").options]
+            assert prompts[2:5] == ["▸ Trees", "  ▸ All six", "    Goal Tree"]
+            # Ctrl+N steps through the six, one at a time, then back to all six.
             for index, title in enumerate(titles):
-                drawing = str(app.query_one("#canvas").render())
-                assert title in drawing and not any(other in drawing for other in titles if other != title)
-                assert f"**▸ {title} (" in app.query_one("#content").source
                 await pilot.press("ctrl+n")
                 await pilot.pause()
-            drawing = str(app.query_one("#canvas").render())
-            assert all(title in drawing for title in titles) and "conflicts with" in drawing
-            assert "**▸ All six**" in app.query_one("#content").source
-            await pilot.press("ctrl+n")
+                assert f"## {title}" in app.query_one("#content").source
+                drawing = str(app.query_one("#canvas").render())
+                assert not any(other in drawing for other in titles)  # the page heading names the tree
+                assert "  ▸ " + TREE_NAV[app.shown_tree()] in [str(o.prompt) for o in app.query_one("#views").options]
+                if title == "Evaporating Cloud":  # a complete cloud is drawn as its five boxes
+                    assert "SHARED OBJECTIVE" in drawing and "◀─⚡─▶" in drawing and "(1) ┆ assuming" in drawing
+            await pilot.press("ctrl+n", "ctrl+n")
             await pilot.pause()
             assert app.shown_tree() == "goal"
             # Ctrl+T goes back to the question and returns to the same tree.
@@ -363,7 +369,7 @@ def test_band_marks_a_cut_and_the_goal_view_shows_it_all(tmp_path):
             assert "…" in band and goal not in band
             app.show_view("goal")
             await pilot.pause()
-            assert goal.replace("-", "\\-").replace(".", "\\.") in app.query_one("#content").source
+            assert goal in " ".join(screen_text(app).split())
     asyncio.run(run())
 
 
@@ -545,13 +551,13 @@ def test_a_reply_that_grows_the_trees_is_named_and_marked_without_moving_the_vie
             assert "Current Reality Tree: 2 statements added · 1 link" in content and "Ctrl+T" in content
             await pilot.press("ctrl+t")
             await pilot.pause()
+            # What the reply added opens in the overview, marked; nothing new is folded away.
             drawing = str(app.query_one("#canvas").render())
-            assert drawing.count("NEW") == 2 and "because" in drawing
-            assert "Current Reality Tree (2, changed)" in app.query_one("#content").source
+            assert drawing.count("NEW") == 2 and "because: We never offer one" in drawing
             # A reply that arrives while the trees are open leaves them open and marks what it changed.
             await send(app, pilot, "Say the cause more precisely")
             assert app.view_name == "trees"
-            drawing = str(app.query_one("#canvas").render())
+            drawing = " ".join(str(app.query_one("#canvas").render()).split())  # as read, across wrapped lines
             assert "REWORDED" in drawing and "We never offer a next step after open evenings" in drawing
             assert "NEW" not in drawing and "We never offer one" not in drawing
             assert "Current Reality Tree: 1 statement reworded" in app.query_one("#content").source
@@ -602,11 +608,12 @@ def test_choose_a_tree_statement_and_see_where_it_came_from(tmp_path):
                 str(app.query_one("#inspector-text").render()).split())
             await pilot.press("down")
             await pilot.pause()
-            panel = " ".join(str(app.query_one("#inspector-text").render()).split())
+            # As read: across wrapped lines, and past the dotted rule that marks an assumption.
+            panel = " ".join(str(app.query_one("#inspector-text").render()).replace("┆", "").split())
             assert "We never offer a next step after open evenings" in panel
             assert "We never offer one" in panel  # its earlier wording
             assert "David" in panel and "Say the cause more precisely" in panel  # who, in their own words
-            assert "causes" in panel and "Nobody else tells them" in panel  # its link, read from its side
+            assert "Causes" in panel and "Nobody else tells them" in panel  # its link, read from its side
             await pilot.press("enter")
             await pilot.pause()
             assert isinstance(app.screen, StatementScreen)
@@ -639,6 +646,7 @@ def test_statement_details_open_full_screen_at_80_columns_and_the_choice_survive
             await pilot.press("ctrl+t")
             await pilot.pause()
             assert app.focused.id == "canvas" and app.query_one("#inspector").has_class("hidden")
+            await pilot.press("ctrl+n")  # from all six to the Goal Tree, where Enter opens the details
             await pilot.press("down", "down")
             await pilot.pause()
             chosen["ref"] = app.selected_claim
@@ -892,7 +900,9 @@ def test_the_footer_fits_the_smallest_terminals_and_keeps_commands_and_help(tmp_
     narrow = asyncio.run(run((80, 24)))
     assert "tab Next control" in narrow["editor"]  # it still fits, so it is not shortened
     assert "tab Next" in narrow["send"] and "tab Next control" not in narrow["send"]  # shortened to fit
-    assert "↑↓ Choose" in narrow["canvas"] and "⏎ Details" in narrow["canvas"] and "^n Next tree" in narrow["canvas"]
+    # The trees open on all six, where Enter opens the chosen statement's tree and Space unfolds it.
+    assert "↑↓ Choose" in narrow["canvas"] and "space Unfold" in narrow["canvas"] and "⏎ Open" in narrow["canvas"]
+    assert "^n Next tree" in narrow["canvas"]
     smallest = asyncio.run(run((40, 24)))
     assert all(hints[-1] == "f1 Help" and "^p Commands" in hints for hints in smallest.values())
 
