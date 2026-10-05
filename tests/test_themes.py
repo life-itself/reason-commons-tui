@@ -161,3 +161,14 @@ def test_trees_are_drawn_in_the_theme_colours():
     assert themed("bold $hand", variables) == "bold #1c5238"
     assert themed("italic dim", variables) == "italic dim"
     assert themed("", variables) == ""
+
+
+def test_theme_flag_reaches_the_workspace(monkeypatch):
+    from reason_commons.adapters import cli, tui
+    monkeypatch.delenv(themes.ENVIRONMENT, raising=False)
+    monkeypatch.setattr(cli.sys.stdin, "isatty", lambda: True)
+    monkeypatch.setattr(cli.sys.stdout, "isatty", lambda: True)
+    opened = []
+    monkeypatch.setattr(tui, "run_home", lambda **options: opened.append(cli.os.environ[themes.ENVIRONMENT]))
+    cli.main(["--theme", "Shadows"])
+    assert opened == ["tanizaki"]
