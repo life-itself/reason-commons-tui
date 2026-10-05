@@ -80,7 +80,7 @@ def tree_lines(tree, width=80, fresh=()):
     children, has_parent, asides = {ref: [] for ref in claims}, set(), {ref: [] for ref in claims}
     for link in tree["links"]:
         if link["relation"] in ASIDE:
-            asides[link["from"]].append((ASIDE[link["relation"]], link["to"]))
+            asides[link["from"]].append((ASIDE[link["relation"]], link["to"], link.get("assumption")))
             continue
         upper, lower = ((link["from"], link["to"]) if link["relation"] in DOWNWARD
                         else (link["to"], link["from"]))
@@ -108,6 +108,12 @@ def tree_lines(tree, width=80, fresh=()):
     def wrap(text, indent):
         return textwrap.wrap(text, max(20, width - len(indent))) or [""]
 
+    def assuming(assumption, rest):
+        # Every link's assumption is drawn where the link is, including a back-reference or an aside.
+        if assumption:
+            for line in wrap("assuming " + assumption, rest):
+                lines.append([(rest, "dim"), (line, "italic dim")])
+
     def draw(ref, lead, rest, relation=None, assumption=None):
         claim = claims[ref]
         header = [(lead, "dim")]
@@ -115,6 +121,7 @@ def tree_lines(tree, width=80, fresh=()):
             header.append((relation + " ─ ", "italic dim"))
         if ref in drawn:
             lines.append(header + [("↑ see above: ", "dim"), (textwrap.shorten(claim["statement"], 50), "")])
+            assuming(assumption, rest)
             return
         drawn.add(ref)
         # The statement is what people read; its role label is a quieter, coloured tag above it.
@@ -126,14 +133,13 @@ def tree_lines(tree, width=80, fresh=()):
         lines.append(header)
         for line in wrap(claim["statement"], rest):
             lines.append([(rest, "dim"), (line, "")])
-        if assumption:
-            for line in wrap("assuming " + assumption, rest):
-                lines.append([(rest, "dim"), (line, "italic dim")])
-        for label, other in asides[ref]:
+        assuming(assumption, rest)
+        for label, other, aside_assumption in asides[ref]:
             target = claims.get(other)
             if target:
                 lines.append([(rest, "dim"), ("⚡ " + label + ": " if label == "conflicts with" else "→ " + label + ": ",
                                               "bold"), (textwrap.shorten(target["statement"], 60), "")])
+                assuming(aside_assumption, rest)
         for test in claim.get("tests", []):
             forecast = "; ".join(f for f in test["forecast"] if f) or "none"
             result = "; ".join(test["results"]) or "not observed yet"

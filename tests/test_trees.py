@@ -104,3 +104,45 @@ def test_a_test_can_carry_out_a_tree_claim(tmp_path):
     assert transition["claims"][0]["tests"] == [{"ref": "P1@1", "statement": "Bounded release pilot",
                                                  "forecast": ["80%", "95%"], "results": []}]
     assert {"from": "P1@1", "to": "C1@1", "field": "claim_ref", "label": "carries out"} in app.workspace(view="tests")["diagram"]["links"]
+
+
+def drawn_tree(name, claims, links):
+    """A projected tree, as the workspace read returns it, for drawing tests."""
+    return {"tree": name,
+            "claims": [{"ref": ref, "role": role, "statement": statement, "basis": None, "earlier_wording": [],
+                        "tests": []} for ref, role, statement in claims],
+            "links": [{"ref": f"L{index}@1", "relation": relation, "from": source, "to": target,
+                       "assumption": assumption}
+                      for index, (relation, source, target, assumption) in enumerate(links, start=1)]}
+
+
+def test_outline_draws_the_assumption_behind_every_link():
+    from reason_commons.adapters.trees import plain, trees_lines
+    cloud = drawn_tree("conflict", [("C1@1", "cloud_prerequisite", "Act like a movement now"),
+                                    ("C2@1", "cloud_prerequisite", "Act like a monastery now")],
+                       [("conflicts_with", "C1@1", "C2@1", "Both draw on the same few organisers")])
+    # The root cause has two effects, so its second branch refers back to the first drawing.
+    reality = drawn_tree("current_reality", [("C3@1", "undesirable_effect", "Organisers burn out"),
+                                             ("C4@1", "undesirable_effect", "Few keep practising"),
+                                             ("C5@1", "root_cause", "No path into practice")],
+                         [("causes", "C5@1", "C3@1", "Newcomers lean on organisers"),
+                          ("causes", "C5@1", "C4@1", "Without a next step people drift away")])
+    text = plain(trees_lines([cloud, reality], width=200))
+    for assumption in ("Both draw on the same few organisers", "Newcomers lean on organisers",
+                       "Without a next step people drift away"):
+        assert text.count("assuming " + assumption) == 1, assumption
+
+
+def test_every_imported_assumption_is_drawn(tmp_path):
+    from importlib.resources import files
+    import yaml
+    from reason_commons.adapters.ltp_trees import import_trees
+    from reason_commons.adapters.trees import plain, trees_lines
+    from reason_commons.bootstrap import create_case, open_case
+    source = files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")
+    create_case(tmp_path / "case", "Sample").close()
+    import_trees(tmp_path / "case", str(source), "Sam")
+    with open_case(tmp_path / "case", writable=False) as app:
+        text = plain(trees_lines(app.workspace(view="trees")["trees"], width=1000))
+    for assumption in yaml.safe_load(source.read_text())["ltp"]["assumptions"]:
+        assert "assuming " + assumption["statement"] in text, assumption["id"]
