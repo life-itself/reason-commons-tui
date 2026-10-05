@@ -883,9 +883,15 @@ class ReasonCommonsApp(ThemedApp):
             return "\n".join(lines) if sources else "\n".join(lines + ["Nothing written yet."])
         if view == "trees":
             if not any(t["claims"] for t in w["trees"]):
-                lines.append("No trees yet. They grow as you talk: tell the consultant what causes the problem, "
-                             "what conflict keeps you stuck, what stands in the way, or what you plan to do. "
-                             "Or bring in trees you already have: Ctrl+P, **Import trees**.")
+                if self.provider == "guided":
+                    lines.append("No trees yet. The built-in guide asks the loop's questions in order; it does "
+                                 "not add to the trees. To grow them as you talk, switch to Claude or a local "
+                                 "model: Ctrl+P, **Consultant**. Or bring in trees you already have: Ctrl+P, "
+                                 "**Import trees**.")
+                else:
+                    lines.append("No trees yet. They grow as you talk: tell the consultant what causes the problem, "
+                                 "what conflict keeps you stuck, what stands in the way, or what you plan to do. "
+                                 "Or bring in trees you already have: Ctrl+P, **Import trees**.")
             else:
                 shown = self.shown_tree()
                 tabs = []

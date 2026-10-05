@@ -391,3 +391,22 @@ def test_header_names_the_focused_control_and_routes_are_not_duplicated(tmp_path
             return app.query_one("#views").has_class("hidden"), app.query_one("#views-button").has_class("hidden")
     assert asyncio.run(run((120, 40))) == (False, True)
     assert asyncio.run(run((80, 24))) == (True, False)
+
+
+def test_empty_trees_say_which_consultants_grow_them(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Empty").close()
+
+    async def run():
+        app = launch(path, {"guided": ScriptedConsultant(), "anthropic": ScriptedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.show_view("trees")
+            await pilot.pause()
+            guided = app.query_one("#content").source
+            assert "No trees yet" in guided and "built-in guide" in guided and "does not add to the trees" in guided
+            assert "**Consultant**" in guided and "**Import trees**" in guided
+            app.switch_provider("anthropic")
+            await pilot.pause()
+            model = app.query_one("#content").source
+            assert "They grow as you talk" in model and "built-in guide" not in model
+    asyncio.run(run())
