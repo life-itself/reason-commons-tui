@@ -129,7 +129,7 @@ def tree_lines(tree, width=80, fresh=()):
         if claim.get("basis"):
             header.append(("  " + BASIS[claim["basis"]], "dim"))
         if ref in fresh:
-            header.append(("  NEW", "bold " + DO))
+            header.append(("  REWORDED" if claim.get("earlier_wording") else "  NEW", "bold " + DO))
         lines.append(header)
         for line in wrap(claim["statement"], rest):
             lines.append([(rest, "dim"), (line, "")])

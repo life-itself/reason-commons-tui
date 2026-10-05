@@ -30,7 +30,7 @@ from reason_commons.adapters.guided import STEPS
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
 from reason_commons.adapters.settings import Settings, describe
 from reason_commons.adapters.rendering import _literal
-from reason_commons.adapters.timeline import change_summary, day, next_action, revision_changes
+from reason_commons.adapters.timeline import change_summary, day, next_action, revision_changes, tree_summary
 from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, trees_lines
 
 
@@ -808,6 +808,9 @@ class ReasonCommonsApp(ThemedApp):
             data = w["question"]["data"]
             lines += [f"## {md(data.get('decision') or 'Next question')}", "", f"**{md(data['primary_prompt'])}**", ""]
             rationale = data["rationale"]
+            news = self.tree_news()
+            if news:
+                lines += [f"*In the trees, the last step: {md(tree_summary(news))}. Ctrl+T shows them.*", ""]
         else:
             # A new goal: its name is in the header, so the first question builds on it.
             lines += [f"## {md(STEPS['goal'][0])}", "",
@@ -893,13 +896,17 @@ class ReasonCommonsApp(ThemedApp):
                                  "what conflict keeps you stuck, what stands in the way, or what you plan to do. "
                                  "Or bring in trees you already have: Ctrl+P, **Import trees**.")
             else:
-                shown = self.shown_tree()
+                shown, news = self.shown_tree(), self.tree_news(live_only=False)
                 tabs = []
                 for tree in w["trees"]:
-                    name = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])})"
+                    changed = ", changed" if tree["tree"] in news else ""
+                    name = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])}{changed})"
                     tabs.append(f"**▸ {name}**" if tree["tree"] == shown else name)
                 tabs.append("**▸ All six**" if shown == "all" else "All six")
                 lines += [" · ".join(tabs)]
+                if news:
+                    step = "This step" if self.revision is not None else "The last step"
+                    lines += ["", f"*{step}: {md(tree_summary(news))}. NEW and REWORDED mark those statements.*"]
             return "\n".join(lines)
         if view == "tests":
             if not w["comparisons"]:
@@ -919,7 +926,8 @@ class ReasonCommonsApp(ThemedApp):
         width = max(40, self.query_one("#main").size.width - 6)
         text = Text()
         shown = self.shown_tree()
-        fresh = self.history()["entries"][self.revision]["fresh"] if self.revision is not None else ()
+        entries = self.history()["entries"]
+        fresh = entries[self.revision if self.revision is not None else -1]["fresh"]
         for line in trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown,
                                 fresh=fresh):
             for part, style in line:
@@ -1102,6 +1110,14 @@ class ReasonCommonsApp(ThemedApp):
         self.revision = int(event.option.id)  # set first, so the step page opens directly
         self.show_view("next")
 
+    def tree_news(self, live_only=True):
+        """What the step on screen changed in the trees, tree by tree: the latest step on the
+        live goal, or the past step being looked at (unless ``live_only``)."""
+        if live_only and (self.story or self.revision is not None):
+            return {}
+        entries = self.history()["entries"]
+        return entries[self.revision if self.revision is not None else -1]["trees"]
+
     def shown_tree(self):
         """The tree on screen: the last one chosen, else the first that has statements."""
         if self.tree_choice:
@@ -1266,7 +1282,10 @@ class ReasonCommonsApp(ThemedApp):
             self.explain = False
             # Never move the person: a reply that arrives while they browse waits on Next step.
             self.answer_ready = self.view_name != "next"
-            self.notify("Answer ready: Next step shows the new question." if self.answer_ready else "Saved.")
+            news = self.tree_news()
+            grown = f" In the trees: {tree_summary(news)}." if news else ""
+            self.notify(("Answer ready: Next step shows the new question." if self.answer_ready else "Saved.")
+                        + grown)
         elif result.get("input_retained"):
             if sent:
                 editor.clear()  # the words are retained in the case; Retry reuses them
@@ -1377,6 +1396,7 @@ class ReasonCommonsApp(ThemedApp):
                 self.notify(f"Import failed: {exc}", severity="error", timeout=10)
             finally:
                 self.case = self._open(self._consultant_factory(self.provider))
+                self._history = None
             self.show_view("trees")
         self.push_screen(PathScreen("Bring in trees from an LTP file (.ltp.yaml)", "",
                                     "Enter imports. They join the trees already here. Esc cancels."), chosen)

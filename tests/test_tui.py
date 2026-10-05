@@ -410,3 +410,37 @@ def test_empty_trees_say_which_consultants_grow_them(tmp_path):
             model = app.query_one("#content").source
             assert "They grow as you talk" in model and "built-in guide" not in model
     asyncio.run(run())
+
+
+def test_a_reply_that_grows_the_trees_is_named_and_marked_without_moving_the_view(tmp_path):
+    from tests.test_trees import claim, link, with_updates
+    path = tmp_path / "case"
+    create_case(path, "Open evenings").close()
+    consultant = ScriptedConsultant([
+        with_updates(claim("temp_ude", "Newcomers do not know the next step"),
+                     claim("temp_cause", "We never offer one", role="intermediate_cause", basis="participant_report"),
+                     link("temp_link", "temp_cause", "temp_ude")),
+        with_updates(claim("temp_new", "We never offer a next step after open evenings",
+                           role="intermediate_cause", replaces="C2@1")),
+    ])
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await send(app, pilot, "Newcomers do not know the next step, because we never offer one")
+            assert app.view_name == "next"
+            content = app.query_one("#content").source
+            assert "Current Reality Tree: 2 statements added · 1 link" in content and "Ctrl+T" in content
+            await pilot.press("ctrl+t")
+            await pilot.pause()
+            drawing = str(app.query_one("#canvas").render())
+            assert drawing.count("NEW") == 2 and "because" in drawing
+            assert "Current Reality Tree (2, changed)" in app.query_one("#content").source
+            # A reply that arrives while the trees are open leaves them open and marks what it changed.
+            await send(app, pilot, "Say the cause more precisely")
+            assert app.view_name == "trees"
+            drawing = str(app.query_one("#canvas").render())
+            assert "REWORDED" in drawing and "We never offer a next step after open evenings" in drawing
+            assert "NEW" not in drawing and "We never offer one" not in drawing
+            assert "Current Reality Tree: 1 statement reworded" in app.query_one("#content").source
+    asyncio.run(run())
