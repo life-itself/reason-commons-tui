@@ -202,9 +202,13 @@ class CaseApplication:
         except StaleWork:
             return self._failure(request_id, "stale", "Response is stale; re-evaluate against the current revision",
                                  ["reevaluate_current_revision"], attempt)
-        except (InvalidCase, TypeError, KeyError, AttributeError):
+        except (InvalidCase, TypeError, KeyError, AttributeError) as exc:
+            # Say which rule the reply broke. A validation message is the domain's own wording (any
+            # proposal values in it are already retained with the attempt); other errors keep their type only.
+            reason = str(exc)[:300] if isinstance(exc, InvalidCase) else f"malformed response ({type(exc).__name__})"
             return self._failure(request_id, "rejected", "Input retained; invalid or out-of-profile response rejected",
-                                 ["inspect_failure", "reevaluate_current_revision"], attempt)
+                                 ["inspect_failure", "reevaluate_current_revision"], attempt,
+                                 detail={"reason": reason})
         except StoreError:
             return self._failure(request_id, "not_saved", "not saved; input and response retained",
                                  ["retry_retained_input", "choose_writable_export"], attempt)

@@ -146,3 +146,23 @@ def test_every_imported_assumption_is_drawn(tmp_path):
         text = plain(trees_lines(app.workspace(view="trees")["trees"], width=1000))
     for assumption in yaml.safe_load(source.read_text())["ltp"]["assumptions"]:
         assert "assuming " + assumption["statement"] in text, assumption["id"]
+
+
+def test_a_rejection_receipt_says_which_rule_the_reply_broke(tmp_path):
+    consultant = ScriptedConsultant([with_updates(claim("temp_a", "A goal in the wrong tree", role="goal"))])
+    app, _ = fixture_app(tmp_path / "case", consultant)
+    result = submit(app, "Orders ship late")
+    assert result["status"] == "rejected"
+    assert result["reason"] == "Role goal does not belong in the current_reality tree"
+    receipt = app.receipts(result["request_id"])["attempts"][-1]
+    assert receipt["status"] == "rejected" and receipt["reason"] == result["reason"]
+
+
+def test_a_rejection_never_echoes_provider_text_outside_the_rules(tmp_path):
+    def broken(request):
+        value = proposal(request)
+        value["proposed_updates"] = "sk-secret-looking provider text"
+        return value
+    app, _ = fixture_app(tmp_path / "case", ScriptedConsultant([broken]))
+    result = submit(app, "Orders ship late")
+    assert result["status"] == "rejected" and "sk-secret" not in str(result)
