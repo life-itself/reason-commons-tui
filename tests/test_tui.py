@@ -444,3 +444,91 @@ def test_a_reply_that_grows_the_trees_is_named_and_marked_without_moving_the_vie
             assert "NEW" not in drawing and "We never offer one" not in drawing
             assert "Current Reality Tree: 1 statement reworded" in app.query_one("#content").source
     asyncio.run(run())
+
+
+def test_choose_a_tree_statement_and_see_where_it_came_from(tmp_path):
+    from tests.test_trees import claim, link, with_updates
+    from reason_commons.adapters.tui import StatementScreen
+    path = tmp_path / "case"
+    create_case(path, "Open evenings").close()
+    consultant = ScriptedConsultant([
+        with_updates(claim("temp_ude", "Newcomers do not know the next step"),
+                     claim("temp_cause", "We never offer one", role="intermediate_cause", basis="participant_report"),
+                     link("temp_link", "temp_cause", "temp_ude", assumption="Nobody else tells them")),
+        with_updates(claim("temp_new", "We never offer a next step after open evenings",
+                           role="intermediate_cause", replaces="C2@1")),
+    ])
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await send(app, pilot, "Newcomers do not know the next step, because we never offer one")
+            await send(app, pilot, "Say the cause more precisely")
+            editor = app.query_one("#editor")
+            editor.load_text("half an answer")
+            editor.cursor_location = (0, 4)
+            await pilot.press("ctrl+t")
+            await pilot.pause()
+            # Opening the trees puts the keys on them, with the first statement chosen and shown beside them.
+            assert app.focused.id == "canvas" and "Focus: Trees" in screen_text(app)
+            assert not app.query_one("#inspector").has_class("hidden")
+            assert "Newcomers do not know the next step" in " ".join(
+                str(app.query_one("#inspector-text").render()).split())
+            await pilot.press("down")
+            await pilot.pause()
+            panel = " ".join(str(app.query_one("#inspector-text").render()).split())
+            assert "We never offer a next step after open evenings" in panel
+            assert "We never offer one" in panel  # its earlier wording
+            assert "David" in panel and "Say the cause more precisely" in panel  # who, in their own words
+            assert "causes" in panel and "Nobody else tells them" in panel  # its link, read from its side
+            await pilot.press("enter")
+            await pilot.pause()
+            assert isinstance(app.screen, StatementScreen)
+            await pilot.press("escape")
+            await pilot.pause()
+            assert app.focused.id == "canvas" and app.selected_claim == "C3@1"
+            # Ctrl+T goes back to the question with the draft and caret as they were.
+            await pilot.press("ctrl+t")
+            await pilot.pause()
+            assert app.view_name == "next" and app.focused.id == "editor"
+            assert editor.text == "half an answer" and editor.cursor_location == (0, 4)
+    asyncio.run(run())
+    assert len(consultant.calls) == 2  # choosing and inspecting asked the consultant nothing
+    with open_case(path, writable=False) as case:
+        assert case.inspect()["case"]["revision"] == 2
+
+
+def test_statement_details_open_full_screen_at_80_columns_and_the_choice_survives_a_restart(tmp_path):
+    from importlib.resources import files
+    from reason_commons.adapters.ltp_trees import import_trees
+    from reason_commons.adapters.tui import StatementScreen
+    path = tmp_path / "case"
+    create_case(path, "Imported").close()
+    import_trees(path, str(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")), "David")
+    chosen = {}
+
+    async def first():
+        app = launch(path, {"guided": ScriptedConsultant()})
+        async with app.run_test(size=(80, 24)) as pilot:
+            await pilot.press("ctrl+t")
+            await pilot.pause()
+            assert app.focused.id == "canvas" and app.query_one("#inspector").has_class("hidden")
+            await pilot.press("down", "down")
+            await pilot.pause()
+            chosen["ref"] = app.selected_claim
+            await pilot.press("enter")
+            await pilot.pause()
+            assert isinstance(app.screen, StatementScreen)
+            details = " ".join(str(app.screen.query_one("#statement-text").render()).split())
+            assert "sample-trees.ltp.yaml" in details and "Goal Tree" in details
+            await pilot.press("escape")
+            await pilot.pause()
+            await pilot.press("ctrl+q")
+
+    async def second():
+        app = launch(path, {"guided": ScriptedConsultant()})
+        async with app.run_test(size=(80, 24)) as pilot:
+            await pilot.pause()
+            assert app.view_name == "trees" and app.selected_claim == chosen["ref"]
+    asyncio.run(first())
+    asyncio.run(second())

@@ -56,6 +56,20 @@ ASIDE = {"conflicts_with": "conflicts with", "precedes": "comes before",
          "invalidates_assumption": "breaks an assumption behind", "supersedes": "replaces",
          "refines": "refines"}
 BASIS = {"hypothesis": "hypothesis", "participant_report": "reported", "observed": "observed"}
+# A link read from either end, for a statement's details: what this statement does to the other,
+# and what the other does to it. "C causes E" reads "causes E" on C and "because C" on E.
+FROM_SIDE = {"necessary_for": "is needed for", "causes": "causes", "contributes_to": "contributes to",
+             "conflicts_with": "conflicts with", "requires": "requires", "satisfies": "meets",
+             "overcomes": "overcomes", "precedes": "comes before", "produces": "produces",
+             "invalidates_assumption": "breaks an assumption behind", "implements": "carries out",
+             "supersedes": "replaces", "supports": "supports", "challenges": "challenges", "refines": "refines",
+             "enables": "makes possible"}
+TO_SIDE = {"necessary_for": "needs", "causes": "because", "contributes_to": "partly because",
+           "conflicts_with": "conflicts with", "requires": "required by", "satisfies": "met by",
+           "overcomes": "overcome by", "precedes": "comes after", "produces": "produced by",
+           "invalidates_assumption": "has an assumption broken by", "implements": "carried out by",
+           "supersedes": "replaced by", "supports": "supported by", "challenges": "challenged by",
+           "refines": "refined by", "enables": "made possible by"}
 # Roots are drawn ends first: what a tree is for comes before what serves it.
 ROLE_ORDER = ["goal", "critical_success_factor", "necessary_condition", "undesirable_effect", "desired_effect",
               "cloud_objective", "implementation_objective", "transition_expected_effect", "transition_need",
@@ -68,10 +82,12 @@ def _number(ref):
     return int(ref[1:].split("@")[0])
 
 
-def tree_lines(tree, width=80, fresh=()):
+def tree_lines(tree, width=80, fresh=(), spans=None):
     """One tree as lines of (text, style) segments; an empty style is plain text.
 
-    Claims whose references are in ``fresh`` are marked NEW (the ones a past revision added)."""
+    Claims whose references are in ``fresh`` are marked NEW (the ones a past revision added).
+    When ``spans`` is a list, each drawn statement is appended to it as (ref, first line, end line),
+    in reading order, so an interface can choose a statement and keep it in view."""
     name, question = TREE_TITLES[tree["tree"]]
     lines = [[(name, "bold"), ("  " + question, "italic")], []]
     claims = {c["ref"]: c for c in tree["claims"]}
@@ -124,6 +140,7 @@ def tree_lines(tree, width=80, fresh=()):
             assuming(assumption, rest)
             return
         drawn.add(ref)
+        first = len(lines)
         # The statement is what people read; its role label is a quieter, coloured tag above it.
         header.append((ROLE_LABELS[claim["role"]], "dim " + ROLE_STYLES.get(claim["role"], "")))
         if claim.get("basis"):
@@ -145,6 +162,8 @@ def tree_lines(tree, width=80, fresh=()):
             result = "; ".join(test["results"]) or "not observed yet"
             for line in wrap(f"◆ Test: {test['statement']} · forecast {forecast} · result {result}", rest):
                 lines.append([(rest, "dim"), (line, WANT)])
+        if spans is not None:
+            spans.append((ref, first, len(lines)))
         # Short branches first, so a long chain does not separate a claim from its leaves.
         below = sorted(children[ref], key=lambda pair: (bool(children[pair[1]]), _number(pair[1])))
         for index, (link, child) in enumerate(below):
@@ -159,15 +178,67 @@ def tree_lines(tree, width=80, fresh=()):
     return lines
 
 
-def trees_lines(trees, width=80, only=None, fresh=()):
-    """All trees (or one), separated by a blank line."""
+def trees_lines(trees, width=80, only=None, fresh=(), spans=None):
+    """All trees (or one), separated by a blank line; ``spans`` as for ``tree_lines``."""
     lines = []
     for tree in trees:
         if only and tree["tree"] != only:
             continue
         if lines:
             lines += [[], []]
-        lines += tree_lines(tree, width, fresh)
+        found = []
+        drawn = tree_lines(tree, width, fresh, found)
+        if spans is not None:
+            spans += [(ref, start + len(lines), end + len(lines)) for ref, start, end in found]
+        lines += drawn
+    return lines
+
+
+def statement_details(trees, ref, width=60, origins=()):
+    """One statement in full, as lines of segments: what it is, its wording and earlier wordings,
+    where it came from, every link read from its side with the assumption behind it, and the tests
+    that carry it out. ``origins`` are (heading, words) pairs the caller resolved from the sources the
+    statement cites; nothing here is inferred beyond the recorded claims and links. The order follows
+    the rendering contract: wording, relationships, then history."""
+    tree = next(t for t in trees if any(c["ref"] == ref for c in t["claims"]))
+    claims = {c["ref"]: c for c in tree["claims"]}
+    claim = claims[ref]
+    lines = []
+
+    def para(text, style="", indent=""):
+        for line in textwrap.wrap(str(text), max(20, width - len(indent))) or [""]:
+            lines.append([(indent, ""), (line, style)])
+
+    lines.append([(ROLE_LABELS[claim["role"]].capitalize(), "dim " + ROLE_STYLES.get(claim["role"], ""))])
+    para(f"in the {TREE_TITLES[tree['tree']][0]}", "dim")
+    lines.append([])
+    para(claim["statement"], "bold")
+    lines.append([("Basis: " + BASIS.get(claim.get("basis"), "not stated") + "  ·  " + ref.split("@")[0], "dim")])
+    if claim.get("earlier_wording"):
+        lines += [[], [("Earlier wording", "bold dim")]]
+        for wording in claim["earlier_wording"]:
+            para(wording, "italic", "  ")
+    related = [(FROM_SIDE[link["relation"]], link["to"], link) for link in tree["links"] if link["from"] == ref]
+    related += [(TO_SIDE[link["relation"]], link["from"], link) for link in tree["links"] if link["to"] == ref]
+    if related:
+        lines += [[], [("Links", "bold dim")]]
+        for phrase, other, link in related:
+            lines.append([("  " + phrase + " ─ ", "italic dim"),
+                          (ROLE_LABELS[claims[other]["role"]], "dim " + ROLE_STYLES.get(claims[other]["role"], ""))])
+            para(claims[other]["statement"], "", "    ")
+            if link.get("assumption"):
+                para("assuming " + link["assumption"], "italic dim", "    ")
+    for test in claim.get("tests", []):
+        lines += [[], [("Test that carries it out", "bold dim")]]
+        para(test["statement"], "", "  ")
+        para("Original forecast: " + ("; ".join(f for f in test["forecast"] if f) or "none"), WANT, "  ")
+        para("Result: " + ("; ".join(test["results"]) or "not observed yet"), "", "  ")
+    if origins:
+        lines += [[], [("Where it came from", "bold dim")]]
+        for heading, words in origins:
+            para(heading, "dim", "  ")
+            if words:
+                para(words, "", "    ")
     return lines
 
 
