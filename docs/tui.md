@@ -286,7 +286,7 @@ your shell instead, for example in `~/.zshrc` on a Mac:
 | `REASON_COMMONS_LM_STUDIO_URL` | LM Studio server address | `http://127.0.0.1:1234/v1` |
 | `REASON_COMMONS_LM_STUDIO_MODEL` | LM Studio model ID | the only loaded model |
 | `LM_STUDIO_API_TOKEN` | LM Studio token, if your server needs one | none |
-| `REASON_COMMONS_THEME` | Colour theme (see [Themes](#themes)) | `commons-dark` |
+| `REASON_COMMONS_THEME` | Colour theme (see [Themes](#themes)) | `yoruba-dark` |
 
 Keys and server addresses are never written into your goals or exports.
 
@@ -296,7 +296,8 @@ The workspace speaks in the same twelve voices as the Reason Commons web app, ea
 in a light form (the web palette) and a dark form (the same hues for a dark
 terminal). Choose one in the app, and it is kept:
 
-- **In the app:** Ctrl+P, **Theme**, or **Theme** on the goals list. Moving through
+- **In the app:** **Settings** (Ctrl+P, **Settings**, or F2): Left and Right change the
+  voice or light/dark on the highlighted row and apply at once. Or Ctrl+P, **Theme**, or **Theme** on the goals list. Moving through
   the list previews each voice; Left and Right switch between light and dark; Enter
   keeps it and Esc puts back the one you had.
 - **In your settings file:** `theme: tanizaki-dark`. The app writes this line when
@@ -309,7 +310,7 @@ after it if you like:
 
 | Id | Label | Reads its colours from |
 | --- | --- | --- |
-| `commons` | Commons | the public voice, and the default |
+| `commons` | Commons | the public voice |
 | `organic` | Organic | cream and earth |
 | `schopenhauer` | Schopenhauer | graphite ink and one judgment colour |
 | `goethe` | Goethe | the polarity of yellow and blue |
@@ -318,7 +319,7 @@ after it if you like:
 | `tanizaki` | Shadows | Jun'ichirō Tanizaki: smoked parchment, no white anywhere |
 | `suhrawardi` | Illumination | Suhrawardi: presence through degrees of light |
 | `wittgenstein` | Grammar | Ludwig Wittgenstein: four hues that exclude one another |
-| `yoruba` | Chromatics | Yorùbá chromatics; the mapping is ours, not the tradition's |
+| `yoruba` | Chromatics | Yorùbá chromatics, the default (dark); the mapping is ours, not the tradition's |
 | `wuxing` | Five Phases | Wǔsè / Wǔxíng; the four assignments are ours |
 | `khipu` | Channels | Inka khipu; the theme that leans least on hue |
 

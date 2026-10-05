@@ -558,6 +558,48 @@ class ThemeScreen(ModalScreen):
         self.query_one("#theme-mode", Static).update("   ".join(marks))
 
 
+class SettingsScreen(ModalScreen):
+    """Appearance at a glance: Left and Right change the highlighted row and apply (and save) at once."""
+
+    BINDINGS = [Binding("escape,f2", "close", "Done"), Binding("left", "step(-1)", "Previous"),
+                Binding("right", "step(1)", "Next"), Binding("enter", "step(1)", "Next", show=False)]
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="dialog"):
+            yield Label("Settings", classes="dialog-title")
+            yield OptionList(id="settings-rows")
+            yield Static(id="settings-about")
+            yield Label("↑↓ choose a setting, ←→ change it. Changes apply and are kept at once. Esc closes.",
+                        classes="hint")
+
+    def on_mount(self):
+        self.rows = self.query_one("#settings-rows", OptionList)
+        self.show(0)
+
+    def show(self, index):
+        voice, mode = themes.split_name(self.app.theme)
+        self.rows.clear_options()
+        self.rows.add_options([Option(f"Theme    ◀ {themes.title(voice)} ▶", id="voice"),
+                               Option(f"Mode     ◀ {mode.capitalize()} ▶", id="mode")])
+        self.rows.highlighted = index
+        self.query_one("#settings-about", Static).update(f"\n{themes.VOICES[voice].description}")
+        self.rows.focus()
+
+    def action_step(self, direction):
+        index = self.rows.highlighted or 0
+        voice, mode = themes.split_name(self.app.theme)
+        if index == 0:
+            keys = list(themes.VOICES)
+            voice = keys[(keys.index(voice) + direction) % len(keys)]
+        else:
+            mode = "dark" if mode == "light" else "light"
+        self.app.keep_theme(themes.theme_name(voice, mode))
+        self.show(index)
+
+    def action_close(self):
+        self.dismiss(None)
+
+
 class ThemedApp(App):
     """Opens in the chosen voice (``$REASON_COMMONS_THEME``, filled from settings) and remembers a new one.
 
@@ -579,6 +621,9 @@ class ThemedApp(App):
         if self._unknown_theme:
             self.notify(f"No theme called {self._unknown_theme!r}; using {themes.title(self.theme)}. "
                         "Ctrl+P, Theme lists them.", severity="warning", timeout=8)
+
+    def action_settings(self):
+        self.push_screen(SettingsScreen())
 
     def action_change_theme(self):
         self.push_screen(ThemeScreen(self.theme), self.keep_theme)
@@ -660,7 +705,7 @@ class ReasonCommonsApp(ThemedApp):
     ChoiceScreen #cancel { margin-top: 1; min-width: 10; height: 1; border: none; background: transparent;
                            color: $text-muted; text-style: none; }
     ChoiceScreen #cancel:focus { background: $hand-tint; color: $foreground; text-style: bold; }
-    ChoiceScreen, PathScreen, HelpScreen, ThemeScreen, StatementScreen, CallsScreen, Step, Checking {
+    ChoiceScreen, PathScreen, HelpScreen, ThemeScreen, SettingsScreen, StatementScreen, CallsScreen, Step, Checking {
         align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
@@ -676,6 +721,7 @@ class ReasonCommonsApp(ThemedApp):
         Binding("ctrl+t", "trees", "Trees", priority=True),
         Binding("ctrl+n", "next_tree", "Next tree", priority=True),  # shown and active in Trees only
         Binding("f1", "help", "Help"),
+        Binding("f2", "settings", "Settings"),
         Binding("ctrl+q", "quit", "Save & quit", priority=True),
         Binding("left", "earlier", "Earlier"),  # shown and active only when stepping through history
         Binding("right", "later", "Later"),
@@ -1655,6 +1701,7 @@ class ReasonCommonsApp(ThemedApp):
             if key != self.provider:
                 yield SystemCommand(f"Consultant: {label}", "Local setting: use this consultant from now on",
                                     lambda key=key: self.switch_provider(key))
+        yield SystemCommand("Settings", "Local: change the theme and light or dark (F2)", self.action_settings)
         yield SystemCommand("Theme", f"Local: how Reason Commons looks; now {themes.title(self.theme)}",
                             self.action_change_theme)
         yield SystemCommand("Help", "Local: keys and controls (F1); Explain this covers the reasoning",
@@ -1821,7 +1868,8 @@ class GoalsApp(ThemedApp):
     #home-intro { margin: 1 0; }
     #goals { height: auto; max-height: 1fr; border: $frame $accent; }
     """
-    BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help")]
+    BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help"),
+                Binding("f2", "settings", "Settings")]
 
     def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None, start_new=False):
         super().__init__(settings)

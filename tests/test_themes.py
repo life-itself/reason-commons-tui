@@ -11,7 +11,7 @@ from reason_commons.adapters import themes  # noqa: E402
 from reason_commons.adapters.cli import theme_choice  # noqa: E402
 from reason_commons.adapters.guided import GuidedConsultant  # noqa: E402
 from reason_commons.adapters.settings import Settings  # noqa: E402
-from reason_commons.adapters.tui import GoalsApp, ThemeScreen, themed  # noqa: E402
+from reason_commons.adapters.tui import GoalsApp, SettingsScreen, ThemeScreen, themed  # noqa: E402
 from reason_commons.bootstrap import create_case  # noqa: E402
 from tests.test_tui import launch  # noqa: E402
 
@@ -99,7 +99,7 @@ def test_an_unknown_theme_falls_back_with_a_warning(tmp_path, monkeypatch):
 def test_picker_previews_as_you_move_and_escape_puts_the_old_theme_back(tmp_path, monkeypatch):
     path = tmp_path / "case"
     create_case(path, "Colours").close()
-    monkeypatch.setenv(themes.ENVIRONMENT, "commons-dark")
+    monkeypatch.setenv(themes.ENVIRONMENT, "commons-dark")  # explicit, not the default
 
     async def run():
         app = launch(path, {"guided": GuidedConsultant()})
@@ -172,3 +172,27 @@ def test_theme_flag_reaches_the_workspace(monkeypatch):
     monkeypatch.setattr(tui, "run_home", lambda **options: opened.append(cli.os.environ[themes.ENVIRONMENT]))
     cli.main(["--theme", "Shadows"])
     assert opened == ["tanizaki"]
+
+
+def test_opens_in_chromatics_and_settings_adjusts_and_saves_the_theme(tmp_path, monkeypatch):
+    monkeypatch.delenv(themes.ENVIRONMENT, raising=False)
+    settings = Settings(tmp_path / "settings.yaml", {"name": "Dana", "consultant": "guided"})
+    settings.save()
+
+    async def run():
+        app = GoalsApp(tmp_path / "goals", list_goals=lambda root: [], settings=settings)
+        async with app.run_test(size=(100, 30)) as pilot:
+            await pilot.pause()
+            assert app.theme == "yoruba-dark"
+            await pilot.press("f2")
+            await pilot.pause()
+            assert isinstance(app.screen, SettingsScreen)
+            await pilot.press("right")
+            assert app.theme == "wuxing-dark"
+            await pilot.press("down", "right")
+            assert app.theme == "wuxing"
+            await pilot.press("escape")
+            await pilot.pause()
+            assert not isinstance(app.screen, SettingsScreen)
+    asyncio.run(run())
+    assert Settings.load(tmp_path / "settings.yaml").get("theme") == "wuxing"
