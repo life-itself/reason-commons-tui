@@ -78,7 +78,8 @@ Do not guess. Stop and ask the user when:
 - **Never edit what you did not read.** Read the file and its neighbors first.
 - **Disposable cases.** Experiments use temporary stores. Do not write into a
   participant's case root, and never store credentials in a case or an export.
-- **Leave scope honest.** P0 is implemented; p1 and p2 are not. Do not describe
-  planned behavior as delivered.
+- **Leave scope honest.** P0 is implemented; p1 and p2 are partly delivered, and the
+  gate prints which p1 scenarios are still outstanding. Do not describe planned
+  behavior as delivered.
 - **Prefer the plain solution.** No event bus, generic dispatcher, service container
   or framework until a real need appears.

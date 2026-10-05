@@ -47,7 +47,8 @@ FOCUS_NAMES = {"editor": "Answer", "send": "Send", "fill": "Example answer", "re
                "explain": "Explain this", "moves": "Other moves", "views-button": "Views", "actions": "Actions",
                "finish": "Finish tour", "views": "Views list", "main": "Reading", "timeline": "History list",
                "earlier": "Earlier", "later": "Later", "now": "Back to now", "first": "From the beginning",
-               "own": "Start my own goal", "home": "Back to start", "canvas": "Trees", "inspector": "Details"}
+               "own": "Start my own goal", "home": "Back to start", "canvas": "Trees", "inspector": "Details",
+               "help": "Help", "cancel": "Cancel"}
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
         ("review", "Review")]
 GUIDED_STAGE = {"goal": "goal", "goal_measure": "goal", "goal_protect": "goal", "test_change": "test",
@@ -75,10 +76,35 @@ EXECUTION_WORDS = {"unknown": "not known yet", "planned": "planned", "completed"
 ATTAINMENT_WORDS = {"unknown": "not known yet", "pending": "pending", "met": "met", "not_met": "not met"}
 # Pane width from which a forecast and its results sit side by side rather than one after the other.
 WIDE = 90
+# Controls a person passes through on the way to something else. Esc does not return focus to them:
+# it returns to the answer they were writing.
+NAVIGATION_CONTROLS = {"send", "fill", "retry", "explain", "moves", "views-button", "actions", "help", "finish",
+                       "views"}
+# Proposal adapters that bring material in offline; their attempts are not consultant calls.
+OFFLINE_ADAPTERS = ("ltp-tree-import/", "story/")
 # Terminal width from which a chosen statement's details sit beside the trees; below it, Enter opens them.
 INSPECTOR_FROM, INSPECTOR_WIDTH = 120, 36
 
 HELP = """\
+## Keys and controls
+
+Help covers the controls; **Explain this** covers the reasoning behind a question.
+
+| Key | What it does |
+| --- | --- |
+| Enter | New line in your answer (typing is always literal) |
+| Ctrl+S, or Tab to **Send** then Enter | Send your answer |
+| Tab / Shift+Tab | Move between controls |
+| Esc | Leave the editor to browse, your text kept; elsewhere, back to where you were before looking around |
+| Ctrl+T | Open the trees; press again to go back to the question and your draft |
+| ↑ / ↓ | In the Trees view: choose a statement |
+| Enter | In the Trees view: the chosen statement's details in full |
+| Ctrl+N | In the Trees view: the next tree, then all six together |
+| Ctrl+P, or **Actions** | Every action, each marked local or asking the consultant |
+| **Help** | This help |
+| F1 | This help |
+| Ctrl+Q | Save and quit |
+
 ## How Reason Commons works
 
 You work through one small loop, as often as you like:
@@ -112,22 +138,6 @@ wide terminal. Enter shows them full screen; Esc returns.
 The built-in guide does not add to the trees; Anthropic or LM Studio do. Any
 consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
 `.ltp.yaml` file, and **Export trees** writes one.
-
-## Keys
-
-| Key | What it does |
-| --- | --- |
-| Enter | New line in your answer (typing is always literal) |
-| Ctrl+S, or Tab to **Send** then Enter | Send your answer |
-| Tab / Shift+Tab | Move between controls |
-| Esc | Leave the editor to browse; your text stays |
-| Ctrl+T | Open the trees; press again to go back to the question and your draft |
-| ↑ / ↓ | In the Trees view: choose a statement |
-| Enter | In the Trees view: the chosen statement's details in full |
-| Ctrl+N | In the Trees view: the next tree, then all six together |
-| Ctrl+P | Actions: export, retry, change consultant, theme, quit |
-| F1 | This help |
-| Ctrl+Q | Save and quit |
 
 ## Consultants
 
@@ -371,6 +381,13 @@ class TreeCanvas(Static):
 
     def on_mount(self):
         self.can_focus = False
+        self.drawn_width = None
+
+    def on_resize(self, event):
+        # Drawings are wrapped to the width they get; after the terminal resizes, draw them again.
+        if self.drawn_width is not None and event.size.width != self.drawn_width:
+            self.app.call_after_refresh(self.app.render_all)
+        self.drawn_width = event.size.width
 
     def on_focus(self):
         self.app.statement_focused()
@@ -438,11 +455,34 @@ class ChoiceScreen(ModalScreen):
         with Vertical(id="dialog"):
             yield Label(self.title_text, classes="dialog-title")
             yield OptionList(*[Option(label, id=key) for key, label in self.options])
-            yield Label("Arrows select, Enter activates, Esc returns. Your draft stays.", classes="hint")
+            yield Button("Cancel", id="cancel")
+            yield Label("Arrows select, Enter activates; Cancel or Esc returns. Your draft stays.", classes="hint")
 
     @on(OptionList.OptionSelected)
     def chosen(self, event):
         self.dismiss(event.option.id)
+
+    @on(Button.Pressed, "#cancel")
+    def cancelled(self):
+        self.dismiss(None)
+
+
+class CallsScreen(ModalScreen):
+    """How often the consultant was asked, counted from the saved attempt receipts."""
+
+    BINDINGS = [Binding("escape,enter", "dismiss", "Back")]
+
+    def __init__(self, calls, offline):
+        super().__init__()
+        self.calls, self.offline = calls, offline
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="dialog"):
+            yield Label("Consultant calls", classes="dialog-title")
+            yield Static(f"Consultant calls in this goal: {self.calls}\n"
+                         f"Offline imports, which ask no consultant: {self.offline}", id="calls-text")
+            yield Label("Counted from the attempt receipts saved with your inputs. Reading them asks the "
+                        "consultant nothing. Esc returns.", classes="hint")
 
 
 class PathScreen(ModalScreen):
@@ -617,7 +657,11 @@ class ReasonCommonsApp(ThemedApp):
     Step #dialog, Checking #dialog { padding: 0 2; }
     .explanation { margin-bottom: 1; }
     #choices { height: auto; max-height: 16; }
-    ChoiceScreen, PathScreen, HelpScreen, ThemeScreen, StatementScreen, Step, Checking { align: center middle; }
+    ChoiceScreen #cancel { margin-top: 1; min-width: 10; height: 1; border: none; background: transparent;
+                           color: $text-muted; text-style: none; }
+    ChoiceScreen #cancel:focus { background: $hand-tint; color: $foreground; text-style: bold; }
+    ChoiceScreen, PathScreen, HelpScreen, ThemeScreen, StatementScreen, CallsScreen, Step, Checking {
+        align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
     HelpScreen #dialog, ThemeScreen #dialog { height: 90%; }
@@ -655,6 +699,10 @@ class ReasonCommonsApp(ThemedApp):
         # The statement chosen in the Trees view (a claim reference), where each drawn statement sits,
         # and the control to give focus back to when Ctrl+T leaves the trees.
         self.selected_claim, self._tree_spans, self._focus_before_trees = None, [], None
+        # The terminal size from the latest resize event (see ``terminal``).
+        self._terminal = None
+        # Where a local inspection began (view, explanation, past moment, scroll, focus), for Esc.
+        self._origin = None
 
     # ----- layout -------------------------------------------------------
     def compose(self) -> ComposeResult:
@@ -690,6 +738,7 @@ class ReasonCommonsApp(ThemedApp):
                 yield Button("Other moves", id="moves")
                 yield Button("Views", id="views-button")
                 yield Button("Actions", id="actions")
+                yield Button("Help", id="help")
                 yield Button("Finish tour", id="finish", variant="success", classes="" if self.tour else "hidden")
         yield Footer()
 
@@ -722,14 +771,22 @@ class ReasonCommonsApp(ThemedApp):
                      "now": ("Back to now", "Now"), "first": ("From the beginning", "First"),
                      "own": ("Start my own goal", "My own goal"), "home": ("Back to start", "Start screen")}
 
+    @property
+    def terminal(self):
+        """The terminal's size. Textual calls ``on_resize`` before it updates ``size``, so during a
+        resize this is the new size from the event."""
+        return self._terminal or self.size
+
     def on_resize(self, event=None):
+        if event is not None:
+            self._terminal = event.size
         # The destinations list needs room; without it, the Views button reaches the same views.
-        wide = self.size.width >= 100
+        wide = self.terminal.width >= 100
         for key, labels in self.MOMENT_LABELS.items():
             self.query_one("#" + key, Button).label = labels[not wide]
         self.query_one("#views").set_class(not wide, "hidden")
         self.query_one("#views-button").set_class(wide, "hidden")
-        self.query_one("#editor").styles.max_height = 5 if self.size.height < 30 else 10
+        self.query_one("#editor").styles.max_height = 5 if self.terminal.height < 30 else 10
         if self.workspace_value is not None:  # the band, comparisons and welcome depend on the width
             self.render_all()
 
@@ -800,7 +857,7 @@ class ReasonCommonsApp(ThemedApp):
         self.render_status()
         self.refresh_bindings()
         self.query_one("#loop", Static).update(
-            "" if w["historical"] or self.story else loop_line(loop_stage(w["question"]), wide=self.size.width >= 100))
+            "" if w["historical"] or self.story else loop_line(loop_stage(w["question"]), wide=self.terminal.width >= 100))
         self.query_one("#loop").display = not self.story
         content = self.render_next() if self.view_name == "next" else self.render_view()
         self.query_one("#content", Markdown).update(content)
@@ -850,11 +907,11 @@ class ReasonCommonsApp(ThemedApp):
         goal = self.pinned_goal()
         if goal is None:
             return Text("No goal yet", style="dim")
-        width = self.size.width - 11
+        width = self.terminal.width - 11
         grid = Table.grid(padding=(0, 1))
         grid.add_column(style="bold", width=7, no_wrap=True)
         grid.add_column()
-        grid.add_row("Goal", Text(clip(goal["data"]["statement"], width, 2 if self.size.height >= 30 else 1)))
+        grid.add_row("Goal", Text(clip(goal["data"]["statement"], width, 2 if self.terminal.height >= 30 else 1)))
         if protect and not self.story:
             protections = " · ".join(goal["data"].get("protections") or []) or "none recorded"
             grid.add_row("Protect", Text(clip(protections, width, 1)))
@@ -873,7 +930,7 @@ class ReasonCommonsApp(ThemedApp):
 
     def pane_width(self):
         main = self.query_one("#main")
-        return main.content_size.width or self.size.width - (22 if self.size.width >= 100 else 4)
+        return main.content_size.width or self.terminal.width - (22 if self.terminal.width >= 100 else 4)
 
     def compared(self):
         """The comparisons the current view draws: every test in Tests, tests with results in Next."""
@@ -918,7 +975,7 @@ class ReasonCommonsApp(ThemedApp):
                       "> " + md(rationale), ""]
             if not w["question"]:
                 lines += ["How one loop works, one small change at a time:", "",
-                          WELCOME_WIDE if self.size.width >= 100 else WELCOME_NARROW,
+                          WELCOME_WIDE if self.terminal.width >= 100 else WELCOME_NARROW,
                           "*This shows how one loop works, not what causes what.*", ""]
         for pending in w["pending_requests"]:
             value = pending["input"]
@@ -1089,7 +1146,7 @@ class ReasonCommonsApp(ThemedApp):
         panel = self.query_one("#inspector")
         # The panel's border, padding and scroll bar take six of its columns.
         details = (self.statement_text(INSPECTOR_WIDTH - 6)
-                   if self.view_name == "trees" and self.size.width >= INSPECTOR_FROM else None)
+                   if self.view_name == "trees" and self.terminal.width >= INSPECTOR_FROM else None)
         shown = details is not None
         if shown:
             self.query_one("#inspector-text", Static).update(details)
@@ -1234,6 +1291,8 @@ class ReasonCommonsApp(ThemedApp):
 
     def go_to(self, revision):
         """Show a past revision, or the live goal with None."""
+        if revision is not None and self.revision is None:
+            self.begin_inspection()
         live = self.live_revision()
         if revision is not None and (revision >= live or revision < 0):
             revision = None if revision >= live else 0
@@ -1277,6 +1336,7 @@ class ReasonCommonsApp(ThemedApp):
 
     @on(OptionList.OptionSelected, "#timeline")
     def moment_selected(self, event):
+        self.begin_inspection()
         self.revision = int(event.option.id)  # set first, so the step page opens directly
         self.show_view("next")
 
@@ -1302,13 +1362,30 @@ class ReasonCommonsApp(ThemedApp):
         return next((t["tree"] for t in trees if t["claims"]), TREE_ORDER[0])
 
     def show_view(self, name):
+        if name != self.view_name:
+            self.begin_inspection()
         self.view_name = name
         self.answer_ready = self.answer_ready and name != "next"
         views = self.query_one("#views", OptionList)
         views.highlighted = [key for key, _ in VIEW_LABELS].index(name)
         self.refresh_workspace()
         self.query_one("#main").scroll_home(animate=False)
+        if name == "next" and not self.explain and self.revision is None:
+            self._origin = None  # back at the live question: nothing to return from
         self.schedule_checkpoint()
+
+    def begin_inspection(self):
+        """Remember where the person was before a local inspection began, so Esc can return there.
+        Nested inspections keep the first origin. Focus on a control passed through on the way (a
+        button, the Views list) is remembered as the answer being written, when there is one."""
+        if self._origin is not None or self.workspace_value is None:
+            return
+        focus = self.focused
+        editor = self.query_one("#editor")
+        if (focus is None or focus.id in NAVIGATION_CONTROLS) and not self.story and self.revision is None:
+            focus = editor
+        self._origin = {"view": self.view_name, "explain": self.explain, "revision": self.revision,
+                        "tree": self.tree_choice, "scroll": self.query_one("#main").scroll_y, "focus": focus}
 
     # ----- events -------------------------------------------------------
     @on(OptionList.OptionSelected, "#views")
@@ -1359,6 +1436,10 @@ class ReasonCommonsApp(ThemedApp):
     def actions_pressed(self):
         self.action_command_palette()
 
+    @on(Button.Pressed, "#help")
+    def help_pressed(self):
+        self.action_help()
+
     @on(TextArea.Changed, "#editor")
     def draft_changed(self):
         if not self._restoring:
@@ -1366,7 +1447,19 @@ class ReasonCommonsApp(ThemedApp):
 
     # ----- actions ------------------------------------------------------
     def action_browse(self):
-        self.query_one("#main").focus()
+        """Esc: from the answer, browse without losing it; from an inspection, go back to where it began,
+        with the view, scroll position, draft and caret as they were."""
+        if self.focused is self.query_one("#editor") or self._origin is None:
+            self.query_one("#main").focus()
+            return
+        origin, self._origin = self._origin, None
+        self.explain, self.revision, self.tree_choice = origin["explain"], origin["revision"], origin["tree"]
+        self.show_view(origin["view"])
+        self._origin = None
+        self.query_one("#main").scroll_to(y=origin["scroll"], animate=False)
+        focus = origin["focus"]
+        if focus is not None and focus.is_attached and focus.focusable:
+            focus.focus()
 
     def action_help(self):
         self.push_screen(HelpScreen())
@@ -1402,15 +1495,17 @@ class ReasonCommonsApp(ThemedApp):
             self.statement_focused()
 
     def action_explain(self):
+        if not self.explain:
+            self.begin_inspection()
         self.explain = not self.explain
         self.show_view("next")
 
     def action_other_moves(self):
-        options = [("explain", "Understand why this question     LOCAL"),
-                   ("goal", "Inspect goal and safeguards      LOCAL"),
-                   ("direct_advice", "Give me direct advice            ASKS CONSULTANT"),
-                   ("another_question", "Ask me a different question      ASKS CONSULTANT"),
-                   ("explain_observation", "Help me plan an observation      ASKS CONSULTANT")]
+        options = [("explain", "Inspect rationale · local; opens saved explanation"),
+                   ("goal", "Inspect goal and safeguards · local; opens the Goal view"),
+                   ("direct_advice", "Ask for direct advice · asks consultant"),
+                   ("another_question", "Ask another question · asks consultant"),
+                   ("explain_observation", "Ask for help planning an observation · asks consultant")]
 
         def chosen(choice):
             if choice == "explain":
@@ -1531,34 +1626,59 @@ class ReasonCommonsApp(ThemedApp):
 
     # ----- Actions palette (Ctrl+P) ---------------------------------------
     def get_system_commands(self, screen):
-        yield SystemCommand("Send answer", "Send your answer to the consultant (Ctrl+S)", self.action_send)
+        """Every action, each saying whether it stays local or asks the consultant."""
+        yield SystemCommand("Send answer", "Asks the consultant with your answer (Ctrl+S)", self.action_send)
         if self.retryable():
-            yield SystemCommand("Retry", "Ask the consultant again with your saved answer", self.action_retry)
-        yield SystemCommand("Explain this question", "Show the saved explanation (local)", self.action_explain)
-        yield SystemCommand("Other moves", "Advice, a different question, or local explanations",
+            yield SystemCommand("Retry", "Asks the consultant again with your saved answer", self.action_retry)
+        yield SystemCommand("Explain this question", "Local: the saved explanation", self.action_explain)
+        yield SystemCommand("Other moves", "Local explanations, or a move that asks the consultant; each says which",
                             self.action_other_moves)
         for key, label in VIEW_LABELS:
             yield SystemCommand(f"View: {label}", "Local view, no consultant call",
                                 lambda key=key: self.show_view(key))
         for key in TREE_ORDER + ["all"]:
             label = TREE_TITLES[key][0] if key in TREE_TITLES else "All six trees"
-            yield SystemCommand(f"Tree: {label}", "Show this tree in the Trees view (Ctrl+N cycles)",
+            yield SystemCommand(f"Tree: {label}", "Local: show this tree (Ctrl+N cycles)",
                                 lambda key=key: self.show_tree(key))
-        yield SystemCommand("History: step back", "Show the goal as it was one step earlier (←)", self.action_earlier)
+        yield SystemCommand("History: step back", "Local: the goal as it was one step earlier (←)",
+                            self.action_earlier)
         if self.revision is not None:
-            yield SystemCommand("History: step forward", "One step later (→)", self.action_later)
-            yield SystemCommand("History: back to now", "Return to the goal as it is now", lambda: self.go_to(None))
-        yield SystemCommand("Export case", "Write a portable .reasoncase copy", self.action_export)
-        yield SystemCommand("Import trees", "Bring in trees from an .ltp.yaml file", self.action_import_trees)
-        yield SystemCommand("Export trees", "Write the trees to an .ltp.yaml file", self.action_export_trees)
+            yield SystemCommand("History: step forward", "Local: one step later (→)", self.action_later)
+            yield SystemCommand("History: back to now", "Local: the goal as it is now", lambda: self.go_to(None))
+        yield SystemCommand("Consultant calls", "Local: how often the consultant was asked, from saved receipts",
+                            self.action_consultant_calls)
+        yield SystemCommand("Export case", "Local: write a portable .reasoncase copy", self.action_export)
+        yield SystemCommand("Import trees", "Local: bring in trees from an .ltp.yaml file; asks no consultant",
+                            self.action_import_trees)
+        yield SystemCommand("Export trees", "Local: write the trees to an .ltp.yaml file", self.action_export_trees)
         for key, label in PROVIDERS.items():
             if key != self.provider:
-                yield SystemCommand(f"Consultant: {label}", "Use this consultant from now on",
+                yield SystemCommand(f"Consultant: {label}", "Local setting: use this consultant from now on",
                                     lambda key=key: self.switch_provider(key))
-        yield SystemCommand("Theme", f"How Reason Commons looks; now {themes.title(self.theme)}",
+        yield SystemCommand("Theme", f"Local: how Reason Commons looks; now {themes.title(self.theme)}",
                             self.action_change_theme)
-        yield SystemCommand("Help", "Keys and how the loop works (F1)", self.action_help)
-        yield SystemCommand("Save and quit", "Keep your draft and close (Ctrl+Q)", self.action_quit)
+        yield SystemCommand("Help", "Local: keys and controls (F1); Explain this covers the reasoning",
+                            self.action_help)
+        yield SystemCommand("Save and quit", "Local: keep your draft and close (Ctrl+Q)", self.action_quit)
+
+    def call_counts(self):
+        """Consultant calls and offline imports, counted from each input's saved attempt receipts."""
+        calls = offline = 0
+        for request_id, source in self.case.sources()["sources"].items():
+            if "request_id" not in source:
+                continue
+            attempts = {}
+            for item in self.case.receipts(request_id)["attempts"]:
+                attempts.setdefault(item.get("attempt"), {}).update(item)
+            for attempt in attempts.values():
+                if str(attempt.get("version", "")).startswith(OFFLINE_ADAPTERS):
+                    offline += 1
+                else:
+                    calls += 1
+        return calls, offline
+
+    def action_consultant_calls(self):
+        self.push_screen(CallsScreen(*self.call_counts()))
 
     def action_export(self):
         default = str(Path(self.store).with_name(f"{Path(self.store).name}-{date.today().isoformat()}.reasoncase"))

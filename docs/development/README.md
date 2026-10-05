@@ -29,7 +29,7 @@ Each question has exactly one authoritative place. Change the owner, not a copy.
 | What states and rules are valid? | Domain model | `src/reason_commons/domain/model.py`, `contract.py` |
 | How is behavior invoked? | Application use cases | `src/reason_commons/application/ports.py` (`CaseCapabilities`), `service.py` |
 | How does an agent carry out the work? | Skill procedure | `src/reason_commons/adapters/contribution_skill/SKILL.md` (linked from `skills/` and `.agents/skills/`) |
-| How does a human initiate and control it? | Interface | The offline CLI today; the TUI (p1) is specified in `TUI-DESIGN.md` and is not built |
+| How does a human initiate and control it? | Interface | The offline CLI and the TUI (`adapters/tui.py`); the TUI contract is `TUI-DESIGN.md`, partly delivered |
 | Which dependencies and gates apply? | Control files | `ARCHITECTURE.md`, `.workflow.json`, `tests/test_architecture.py` |
 
 If two owners appear to disagree, do not pick one silently. The specification and

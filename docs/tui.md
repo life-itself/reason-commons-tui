@@ -26,17 +26,17 @@ the forecast and the result stack one above the other:
 | Enter | New line in your answer |
 | Ctrl+S, or Tab to **Send** then Enter | Send your answer |
 | Tab / Shift+Tab | Move between controls |
-| Esc | Leave the answer box to browse; your text stays |
+| Esc | Leave the answer box to browse, your text kept; anywhere else, go back to where you were before you started looking around (view, scroll, draft and caret) |
 | Ctrl+T | Open the trees, with the keys on the drawing; press again to go back to the question and your draft |
 | ← / → | Step back or forward through saved steps, when the answer box is not in use |
 | Ctrl+N | In the Trees view: the next tree, one at a time, then all six together |
 | ↑ / ↓ | In the Trees view: choose a statement |
 | Enter | In the Trees view: the chosen statement's details in full; Esc returns |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
-| **Other moves** | Local explanations, or ask the consultant for advice or a different question |
+| **Other moves** | Local explanations, or ask the consultant for advice or a different question; each item says which, and **Cancel** or Esc leaves without choosing |
 | **Views** | Switch view, when the list on the left does not fit |
-| Ctrl+P (**Actions**) | Export, import or export trees, retry, change consultant, views, help, quit |
-| F1 | Help |
+| Ctrl+P (**Actions**) | Every action: export, import or export trees, retry, consultant calls, change consultant, views, help, quit; each says whether it is local or asks the consultant |
+| F1, or **Help** | Keys and controls |
 | Ctrl+Q | Save your draft and quit |
 
 On the goals list: arrows choose, Enter opens, F1 shows help, Ctrl+Q quits.
@@ -92,7 +92,7 @@ On a narrow terminal the views list is hidden; **Views** opens it.
 
 ![Explain this](images/explain-question.png)
 
-**Other moves** offers local explanations, or asks the consultant for advice, a different question or help planning an observation.
+**Other moves** offers local explanations, or asks the consultant for advice, a different question or help planning an observation. Each item says which ("local; opens saved explanation", "asks consultant"); **Cancel** or Esc leaves with nothing sent.
 
 ![Other moves](images/other-moves.png)
 
@@ -100,7 +100,7 @@ If the consultant cannot be reached, your words are kept and **Retry** appears.
 
 ![The consultant could not be reached; Retry is offered](images/consultant-unavailable.png)
 
-F1 shows help.
+**Help** (or F1) shows the keys and controls; **Explain this** is for the reasoning.
 
 ![Help](images/help.png)
 
@@ -161,7 +161,9 @@ and Enter shows them full screen at any size.
 
 ![The Actions palette](images/actions-palette.png)
 
-Type to filter the list.
+Each action says whether it stays local or asks the consultant. **Consultant calls** shows how often
+the consultant has been asked in this goal, counted from the saved attempt receipts (imports, which
+ask no consultant, are counted apart). Type to filter the list.
 
 ![Filtering the Actions palette](images/actions-palette-search.png)
 
