@@ -182,7 +182,7 @@ def activate_control(context, control):
 
 
 VIEWS = {
-    "alternatives for this question": lambda c: screen_name(c) == "ChoiceScreen" and "Other moves" in c.workspace.screen_text(),
+    "alternatives for this question": lambda c: screen_name(c) == "MenuScreen" and "Other moves" in c.workspace.screen_text(),
     "questions and event history": lambda c: c.workspace.read(lambda app: app.view_name) == "history"
     and "Define success" in c.workspace.screen_text(),
     "authored rationale": lambda c: c.workspace.read(lambda app: app.explain)
@@ -232,7 +232,7 @@ def one_literal_request(context, text):
 @then("neither the alternatives nor a historical question opens")
 @then("no historical question or alternatives view opens")
 def nothing_else_opens(context):
-    assert screen_name(context) not in {"ChoiceScreen", "CommandPalette"}
+    assert screen_name(context) != "MenuScreen"
     assert context.workspace.read(lambda app: (app.revision, app.view_name)) == (None, "next")
 
 
@@ -381,10 +381,7 @@ def default_tui(context):
 def reach_actions(context):
     activate(context, "Actions")
 
-    def entries(app):
-        from textual.command import CommandList
-        return [str(o.prompt) for o in app.screen.query_one(CommandList).options]
-    context.entries = context.workspace.read(entries)
+    context.entries = menu_labels(context)
 
 
 @then("the displayed controls identify valid actions and local or consultant consequences")
@@ -463,7 +460,7 @@ def offline_case(context):
 def open_stored_views(context):
     w, seen = context.workspace, {}
     activate(context, "Other moves")
-    seen["options"] = screen_name(context) == "ChoiceScreen"
+    seen["options"] = screen_name(context) == "MenuScreen"
     w.press("escape")
     activate(context, "Explain this")
     seen["rationale"] = question(context)["rationale"] in w.screen_text()
@@ -592,7 +589,7 @@ def other_moves_open(context, decision):
     open_workspace(context)
     assert question(context)["decision"] == decision
     activate(context, "Other moves")
-    assert screen_name(context) == "ChoiceScreen"
+    assert screen_name(context) == "MenuScreen"
 
 
 @when('Sam presses Esc, focuses Response, types "{text}" and activates Send')
@@ -759,13 +756,12 @@ def menu_and_draft(context):
     context.before = context.workspace.read(lambda app: (app.view_name, app.query_one("#editor").text,
                                                          app.workspace_value["target"]))
     activate(context, "Other moves")
-    assert screen_name(context) == "ChoiceScreen"
+    assert screen_name(context) == "MenuScreen"
 
 
 @when("the operator activates Cancel or presses Esc")
 def cancel_menu(context):
-    context.workspace.tab_to("cancel")
-    context.workspace.press("enter")
+    context.workspace.press("escape")
 
 
 @then("the prior view, open question, and exact draft are restored")
@@ -908,3 +904,256 @@ def option_not_offered(context):
     activate(context, "Other moves")
     assert not any("Cloud" in label for label in menu_labels(context))
     context.workspace.press("escape")
+
+
+# ----- Menus: filtering, evidence, binding and restoring -------------------------------------
+def menu_state(context):
+    def read(app):
+        screen = app.screen
+        if type(screen).__name__ != "MenuScreen":
+            return None
+        return {"filter": screen.query_one("#filter").value,
+                "no_matches": not screen.query_one("#no-matches").has_class("hidden"),
+                "controls": [b.label.plain for b in screen.query("#menu-controls Button") if b.display],
+                "focus": getattr(app.focused, "id", None), "binding": screen.binding}
+    return context.workspace.read(read)
+
+
+@given("Actions filter owns focus")
+def actions_filter(context):
+    focus_editor(context)
+    context.workspace.type("Freeze the plan")
+    context.draft_before = draft(context)
+    activate(context, "Actions")
+    assert menu_state(context)["focus"] == "filter"
+
+
+@when('Sam types "{text}"')
+def sam_types(context, text):
+    context.workspace.type(text)
+
+
+@then("the interface shows no match with Clear filter and Back controls")
+def no_match_shown(context):
+    state = menu_state(context)
+    assert state["no_matches"] and {"Clear filter", "Back"} <= set(state["controls"]), state
+    assert "No matches" in context.workspace.screen_text()
+
+
+@then("no consultant call or reasoning revision is created")
+@then("no consultant request, case update or revision is created")
+def nothing_created(context):
+    assert not new_calls(context) and revision(context) == context.revision_before
+
+
+@then("the filter and current response draft are retained")
+def filter_and_draft(context):
+    assert menu_state(context)["filter"] == "histroy" and draft(context) == context.draft_before
+
+
+@given('Other moves filter owns focus and none of its labels contains "{text}"')
+def other_moves_filter(context, text):
+    open_workspace(context)
+    focus_editor(context)
+    context.workspace.type("Freeze the plan")
+    context.draft_before = draft(context)
+    remember(context)
+    activate(context, "Other moves")
+    assert menu_state(context)["focus"] == "filter"
+    assert not any(text in label for label in menu_labels(context))
+
+
+@when('Sam types "{text}" and presses Enter')
+def type_and_enter(context, text):
+    context.workspace.type(text)
+    context.workspace.press("enter")
+
+
+@then("no item is activated and No matches appears with Clear filter and Back")
+def nothing_activated(context):
+    assert screen_name(context) == "MenuScreen"
+    no_match_shown(context)
+
+
+@then("the response draft is retained")
+def draft_retained(context):
+    assert draft(context) == context.draft_before
+
+
+@given('Other moves is focused for "{decision}"')
+def other_moves_focused(context, decision):
+    open_workspace(context)
+    assert question(context)["decision"] == decision
+    activate(context, "Other moves")
+
+
+@given("its selected Inspect evidence item binds to this question's saved sources")
+def evidence_selected(context):
+    w = context.workspace
+    labels = menu_labels(context)
+    index = next(i for i, label in enumerate(labels) if "Inspect evidence" in label)
+    w.press(*["down"] * index)
+    assert w.read(lambda app: app.screen.wanted) == "evidence"
+    assert menu_state(context)["binding"] == {"response_target": context.target_before["response_target"],
+                                              "revision": context.revision_before}
+
+
+@when("Sam presses Enter")
+def press_enter(context):
+    context.workspace.press("enter")
+
+
+@then("stored evidence is shown locally")
+def evidence_shown(context):
+    text = context.workspace.screen_text()
+    assert screen_name(context) == "TextScreen" and "Evidence for “Choose a test”" in text
+    assert "The September delivery report says 71% of 412 orders shipped on time." in text, text[:600]
+
+
+@then("the live question, revision and consultant call count are unchanged")
+def live_unchanged(context):
+    assert question(context)["decision"] == "Choose a test"
+    assert revision(context) == context.revision_before and not new_calls(context)
+
+
+@given('Other moves is bound to "{decision}" at revision {number:d}')
+def bound_menu(context, decision, number):
+    open_workspace(context, consultant=HeldConsultant([ask("Plan the next action", "What will you do first?",
+                                                           "A test teaches only once it is carried out.")]))
+    assert question(context)["decision"] == decision and revision(context) == number
+    focus_editor(context)
+    context.workspace.type("Payments orders, two weeks, 80% on time")
+    context.consultant.hold()
+    context.workspace.wait_for_replies = False
+    context.workspace.press("ctrl+s")
+    activate(context, "Other moves")
+    choose = next(i for i, label in enumerate(menu_labels(context)) if "Ask another question" in label)
+    context.workspace.press(*["down"] * choose)
+    assert menu_state(context)["binding"]["revision"] == number
+
+
+@given("the case advances to revision {number:d} with a different current question")
+def case_advances(context, number):
+    context.consultant.release.set()
+    context.workspace.wait_for_replies = True
+    context.workspace.settle()
+    assert revision(context) == number and question(context)["decision"] == "Plan the next action"
+    context.calls_at_advance = len(context.consultant.calls)
+
+
+@when("Sam activates the old selected item")
+def activate_old(context):
+    assert screen_name(context) == "MenuScreen"
+    context.workspace.press("enter")
+
+
+@then("the old choice is not dispatched against either question")
+def not_dispatched(context):
+    assert len(context.consultant.calls) == context.calls_at_advance
+
+
+@then("current choices are redisplayed with a stale-menu notice")
+def stale_notice(context):
+    text = context.workspace.screen_text()
+    assert screen_name(context) == "MenuScreen" and "The question changed while this menu was open" in text
+    assert "Plan the next action" in text
+    assert menu_state(context)["binding"]["revision"] == revision(context)
+
+
+@then("selecting again is required before dispatch")
+def select_again(context):
+    assert len(context.consultant.calls) == context.calls_at_advance
+    choose_in_menu(context, "Ask another question")
+    assert len(context.consultant.calls) == context.calls_at_advance + 1
+    assert context.consultant.calls[-1]["input"]["intent"] == "another_question"
+
+
+@given("a checkpoint contains Other moves, focus, display preference, operator and draft")
+def menu_checkpointed(context):
+    open_workspace(context)
+    focus_editor(context)
+    context.workspace.type("Freeze the plan")
+    activate(context, "Other moves")
+    context.workspace.press("down", "down")
+    context.wanted = context.workspace.read(lambda app: app.screen.wanted)
+    context.workspace.press("ctrl+q")
+    context.workspace.close()
+    with open_case(context.path, writable=False) as case:
+        cursor = case.inspect()["cursor"]
+    assert cursor["menu"]["name"] == "other_moves" and cursor["menu"]["highlighted"] == context.wanted
+    assert cursor["draft"] == "Freeze the plan" and cursor["speaker"] == "Sam" and "display" in cursor
+
+
+@when("a fresh process resumes the case")
+def resume_case(context):
+    context.workspace = Workspace(context.path, context.consultant)
+    context.workspaces.append(context.workspace)
+    context.workspace.settle()
+
+
+@then("it restores and validates the menu bindings")
+def menu_restored(context):
+    state = menu_state(context)
+    assert state is not None and state["binding"] == {"response_target": context.target_before["response_target"],
+                                                      "revision": context.revision_before}
+    assert context.workspace.read(lambda app: app.screen.wanted) == context.wanted
+
+
+@then("it shows complete startup context and labeled choices before accepting activation")
+def startup_context(context):
+    text = context.workspace.screen_text()
+    assert "Choose a test" in text and "What do you expect the frozen plan" in text
+    assert all("local" in label or "asks consultant" in label for label in menu_labels(context))
+    assert draft(context) == "Freeze the plan" and not new_calls(context)
+
+
+@then("no reasoning revision or consultant call occurs")
+def no_revision_no_call(context):
+    assert not new_calls(context) and revision(context) == context.revision_before
+
+
+@given("the v1 delivery profile and a retained response draft")
+def v1_with_draft(context):
+    open_workspace(context)
+    focus_editor(context)
+    context.workspace.type("Freeze the plan")
+    context.workspace.press("ctrl+q")
+    context.workspace.close()
+
+
+@given('a stale cursor or action reference requests "{action}"')
+def stale_action(context, action):
+    import re
+    context.action = action
+    with open_case(context.path) as case:
+        cursor = case.inspect()["cursor"]
+        cursor["menu"] = {"name": "actions", "filter": "", "highlighted": re.sub(r"[^a-z0-9]+", "-", action.lower()),
+                          "response_target": context.target_before["response_target"],
+                          "revision": context.revision_before}
+        assert case.checkpoint(cursor)["status"] == "saved"
+
+
+@when("the workspace revalidates that action reference")
+def revalidate(context):
+    resume_case(context)
+
+
+@then("a local notice says the action belongs to a later delivery profile")
+def later_profile_notice(context):
+    text = context.workspace.screen_text()
+    assert f"“{context.action}” belongs to a later delivery profile" in text, text[:800]
+
+
+@then("Help, navigation and Actions omit it as an available operation")
+def omitted(context):
+    from reason_commons.adapters.tui import HELP
+    assert context.action not in "\n".join(menu_labels(context))
+    assert context.action.lower() not in HELP.lower()
+    assert context.action not in " ".join(label for _, label in __import__(
+        "reason_commons.adapters.tui", fromlist=["VIEW_LABELS"]).VIEW_LABELS)
+
+
+@then("no consultant call, revision or draft loss occurs")
+def no_loss(context):
+    assert not new_calls(context) and revision(context) == context.revision_before
+    assert draft(context) == "Freeze the plan"

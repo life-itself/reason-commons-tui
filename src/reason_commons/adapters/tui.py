@@ -80,6 +80,18 @@ WIDE = 90
 # it returns to the answer they were writing.
 NAVIGATION_CONTROLS = {"send", "fill", "retry", "explain", "moves", "views-button", "actions", "help", "finish",
                        "views"}
+# The alternatives to answering the current question. Each says whether it stays local or asks the consultant.
+OTHER_MOVES = [("explain", "Inspect rationale · local; opens saved explanation"),
+               ("evidence", "Inspect evidence · local; opens this question's saved sources"),
+               ("goal", "Inspect goal and safeguards · local; opens the Goal view"),
+               ("direct_advice", "Ask for direct advice · asks consultant"),
+               ("another_question", "Ask another question · asks consultant"),
+               ("explain_observation", "Ask for help planning an observation · asks consultant")]
+MENU_TITLES = {"other_moves": "Other moves. Nothing is sent until you choose an item.",
+               "actions": "Actions", "views": "Views (local, no consultant call)"}
+# Actions of later delivery profiles. A restored cursor may still name one; it is refused locally.
+LATER_PROFILE_ACTIONS = {"explore-causal-model": "Explore causal model", "record-position": "Record position",
+                         "record-test-reliance": "Record test reliance", "restore-reasoning": "Restore reasoning"}
 # Proposal adapters that bring material in offline; their attempts are not consultant calls.
 OFFLINE_ADAPTERS = ("ltp-tree-import/", "story/")
 # Terminal width from which a chosen statement's details sit beside the trees; below it, Enter opens them.
@@ -101,6 +113,7 @@ Help covers the controls; **Explain this** covers the reasoning behind a questio
 | Enter | In the Trees view: the chosen statement's details in full |
 | Ctrl+N | In the Trees view: the next tree, then all six together |
 | Ctrl+P, or **Actions** | Every action, each marked local or asking the consultant |
+| In a menu | Type to filter, arrows choose, Enter activates; **Back** or Esc returns |
 | **Help** | This help |
 | F1 | This help |
 | Ctrl+Q | Save and quit |
@@ -442,29 +455,113 @@ class HelpScreen(ModalScreen):
         self.dismiss()
 
 
-class ChoiceScreen(ModalScreen):
-    """A labeled menu; nothing happens until an item is activated."""
+class MenuScreen(ModalScreen):
+    """A labelled menu, filtered by typing and bound to the question it was opened for.
 
-    BINDINGS = [Binding("escape", "dismiss", "Back")]
+    The filter has focus: printable keys narrow the items, arrows choose, Enter activates the
+    chosen item. With nothing matching, Enter activates nothing and the menu says so, offering
+    Clear filter and Back. It returns (item, binding), or None for Back or Esc; the workspace
+    checks the binding before acting, so a menu left open while the case moved on cannot act
+    on a question it was not opened for."""
 
-    def __init__(self, title, options):
+    BINDINGS = [Binding("escape", "dismiss", "Back"), Binding("down", "move(1)", show=False),
+                Binding("up", "move(-1)", show=False)]
+
+    def __init__(self, title, items, binding=None, context=None, notice=None, text="", highlighted=None):
         super().__init__()
-        self.title_text, self.options = title, options
+        self.title_text, self.items, self.binding = title, items, binding
+        self.context, self.notice, self.text, self.wanted = context, notice, text, highlighted
 
     def compose(self) -> ComposeResult:
         with Vertical(id="dialog"):
             yield Label(self.title_text, classes="dialog-title")
-            yield OptionList(*[Option(label, id=key) for key, label in self.options])
-            yield Button("Cancel", id="cancel")
-            yield Label("Arrows select, Enter activates; Cancel or Esc returns. Your draft stays.", classes="hint")
+            if self.context:
+                yield Static(self.context, id="menu-context")
+            if self.notice:
+                yield Static(self.notice, id="menu-notice")
+            yield Input(self.text, placeholder="Type to filter", id="filter")
+            yield OptionList(id="items")
+            yield Static("No matches. Nothing is activated.", id="no-matches", classes="hidden")
+            with Horizontal(id="menu-controls"):
+                yield Button("Clear filter", id="clear")
+                yield Button("Back", id="back")
+            yield Static("Type to filter · arrows choose · Enter activates · Back or Esc returns; your draft stays.",
+                         classes="hint")
 
-    @on(OptionList.OptionSelected)
-    def chosen(self, event):
-        self.dismiss(event.option.id)
+    def on_mount(self):
+        self.show_items()
+        self.query_one("#filter").focus()
 
-    @on(Button.Pressed, "#cancel")
-    def cancelled(self):
+    def matching(self):
+        words = self.query_one("#filter", Input).value.strip().lower()
+        return [(key, label) for key, label in self.items if words in str(label).lower()]
+
+    def show_items(self):
+        shown = self.matching()
+        items = self.query_one("#items", OptionList)
+        items.clear_options()
+        items.add_options([Option(label, id=key) for key, label in shown])
+        keys = [key for key, _ in shown]
+        if keys:
+            items.highlighted = keys.index(self.wanted) if self.wanted in keys else 0
+        self.query_one("#no-matches").set_class(bool(shown), "hidden")
+        self.query_one("#clear").set_class(not self.query_one("#filter", Input).value, "hidden")
+        self.app.menu_changed(self)
+
+    def chosen_key(self):
+        items = self.query_one("#items", OptionList)
+        if items.highlighted is None or not items.option_count:
+            return None
+        return items.get_option_at_index(items.highlighted).id
+
+    def action_move(self, step):
+        items = self.query_one("#items", OptionList)
+        if items.option_count:
+            items.highlighted = max(0, min(items.option_count - 1, (items.highlighted or 0) + step))
+
+    @on(Input.Changed, "#filter")
+    def filtered(self):
+        self.show_items()
+
+    @on(OptionList.OptionHighlighted, "#items")
+    def highlighted(self, event):
+        self.wanted = event.option.id
+        self.app.menu_changed(self)
+
+    @on(Input.Submitted, "#filter")
+    def submitted(self):
+        key = self.chosen_key()
+        if key is not None:
+            self.dismiss((key, self.binding))
+
+    @on(OptionList.OptionSelected, "#items")
+    def selected(self, event):
+        self.dismiss((event.option.id, self.binding))
+
+    @on(Button.Pressed, "#clear")
+    def clear(self):
+        self.query_one("#filter", Input).value = ""
+        self.query_one("#filter").focus()
+
+    @on(Button.Pressed, "#back")
+    def back(self):
         self.dismiss(None)
+
+
+class TextScreen(ModalScreen):
+    """Saved material to read; Esc returns. Nothing here asks the consultant."""
+
+    BINDINGS = [Binding("escape,enter", "dismiss", "Back")]
+
+    def __init__(self, text):
+        super().__init__()
+        self.text = text
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="dialog"):
+            with VerticalScroll():
+                yield Markdown(self.text, id="text")
+            yield Label("Esc returns; nothing is sent.", classes="hint")
 
 
 class CallsScreen(ModalScreen):
@@ -702,10 +799,16 @@ class ReasonCommonsApp(ThemedApp):
     Step #dialog, Checking #dialog { padding: 0 2; }
     .explanation { margin-bottom: 1; }
     #choices { height: auto; max-height: 16; }
-    ChoiceScreen #cancel { margin-top: 1; min-width: 10; height: 1; border: none; background: transparent;
-                           color: $text-muted; text-style: none; }
-    ChoiceScreen #cancel:focus { background: $hand-tint; color: $foreground; text-style: bold; }
-    ChoiceScreen, PathScreen, HelpScreen, ThemeScreen, SettingsScreen, StatementScreen, CallsScreen, Step, Checking {
+    MenuScreen #items { height: auto; max-height: 16; margin-top: 1; }
+    MenuScreen #menu-context { color: $text-muted; margin-bottom: 1; }
+    MenuScreen #menu-notice { color: $warning; margin-bottom: 1; }
+    MenuScreen #no-matches { margin-top: 1; color: $warning; }
+    MenuScreen #no-matches.hidden, MenuScreen #clear.hidden { display: none; }
+    MenuScreen #menu-controls { height: 1; margin-top: 1; }
+    MenuScreen #menu-controls Button { min-width: 8; height: 1; border: none; margin-right: 2;
+                                       background: transparent; color: $text-muted; text-style: none; }
+    MenuScreen #menu-controls Button:focus { background: $hand-tint; color: $foreground; text-style: bold; }
+    MenuScreen, PathScreen, HelpScreen, ThemeScreen, SettingsScreen, StatementScreen, CallsScreen, TextScreen, Step, Checking {
         align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
@@ -749,6 +852,8 @@ class ReasonCommonsApp(ThemedApp):
         self._terminal = None
         # Where a local inspection began (view, explanation, past moment, scroll, focus), for Esc.
         self._origin = None
+        # The open menu's name, and its state as kept in the cursor (filter, choice, binding).
+        self._menu_name, self._menu_state = None, None
 
     # ----- layout -------------------------------------------------------
     def compose(self) -> ComposeResult:
@@ -809,6 +914,8 @@ class ReasonCommonsApp(ThemedApp):
             self.selected_claim = cursor["selection"]
         if cursor.get("view") in dict(VIEW_LABELS) and cursor["view"] != "next":
             self.show_view(cursor["view"])
+        if isinstance(cursor.get("menu"), dict):
+            self.call_after_refresh(self.restore_menu, cursor["menu"])
         self.query_one("#earlier" if self.story else "#editor").focus()
         self.watch(self.screen, "focused", lambda _: self.render_status())
         self.on_resize()
@@ -1475,12 +1582,15 @@ class ReasonCommonsApp(ThemedApp):
 
     @on(Button.Pressed, "#views-button")
     def views_pressed(self):
-        self.push_screen(ChoiceScreen("Views (local, no consultant call)", VIEW_LABELS),
-                         lambda choice: choice and self.show_view(choice))
+        self.open_menu("views")
 
     @on(Button.Pressed, "#actions")
     def actions_pressed(self):
-        self.action_command_palette()
+        self.open_menu("actions")
+
+    def action_command_palette(self):
+        """Ctrl+P opens Actions: the same filtered, question-bound menu as the Actions control."""
+        self.open_menu("actions")
 
     @on(Button.Pressed, "#help")
     def help_pressed(self):
@@ -1547,21 +1657,112 @@ class ReasonCommonsApp(ThemedApp):
         self.show_view("next")
 
     def action_other_moves(self):
-        options = [("explain", "Inspect rationale · local; opens saved explanation"),
-                   ("goal", "Inspect goal and safeguards · local; opens the Goal view"),
-                   ("direct_advice", "Ask for direct advice · asks consultant"),
-                   ("another_question", "Ask another question · asks consultant"),
-                   ("explain_observation", "Ask for help planning an observation · asks consultant")]
+        self.open_menu("other_moves")
 
-        def chosen(choice):
-            if choice == "explain":
-                self.explain = True
-                self.show_view("next")
-            elif choice == "goal":
-                self.show_view("goal")
-            elif choice:
-                self.action_send(intent=choice)
-        self.push_screen(ChoiceScreen("Other moves. Nothing is sent until you choose an item.", options), chosen)
+    # ----- menus ----------------------------------------------------------
+    def menu_binding(self):
+        """What a menu acts on: the question and revision on screen when it opened."""
+        target = self.workspace_value["target"]
+        return {"response_target": target["response_target"], "revision": target["base_revision"]}
+
+    def menu_items(self, name):
+        if name == "other_moves":
+            return OTHER_MOVES
+        if name == "views":
+            return VIEW_LABELS
+        return [(key, option_label(title, detail)) for key, title, detail, _ in self.action_list()]
+
+    def open_menu(self, name, notice=None, text="", highlighted=None):
+        if isinstance(self.screen, MenuScreen) or self.workspace_value is None:
+            return
+        question = (self.workspace_value["question"] or {}).get("data", {})
+        # Other moves are alternatives to answering, so they show the whole question; Actions name it.
+        decision = question.get("decision") or "the next question"
+        context = (None if not question or name == "views" else
+                   f"For “{decision}”: {question['primary_prompt']}" if name == "other_moves" else f"For “{decision}”")
+        self._menu_name = name
+        self.push_screen(MenuScreen(MENU_TITLES[name], self.menu_items(name), self.menu_binding(), context,
+                                    notice, text, highlighted), lambda result: self.menu_chosen(name, result))
+
+    def menu_changed(self, screen):
+        """Keep the open menu in the cursor, so a resumed workspace can bring it back."""
+        self._menu_state = {"name": self._menu_name, "filter": screen.query_one("#filter", Input).value,
+                            "highlighted": screen.wanted, **(screen.binding or {})}
+        self.schedule_checkpoint()
+
+    def menu_chosen(self, name, result):
+        """Act on a menu choice, but only for the question the menu was opened for."""
+        self._menu_name = self._menu_state = None
+        self.schedule_checkpoint()
+        if result is None:
+            return
+        key, binding = result
+        if binding != self.menu_binding():
+            decision = (self.workspace_value["question"] or {}).get("data", {}).get("decision") or "the next question"
+            self.open_menu(name, notice=f"The question changed while this menu was open, so nothing was done. "
+                                        f"These are the choices for “{decision}”; choose again.")
+            return
+        if name == "views":
+            self.show_view(key)
+        elif name == "other_moves":
+            self.other_move(key)
+        else:
+            runs = {k: run for k, _, _, run in self.action_list()}
+            if key in runs:
+                runs[key]()
+
+    def restore_menu(self, menu):
+        """A menu kept in the cursor comes back only for the same question and revision, and only
+        with choices that exist here; anything else is refused locally, with nothing sent."""
+        name, wanted = menu.get("name"), menu.get("highlighted")
+        if name not in MENU_TITLES:
+            return
+        if {"response_target": menu.get("response_target"), "revision": menu.get("revision")} != self.menu_binding():
+            self.notify("The menu you had open was for an earlier question, so it was not restored.", timeout=8)
+            return
+        notice = None
+        if wanted and wanted not in [key for key, _ in self.menu_items(name)]:
+            later = LATER_PROFILE_ACTIONS.get(wanted)
+            notice = (f"“{later}” belongs to a later delivery profile and is not available in this version. "
+                      "Nothing was sent; your draft is unchanged." if later else
+                      "The choice you had is not available now; choose again.")
+            self.notify(notice, severity="warning", timeout=10)
+            wanted = None
+        self.open_menu(name, notice=notice, text=menu.get("filter") or "", highlighted=wanted)
+
+    def other_move(self, key):
+        if key == "explain":
+            if not self.explain:
+                self.action_explain()
+        elif key == "evidence":
+            self.show_evidence()
+        elif key == "goal":
+            self.show_view("goal")
+        else:
+            self.action_send(intent=key)
+
+    def show_evidence(self):
+        """The saved sources the current question rests on: who said what, when, and attached files."""
+        w = self.workspace_value
+        question = (w["question"] or {}).get("data", {})
+        records = {r["ref"]: r for r in w["records"]}
+        sources = self.history()["sources"]
+        lines = [f"## Evidence for “{md(question.get('decision') or 'the next question')}”", ""]
+        cited = []
+        for ref in question.get("required_context_refs") or []:
+            for item in w["attribution"].get(ref, []):
+                if item["source_ref"] not in cited:
+                    cited.append(item["source_ref"])
+        for ref in cited:
+            source = sources.get(ref, {})
+            if "request_id" in source:
+                lines += [f"**{md(source.get('speaker') or 'Someone')}**, {day(source.get('timestamp'))}:", "",
+                          "> " + md(source.get("text") or "").replace("\n", "  \n> "), ""]
+            elif source:
+                lines += [f"**File:** {md(source.get('name') or ref)}", ""]
+        if not cited:
+            lines.append("This question cites no saved sources.")
+        self.push_screen(TextScreen("\n".join(lines)))
 
     def action_send(self, intent="answer"):
         if self.story or self.revision is not None:
@@ -1636,7 +1837,9 @@ class ReasonCommonsApp(ThemedApp):
 
     def set_busy(self, busy, refresh=True):
         self.busy = busy
-        for name in ("#send", "#retry", "#moves"):
+        # Other moves stays open while waiting: its local inspections still work, and a move that
+        # asks the consultant is refused until the pending reply is in.
+        for name in ("#send", "#retry"):
             self.query_one(name).disabled = busy
         if refresh:
             self.render_all()
@@ -1659,7 +1862,8 @@ class ReasonCommonsApp(ThemedApp):
                 "draft": draft, "caret": caret_index(draft, editor.cursor_location), "speaker": self.speaker,
                 "response_target": target["response_target"], "base_revision": target["base_revision"],
                 "display": {"tree": self.shown_tree()},
-                **({"selection": self.selected_claim} if self.selected_claim else {})})
+                **({"selection": self.selected_claim} if self.selected_claim else {}),
+                **({"menu": self._menu_state} if self._menu_state else {})})
         except Exception:
             return
         if result["status"] != "saved":
@@ -1671,42 +1875,40 @@ class ReasonCommonsApp(ThemedApp):
         self.exit()
 
     # ----- Actions palette (Ctrl+P) ---------------------------------------
-    def get_system_commands(self, screen):
-        """Every action, each saying whether it stays local or asks the consultant."""
-        yield SystemCommand("Send answer", "Asks the consultant with your answer (Ctrl+S)", self.action_send)
+    def action_list(self):
+        """Every action as (key, name, what it does and whether it stays local or asks the consultant, run)."""
+        items = [("Send answer", "Asks the consultant with your answer (Ctrl+S)", self.action_send)]
         if self.retryable():
-            yield SystemCommand("Retry", "Asks the consultant again with your saved answer", self.action_retry)
-        yield SystemCommand("Explain this question", "Local: the saved explanation", self.action_explain)
-        yield SystemCommand("Other moves", "Local explanations, or a move that asks the consultant; each says which",
-                            self.action_other_moves)
-        for key, label in VIEW_LABELS:
-            yield SystemCommand(f"View: {label}", "Local view, no consultant call",
-                                lambda key=key: self.show_view(key))
-        for key in TREE_ORDER + ["all"]:
-            label = TREE_TITLES[key][0] if key in TREE_TITLES else "All six trees"
-            yield SystemCommand(f"Tree: {label}", "Local: show this tree (Ctrl+N cycles)",
-                                lambda key=key: self.show_tree(key))
-        yield SystemCommand("History: step back", "Local: the goal as it was one step earlier (←)",
-                            self.action_earlier)
+            items.append(("Retry", "Asks the consultant again with your saved answer", self.action_retry))
+        items += [("Explain this question", "Local: the saved explanation", self.action_explain),
+                  ("Other moves", "Local explanations, or a move that asks the consultant; each says which",
+                   self.action_other_moves)]
+        items += [(f"View: {label}", "Local view, no consultant call", lambda key=key: self.show_view(key))
+                  for key, label in VIEW_LABELS]
+        items += [(f"Tree: {TREE_TITLES[key][0] if key in TREE_TITLES else 'All six trees'}",
+                   "Local: show this tree (Ctrl+N cycles)", lambda key=key: self.show_tree(key))
+                  for key in TREE_ORDER + ["all"]]
+        items.append(("History: step back", "Local: the goal as it was one step earlier (←)", self.action_earlier))
         if self.revision is not None:
-            yield SystemCommand("History: step forward", "Local: one step later (→)", self.action_later)
-            yield SystemCommand("History: back to now", "Local: the goal as it is now", lambda: self.go_to(None))
-        yield SystemCommand("Consultant calls", "Local: how often the consultant was asked, from saved receipts",
-                            self.action_consultant_calls)
-        yield SystemCommand("Export case", "Local: write a portable .reasoncase copy", self.action_export)
-        yield SystemCommand("Import trees", "Local: bring in trees from an .ltp.yaml file; asks no consultant",
-                            self.action_import_trees)
-        yield SystemCommand("Export trees", "Local: write the trees to an .ltp.yaml file", self.action_export_trees)
-        for key, label in PROVIDERS.items():
-            if key != self.provider:
-                yield SystemCommand(f"Consultant: {label}", "Local setting: use this consultant from now on",
-                                    lambda key=key: self.switch_provider(key))
-        yield SystemCommand("Settings", "Local: change the theme and light or dark (F2)", self.action_settings)
-        yield SystemCommand("Theme", f"Local: how Reason Commons looks; now {themes.title(self.theme)}",
-                            self.action_change_theme)
-        yield SystemCommand("Help", "Local: keys and controls (F1); Explain this covers the reasoning",
-                            self.action_help)
-        yield SystemCommand("Save and quit", "Local: keep your draft and close (Ctrl+Q)", self.action_quit)
+            items += [("History: step forward", "Local: one step later (→)", self.action_later),
+                      ("History: back to now", "Local: the goal as it is now", lambda: self.go_to(None))]
+        items += [("Consultant calls", "Local: how often the consultant was asked, from saved receipts",
+                   self.action_consultant_calls),
+                  ("Export case", "Local: write a portable .reasoncase copy", self.action_export),
+                  ("Import trees", "Local: bring in trees from an .ltp.yaml file; asks no consultant",
+                   self.action_import_trees),
+                  ("Export trees", "Local: write the trees to an .ltp.yaml file", self.action_export_trees)]
+        items += [(f"Consultant: {label}", "Local setting: use this consultant from now on",
+                   lambda key=key: self.switch_provider(key)) for key, label in PROVIDERS.items() if key != self.provider]
+        items += [("Settings", "Local: change the theme and light or dark (F2)", self.action_settings),
+                  ("Theme", f"Local: how Reason Commons looks; now {themes.title(self.theme)}", self.action_change_theme),
+                  ("Help", "Local: keys and controls (F1); Explain this covers the reasoning", self.action_help),
+                  ("Save and quit", "Local: keep your draft and close (Ctrl+Q)", self.action_quit)]
+        return [(re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-"), name, detail, run) for name, detail, run in items]
+
+    def get_system_commands(self, screen):
+        for _, name, detail, run in self.action_list():
+            yield SystemCommand(name, detail, run)
 
     def call_counts(self):
         """Consultant calls and offline imports, counted from each input's saved attempt receipts."""
