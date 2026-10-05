@@ -614,6 +614,10 @@ def test_choose_a_tree_statement_and_see_where_it_came_from(tmp_path):
             assert "We never offer one" in panel  # its earlier wording
             assert "David" in panel and "Say the cause more precisely" in panel  # who, in their own words
             assert "Causes" in panel and "Nobody else tells them" in panel  # its link, read from its side
+            # In all six, Enter opens the statement's own tree, still chosen; there Enter opens its details.
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.shown_tree() == "current_reality" and app.selected_claim == "C3@1"
             await pilot.press("enter")
             await pilot.pause()
             assert isinstance(app.screen, StatementScreen)

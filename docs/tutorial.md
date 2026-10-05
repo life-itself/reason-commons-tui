@@ -129,15 +129,16 @@ shows who said it, when, their exact words and what changed in the trees.
 
 ![Step 6: David's words, the source, and what changed in the trees](images/story-moment.png)
 
-Press **Ctrl+T**: the Trees view opens, and the line at the top lists all six trees
-and how many statements each holds. Press **Ctrl+N** until the Transition Tree is on
-screen. **↓** chooses a statement and shows what it links to and whose words it
-came from. Its third action, a next step from a public contact into a first practice,
+Press **Ctrl+T**: the Trees view opens on **All six**, each tree with its question and
+folded at what it is for, and the Views list names the six trees under **Trees**.
+Choose **Transition** there, or press **Ctrl+N** until the Transition Tree is on
+screen. **↓** chooses a statement and shows the question worth asking of it, what it
+links to and whose words it came from. Its third action, a next step from a public contact into a first practice,
 is the kind of test Mira ran. This is the moment to look: the trees show which
 actions nobody has tested yet, and which cause or assumption a surprising result
 calls into question. That is where the next loop comes from.
 
-![The Trees view showing the Transition Tree: each action with what we expect to see and why it must change; the line at the top lists all six trees with their sizes](images/tutorial-trees.png)
+![The Trees view showing the Transition Tree: each change it needs, what we expect to see and the action that produces it, read down one spine; the six trees are listed under Trees on the left](images/tutorial-trees.png)
 
 **Start my own goal** takes you from there to a new goal of your own.
 

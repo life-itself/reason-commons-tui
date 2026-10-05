@@ -135,7 +135,7 @@ def test_command_line_draws_imports_and_exports(tmp_path, source):
     result = cli("trees", case, "--import", source, "--speaker", "David")
     assert result.returncode == 0 and "6 statements and 2 links; 2 items kept as notes" in result.stdout
     drawing = cli("trees", case, "--width", "80").stdout
-    assert "Goal Tree" in drawing and "└─ needs ─ CRITICAL SUCCESS FACTOR" in drawing
+    assert "Goal Tree" in drawing and "└─ needs: " in drawing and "· critical success factor" in drawing
     assert "Current Reality Tree" in cli("show", case, "--view", "trees").stdout
     only = cli("trees", case, "--tree", "current_reality").stdout
     assert "Current Reality Tree" in only and "Goal Tree" not in only

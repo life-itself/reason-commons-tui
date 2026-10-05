@@ -85,8 +85,9 @@ def literal_source(context):
 @then('the Trees view draws the symptom above its cause, labelled "{label}"')
 def drawn(context, label):
     drawing = plain(trees_lines(context.app.workspace(view="trees")["trees"], 80, only="current_reality"))
-    assert drawing.index("Newcomers do not know") < drawing.index(f"└─ {label} ─ ROOT CAUSE") < \
-        drawing.index("We never offer a next step")
+    # The branch word leads into the cause's statement, and its role follows it.
+    assert drawing.index("Newcomers do not know") < drawing.index(f"└─ {label}: ") < \
+        drawing.index("We never offer a next step") < drawing.index("· root cause")
 
 
 INVALID = {

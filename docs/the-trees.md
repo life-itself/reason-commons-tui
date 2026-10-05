@@ -148,23 +148,28 @@ tree with nothing in it, is the next good question. And because every statement
 keeps who said it and its earlier wordings, the reasoning builds up instead of
 being lost in the conversation.
 
-**How.** Press **Ctrl+T** to open the trees and **Ctrl+N** to step from one tree to
-the next; after the sixth you see all six together. The line at the top says which
-tree is on screen and how many statements each holds. Read top down: the coloured
-label says what a statement is, and the branch word ("because", "needs",
-"overcomes", "produced by") says how it relates to the one above, with the
-assumption behind it underneath. **↑** and **↓** choose a statement; its details
-show every link read from its side, the tests that carry it out, its earlier
-wordings and who said it, in their own words. On a wide terminal they sit beside
-the tree; **Enter** shows them full screen. After a reply that changed the trees,
-the question says what changed, and the tree marks those statements NEW or
-REWORDED. **Ctrl+T** again returns to the question. **Ctrl+P**, then **Import trees** or **Export trees**,
-moves trees in or out as `.ltp.yaml`.
+**How.** Press **Ctrl+T** to open the trees. They open on **All six**: each tree
+with its question, folded at what it is for, so you can see the whole method at a
+glance. **Space** unfolds a branch; **Enter** opens the chosen statement's tree. The
+six are listed under **Trees** on the left, and **Ctrl+N** steps through them. Each
+tree's page asks its question and says which way to read it. Each line reads as a
+sentence: the branch word ("needs:", "because:", "overcomes:", "produced by:") says
+how a statement relates to the one above, its role follows in its colour, and the
+assumption behind the link hangs underneath after a dotted rule. A chain runs down
+one spine rather than stepping right, so a Prerequisite Tree reads as a ladder, and
+a complete Evaporating Cloud is drawn as its five boxes. **↑** and **↓** choose a
+statement; its details give the question worth asking of it, every link read from
+its side, the tests that carry it out, its earlier wordings and who said it, in
+their own words. On a wide terminal they sit beside the tree; **Enter** shows them
+full screen. After a reply that changed the trees, the question says what changed,
+and the tree marks those statements NEW or REWORDED. **Ctrl+T** again returns to the
+question. **Ctrl+P**, then **Import trees** or **Export trees**, moves trees in or
+out as `.ltp.yaml`.
 
-![The Trees view showing the example's Goal Tree as an outline: the goal at the top, each critical success factor and necessary condition below it, with "needs" on every branch](images/trees-view.png)
+![The Trees view opening on All six: each tree's name and question with the statement it starts from, folded, and how many statements lie below](images/trees-view.png)
 
-Joint causes (several causes that only work together) and rival explanations
-arrive later, as the [delivery plan](../reason-commons-spec/delivery-phases.md)
+Joint causes (several causes that only work together), rival explanations and
+boxed drawings of the other five trees arrive later, as the [delivery plan](../reason-commons-spec/delivery-phases.md)
 describes. The [workspace reference](tui.md#the-trees) has the details.
 
 ## From the trees to the loop

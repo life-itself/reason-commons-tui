@@ -60,7 +60,9 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   line, never "No goal yet" under the goal's own name.
 - **The answer sits at the question.** The answer box follows what it answers, with an example fading in
   while it is empty. A long page scrolls above it, so the box never leaves the screen; the line about
-  Enter and Send sits beside its buttons, or under them when they leave no room.
+  Enter and Send sits beside its buttons, or under them when they leave no room. On any other view the
+  box's tag names the question it answers, and while it is empty and unfocused it folds to one line;
+  Tab or a click opens it, and a draft keeps it open.
 - **Focus is a frame.** Where the keyboard is has a heavy frame in the accent colour (a heavy bar at the
   edge for the page and the trees, a highlight for a button or a footer control). No label names it. The header says only the goal's name, who you are
   and whether it is saved.
@@ -74,6 +76,17 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   clock ("Oct 3, 18:02"), and who wrote it appears only when more than one person has.
 - **Home.** Ways to *Start*, then *Your goals* as aligned columns (name, stage, day last changed).
   Settings are behind F2, and the footer says what they are now.
+- **The trees read as sentences.** A statement opens its line, led in by its relation word
+  ("because:"); its role is a quiet trailing tag in its colour family and the assumption behind the
+  link hangs under it after a dotted rule (┆). A statement whose only deeper branch is its last
+  continues the spine at the same indent, so a chain never drifts right. Each tree's page gives its
+  name, its question and which way to read it; the Views list names *All six* and the six trees
+  under *Trees*. The trees open first on all six, folded at what each is for; Space folds and unfolds.
+  The chosen statement is a tinted band; focus stays the frame. Its details lead with *Worth asking*,
+  the tree's question from the visual-grammar table of the rendering contract.
+- **Records in columns.** Goal, Loop actions and Reasoning use the aligned label column of Next step;
+  Reasoning puts what is still open first. History is one row per step. Commands are one line each,
+  each still marked local or consultant.
 
 ## Project adaptations to Mono
 
@@ -117,7 +130,9 @@ P1 includes workspace, controls, multiline input, draft preservation, asynchrono
 focus stability, recovery and 80×24. P2 adds original forecast/outcome review and
 the Trees view: the six trees drawn as indented outlines from recorded claims and
 single links (S128–S134), with a chosen statement's links, wording and origin
-beside them (Master-Detail) or full screen (Expand-to-Focus). Joint premises, rival routes and boxed canvases arrive
-in p3–p5; the TUI is not deferred. Use S114–S134 alongside earlier integrity and
+beside them (Master-Detail) or full screen (Expand-to-Focus). A complete Evaporating
+Cloud, whose five places are fixed and need no routing, is drawn as its five boxes
+now, so both sides are visible; joint premises, rival routes and the other boxed
+canvases arrive in p3–p5; the TUI is not deferred. Use S114–S134 alongside earlier integrity and
 reasoning gates. Authored snapshots
 and document checks do not prove a running TUI or measured usability.
