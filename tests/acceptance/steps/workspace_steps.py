@@ -392,13 +392,13 @@ def reach_actions(context):
 @then("the displayed controls identify valid actions and local or consultant consequences")
 def consequences_named(context):
     for entry in context.entries:
-        name, _, detail = entry.partition("\n")
+        name, _, detail = entry.partition(" · ")
         assert "local" in detail.lower() or "asks the consultant" in detail.lower(), entry
 
 
 @then("stored explanation, sources, history, export and Save and quit have control paths")
 def control_paths(context):
-    names = [entry.partition("\n")[0] for entry in context.entries]
+    names = [entry.partition(" · ")[0] for entry in context.entries]
     for wanted in ("Explain this question", "View: Your words", "View: History", "Export case", "Save and quit"):
         assert wanted in names, (wanted, names)
 
