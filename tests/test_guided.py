@@ -69,3 +69,25 @@ def test_guide_shows_the_change_while_it_is_being_forecast(tmp_path):
     # Not yet a record: the test is saved with its stop condition, so the questions before it quote the change.
     assert all(prompt.startswith('Your change: "Intervals twice a week" ') for prompt in prompts[3:6])
     assert "Your change" not in prompts[6] and "Your change" not in prompts[2]
+
+
+def test_an_optional_answers_hint_is_split_from_its_question():
+    from reason_commons.adapters.guided import STEPS, split_hint
+    assert split_hint("How will you know it got better? Name a measure. Leave empty if you don't know yet.") == (
+        "How will you know it got better? Name a measure.", "Leave empty if you don't know yet.")
+    # The change being forecast is quoted in front of the question, and the hint is still the last sentence.
+    assert split_hint('Your change: "Walk" When will you look? A date is enough. Leave empty to decide later.') == (
+        'Your change: "Walk" When will you look? A date is enough.', "Leave empty to decide later.")
+    assert split_hint("What do you want to achieve?") == ("What do you want to achieve?", None)
+    # Every guided question that can be skipped ends in such a hint, and the required ones have none.
+    for step, (_, prompt, _, required) in STEPS.items():
+        assert (split_hint(prompt)[1] is None) == required, step
+
+
+def test_every_guided_step_has_an_example_and_only_the_guide_gets_one():
+    from reason_commons.adapters.guided import PLACEHOLDERS, STEPS, placeholder
+    assert set(PLACEHOLDERS) == set(STEPS)
+    assert all(example.startswith("e.g. ") for example in PLACEHOLDERS.values())
+    assert placeholder(None) == PLACEHOLDERS["goal"]  # a new goal has no question yet
+    assert placeholder({"data": {"purpose": "guided:test_forecast"}}) == PLACEHOLDERS["test_forecast"]
+    assert placeholder({"data": {"purpose": "clarify_next_decision"}}) is None  # another consultant's question

@@ -4,7 +4,8 @@ Display only: every entry is counted from records the engine saved, and the
 words and speaker come from the retained input that produced the revision.
 """
 
-from datetime import datetime
+from datetime import date, datetime
+import re
 
 from reason_commons.adapters.trees import TREE_TITLES
 
@@ -86,6 +87,37 @@ def day(timestamp):
     except (TypeError, ValueError):
         return str(timestamp)
     return f"{value.day} {value:%b %Y}"
+
+
+def today():
+    """Today's date on this computer; a function so that a test can fix it."""
+    return date.today()
+
+
+def stamp(timestamp, with_time):
+    """A saved time as the person's own clock shows it: 'Oct 5' or 'Oct 5, 18:02'.
+
+    The year appears only when it is not this year. Unlike ``day``, which keeps a stored date
+    as it is (a story's dates are its own), this turns the stored time into local time, because
+    it answers "when did I do this?". An unreadable value is returned unchanged.
+    """
+    try:
+        # Python before 3.11 does not read a trailing Z, which other tools write for UTC.
+        value = datetime.fromisoformat(re.sub(r"Z$", "+00:00", timestamp)).astimezone()
+    except (TypeError, ValueError):
+        return str(timestamp)
+    text = f"{value:%b} {value.day}" + ("" if value.year == today().year else f", {value.year}")
+    return text + (f", {value:%H:%M}" if with_time else "")
+
+
+def short_day(timestamp):
+    """'Oct 5': the day a goal was last changed."""
+    return stamp(timestamp, with_time=False)
+
+
+def moment(timestamp):
+    """'Oct 3, 18:02': when someone wrote something."""
+    return stamp(timestamp, with_time=True)
 
 
 def next_action(records):

@@ -11,7 +11,20 @@ pytest.importorskip("textual")
 from reason_commons.adapters.guided import GuidedConsultant  # noqa: E402
 from reason_commons.adapters.tui import ReasonCommonsApp, caret_index, caret_location  # noqa: E402
 from reason_commons.bootstrap import create_case, open_case  # noqa: E402
-from tests.support import ScriptedConsultant  # noqa: E402
+from tests.support import ScriptedConsultant, timezone  # noqa: E402
+
+
+@pytest.fixture
+def utc():
+    """The computer's own time zone is UTC for the test, and is put back after it."""
+    with timezone("UTC"):
+        yield
+
+
+@pytest.fixture
+def berlin():
+    with timezone("Europe/Berlin"):
+        yield
 
 
 def launch(path, consultants):
@@ -22,6 +35,18 @@ def launch(path, consultants):
 def screen_text(app):
     """What is visible on screen right now, as plain text (scrolled-away content is not included)."""
     return html.unescape(re.sub(r"<[^>]+>", "", app.export_screenshot())).replace("\xa0", " ")
+
+
+async def settled(app, pilot, *selectors):
+    """Pause until these widgets stop moving: the reading pane is fitted over a few frames, and a check made
+    after a single pause can catch it a row out."""
+    last = None
+    for _ in range(40):
+        await pilot.pause()
+        now = [app.query_one(selector).region for selector in selectors]
+        if now == last:
+            return
+        last = now
 
 
 async def send(app, pilot, text):
@@ -130,7 +155,8 @@ def test_goals_home_starts_a_new_goal_or_opens_an_existing_one(tmp_path):
     async def start_new():
         app = GoalsApp(tmp_path)
         async with app.run_test(size=(80, 24)) as pilot:
-            app.query_one("#goals").highlighted = 0
+            goals = app.query_one("#goals")
+            goals.highlighted = goals.get_option_index("new")
             await pilot.press("enter")
             await pilot.pause()
             await pilot.press(*"Sleep better")
@@ -162,8 +188,11 @@ def test_header_says_saved_without_engine_revision(tmp_path):
         async with app.run_test(size=(120, 40)) as pilot:
             await pilot.pause()
             return screen_text(app).splitlines()
-    status = next(line for line in asyncio.run(run()) if "Plain · David" in line)
-    assert "Saved" in status and not re.search(r"\br\d{4}\b", status)
+    status = next(line for line in asyncio.run(run()) if "Plain" in line)
+    # The goal's name on the left, who you are and whether it is saved on the right.
+    assert re.search(r"Plain\s+David · Saved", status) and not re.search(r"\br\d{4}\b", status)
+    # The view is named by the list and the page, and the keyboard by the frame: neither is repeated here.
+    assert "Next step" not in status and "Focus" not in status
 
 
 def test_bare_command_without_a_terminal_prints_everyday_help():
@@ -225,7 +254,8 @@ def test_goals_home_offers_the_example(tmp_path):
     async def run():
         app = GoalsApp(tmp_path)
         async with app.run_test(size=(80, 24)) as pilot:
-            app.query_one("#goals").highlighted = 1
+            goals = app.query_one("#goals")
+            goals.highlighted = goals.get_option_index("sample")
             await pilot.press("enter")
             await pilot.pause()
         return app.return_value
@@ -370,18 +400,25 @@ def test_a_reply_never_moves_the_person_out_of_what_they_are_reading(tmp_path):
     asyncio.run(run())
 
 
-def test_header_names_the_focused_control_and_routes_are_not_duplicated(tmp_path):
+def test_focus_is_a_strong_frame_and_the_footer_says_what_the_keys_do(tmp_path):
+    """S114: the focused control stays visible. A heavy accent frame shows where the keyboard is; the old
+    "Focus: Answer" label read like debug output, and a person cannot miss a frame."""
     path = tmp_path / "case"
-    create_case(path, "Focus").close()
+    create_case(path, "Frames").close()
+
+    def heavy(selector, app, side="top"):
+        return getattr(app.query_one(selector).styles, f"border_{side}")[0] == "heavy"
 
     async def run(size):
         app = launch(path, {"guided": GuidedConsultant()})
         async with app.run_test(size=size) as pilot:
             await pilot.pause()
-            assert "Focus: Answer" in screen_text(app)
+            assert app.focused.id == "editor" and heavy("#response", app) and not heavy("#views-pane", app)
+            assert "Focus:" not in screen_text(app)
+            assert "Save & quit" in screen_text(app) and "Next control" in screen_text(app)
             await pilot.press("escape")
             await pilot.pause()
-            assert "Focus: Reading" in screen_text(app)
+            assert app.focused.id == "main" and heavy("#main", app, "left") and not heavy("#response", app)
             # Next tree is offered only where it means something.
             assert not app.check_action("next_tree", ()) and "Next tree" not in screen_text(app)
             app.show_view("trees")
@@ -391,6 +428,81 @@ def test_header_names_the_focused_control_and_routes_are_not_duplicated(tmp_path
             return app.query_one("#views").has_class("hidden"), app.query_one("#views-button").has_class("hidden")
     assert asyncio.run(run((120, 40))) == (False, True)
     assert asyncio.run(run((80, 24))) == (True, False)
+
+
+def test_the_views_list_has_its_own_frame_and_tab_goes_back_to_the_answer(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Views").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            app.query_one("#views").focus()
+            await pilot.pause()
+            frame = app.query_one("#views-pane").styles
+            assert frame.border_top[0] == "heavy" and frame.border_left[0] == "heavy"
+            text = screen_text(app)
+            assert "Choose view" in text and "Open" in text and "Back to answer" in text
+            assert "Save & quit" not in text  # the footer speaks about this pane, not every pane
+            # The open view is marked, and the one the cursor is on is highlighted.
+            prompts = [str(option.prompt) for option in app.query_one("#views").options]
+            assert prompts[0] == "▸ Next step" and all(not prompt.startswith("▸") for prompt in prompts[1:])
+            await pilot.press("down", "down", "enter")
+            await pilot.pause()
+            assert app.view_name == "trees"
+            assert [str(o.prompt) for o in app.query_one("#views").options][2] == "▸ Trees"
+            await pilot.press("tab")
+            await pilot.pause()
+            assert app.focused.id == "editor"
+    asyncio.run(run())
+
+
+def test_commands_and_help_are_footer_controls_that_tab_reaches(tmp_path):
+    """The Actions and Help buttons are gone; Commands and Help are in the footer, where Tab still reaches them."""
+    path = tmp_path / "case"
+    create_case(path, "Footer").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            assert not app.query("#actions") and "Actions" not in screen_text(app)
+            order = []
+            for _ in range(8):
+                await pilot.press("tab")
+                order.append(app.focused.id)
+            assert order.index("send") < order.index("commands") < order.index("help"), order
+            app.query_one("#commands").focus()
+            await pilot.press("enter")
+            await pilot.pause()
+            assert type(app.screen).__name__ == "MenuScreen" and "Commands" in screen_text(app)
+            await pilot.press("escape")
+            await pilot.pause()
+            app.query_one("#help").focus()
+            await pilot.press("enter")
+            await pilot.pause()
+            assert type(app.screen).__name__ == "HelpScreen"
+    asyncio.run(run())
+
+
+def test_every_footer_hint_that_names_a_key_is_a_real_binding(tmp_path):
+    """The footer may not promise a key that does nothing: each hint with a key to press must be bound."""
+    path = tmp_path / "case"
+    create_case(path, "Hints").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            for focus in ("editor", "views", "main", "send", "commands", "help"):
+                app.query_one("#" + focus).focus()
+                await pilot.pause()
+                before, after = app.footer_hints()
+                bound = set(app.screen.active_bindings)
+                for key, label, press, *short in before + after:
+                    assert press is None or press in bound, (focus, key, label, press)
+    asyncio.run(run())
 
 
 def test_empty_trees_say_which_consultants_grow_them(tmp_path):
@@ -483,7 +595,8 @@ def test_choose_a_tree_statement_and_see_where_it_came_from(tmp_path):
             await pilot.press("ctrl+t")
             await pilot.pause()
             # Opening the trees puts the keys on them, with the first statement chosen and shown beside them.
-            assert app.focused.id == "canvas" and "Focus: Trees" in screen_text(app)
+            assert app.focused.id == "canvas" and app.query_one("#canvas").styles.border_left[0] == "heavy"
+            assert "Choose statement" in screen_text(app) and "Next tree" in screen_text(app)
             assert not app.query_one("#inspector").has_class("hidden")
             assert "Newcomers do not know the next step" in " ".join(
                 str(app.query_one("#inspector-text").render()).split())
@@ -563,3 +676,341 @@ def test_a_live_resize_lays_the_workspace_out_for_the_new_size(tmp_path):
             await pilot.pause()
             assert not app.query_one("#views").has_class("hidden") and app.query_one("#views-button").has_class("hidden")
     asyncio.run(run())
+
+
+def test_loop_line_is_a_spine_joined_by_rules():
+    from reason_commons.adapters.tui import loop_line
+    line = loop_line("test")
+    assert line.count("─") == 4  # five steps, four joins
+    assert "✓ Goal" in line and "● Test + forecast" in line and "○ Action" in line
+    assert "then a new loop begins" in loop_line("review") and "then a new loop begins" not in loop_line("review", wide=False)
+
+
+def test_a_missing_measure_is_named_not_hidden_behind_no_goal_yet(tmp_path):
+    """A goal with a name but nothing recorded yet used to read "No goal yet" under the goal's own title."""
+    path = tmp_path / "case"
+    create_case(path, "become the person i want to become").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            text = screen_text(app)
+            assert "No goal yet" not in text and not app.query_one("#pinned").display
+            assert str(app.query_one("#measure").render()) == "Measure: not set"
+            # At 80 columns it still fits next to the five steps.
+            await pilot.resize_terminal(80, 24)
+            await pilot.pause()
+            assert str(app.query_one("#measure").render()) == "Measure: not set"
+    asyncio.run(run())
+
+
+def test_the_measure_replaces_the_aside_after_review_and_gives_way_on_a_narrow_screen(tmp_path):
+    app = sample_at(tmp_path, 9)
+
+    async def run():
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            measure = str(app.query_one("#measure").render())
+            assert measure.startswith("Measure: Newcomers at a first practice") and measure.endswith("…")
+            assert "then a new loop begins" not in str(app.query_one("#loop").render())
+            await pilot.resize_terminal(80, 24)
+            await pilot.pause()
+            assert str(app.query_one("#measure").render()) == ""  # no room for a measure worth reading
+    asyncio.run(run())
+
+
+def test_the_heading_is_strongest_the_question_plain_and_the_optional_hint_quiet(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Hierarchy").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            assert app.render_next().splitlines()[0] == "## Clarify the goal"
+            await send(app, pilot, "Sleep better")
+            lines = [line for line in app.render_next().splitlines() if line]
+            assert lines[0] == "## Clarify the goal"
+            assert lines[1].startswith("How will you know it got better?") and "**" not in lines[1]
+            assert lines[2] == "###### Leave empty if you don't know yet\\."  # stored text is escaped for Markdown
+    asyncio.run(run())
+
+
+def test_the_answer_box_sits_under_a_short_question_and_stays_in_view_under_a_long_page(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Placement").close()
+    long_page = sample_at(tmp_path, 9)
+
+    async def short():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await settled(app, pilot, "#content", "#response")
+            content, box = app.query_one("#content"), app.query_one("#response")
+            # Right under the question and its hint, not a screenful below it.
+            assert 0 <= box.region.y - content.region.bottom <= 2, (content.region, box.region)
+            # The hint about Enter and Send is beside the buttons when there is room, and under them when there is not.
+            assert not app.query_one("#hint").has_class("hidden") and app.query_one("#hint-below").has_class("hidden")
+            await pilot.resize_terminal(80, 24)
+            await settled(app, pilot, "#content", "#response")
+            assert app.query_one("#hint").has_class("hidden") and not app.query_one("#hint-below").has_class("hidden")
+
+    async def long():
+        async with long_page.run_test(size=(80, 24)) as pilot:
+            await settled(long_page, pilot, "#main", "#response")
+            box, main = long_page.query_one("#response"), long_page.query_one("#main")
+            assert box.region.bottom <= 23 and main.region.bottom <= box.region.y  # the page scrolls above it
+            assert main.max_scroll_y > 0
+    asyncio.run(short())
+    asyncio.run(long())
+
+
+def test_your_words_say_when_in_your_own_clock_and_hide_internal_ids(tmp_path, monkeypatch, utc):
+    from datetime import date
+    from reason_commons.adapters import timeline
+    monkeypatch.setattr(timeline, "today", lambda: date(2026, 10, 5))
+    path = tmp_path / "case"
+    create_case(path, "Words").close()
+
+    class Fixed:
+        def __init__(self, value):
+            self.value = value
+
+        def now(self):
+            return self.value
+    with open_case(path, consultant=GuidedConsultant(), clock=Fixed("2026-10-03T18:02:05.379311+00:00")) as case:
+        target = case.workspace()["target"]
+        case.submit("i want to consistently progress", "davidjoseph", target["base_revision"],
+                    target["response_target"])
+
+    async def run(speakers):
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            if speakers == 2:
+                await send(app, pilot, "and enjoy it")
+            app.show_view("sources")
+            await pilot.pause()
+            return app.query_one("#content").source
+    one = asyncio.run(run(1))
+    assert "###### Oct 3, 18:02" in one and "> i want to consistently progress" in one
+    assert "in000001" not in one and "davidjoseph" not in one and "+00:00" not in one
+    two = asyncio.run(run(2))
+    # With two voices, who said what matters, so each says who.
+    assert "davidjoseph · Oct 3, 18:02" in two and "David · " in two
+
+
+def test_the_time_helpers_use_the_persons_clock_and_drop_this_years_year(monkeypatch, berlin):
+    from datetime import date
+    from reason_commons.adapters import timeline
+    monkeypatch.setattr(timeline, "today", lambda: date(2026, 10, 5))
+    assert timeline.moment("2026-10-03T18:02:05.379311+00:00") == "Oct 3, 20:02"
+    assert timeline.short_day("2026-10-03T18:02:05+00:00") == "Oct 3"
+    assert timeline.short_day("2026-10-03T23:30:00+00:00") == "Oct 4"  # their clock has passed midnight
+    assert timeline.short_day("2025-12-31T09:00:00+00:00") == "Dec 31, 2025"
+    assert timeline.moment("2026-10-03T18:02:05Z") == "Oct 3, 20:02"  # a Z for UTC, as other tools write it
+    assert timeline.moment("not a time") == "not a time" and timeline.moment(None) == "None"
+
+
+def test_the_answer_box_shows_an_example_only_when_the_guide_asked(tmp_path):
+    from reason_commons.adapters.guided import PLACEHOLDERS
+    path = tmp_path / "case"
+    create_case(path, "Example").close()
+
+    async def run(provider):
+        app = ReasonCommonsApp(path, "David", provider, lambda c: open_case(path, consultant=c),
+                               lambda chosen: GuidedConsultant())
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            first = app.query_one("#editor").placeholder
+            if provider == "guided":
+                await send(app, pilot, "Sleep better")
+            return first, app.query_one("#editor").placeholder
+    first, second = asyncio.run(run("guided"))
+    assert first == PLACEHOLDERS["goal"] and second == PLACEHOLDERS["goal_measure"]
+    assert asyncio.run(run("anthropic")) == ("", "")  # another consultant asks its own questions
+
+
+def test_footer_hints_can_be_clicked(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Clicks").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            trees = next(h for h in app.query("Hint") if "Trees" in str(h.render()))
+            await pilot.click(trees)
+            await pilot.pause()
+            assert app.view_name == "trees"
+    asyncio.run(run())
+
+
+async def footer_settled(app, pilot):
+    """Wait until the footer's hints have stopped moving (they are laid out a frame after they change)."""
+    await settled(app, pilot, "#hint-0", "#commands", "#help")
+
+
+def footer_fits(app):
+    """Every shown hint lies inside the bar, none overlaps another, and Commands and Help are among them."""
+    width = app.size.width
+    shown = sorted((h for h in app.query("Hint") if not h.has_class("hidden")), key=lambda h: h.region.x)
+    assert {"commands", "help"} <= {h.id for h in shown}, [h.id for h in shown]
+    assert all(h.region.right <= width for h in shown), [(h.id, h.region.right) for h in shown]
+    assert all(a.region.right <= b.region.x for a, b in zip(shown, shown[1:]))
+    return [str(h.render()) for h in shown]
+
+
+def test_the_footer_fits_the_smallest_terminals_and_keeps_commands_and_help(tmp_path):
+    """At 80 columns (S117) and at the 40 the specification allows, no hint is cut off and Help stays visible."""
+    from importlib.resources import files
+    from reason_commons.adapters.ltp_trees import import_trees
+    path = tmp_path / "case"
+    create_case(path, "Narrow").close()
+    import_trees(path, str(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")), "David")
+
+    async def run(size):
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=size) as pilot:
+            await pilot.pause()
+            seen = {}
+            for focus in ("editor", "send", "explain", "moves", "views-button", "main", "commands", "help"):
+                app.query_one("#" + focus).focus()
+                await footer_settled(app, pilot)
+                seen[focus] = footer_fits(app)
+            await pilot.press("ctrl+t")  # the trees: the longest hints of all
+            await footer_settled(app, pilot)
+            assert app.focused.id == "canvas"
+            seen["canvas"] = footer_fits(app)
+            app.show_view("history")
+            app.query_one("#timeline").focus()
+            await footer_settled(app, pilot)
+            seen["timeline"] = footer_fits(app)
+            return seen
+    wide = asyncio.run(run((120, 40)))
+    assert "tab Next control" in wide["editor"] and "^t Back to question" in wide["canvas"]
+    narrow = asyncio.run(run((80, 24)))
+    assert "tab Next control" in narrow["editor"]  # it still fits, so it is not shortened
+    assert "tab Next" in narrow["send"] and "tab Next control" not in narrow["send"]  # shortened to fit
+    assert "↑↓ Choose" in narrow["canvas"] and "⏎ Details" in narrow["canvas"] and "^n Next tree" in narrow["canvas"]
+    smallest = asyncio.run(run((40, 24)))
+    assert all(hints[-1] == "f1 Help" and "^p Commands" in hints for hints in smallest.values())
+
+
+def test_a_wider_terminal_brings_back_the_hints_a_narrow_one_dropped(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Resize").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await footer_settled(app, pilot)
+            assert "tab Next control" in footer_fits(app) and "^q Save & quit" in footer_fits(app)
+            await pilot.resize_terminal(40, 24)
+            await footer_settled(app, pilot)
+            narrow = footer_fits(app)
+            assert "tab Next control" not in narrow and narrow[-1] == "f1 Help"
+            await pilot.resize_terminal(120, 40)
+            await footer_settled(app, pilot)
+            assert "tab Next control" in footer_fits(app) and "^q Save & quit" in footer_fits(app)
+    asyncio.run(run())
+
+
+def test_the_story_footer_fits_at_80_columns(tmp_path):
+    """The story opens with the keyboard on a button, whose hints are the longest in the workspace."""
+    from importlib.resources import files
+    from reason_commons.adapters.story import load_story
+    from reason_commons.adapters.tui import STORY_ARCHIVE
+    from reason_commons.bootstrap import import_case
+    path = tmp_path / "story"
+    import_case(str(files("reason_commons.adapters").joinpath(STORY_ARCHIVE)), str(path)).close()
+
+    async def run():
+        app = ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
+                               lambda provider: GuidedConsultant(), story=load_story())
+        async with app.run_test(size=(80, 24)) as pilot:
+            await footer_settled(app, pilot)
+            assert app.focused.id == "earlier"
+            assert any("Press" in hint for hint in footer_fits(app))
+    asyncio.run(run())
+
+
+def test_the_loop_line_always_shows_where_you_are(tmp_path):
+    from reason_commons.adapters.tui import loop_line
+    for width in (40, 50, 56, 58, 60, 62, 80, 120):
+        text = lambda line: __import__("textual.content", fromlist=["Content"]).Content.from_markup(line)
+        line = loop_line("review", wide=False, width=width)
+        assert text(line).cell_length <= width and "● Review" in text(line).plain, (width, text(line).plain)
+    assert loop_line("review", wide=False, width=120).count("─") == 4  # the joins, when there is room
+    assert "─" not in loop_line("review", wide=False, width=58)  # none when there is not
+    assert loop_line("observe", wide=False, width=40).endswith("· step 4 of 5[/]")  # only where you are
+    app = sample_at(tmp_path, 9)
+
+    async def run():
+        async with app.run_test(size=(60, 24)) as pilot:
+            await pilot.pause()
+            assert "● Review" in str(app.query_one("#loop").render())
+    asyncio.run(run())
+
+
+def test_text_a_person_wrote_is_never_read_as_markup(tmp_path):
+    """Names, measures and goal titles can hold brackets and backslashes; they show exactly as written."""
+    path = tmp_path / "case"
+    create_case(path, "Hostile").close()
+
+    async def run():
+        app = ReasonCommonsApp(path, "Dana [QA]", "guided", lambda c: open_case(path, consultant=c),
+                               lambda provider: GuidedConsultant())
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            assert str(app.query_one("#response").border_title) == "Answer as Dana [QA]"
+            app.pinned_goal = lambda: {"ref": "G1@1", "data": {"measure": "20 pages [x] a day, now [~5]\\"}}
+            app.render_stepper()
+            assert str(app.query_one("#measure").render()) == "Measure: 20 pages [x] a day, now [~5]\\"
+    asyncio.run(run())
+
+
+def test_commands_and_help_can_be_clicked_in_the_footer(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Clicks").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            for control, screen in (("#commands", "MenuScreen"), ("#help", "HelpScreen")):
+                before = app.query_one(control).region
+                await pilot.click(control)
+                # Clicking gives the control focus, and the footer must not move under the pointer as it does.
+                assert app.query_one(control).region == before
+                for _ in range(40):  # a menu takes a few frames to appear
+                    await pilot.pause()
+                    if type(app.screen).__name__ == screen:
+                        break
+                assert type(app.screen).__name__ == screen
+                await pilot.press("escape")
+                await pilot.pause()
+    asyncio.run(run())
+
+
+def test_same_person_is_a_generous_match_of_names():
+    from reason_commons.adapters.tui import same_person
+    assert same_person("David", "david") and same_person("davidjoseph", "David") and same_person("David", "davidjoseph")
+    assert not same_person("Rufus", "David") and not same_person("", "David") and not same_person("David", " ")
+
+
+def test_words_someone_else_wrote_say_who_even_when_they_are_the_only_voice(tmp_path, utc):
+    """Your words hides names when it is all one person; it must not mislabel a shared goal's words as yours."""
+    path = tmp_path / "case"
+    create_case(path, "Shared").close()
+    with open_case(path, consultant=GuidedConsultant()) as case:
+        target = case.workspace()["target"]
+        case.submit("The pull to act is real", "Rufus", target["base_revision"], target["response_target"])
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})  # opened as David
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.show_view("sources")
+            await pilot.pause()
+            return app.query_one("#content").source
+    assert "Rufus · " in asyncio.run(run())

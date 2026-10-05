@@ -206,7 +206,7 @@ async def run_setup(app, settings, first_run, checks=None):
             options = [(key_, option_text(title, detail)) for key_, title, detail in CONSULTANT_CHOICES]
             answer = await app.push_screen_wait(ChoiceStep(
                 2, "Who should ask you the questions?",
-                "You can change this any time: Settings on the home screen, or Ctrl+P inside a goal. "
+                "You can change this any time: F2 Settings on the home screen, or Ctrl+P inside a goal. "
                 "Your goals keep going from where they are when you switch.",
                 "Arrows choose, Enter continues, Esc goes back. New here? The built-in guide is a good start.",
                 options, highlighted=[c[0] for c in CONSULTANT_CHOICES].index(consultant)))
@@ -327,7 +327,7 @@ EXAMPLE_ANSWERS = dict(zip(TOUR_PURPOSES, ANSWERS))
 TOUR_STAGE = {"goal": 1, "goal_measure": 1, "goal_protect": 1, "test_change": 2, "test_forecast": 2,
               "test_review": 2, "test_stop": 2, "action": 3, "observe": 4, "review": 5, "done": 6}
 COACH = {
-    "goal": "Welcome! The question is in the middle; you answer in the box below. Write a goal of your own, "
+    "goal": "Welcome! The question is in the middle; you answer in the box under it. Write a goal of your own, "
             "or press [b]Example answer[/b] to borrow Mira's from the tutorial. Then press [b]Ctrl+S[/b] "
             "(or Tab to Send, then Enter) to send it.",
     "goal_measure": "The guide saved your exact words and asked the next question. Press [b]Explain this[/b] "
@@ -348,7 +348,7 @@ COACH = {
               "safeguards first, then decide: keep, adjust or drop the change.",
     "done": "[b]Loop complete.[/b] Look around before you go: [b]Views[/b] then [i]Tests[/i] puts your forecast "
             "next to the result; [b]Ctrl+T[/b] opens the six trees (Claude or a local model grows them as "
-            "you talk); [b]Ctrl+P[/b] lists every action, including changing consultant. Press "
+            "you talk); [b]Ctrl+P[/b] lists every command, including changing consultant. Press "
             "[b]Finish tour[/b] to start a goal of your own.",
 }
 

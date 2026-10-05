@@ -8,6 +8,7 @@ never infers measures, ownership, evidence or outcomes.
 """
 
 from copy import deepcopy
+import re
 
 
 PREFIX = "guided:"
@@ -62,6 +63,38 @@ STEPS = {
 }
 
 
+# A short example of the kind of answer each step asks for, shown faintly in an empty answer box. They
+# follow one small story so they read as a set, and they are examples of a form, never advice.
+PLACEHOLDERS = {
+    "goal": "e.g. I read for pleasure again, most evenings",
+    "goal_measure": "e.g. Read 20 pages a day, now ~5, by December",
+    "goal_protect": "e.g. I still sleep at least 7 hours",
+    "test_change": "e.g. Read for 15 minutes before bed instead of scrolling",
+    "test_forecast": "e.g. I read on at least 5 of the next 7 nights",
+    "test_review": "e.g. Sunday evening, in two weeks",
+    "test_stop": "e.g. If I sleep under 7 hours twice in a week",
+    "action": "e.g. Tonight at 9:30, phone charging in the kitchen",
+    "observe": "e.g. Read on 4 of 7 nights, about 12 pages each time",
+    "review": "e.g. 4 nights against my forecast of 5. Sleep held. Keep it, start at 9:00",
+}
+HINT = re.compile(r"^(.*?)\s+(Leave empty\b.*)$", re.S)
+
+
+def split_hint(prompt):
+    """A prompt as (question, hint). The guide ends a question whose answer is optional with a sentence
+    that starts "Leave empty"; that sentence is the hint, and a prompt without one has none."""
+    match = HINT.match(prompt.strip())
+    return (match.group(1), match.group(2)) if match else (prompt.strip(), None)
+
+
+def placeholder(question):
+    """The example for the question the guide asked (None when another consultant asked it)."""
+    purpose = ((question or {}).get("data") or {}).get("purpose") or ""
+    if question is None:
+        return PLACEHOLDERS["goal"]
+    return PLACEHOLDERS.get(purpose[len(PREFIX):]) if purpose.startswith(PREFIX) else None
+
+
 def _literal(text):
     value = (text or "").strip()
     return None if value.lower() in SKIPPED else value
@@ -99,7 +132,7 @@ class GuidedConsultant:
                 updates.append(self._note(value["text"], [request_id]))
             return self._proposal(value, updates, step, self._context(records), change=change, notice=(
                 "The built-in guide cannot give advice or rephrase questions. Your note is saved. "
-                "Choose Anthropic or LM Studio under Actions for an AI consultant."))
+                "Choose Anthropic or LM Studio under Commands (Ctrl+P) for an AI consultant."))
 
         notice = None
         if step == "goal":

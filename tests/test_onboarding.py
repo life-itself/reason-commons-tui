@@ -262,3 +262,75 @@ def test_run_tour_opens_a_throwaway_practice_goal(monkeypatch):
     assert tui.run_tour("David") == TOUR_FINISHED
     assert seen["tour"] and seen["provider"] == "guided"
     assert not os.path.exists(seen["store"])
+
+
+def test_settings_offers_you_on_the_home_screen_and_it_runs_the_setup_questions(tmp_path, monkeypatch):
+    """The home list no longer has a Settings row, so F2 Settings carries it: Enter on You asks name, then consultant."""
+    monkeypatch.setenv("REASON_COMMONS_THEME", "")  # set first, so teardown puts back what a theme change wrote
+    monkeypatch.delenv("REASON_COMMONS_THEME")
+    settings = Settings(tmp_path / "settings.yaml", {"name": "Dana", "consultant": "guided"}, exists=True)
+
+    async def run():
+        app = GoalsApp(tmp_path / "goals", list_goals=lambda root: [], settings=settings)
+        async with app.run_test(size=(100, 30)) as pilot:
+            await pilot.pause()
+            await pilot.press("f2")
+            await pilot.pause()
+            rows = app.screen.query_one("#settings-rows")
+            assert [option.id for option in rows.options] == ["voice", "mode", "setup"]
+            assert "Dana · offline guide" in str(rows.get_option("setup").prompt)
+            # Left and Right do nothing on You (they change the voice and mode rows), and Enter opens the questions.
+            await pilot.press("down", "down", "right", "left")
+            assert app.theme == "yoruba-dark"
+            await pilot.press("enter")
+            await pilot.pause()
+            assert type(app.screen).__name__ == "TextStep"
+            assert app.screen.query_one("Input").value == "Dana"
+            await pilot.press("escape")  # leaving setup changes nothing
+            await pilot.pause()
+    asyncio.run(run())
+    assert Settings.load(tmp_path / "settings.yaml").get("name") is None  # nothing was saved (the file never existed)
+
+
+def test_the_workspace_settings_has_no_you_row(tmp_path):
+    """Name and consultant are asked on the home screen; inside a goal F2 is only the appearance."""
+    path = tmp_path / "case"
+    create_case(path, "Plain").close()
+
+    async def run():
+        app = ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
+                               lambda provider: GuidedConsultant())
+        async with app.run_test(size=(100, 30)) as pilot:
+            await pilot.pause()
+            await pilot.press("f2")
+            await pilot.pause()
+            return [option.id for option in app.screen.query_one("#settings-rows").options]
+    assert asyncio.run(run()) == ["voice", "mode"]
+
+
+def test_you_in_settings_is_also_there_on_first_start_and_a_click_on_theme_changes_nothing(tmp_path, monkeypatch):
+    monkeypatch.setenv("REASON_COMMONS_THEME", "")  # set first, so teardown puts back what a theme change wrote
+    monkeypatch.delenv("REASON_COMMONS_THEME")
+    settings = Settings.load(tmp_path / "settings.yaml")  # never saved: first start
+
+    async def run():
+        app = GoalsApp(tmp_path / "goals", settings=settings)
+        async with app.run_test(size=(100, 30)) as pilot:
+            await pilot.pause()
+            await pilot.press("f2")
+            await pilot.pause()
+            rows = app.screen.query_one("#settings-rows")
+            assert [option.id for option in rows.options] == ["voice", "mode", "setup"]
+            # Choosing a row with Enter or a click does not change it; Left and Right do.
+            await pilot.click("#settings-rows", offset=(5, 0))
+            await pilot.press("enter")
+            assert app.theme == "yoruba-dark"
+            await pilot.press("right")
+            assert app.theme == "wuxing-dark"
+            await pilot.press("down", "down", "enter")
+            await pilot.pause()
+            assert type(app.screen).__name__ == "TextStep"
+            await pilot.press("escape")
+            await pilot.pause()
+    asyncio.run(run())
+    assert not (tmp_path / "settings.yaml").exists()  # first start is unfinished: nothing was saved
