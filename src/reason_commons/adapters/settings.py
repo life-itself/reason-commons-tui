@@ -119,6 +119,16 @@ def describe(settings):
     return f"{settings.get('name') or 'no name yet'} · {what}"
 
 
+SHORT_CONSULTANTS = {"guided": "offline guide", "anthropic": "Claude", "lm-studio": "local model"}
+
+
+def summary(settings):
+    """Who you are and who asks the questions, in a few words: 'David · offline guide'."""
+    consultant = settings.get("consultant") or "guided"
+    return " · ".join(part for part in (settings.get("name"), SHORT_CONSULTANTS.get(consultant, consultant))
+                      if part)
+
+
 def model_hint(model_id):
     """A plain trade-off for a Claude model, from its family name."""
     lowered = model_id.lower()

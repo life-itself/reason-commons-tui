@@ -22,7 +22,8 @@ action. Framework selection is open: require multiline input, reliable focus,
 responsive layout, asynchronous workers and terminal cleanup.
 
 Required patterns: Focused Surface, Footer Command Bar, Master-Detail,
-Expand-to-Focus, Object-Local Actions, filtered Actions palette,
+Expand-to-Focus, Object-Local Actions, filtered Commands palette (the
+specification calls it Actions; on screen it is **Commands**),
 and selection grammar. Returning restores exact selection and draft. A model
 completion notice never moves the user's view or focus without their action.
 
@@ -46,13 +47,41 @@ gate, complete inputs and one labeled output. Independent routes never merge
 implicitly. Necessity says requires; conflict states scope and incompatibility;
 predictions are labeled; trace references say tests, addresses or implements.
 
+## Hierarchy, names and focus
+
+One screen is read in one order. Each rule below was a clarity defect before it became a rule
+(see the evaluator's findings behind it in [TUI-UX-PLAN.md](TUI-UX-PLAN.md#navigation-and-hierarchy-revision)).
+
+- **One spine.** The loop line is the only thing that says where you are in the loop. The Views list is
+  secondary: it names what else can be read, with ▸ beside the open view. The view's name is in the
+  list and the page's heading, never also in the header.
+- **Heading, question, hint.** The heading is the strongest line, the question is plain type and an
+  optional-answer hint is the quietest. A goal with nothing recorded says "Measure: not set" on the loop
+  line, never "No goal yet" under the goal's own name.
+- **The answer sits at the question.** The answer box follows what it answers, with an example fading in
+  while it is empty. A long page scrolls above it, so the box never leaves the screen; the line about
+  Enter and Send sits beside its buttons, or under them when they leave no room.
+- **Focus is a frame.** Where the keyboard is has a heavy frame in the accent colour (a heavy bar at the
+  edge for the page and the trees, a highlight for a button or a footer control). No label names it. The header says only the goal's name, who you are
+  and whether it is saved.
+- **The footer speaks for the focused pane.** It lists the keys that work there, then Commands, with Help
+  on the right. Every key it names must be a real binding. Commands and Help are also controls: Tab
+  reaches them and Enter presses them. On a narrow terminal the hints say less and then drop from the
+  end, but Commands and Help always stay, and the footer never changes under a click.
+- **One word, one meaning.** *Commands* is everything you can do (Ctrl+P). *Loop actions* is the view of
+  the plan's actions. *Action* is a step of the loop.
+- **No raw data.** Ids, engine revisions and ISO timestamps never show. A time is on the person's own
+  clock ("Oct 3, 18:02"), and who wrote it appears only when more than one person has.
+- **Home.** Ways to *Start*, then *Your goals* as aligned columns (name, stage, day last changed).
+  Settings are behind F2, and the footer says what they are now.
+
 ## Project adaptations to Mono
 
 | Reference | Adaptation | Reason and observable check |
 |---|---|---|
-| §1.4/§2.3 footer commands | OVERRIDE: context-critical keys in persistent footer; remaining actions have visible controls and filtered Help/Actions | No required action depends on recalled syntax or an invisible key |
+| §1.4/§2.3 footer commands | OVERRIDE: context-critical keys in persistent footer; remaining actions have visible controls and filtered Help/Commands. Commands and Help are footer controls that Tab reaches and Enter presses | No required action depends on recalled syntax or an invisible key |
 | §2.2 keyboard scope | TIGHTEN: all printable keys, including `?`, `q`, numbers, `:` and `/`, are literal in Response and filters | Sending those strings cannot navigate, quit or record a position |
-| §2.2 command activation | OVERRIDE: Ctrl+P opens Actions; inside it arrows select and printable keys filter. F10/action-bar keys optional; visible Actions required | Complete the journey with Tab, arrows, Space, Enter and Esc |
+| §2.2 command activation | OVERRIDE: Ctrl+P opens Commands (the specification's Actions); inside it arrows select and printable keys filter. F10/action-bar keys optional; visible Commands required, in the footer | Complete the journey with Tab, arrows, Space, Enter and Esc |
 | §1.6 reflow | TIGHTEN: reflow semantic relations first; use complete records when connectors become ambiguous | No lost negation, input, objection or breach |
 | §8 state | TIGHTEN: save, evidence, freshness, execution, attainment and human positions independent | Selection/save/completion cannot imply truth or consensus |
 
@@ -61,7 +90,7 @@ Enter adds a newline; Tab to Send then Enter submits once. Paste never submits.
 Esc leaves editor focus for browsing while retaining text. Help is visible as
 well as F1; Explain this teaches reasoning separately. In browsing Enter opens,
 Space expands a branch, `/` filters and `?` opens help. Optional letter accelerators
-cannot intercept text. Quit is available through Actions.
+cannot intercept text. Quit is available through Commands.
 
 Navigation checkpoints the cursor. New input invokes the consultant only through
 labeled Send or a consultant action. Explicit structured decisions share the

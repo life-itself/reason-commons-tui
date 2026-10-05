@@ -12,6 +12,38 @@ Where the build differs from the text below: the first question is labelled
 already shows; and `tui.py` grew by the comparison renderer, so the net deletion
 is on screen and in the docs, not in lines of code.
 
+## Navigation and hierarchy revision
+
+An outside evaluator reviewed three screens (the goal question, Your words, and the home
+list) and a revised mock-up answered each finding. Where it differs from the rows of Step 2
+below (header, destinations, buttons, answer box) and the home list, this revision wins;
+[TUI-DESIGN.md](TUI-DESIGN.md#hierarchy-names-and-focus) holds the rules that remain.
+
+| Finding | Change |
+| --- | --- |
+| Five navigation systems compete: stepper, views list, buttons, footer keys and palette | The loop line is the spine. The views list is secondary (**VIEWS**, ▸ on the open view). The **Actions** and **Help** buttons are gone; **Commands** and **Help** are in the footer, and Tab reaches them |
+| "Actions" meant a view, a button and a palette | The view is **Loop actions**, the palette is **Commands**, and the button is gone |
+| The question sat far above the answer box | The box follows the page: right under a short question; under a long page the page scrolls above it, so the box stays on screen |
+| Inverted hierarchy: a quiet heading over a bold question | Heading in the accent colour and bold, the question plain, an optional-answer hint quiet |
+| The view's name appeared in the header, the list and the heading | The header is the goal's name on the left, and who you are and whether it is saved on the right |
+| "No goal yet" under a goal that has a name | "Measure: not set" on the loop line (the measure itself once there is one); the goal band appears once a goal is recorded |
+| Focus was hard to see and named in a "Focus:" label | A heavy accent frame round the focused pane; the label is gone. The footer says what the keys do there |
+| A jargon hint on the answer box's bottom border | "Enter: new line · Send: get the guide's reply", beside the buttons (under them when there is no room), and an example fading in the empty box |
+| Your words showed an internal id, a login name and an ISO timestamp | "Oct 3, 18:02" on the person's own clock; a name only when more than one person has written; no id |
+| The home list mixed ways to start, settings and goals, with ragged columns | **Start**, then **Your goals** as aligned columns (name, stage, day); settings behind F2, and the footer says what they are now |
+
+Not built: **rename** and **delete** for a goal, which the evaluator's mock-up lists in the
+home footer. Neither exists in the application: a goal's name is stored in every saved step, so
+renaming it is a new use case, and deleting one is a new, destructive one. The recipe for
+[an interface action](docs/development/recipes.md#add-an-interface-action-for-example-a-tui-key)
+says to map it to an existing capability or add the use case first, with its scenario, so the
+footer lists only what works.
+
+Where it meets the specification: S114 asks that the focused control stay visible, which the
+frame does, but S68 (not yet delivered) says the pinned header shows "focus", which this design
+puts in the frame instead; S07 and S119 call the list of every action **Actions**, which is now
+**Commands** on screen, and their steps map one to the other. Neither scenario's text was changed.
+
 ## The short version
 
 The specification already describes the quiet tool the design-retreat answer

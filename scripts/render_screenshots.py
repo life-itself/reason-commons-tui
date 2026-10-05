@@ -9,6 +9,7 @@ copies that render the same everywhere; the README uses the PNGs. Run it after c
 """
 
 import asyncio
+from datetime import date
 import math
 import os
 from pathlib import Path
@@ -17,11 +18,12 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from reason_commons.adapters import themes  # noqa: E402
+from reason_commons.adapters import themes, timeline  # noqa: E402
 from reason_commons.adapters.sample import ANSWERS, build_sample  # noqa: E402
 from reason_commons.adapters.tui import GoalsApp, ReasonCommonsApp  # noqa: E402
 from reason_commons.bootstrap import configured_consultant, create_case, open_case  # noqa: E402
@@ -65,7 +67,12 @@ async def render(folder):
                  clock=FixedClock("2026-11-06T19:30:00+00:00"))
     create_case(goals / "map-review", "Agree how our strategy map gets reviewed",
                 clock=FixedClock("2026-10-02T07:00:00+00:00")).close()
-    await shoot(GoalsApp(goals), "home", (100, 22))
+    from reason_commons.adapters.settings import Settings
+    settings = Settings.load(folder / "settings.yaml")
+    settings.set(SPEAKER, "name")
+    settings.set("guided", "consultant")
+    settings.save()
+    await shoot(GoalsApp(goals, settings=settings), "home", (100, 22))
     await first_start(folder)
     create_case(folder / "new", "my-first-goal").close()
     await shoot(workspace(folder / "new"), "welcome", (120, 36))
@@ -169,31 +176,24 @@ def call(method):
     return steps
 
 
-def highlight_settings(app):
-    goals = app.query_one("#goals")
-    goals.highlighted = [option.id for option in goals.options].index("settings")
-
-
 async def more_home(folder, goals):
     """The goals list's dialogs and its help."""
     from reason_commons.adapters.settings import Settings
     settings = Settings.load(folder / "settings.yaml")
-    settings.set("Mira", "name")
-    settings.set("guided", "consultant")
-    settings.save()
 
     def home():
         return GoalsApp(goals, settings=settings)
 
     async def new_goal(app, pilot):
-        app.query_one("#goals").highlighted = 0
+        goals = app.query_one("#goals")
+        goals.highlighted = goals.get_option_index("new")
         await pilot.press("enter")
         await pilot.pause(0.3)
         app.screen.query_one("Input").value = "A clear next step after open evenings"
         await pilot.pause(0.2)
     await shoot(home(), "new-goal", (100, 22), steps=new_goal)
     await shoot(home(), "home-help", (100, 30), steps=keys("f1"))
-    await shoot(home(), "home-settings", (100, 22), before=highlight_settings)
+    await shoot(home(), "home-settings", (100, 22), steps=keys("f2"))
 
 
 async def real_commons(folder):
@@ -292,6 +292,11 @@ def to_png(browser, svg):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     os.environ[themes.ENVIRONMENT] = themes.DEFAULT_THEME  # the docs show the default, not your own theme
+    # Times are shown on the person's own clock and a date omits the year when it is this year, so the pictures
+    # fix both: UTC, and a day shortly after the dates the pictures use.
+    os.environ["TZ"] = "UTC"
+    time.tzset()
+    timeline.today = lambda: date(2026, 11, 10)
     with tempfile.TemporaryDirectory() as folder:
         asyncio.run(render(Path(folder)))
     browser = chromium() if can_make_png() else None

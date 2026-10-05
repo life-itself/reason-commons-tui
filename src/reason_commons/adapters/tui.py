@@ -13,6 +13,7 @@ import tempfile
 import textwrap
 from pathlib import Path
 
+from rich.cells import cell_len, set_cell_size
 from rich.console import Group
 from rich.markup import escape
 from rich.table import Table
@@ -21,16 +22,20 @@ from textual import on, work
 from textual.app import App, ComposeResult, SystemCommand
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.content import Content
+from textual.css.query import NoMatches
+from textual.markup import escape as escape_markup
 from textual.screen import ModalScreen
-from textual.widgets import Button, Footer, Input, Label, Markdown, OptionList, Static, TextArea
+from textual.widgets import Button, Input, Label, Markdown, OptionList, Static, TextArea
 from textual.widgets.option_list import Option
 
 from reason_commons.adapters import themes
-from reason_commons.adapters.guided import STEPS
+from reason_commons.adapters.guided import STEPS, placeholder, split_hint
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
-from reason_commons.adapters.settings import Settings, describe
+from reason_commons.adapters.settings import Settings, summary
 from reason_commons.adapters.rendering import _literal
-from reason_commons.adapters.timeline import change_summary, day, next_action, revision_changes, tree_summary
+from reason_commons.adapters.timeline import (change_summary, day, moment, next_action, revision_changes, short_day,
+                                              tree_summary)
 from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, statement_details, trees_lines
 
 
@@ -40,15 +45,9 @@ PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claud
 # Who receives what you send, named where you send it.
 SEND_TO = {"guided": "the offline guide", "anthropic": "Claude", "lm-studio": "your local model"}
 TREE_ORDER = list(TREE_TITLES)
-VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"), ("actions", "Actions"),
-               ("reasoning", "Reasoning"), ("sources", "Your words"), ("history", "History")]
-# The control that has keyboard focus, named in the header.
-FOCUS_NAMES = {"editor": "Answer", "send": "Send", "fill": "Example answer", "retry": "Retry",
-               "explain": "Explain this", "moves": "Other moves", "views-button": "Views", "actions": "Actions",
-               "finish": "Finish tour", "views": "Views list", "main": "Reading", "timeline": "History list",
-               "earlier": "Earlier", "later": "Later", "now": "Back to now", "first": "From the beginning",
-               "own": "Start my own goal", "home": "Back to start", "canvas": "Trees", "inspector": "Details",
-               "help": "Help", "cancel": "Cancel"}
+VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"),
+               ("actions", "Loop actions"), ("reasoning", "Reasoning"), ("sources", "Your words"),
+               ("history", "History")]
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
         ("review", "Review")]
 GUIDED_STAGE = {"goal": "goal", "goal_measure": "goal", "goal_protect": "goal", "test_change": "test",
@@ -78,7 +77,7 @@ ATTAINMENT_WORDS = {"unknown": "not known yet", "pending": "pending", "met": "me
 WIDE = 90
 # Controls a person passes through on the way to something else. Esc does not return focus to them:
 # it returns to the answer they were writing.
-NAVIGATION_CONTROLS = {"send", "fill", "retry", "explain", "moves", "views-button", "actions", "help", "finish",
+NAVIGATION_CONTROLS = {"send", "fill", "retry", "explain", "moves", "views-button", "commands", "help", "finish",
                        "views"}
 # The alternatives to answering the current question. Each says whether it stays local or asks the consultant.
 OTHER_MOVES = [("explain", "Inspect rationale · local; opens saved explanation"),
@@ -87,8 +86,11 @@ OTHER_MOVES = [("explain", "Inspect rationale · local; opens saved explanation"
                ("direct_advice", "Ask for direct advice · asks consultant"),
                ("another_question", "Ask another question · asks consultant"),
                ("explain_observation", "Ask for help planning an observation · asks consultant")]
+# The menu named "actions" is the Commands list; the name is kept because a saved cursor may hold it.
 MENU_TITLES = {"other_moves": "Other moves. Nothing is sent until you choose an item.",
-               "actions": "Actions", "views": "Views (local, no consultant call)"}
+               "actions": "Commands", "views": "Views (local, no consultant call)"}
+# What Send brings back, said where Send is: "Send: get the guide's reply".
+REPLY_FROM = {"guided": "the guide's reply", "anthropic": "Claude's reply", "lm-studio": "your local model's reply"}
 # Actions of later delivery profiles. A restored cursor may still name one; it is refused locally.
 LATER_PROFILE_ACTIONS = {"explore-causal-model": "Explore causal model", "record-position": "Record position",
                          "record-test-reliance": "Record test reliance", "restore-reasoning": "Restore reasoning"}
@@ -98,6 +100,13 @@ OFFLINE_ADAPTERS = ("ltp-tree-import/", "story/")
 INSPECTOR_FROM, INSPECTOR_WIDTH = 120, 36
 
 HELP = """\
+## The screen
+
+The loop line under the title shows where you are: ✓ done, ● now, ○ still to come, with the goal's measure
+on its right. The current question is below it, and the answer box sits right under the question.
+**Views** on the left lists everything else you can read; Enter opens one. The footer shows the keys that
+work where the keyboard is now; Tab reaches **Commands** and **Help** there like any other control.
+
 ## Keys and controls
 
 Help covers the controls; **Explain this** covers the reasoning behind a question.
@@ -112,10 +121,9 @@ Help covers the controls; **Explain this** covers the reasoning behind a questio
 | ↑ / ↓ | In the Trees view: choose a statement |
 | Enter | In the Trees view: the chosen statement's details in full |
 | Ctrl+N | In the Trees view: the next tree, then all six together |
-| Ctrl+P, or **Actions** | Every action, each marked local or asking the consultant |
+| Ctrl+P, or **Commands** | Every command, each marked local or asking the consultant |
 | In a menu | Type to filter, arrows choose, Enter activates; **Back** or Esc returns |
-| **Help** | This help |
-| F1 | This help |
+| F1, or **Help** | This help |
 | Ctrl+Q | Save and quit |
 
 ## How Reason Commons works
@@ -156,16 +164,17 @@ consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
 
 The **built-in guide** works offline and asks the loop's questions in order.
 **Anthropic** (needs `ANTHROPIC_API_KEY`) or **LM Studio** (a local model) give
-adaptive questions and advice. Ctrl+P switches for this session; **Settings** on
+adaptive questions and advice. Ctrl+P switches for this session; F2 **Settings** on
 the home screen saves your name, consultant and model for next time.
 
 ## Themes
 
-Twelve voices from the Reason Commons web app, each light or dark. Ctrl+P,
-**Theme** (or **Theme** on the home screen) previews them as you move: arrows
-up and down choose a voice, left and right choose light or dark, Enter keeps it.
-The choice is saved as `theme:` in your settings file; `--theme` or
-`REASON_COMMONS_THEME` overrides it for one run.
+Twelve voices from the Reason Commons web app, each light or dark. F2 **Settings**
+changes the voice and light or dark as you press ← and →, and keeps the choice. Ctrl+P,
+**Theme** previews every voice with its description as you move: arrows up and down
+choose a voice, left and right choose light or dark, Enter keeps it. The choice is
+saved as `theme:` in your settings file; `--theme` or `REASON_COMMONS_THEME`
+overrides it for one run.
 
 New to it? **Take the guided tour** from the home screen: a practice goal with
 coaching at each step and example answers. **Explore a real commons** shows how a
@@ -191,23 +200,40 @@ def loop_stage(question):
     return next((stage for stage, words in STAGE_WORDS if any(word in decision for word in words)), None)
 
 
-def loop_line(stage, wide=True):
-    """The loop drawn as one line: ✓ done, ● current, ○ still to come; symbols carry the meaning.
+def loop_line(stage, wide=True, width=None):
+    """The loop drawn as one line, its steps joined by ─: ✓ done, ● current, ○ still to come. The symbols
+    carry the meaning; colour only adds to it.
 
+    With a ``width`` it always fits: first without the joins, then as just where you are ("● Review · step
+    5 of 5"), because a line cut off at the right would lose the one step that matters.
     When the step cannot be told (another consultant's own question), no step is marked.
     """
     keys = [key for key, _ in LOOP]
     if stage not in keys:
         return "[dim]" + "  ·  ".join(name for _, name in LOOP) + "[/]"
     now = keys.index(stage)
-    parts = [f"[b]● {name}[/b]" if index == now else f"[dim]{'✓' if index < now else '○'} {name}[/]"
+    parts = [f"[b $accent]● {name}[/]" if index == now else f"[$text-muted]{'✓' if index < now else '○'} {name}[/]"
              for index, (_, name) in enumerate(LOOP)]
-    return "  ".join(parts) + ("   [dim]then a new loop begins[/]" if stage == "review" and wide else "")
+    aside = "   [$text-muted]then a new loop begins[/]" if stage == "review" and wide else ""
+    fits = lambda line: width is None or Content.from_markup(line).cell_length <= width
+    line = " [$text-muted]─[/] ".join(parts) + aside
+    if not fits(line):
+        line = "  ".join(parts)
+    if not fits(line):
+        line = f"[b $accent]● {LOOP[now][1]}[/] [$text-muted]· step {now + 1} of {len(LOOP)}[/]"
+    return line
 
 
 def md(value):
     """Escape stored, untrusted text for Markdown display."""
     return _literal(value, True)
+
+
+def same_person(one, other):
+    """Whether two names plausibly name one person: alike ignoring case, or one the start of the other, as
+    "David" is of the login name "davidjoseph" that an earlier answer may have been saved under."""
+    one, other = str(one).strip().lower(), str(other).strip().lower()
+    return bool(one and other) and (one.startswith(other) or other.startswith(one))
 
 
 def caret_index(text, location):
@@ -656,18 +682,26 @@ class ThemeScreen(ModalScreen):
 
 
 class SettingsScreen(ModalScreen):
-    """Appearance at a glance: Left and Right change the highlighted row and apply (and save) at once."""
+    """Settings at a glance: Left and Right change the highlighted row and apply (and save) at once.
+
+    Where the home screen can ask, a third row, You, opens the questions for your name and consultant
+    (the dialog closes and returns "setup")."""
 
     BINDINGS = [Binding("escape,f2", "close", "Done"), Binding("left", "step(-1)", "Previous"),
-                Binding("right", "step(1)", "Next"), Binding("enter", "step(1)", "Next", show=False)]
+                Binding("right", "step(1)", "Next")]
+
+    def __init__(self, setup=False):
+        super().__init__()
+        self.offer_setup = setup
 
     def compose(self) -> ComposeResult:
         with Vertical(id="dialog"):
             yield Label("Settings", classes="dialog-title")
             yield OptionList(id="settings-rows")
             yield Static(id="settings-about")
-            yield Label("↑↓ choose a setting, ←→ change it. Changes apply and are kept at once. Esc closes.",
-                        classes="hint")
+            yield Static("↑↓ choose a setting, ←→ change it. Changes apply and are kept at once. "
+                         + ("Enter on You changes your name and consultant. " if self.offer_setup else "")
+                         + "Esc closes.", classes="hint")
 
     def on_mount(self):
         self.rows = self.query_one("#settings-rows", OptionList)
@@ -675,26 +709,180 @@ class SettingsScreen(ModalScreen):
 
     def show(self, index):
         voice, mode = themes.split_name(self.app.theme)
+        options = [Option(f"Theme    ◀ {themes.title(voice)} ▶", id="voice"),
+                   Option(f"Mode     ◀ {mode.capitalize()} ▶", id="mode")]
+        if self.offer_setup:
+            options.append(Option(Content.assemble("You      ", summary(self.app.settings),
+                                                   ("   Enter changes", "$text-muted")), id="setup"))
         self.rows.clear_options()
-        self.rows.add_options([Option(f"Theme    ◀ {themes.title(voice)} ▶", id="voice"),
-                               Option(f"Mode     ◀ {mode.capitalize()} ▶", id="mode")])
+        self.rows.add_options(options)
         self.rows.highlighted = index
         self.query_one("#settings-about", Static).update(f"\n{themes.VOICES[voice].description}")
         self.rows.focus()
 
+    def current(self):
+        return self.rows.get_option_at_index(self.rows.highlighted or 0).id
+
     def action_step(self, direction):
-        index = self.rows.highlighted or 0
+        row = self.current()
+        if row == "setup":
+            return
         voice, mode = themes.split_name(self.app.theme)
-        if index == 0:
+        if row == "voice":
             keys = list(themes.VOICES)
             voice = keys[(keys.index(voice) + direction) % len(keys)]
         else:
             mode = "dark" if mode == "light" else "light"
         self.app.keep_theme(themes.theme_name(voice, mode))
-        self.show(index)
+        self.show(self.rows.highlighted or 0)
+
+    @on(OptionList.OptionSelected, "#settings-rows")
+    def chosen(self, event):
+        """Enter (or a click) on You opens the questions; on the other rows it changes nothing: Left and Right do."""
+        if event.option.id == "setup":
+            self.dismiss("setup")
 
     def action_close(self):
         self.dismiss(None)
+
+
+def hint_cost(key, label):
+    """The columns a footer hint takes: its padding, the key, a space, the label and the gap after it."""
+    return cell_len(key) + 1 + cell_len(label) + 3
+
+
+class Hint(Static):
+    """One key hint in the footer: the key in the accent colour, then what it does.
+
+    Clicking it presses the key. Commands and Help are also controls: they take focus, and Enter or Space
+    presses them, so Tab reaches them like any other control."""
+
+    BINDINGS = [Binding("enter,space", "press", "Press", show=False)]
+    DEFAULT_CSS = """
+    Hint { width: auto; height: 1; padding: 0 1; margin-right: 1; }
+    Hint.hidden { display: none; }
+    Hint:hover { background: $boost; }
+    Hint:focus { background: $hand-tint; color: $foreground; text-style: bold; }
+    """
+
+    def __init__(self, id, focusable=False):
+        super().__init__(id=id, classes="hidden")
+        self.press, self.can_focus = None, focusable
+
+    def show(self, key, label, press=None):
+        self.press = press
+        self.update(Content.assemble((key, "b $accent"), " ", label))
+        self.remove_class("hidden")
+
+    def hide(self):
+        self.press = None
+        self.add_class("hidden")
+
+    def on_click(self):
+        self.action_press()
+
+    def action_press(self):
+        if self.press:
+            self.app.simulate_key(self.press)
+
+
+class HintBar(Horizontal):
+    """The footer command bar: the keys that work for the control that has the keyboard, then Commands and
+    Help, which Tab reaches, and on the right whatever the screen wants to say about itself.
+
+    The hints are a fixed set of widgets that are shown, changed or hidden, never rebuilt, so a hint that
+    has focus keeps it while the others change around it. They are fitted to the bar's width: a hint with a
+    short label says less before it is dropped, the last hints go first, and Commands and Help always stay."""
+
+    BEFORE, AFTER = 5, 2
+    CONTROLS = {"commands": ("^p", "Commands", "ctrl+p"), "help": ("f1", "Help", "f1")}
+    DEFAULT_CSS = """
+    HintBar { dock: bottom; height: 1; background: $footer-background; color: $footer-foreground; }
+    HintBar #summary { width: 1fr; height: 1; padding: 0 1; text-align: right; color: $text-muted; }
+    """
+
+    def compose(self) -> ComposeResult:
+        for number in range(self.BEFORE):
+            yield Hint(f"hint-{number}")
+        yield Hint("commands", focusable=True)
+        for number in range(self.AFTER):
+            yield Hint(f"after-{number}")
+        yield Static(id="summary")
+        yield Hint("help", focusable=True)
+
+    def update_hints(self, before, after=(), summary=(), controls=True):
+        """Show these hints: ``before`` Commands and ``after`` it. A hint is (key as drawn, what it does, key
+        to press or None), plus a shorter label to use when there is no room. ``summary`` is what the screen
+        says about itself, or its alternatives from longest to shortest; the first that fits is shown.
+        Commands and Help are shown only with ``controls`` (the workspace has them)."""
+        self._wanted = (list(before), list(after), [summary] if isinstance(summary, str) else list(summary),
+                        controls)
+        self.refit()
+
+    def on_resize(self, event):
+        # Not now: changing the hints asks for a layout, which is lost if it is asked for during one.
+        self.call_after_refresh(self.refit)
+
+    def refit(self):
+        wanted = getattr(self, "_wanted", None)
+        if wanted is None:
+            return
+        before, after, summaries, controls = wanted
+        width = self.size.width or 10_000  # not laid out yet: say everything, and fit again once it is
+        fixed = sum(hint_cost(key, label) for key, label, _ in self.CONTROLS.values()) if controls else 0
+        groups = [list(before), list(after)]  # copies: a wider terminal later brings the dropped hints back
+        used = lambda: fixed + sum(hint_cost(hint[0], hint[1]) for group in groups for hint in group)
+        for group in reversed(groups):  # say less, the last hints first
+            for index in reversed(range(len(group))):
+                if used() > width and len(group[index]) > 3:
+                    key, _, press, short = group[index]
+                    group[index] = (key, short, press)
+        for group in reversed(groups):  # then drop the last hints
+            while used() > width and group:
+                group.pop()
+        for prefix, hints, size in (("hint-", groups[0], self.BEFORE), ("after-", groups[1], self.AFTER)):
+            for number in range(size):
+                slot = self.query_one(f"#{prefix}{number}", Hint)
+                if number < len(hints):
+                    slot.show(*hints[number][:3])
+                else:
+                    slot.hide()
+        for name, hint in self.CONTROLS.items():
+            slot = self.query_one("#" + name, Hint)
+            if controls:
+                slot.show(*hint)
+            else:
+                slot.hide()
+        room = width - used() - 2  # the summary's own padding
+        text = next((text for text in summaries if text and cell_len(text) <= room), "")
+        summary = self.query_one("#summary", Static)
+        summary.styles.padding = (0, 1) if text else (0, 0)  # empty, it takes nothing but keeps Help at the right
+        summary.update(Content(text))
+
+
+class Views(OptionList):
+    """The list of views. Tab goes to the open page's own list, or back to the answer (``tab_target``)."""
+
+    BINDINGS = [Binding("tab", "app.answer", "Back to answer", show=False)]
+
+
+class Refits:
+    """Mixin: tells the workspace when this widget's size changes, so the reading pane is fitted above the
+    answer box again. The column and the box change with the terminal and the box with what is typed; the
+    page's height settles only after it is drawn, and the History list under it takes what is left."""
+
+    def on_resize(self, event):
+        fit = getattr(self.app, "fit_reading", None)
+        if fit:
+            self.app.call_after_refresh(fit)
+
+
+class Pane(Refits, Vertical):
+    pass
+
+
+class Page(Refits, Markdown):
+    pass
 
 
 class ThemedApp(App):
@@ -706,6 +894,8 @@ class ThemedApp(App):
     def __init__(self, settings=None):
         super().__init__()
         self.settings = settings
+        # The terminal size from the latest resize event (see ``terminal``).
+        self._terminal = None
         for theme in themes.THEMES.values():
             self.register_theme(theme)
         requested = os.environ.get(themes.ENVIRONMENT)
@@ -714,13 +904,26 @@ class ThemedApp(App):
         for name in set(self.available_themes) - set(themes.THEMES):
             self.unregister_theme(name)
 
+    @property
+    def terminal(self):
+        """The terminal's size. Textual calls ``on_resize`` before it updates ``size``, so during a
+        resize this is the new size from the event."""
+        return self._terminal or self.size
+
     def on_mount(self):
         if self._unknown_theme:
             self.notify(f"No theme called {self._unknown_theme!r}; using {themes.title(self.theme)}. "
                         "Ctrl+P, Theme lists them.", severity="warning", timeout=8)
 
     def action_settings(self):
-        self.push_screen(SettingsScreen())
+        self.push_screen(SettingsScreen(self.can_set_up()), self.settings_closed)
+
+    def can_set_up(self):
+        """Whether Settings can also change your name and consultant: only where the home screen can ask."""
+        return False
+
+    def settings_closed(self, result):
+        """What to do after Settings closes, given what it returned (None, or "setup")."""
 
     def action_change_theme(self):
         self.push_screen(ThemeScreen(self.theme), self.keep_theme)
@@ -745,31 +948,42 @@ class ThemedApp(App):
 
 class ReasonCommonsApp(ThemedApp):
     TITLE = "Reason Commons"
-    COMMAND_PALETTE_DISPLAY = "Actions"
     CSS = """
     Screen { layout: vertical; }
-    #status { height: 1; padding: 0 1; color: $text-muted; }
-    #pinned { height: auto; background: $boost; padding: 0 1; }
-    #loop { height: 1; padding: 0 1; }
+    #status { height: 1; padding: 0 1; }
+    #pinned { height: auto; padding: 0 1; }
+    #loop-row { height: 2; padding: 0 1; border-bottom: solid $border-blurred; }
+    #loop { width: auto; }
+    #measure { width: 1fr; text-align: right; }
     #body { height: 1fr; }
-    #views { width: 16; border: none; background: transparent; color: $text-muted; padding: 0 0 0 1; }
-    #views > .option-list--option-highlighted { background: $boost; color: $text; text-style: bold; }
-    #views:focus > .option-list--option-highlighted { background: $hand-tint; color: $foreground; }
-    #views.hidden, #views-button.hidden { display: none; }
-    #main { border: none; border-left: blank; padding: 0 1; }
+    #views-pane { width: 20; padding: 0 1; border: blank; border-right: solid $border-blurred; }
+    #views-pane:focus-within { border: heavy $accent; }
+    #views-title { color: $text-muted; text-style: bold; }
+    #views-pane:focus-within #views-title { color: $accent; }
+    #views { height: auto; border: none; background: transparent; color: $text-muted; padding: 0; }
+    #views > .option-list--option-highlighted { background: transparent; color: $accent; text-style: bold; }
+    #views:focus > .option-list--option-highlighted { background: $hand-tint; color: $foreground; text-style: bold; }
+    #views-pane.hidden, #views.hidden, #views-button.hidden { display: none; }
+    #column { width: 1fr; height: 1fr; }
+    #column.beside-views { padding-top: 1; }
+    #main { height: auto; border: none; border-left: blank; padding: 0 1 0 0; }
+    #main.fills { height: 1fr; }
     #main:focus { border-left: heavy $accent; }
-    #content { margin: 0; }
+    #content { margin: 0 0 1 0; }
     #canvas { margin: 0 0 1 0; padding: 0 2 0 1; border-left: blank; }
     #canvas:focus { border-left: heavy $accent; }
     #inspector { width: 36; border-left: solid $border-blurred; padding: 0 1; }
     #inspector:focus { border-left: heavy $accent; }
     #inspector.hidden { display: none; }
     #canvas.hidden { display: none; }
-    #content MarkdownH2 { margin: 0; color: $text-muted; background: transparent; text-style: bold; }
+    #content MarkdownH2 { margin: 0; color: $accent; background: transparent; text-style: bold; }
     #content MarkdownH3 { margin: 1 0 0 0; color: $text-muted; background: transparent; text-style: bold; }
-    #response { height: auto; border: $frame $border-blurred; padding: 0 1;
-                border-title-color: $text-muted; border-subtitle-color: $text-muted; }
-    #response:focus-within { border: $frame $accent; }
+    #content MarkdownH6 { margin: 0; color: $text-muted; background: transparent; text-style: none; }
+    #content MarkdownParagraph { margin: 0 0 0 0; }
+    #response { height: auto; margin: 0 1 0 1; border: $frame $border-blurred; padding: 0 1;
+                border-title-color: $text-muted; border-title-background: transparent; }
+    #response:focus-within { border: heavy $accent; border-title-color: $background;
+                             border-title-background: $accent; border-title-style: bold; }
     #editor { height: auto; min-height: 3; max-height: 10; border: none; }
     #controls { height: 1; }
     #controls Button { min-width: 8; height: 1; border: none; margin-right: 1; background: transparent;
@@ -780,6 +994,9 @@ class ReasonCommonsApp(ThemedApp):
     #controls #finish { color: $success; }
     #controls Button:focus, #controls #send:focus { background: $hand-tint; color: $foreground; text-style: bold; }
     #retry.hidden, #fill.hidden, #finish.hidden { display: none; }
+    #hint { width: 1fr; height: 1; text-align: right; color: $text-muted; }
+    #hint-below { height: 1; color: $text-muted; }
+    #hint.hidden, #hint-below.hidden { display: none; }
     #coach { height: auto; max-height: 5; border: $frame $border-blurred; padding: 0 1; }
     #coach.hidden { display: none; }
     #moment { height: auto; border: $frame $border-blurred; padding: 0 1; }
@@ -848,8 +1065,6 @@ class ReasonCommonsApp(ThemedApp):
         # The statement chosen in the Trees view (a claim reference), where each drawn statement sits,
         # and the control to give focus back to when Ctrl+T leaves the trees.
         self.selected_claim, self._tree_spans, self._focus_before_trees = None, [], None
-        # The terminal size from the latest resize event (see ``terminal``).
-        self._terminal = None
         # Where a local inspection began (view, explanation, past moment, scroll, focus), for Esc.
         self._origin = None
         # The open menu's name, and its state as kept in the cursor (filter, choice, binding).
@@ -859,13 +1074,31 @@ class ReasonCommonsApp(ThemedApp):
     def compose(self) -> ComposeResult:
         yield Static(id="status")
         yield Static(id="pinned")
-        yield Static(id="loop")
+        with Horizontal(id="loop-row"):
+            yield Static(id="loop")
+            yield Static(id="measure")
         with Horizontal(id="body"):
-            yield OptionList(*[Option(label, id=key) for key, label in VIEW_LABELS], id="views")
-            with VerticalScroll(id="main"):
-                yield Markdown(id="content", open_links=False)
-                yield TreeCanvas(id="canvas")
-                yield OptionList(id="timeline", classes="hidden")
+            with Vertical(id="views-pane"):
+                yield Static("VIEWS", id="views-title")
+                yield Views(*[Option(self.view_prompt(key), id=key) for key, _ in VIEW_LABELS], id="views")
+            with Pane(id="column"):
+                with VerticalScroll(id="main"):
+                    yield Page(id="content", open_links=False)
+                    yield TreeCanvas(id="canvas")
+                    yield OptionList(id="timeline", classes="hidden")
+                with Pane(id="response", classes="hidden" if self.story else ""):
+                    yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
+                    with Horizontal(id="controls"):
+                        yield Button("Send ^s", id="send", variant="primary")
+                        yield Button("Example answer", id="fill", classes="" if self.tour else "hidden")
+                        yield Button("Retry", id="retry", variant="warning", classes="hidden")
+                        yield Button("Explain this", id="explain")
+                        yield Button("Other moves", id="moves")
+                        yield Button("Views", id="views-button")
+                        yield Button("Finish tour", id="finish", variant="success",
+                                     classes="" if self.tour else "hidden")
+                        yield Static(id="hint")
+                    yield Static(id="hint-below", classes="hidden")
             with VerticalScroll(id="inspector", classes="hidden"):
                 yield Static(id="inspector-text")
         yield Static(id="coach", classes="" if self.tour else "hidden")
@@ -879,19 +1112,11 @@ class ReasonCommonsApp(ThemedApp):
                 yield Button("From the beginning", id="first", classes=story_only)
                 yield Button("Start my own goal", id="own", classes=story_only)
                 yield Button("Back to start", id="home", classes=story_only)
-        with Vertical(id="response", classes="hidden" if self.story else ""):
-            yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
-            with Horizontal(id="controls"):
-                yield Button("Send", id="send", variant="primary")
-                yield Button("Example answer", id="fill", classes="" if self.tour else "hidden")
-                yield Button("Retry", id="retry", variant="warning", classes="hidden")
-                yield Button("Explain this", id="explain")
-                yield Button("Other moves", id="moves")
-                yield Button("Views", id="views-button")
-                yield Button("Actions", id="actions")
-                yield Button("Help", id="help")
-                yield Button("Finish tour", id="finish", variant="success", classes="" if self.tour else "hidden")
-        yield Footer()
+        yield HintBar()
+
+    def view_prompt(self, key):
+        """A view's name in the list, with ▸ beside the one that is open."""
+        return ("▸ " if key == self.view_name else "  ") + dict(VIEW_LABELS)[key]
 
     def on_mount(self):
         super().on_mount()
@@ -917,18 +1142,12 @@ class ReasonCommonsApp(ThemedApp):
         if isinstance(cursor.get("menu"), dict):
             self.call_after_refresh(self.restore_menu, cursor["menu"])
         self.query_one("#earlier" if self.story else "#editor").focus()
-        self.watch(self.screen, "focused", lambda _: self.render_status())
+        self.watch(self.screen, "focused", lambda _: self.refresh_hints())
         self.on_resize()
 
     MOMENT_LABELS = {"earlier": ("◀ Earlier", "◀ Earlier"), "later": ("Later ▶", "Later ▶"),
                      "now": ("Back to now", "Now"), "first": ("From the beginning", "First"),
                      "own": ("Start my own goal", "My own goal"), "home": ("Back to start", "Start screen")}
-
-    @property
-    def terminal(self):
-        """The terminal's size. Textual calls ``on_resize`` before it updates ``size``, so during a
-        resize this is the new size from the event."""
-        return self._terminal or self.size
 
     def on_resize(self, event=None):
         if event is not None:
@@ -937,11 +1156,44 @@ class ReasonCommonsApp(ThemedApp):
         wide = self.terminal.width >= 100
         for key, labels in self.MOMENT_LABELS.items():
             self.query_one("#" + key, Button).label = labels[not wide]
-        self.query_one("#views").set_class(not wide, "hidden")
+        for name in ("#views-pane", "#views"):
+            self.query_one(name).set_class(not wide, "hidden")
+        self.query_one("#column").set_class(wide, "beside-views")
         self.query_one("#views-button").set_class(wide, "hidden")
         self.query_one("#editor").styles.max_height = 5 if self.terminal.height < 30 else 10
         if self.workspace_value is not None:  # the band, comparisons and welcome depend on the width
             self.render_all()
+
+    def fit_reading(self):
+        """Fit the reading pane above the answer box: as tall as what it holds, up to the room the box leaves.
+
+        The box then sits right under a short question and stays on screen under a long page, which
+        scrolls in the room it has. The hint about Enter and Send goes beside the buttons when they leave
+        room for it, and under them otherwise."""
+        try:
+            column, main, response = (self.query_one(name) for name in ("#column", "#main", "#response"))
+            controls, below = self.query_one("#controls"), self.query_one("#hint-below")
+        except NoMatches:  # a refit that was queued as the workspace closed
+            return
+        used = sum(button.outer_size.width + button.styles.margin.right for button in controls.query(Button)
+                   if button.display)
+        beside = controls.size.width - used >= len(self.hint_text()) + 2
+        # Moving the hint changes the box's height by its row; count that now, not a frame later.
+        grows = (0 if beside else 1) - (0 if below.has_class("hidden") else 1)
+        self.query_one("#hint").set_class(not beside, "hidden")
+        below.set_class(beside, "hidden")
+        margin = response.styles.margin
+        taken = 0 if response.has_class("hidden") else (response.outer_size.height + grows
+                                                         + margin.top + margin.bottom)
+        room = max(3, column.size.height - taken)
+        main.styles.max_height = room
+        # The History list scrolls on its own, so it gets exactly what the heading above it leaves.
+        timeline, page = self.query_one("#timeline"), self.query_one("#content")
+        above = page.outer_size.height + max(page.styles.margin.bottom, timeline.styles.margin.top)
+        timeline.styles.max_height = max(3, room - above)
+
+    def hint_text(self):
+        return f"Enter: new line · Send: get {REPLY_FROM.get(self.provider, f'the reply of {self.provider}')}"
 
     def check_action(self, action, parameters):
         if action == "next_tree":
@@ -984,22 +1236,24 @@ class ReasonCommonsApp(ThemedApp):
         return mark + day(entry["timestamp"])
 
     def render_status(self):
-        """One quiet line: goal, speaker, save state and view, and the control that has focus."""
+        """One quiet line: the goal's name on the left, who you are and whether it is saved on the right.
+
+        The view is named by the list and the page itself, and the keyboard by the focused pane's frame,
+        so neither is repeated here."""
         w = self.workspace_value
         if w is None:
             return
         state = (f"Asking {self.send_to()}…" if self.busy else "Answer ready" if self.answer_ready else "Saved")
         who = None if self.story else self.speaker  # a story is read, not answered as anyone
-        where = dict(VIEW_LABELS)[self.view_name]
         if self.story or self.revision is not None:
             state = "Read-only"
+        muted = themed("$text-muted", self.theme_variables)
         line = Table.grid(expand=True)
         line.add_column(no_wrap=True, overflow="ellipsis")
         line.add_column(justify="right", no_wrap=True)
-        focused = FOCUS_NAMES.get(getattr(self.screen.focused, "id", None), "")
-        line.add_row(Text.assemble((w["case_name"], "bold"), f" · {who} · " if who else " · ",
-                                   (state, "bold" if self.answer_ready else ""), f" · {where}"),
-                     f"Focus: {focused}" if focused else "")
+        line.add_row(Text(w["case_name"], style="bold"),
+                     Text.assemble((f"{who} · " if who else "", muted),
+                                   (state, "bold" if self.answer_ready else muted)))
         self.query_one("#status", Static).update(line)
 
     def send_to(self):
@@ -1009,9 +1263,7 @@ class ReasonCommonsApp(ThemedApp):
         w = self.workspace_value
         self.render_status()
         self.refresh_bindings()
-        self.query_one("#loop", Static).update(
-            "" if w["historical"] or self.story else loop_line(loop_stage(w["question"]), wide=self.terminal.width >= 100))
-        self.query_one("#loop").display = not self.story
+        self.render_stepper()
         content = self.render_next() if self.view_name == "next" else self.render_view()
         self.query_one("#content", Markdown).update(content)
         drawing = {"trees": self.render_trees, "next": self.render_context,
@@ -1025,9 +1277,13 @@ class ReasonCommonsApp(ThemedApp):
             self.query_one("#main").focus()
         self.render_inspector()
         # The band never repeats what the view is showing: safeguards move into a comparison.
-        self.query_one("#pinned", Static).update(self.band(protect=not self.shows_safeguards()))
+        band = self.band(protect=not self.shows_safeguards())
+        self.query_one("#pinned", Static).display = band is not None
+        if band is not None:
+            self.query_one("#pinned", Static).update(band)
         timeline = self.query_one("#timeline", OptionList)
         timeline.set_class(self.view_name != "history", "hidden")
+        self.query_one("#main").set_class(self.view_name == "history", "fills")  # the list scrolls, not the page
         if self.view_name == "history":
             self.fill_timeline(timeline)
         looking_back = self.revision is not None
@@ -1046,8 +1302,37 @@ class ReasonCommonsApp(ThemedApp):
             self.query_one("#coach", Static).update(coach_text(state))
             self.query_one("#fill").set_class(state not in EXAMPLE_ANSWERS, "hidden")
         response = self.query_one("#response")
-        response.border_title = f"Answer as {escape(self.speaker)}"
-        response.border_subtitle = f"Enter adds a line · Send asks {escape(self.send_to())}"
+        response.border_title = Content(f"Answer as {self.speaker}")
+        for name in ("#hint", "#hint-below"):
+            self.query_one(name, Static).update(escape_markup(self.hint_text()))
+        # An example of the answer asked for, faint in an empty box. The tour has its own example button.
+        example = None if self.tour or self.story or self.provider != "guided" else placeholder(w["question"])
+        self.query_one("#editor", TextArea).placeholder = example or ""
+        self.refresh_hints()
+        self.call_after_refresh(self.fit_reading)
+
+    def render_stepper(self):
+        """The loop line, which is the spine of the screen, and the goal's measure on its right.
+
+        The measure is what makes progress visible, so while it is missing the line says so rather than
+        leaving the person to wonder: "not set" in the warning colour."""
+        w = self.workspace_value
+        row = self.query_one("#loop-row")
+        row.display = not self.story
+        looking_back = bool(w["historical"] or self.story)
+        value = (((self.pinned_goal() or {}).get("data") or {}).get("measure") or "").strip()
+        # The aside after Review gives way to a measure, which is worth more than it.
+        wide = self.terminal.width >= 100 and not value
+        steps = "" if looking_back else loop_line(loop_stage(w["question"]), wide, self.terminal.width - 2)
+        self.query_one("#loop", Static).update(steps)
+        label = "Measure: "
+        room = self.terminal.width - 2 - Content.from_markup(steps).cell_length - 2  # the row's padding, a gap
+        shown = Content("")
+        if not looking_back and not value and room >= len(label) + len("not set"):
+            shown = Content.assemble((label, "$text-muted"), ("not set", "$warning"))
+        elif not looking_back and value and room >= len(label) + 20:
+            shown = Content.assemble((label, "$text-muted"), clip(value, room - len(label), 1))
+        self.query_one("#measure", Static).update(shown)
 
     def tour_state(self):
         return tour_state(self.workspace_value["question"], self.case.inspect()["case"]["records"])
@@ -1056,10 +1341,11 @@ class ReasonCommonsApp(ThemedApp):
         return latest(self.workspace_value["goals"], "goal")
 
     def band(self, protect=True):
-        """The goal and its safeguards, at most two labelled lines; a cut is marked, and Goal shows it all."""
+        """The goal and its safeguards, at most two labelled lines; a cut is marked, and Goal shows it all.
+        None until a goal has been recorded."""
         goal = self.pinned_goal()
         if goal is None:
-            return Text("No goal yet", style="dim")
+            return None  # nothing recorded yet: the stepper's "Measure: not set" says so
         width = self.terminal.width - 11
         grid = Table.grid(padding=(0, 1))
         grid.add_column(style="bold", width=7, no_wrap=True)
@@ -1109,7 +1395,10 @@ class ReasonCommonsApp(ThemedApp):
         lines = []
         if w["question"]:
             data = w["question"]["data"]
-            lines += [f"## {md(data.get('decision') or 'Next question')}", "", f"**{md(data['primary_prompt'])}**", ""]
+            # The heading is the strongest line, the question plain, and an "optional answer" hint the quietest.
+            question, hint = split_hint(data["primary_prompt"])
+            lines += [f"## {md(data.get('decision') or 'Next question')}", "", md(question), ""]
+            lines += [f"###### {md(hint)}", ""] * bool(hint)
             rationale = data["rationale"]
             news = self.tree_news()
             if news:
@@ -1117,10 +1406,10 @@ class ReasonCommonsApp(ThemedApp):
         else:
             # A new goal: its name is in the header, so the first question builds on it.
             lines += [f"## {md(STEPS['goal'][0])}", "",
-                      "**What would count as better? Describe it in your own words.**" if self.provider == "guided"
-                      else "**What is happening, and what would count as better?**", "",
-                      "Your words are kept as written. Unknowns can stay open. Nothing is sent until you press "
-                      "Send.", ""]
+                      "What would count as better? Describe it in your own words." if self.provider == "guided"
+                      else "What is happening, and what would count as better?", "",
+                      "###### Your words are kept as written. Unknowns can stay open. Nothing is sent until you "
+                      "press Send.", ""]
             rationale = (STEPS["goal"][2] if self.provider == "guided"
                          else "A clear picture of success comes before choosing what to change.")
         if self.explain:
@@ -1183,8 +1472,12 @@ class ReasonCommonsApp(ThemedApp):
             return "\n".join(lines)
         if view == "sources":
             sources = [s for s in w["sources"].values() if "request_id" in s]
+            # Who wrote matters with more than one voice, or when the one voice is not you (a goal someone shared).
+            names = {s["speaker"] for s in sources}
+            shared = len(names) > 1 or any(not same_person(name, self.speaker) for name in names)
             for source in sorted(sources, key=lambda s: s["request_id"], reverse=True):
-                lines += [f"**{md(source['speaker'])}** | {md(source['timestamp'])} | {source['request_id']}", "",
+                who = f"{md(source['speaker'])} · " if shared else ""
+                lines += [f"###### {who}{md(moment(source['timestamp']))}", "",
                           "> " + md(source["text"] or "(empty)").replace("\n", "  \n> "), ""]
             return "\n".join(lines) if sources else "\n".join(lines + ["Nothing written yet."])
         if view == "trees":
@@ -1409,7 +1702,7 @@ class ReasonCommonsApp(ThemedApp):
         question = (self.workspace_value["question"] or {}).get("data", {})
         lines = ["## The next action", ""]
         if question.get("primary_prompt"):
-            lines += [f"**{md(question['primary_prompt'])}**", ""]
+            lines += [md(question["primary_prompt"]), ""]
         return "\n".join(lines)
 
     def story_rows(self):
@@ -1517,9 +1810,11 @@ class ReasonCommonsApp(ThemedApp):
     def show_view(self, name):
         if name != self.view_name:
             self.begin_inspection()
-        self.view_name = name
+        previous, self.view_name = self.view_name, name
         self.answer_ready = self.answer_ready and name != "next"
         views = self.query_one("#views", OptionList)
+        for key in {previous, name}:
+            views.replace_option_prompt(key, self.view_prompt(key))
         views.highlighted = [key for key, _ in VIEW_LABELS].index(name)
         self.refresh_workspace()
         self.query_one("#main").scroll_home(animate=False)
@@ -1584,17 +1879,57 @@ class ReasonCommonsApp(ThemedApp):
     def views_pressed(self):
         self.open_menu("views")
 
-    @on(Button.Pressed, "#actions")
-    def actions_pressed(self):
-        self.open_menu("actions")
-
     def action_command_palette(self):
-        """Ctrl+P opens Actions: the same filtered, question-bound menu as the Actions control."""
+        """Ctrl+P, or Commands in the footer: every command, in a filtered menu bound to the question."""
         self.open_menu("actions")
 
-    @on(Button.Pressed, "#help")
-    def help_pressed(self):
-        self.action_help()
+    def tab_target(self):
+        """Where Tab goes from the views list: the open page's own list when it has one (the History
+        timeline, the Trees drawing), else back to the answer. None when it just goes on to the next control."""
+        for name in ("#timeline", "#canvas"):
+            widget = self.query_one(name)
+            if widget.display and widget.can_focus:
+                return widget
+        return None if self.query_one("#response").has_class("hidden") else self.query_one("#editor")
+
+    def action_answer(self):
+        """Tab in the views list."""
+        target = self.tab_target()
+        if target is None:
+            self.screen.focus_next()
+        else:
+            target.focus()
+
+    # ----- the footer ---------------------------------------------------
+    def refresh_hints(self):
+        if self.workspace_value is not None:
+            self.query_one(HintBar).update_hints(*self.footer_hints())
+
+    def footer_hints(self):
+        """What the footer says for the control that has the keyboard, as (before Commands, after Commands):
+        hints of (key as drawn, what it does, the key to press, or None when it is not one key), with a
+        shorter label for when the terminal is narrow."""
+        focus = getattr(self.focused, "id", None)
+        leave = ("^q", "Save & quit", "ctrl+q", "Quit")
+        trees = (("^t", "Back to question", "ctrl+t", "Back") if self.view_name == "trees"
+                 else ("^t", "Trees", "ctrl+t"))
+        tab = ("tab", "Next control", "tab", "Next")
+        back = ("tab", "Back to answer", "tab", "Answer") if self.tab_target() is self.query_one("#editor") else tab
+        choose = ("↑↓", "Choose statement", None, "Choose")
+        if focus == "views":
+            return [("↑↓", "Choose view", None, "Choose"), ("⏎", "Open", "enter"), back], []
+        if focus == "canvas":
+            return [choose, ("⏎", "Details", "enter"), ("^n", "Next tree", "ctrl+n"), trees], []
+        if focus == "timeline":
+            return [("↑↓", "Choose step", None, "Choose"), ("⏎", "Open that step", "enter", "Open")], [tab]
+        if focus in ("main", "inspector"):
+            return [("↑↓", "Scroll", None), trees], [back]
+        if focus in ("commands", "help"):
+            # The hints before Commands stay as they were, so it does not move when a click gives it focus.
+            return [leave, trees], [("⏎", "Open", "enter"), tab]
+        if focus in NAVIGATION_CONTROLS or focus in self.MOMENT_LABELS:
+            return [leave, trees], [("⏎", "Press", "enter"), tab]
+        return [leave, trees], [tab]  # the answer box
 
     @on(TextArea.Changed, "#editor")
     def draft_changed(self):
@@ -1676,7 +2011,7 @@ class ReasonCommonsApp(ThemedApp):
         if isinstance(self.screen, MenuScreen) or self.workspace_value is None:
             return
         question = (self.workspace_value["question"] or {}).get("data", {})
-        # Other moves are alternatives to answering, so they show the whole question; Actions name it.
+        # Other moves are alternatives to answering, so they show the whole question; Commands name it.
         decision = question.get("decision") or "the next question"
         context = (None if not question or name == "views" else
                    f"For “{decision}”: {question['primary_prompt']}" if name == "other_moves" else f"For “{decision}”")
@@ -1874,7 +2209,7 @@ class ReasonCommonsApp(ThemedApp):
             self.checkpoint()
         self.exit()
 
-    # ----- Actions palette (Ctrl+P) ---------------------------------------
+    # ----- Commands palette (Ctrl+P) ---------------------------------------
     def action_list(self):
         """Every action as (key, name, what it does and whether it stays local or asks the consultant, run)."""
         items = [("Send answer", "Asks the consultant with your answer (Ctrl+S)", self.action_send)]
@@ -1992,8 +2327,8 @@ class ReasonCommonsApp(ThemedApp):
             self.notify(f"Could not set up {PROVIDERS[provider]}: {exc}", severity="error", timeout=8)
             return
         if provider == "anthropic" and not os.environ.get("ANTHROPIC_API_KEY"):
-            self.notify("No Anthropic key yet, so requests will fail. Add one under Settings on the home "
-                        "screen, or set ANTHROPIC_API_KEY.",
+            self.notify("No Anthropic key yet, so requests will fail. Add one on the home screen (F2 Settings, "
+                        "then You), or set ANTHROPIC_API_KEY.",
                         severity="warning", timeout=10)
         self.checkpoint()
         self.case.close()
@@ -2059,7 +2394,9 @@ class GoalsApp(ThemedApp):
     """Home screen: how to begin on first start, then your goals. Returns what to open next.
 
     With ``settings`` that were never saved, it first offers the ways to start: set up and
-    start a goal, the guided tour, the real commons, or skipping setup.
+    start a goal, the guided tour, the real commons, or skipping setup. After that it has two
+    sections: ways to start, and your goals as a table of name, stage and day last changed.
+    Settings live behind F2 and the footer says what they are now.
     """
 
     TITLE = "Reason Commons"
@@ -2068,17 +2405,23 @@ class GoalsApp(ThemedApp):
     #home { padding: 1 2; }
     #home-title { text-style: bold; color: $accent; }
     #home-intro { margin: 1 0; }
-    #goals { height: auto; max-height: 1fr; border: $frame $accent; }
+    #goals { height: auto; max-height: 1fr; border: none; background: transparent; padding: 0; }
+    #goals > .option-list--option-highlighted { background: $hand-tint; color: $foreground; text-style: bold; }
+    #goals > .option-list--option-disabled { color: $text-muted; text-style: bold; }
     """
     BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help"),
                 Binding("f2", "settings", "Settings")]
+    # The ways to start: id, the mark before it, its name, and a quieter note after it.
+    START = [("new", "+", "New goal", ""),
+             ("sample", "", "Explore a real commons: the Second Renaissance", ""),
+             ("tour", "", "Guided tour", " · practice goal, about 5 minutes")]
 
     def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None, start_new=False):
         super().__init__(settings)
         self.root, self._list, self.start_new = Path(root), list_goals, start_new
         self._create = create or self._create_case
         self._checks = checks
-        self.goals = []
+        self.goals, self._marked, self._shown = [], None, False
 
     @property
     def first_run(self):
@@ -2089,8 +2432,7 @@ class GoalsApp(ThemedApp):
             yield Static("Reason Commons", id="home-title")
             yield Static(id="home-intro")
             yield OptionList(id="goals")
-            yield Label("Arrows choose, Enter opens. F1 explains the loop. Ctrl+Q quits.", classes="hint")
-        yield Footer()
+        yield HintBar()
 
     def on_mount(self):
         super().on_mount()
@@ -2099,7 +2441,51 @@ class GoalsApp(ThemedApp):
         if self.start_new:
             self.new_goal()
 
-    def show_options(self):
+    def on_resize(self, event=None):
+        if event is not None:
+            self._terminal = event.size
+        if self._shown:  # the columns are laid out for the width
+            self.show_options(keep=self._marked)
+
+    # ----- the list ---------------------------------------------------------
+    GAP = "   "
+
+    def columns(self):
+        """Widths of the name, stage and day columns, which hug their contents so a row can be read across.
+        A narrow screen gets no stage column."""
+        room = max(20, self.terminal.width - 4) - 2  # the page's padding, then the mark
+        gap = len(self.GAP)
+        date = max([len("UPDATED")] + [cell_len(short_day(goal["changed"])) for goal in self.goals])
+        stage = min(24, max([len("STAGE")] + [cell_len(goal["step"]) for goal in self.goals]))
+        name = min(48, max([len("YOUR GOALS")] + [cell_len(goal["name"]) for goal in self.goals]))
+        if name + stage + date + 2 * gap <= room:
+            return name, stage, date
+        name = room - stage - date - 2 * gap
+        return (name, stage, date) if name >= 14 else (min(name + stage + gap, room - date - gap), 0, date)
+
+    @staticmethod
+    def fit(text, width):
+        """The text on one line of exactly this many columns, a cut marked with an ellipsis."""
+        text = " ".join(str(text).split())
+        return set_cell_size(text, width - 1) + "…" if cell_len(text) > width else set_cell_size(text, width)
+
+    def row(self, key, marked):
+        """One selectable row. The marked row, which the highlight sits on, has no quiet colours.
+
+        Built from Content, not markup, so a goal's name is only ever text, whatever characters it has."""
+        pointer = "▸ " if marked else "  "
+        quiet = lambda text: text if marked else (text, "$text-muted")
+        if key.isdigit():
+            goal = self.goals[int(key)]
+            name, stage, date = self.columns()
+            # Each gap stays with the cell before it, so a run of spaces is never a segment of its own.
+            parts = [pointer + self.fit(goal["name"], name) + self.GAP]
+            parts += [quiet(self.fit(goal["step"], stage) + self.GAP)] * bool(stage)
+            return Content.assemble(*parts, quiet(short_day(goal["changed"])))
+        _, sign, name, note = next(item for item in self.START if item[0] == key)
+        return Content.assemble(pointer, (sign, "b $accent") if sign else " ", " ", name, quiet(note))
+
+    def show_options(self, keep=None):
         loop = "goal → test with a forecast → action → observation → review"
         goals = self.query_one("#goals", OptionList)
         goals.clear_options()
@@ -2108,7 +2494,7 @@ class GoalsApp(ThemedApp):
                      f"loop at a time: {loop}.\n\nHow would you like to start? Everything stays on this computer.")
             options = [Option(option_label("Start my first goal",
                                            f"The offline guide asks the questions; your answers are saved as "
-                                           f"{login_name() or 'Me'}. Change either later in Settings."), id="start"),
+                                           f"{login_name() or 'Me'}. Change either later with F2 Settings."), id="start"),
                        Option(option_label("Choose who asks the questions first",
                                            "Your name, and the offline guide, Claude or a local model. About a "
                                            "minute."), id="setup"),
@@ -2118,35 +2504,64 @@ class GoalsApp(ThemedApp):
                        Option(option_label("Explore a real commons",
                                            "How the Second Renaissance's shared reasoning grew, step by step, "
                                            "and the one action it says comes next."), id="sample")]
-            highlighted = 0
+            wanted, self._marked = "start", None
         else:
-            intro = f"Make progress on a goal that matters, one small loop at a time: {loop}."
+            intro = f"Make progress on a goal that matters, one small loop at a time.\n[$text-muted]{loop}[/]"
             if not self.goals:
                 intro += "\n\nYou have no goals yet. Start one below; it is saved as you go."
-            options = [Option("+ Start a new goal", id="new"),
-                       Option("  Explore a real commons: the Second Renaissance, step by step", id="sample"),
-                       Option("  Take the guided tour (practice goal, about 5 minutes)", id="tour")]
-            if self.settings is not None:
-                options.append(Option(f"  Settings: {escape(describe(self.settings))}", id="settings"))
-            options.append(Option(f"  Theme: {escape(themes.title(self.theme))}", id="theme"))
-            highlighted = len(options) if self.goals else 0
-            for index, goal in enumerate(self.goals):
-                label = f"{goal['name']}   ·   {goal['step']}   ·   {str(goal['changed'])[:10]}"
-                options.append(Option(escape(label), id=str(index)))
+            wanted = keep or ("0" if self.goals else "new")
+            row = lambda key: Option(self.row(key, key == wanted), id=key)
+            options = [Option(Content.assemble(("START", "b $text-muted")), disabled=True)]
+            options += [row(item[0]) for item in self.START]
+            if self.goals:
+                name, stage, date = self.columns()
+                head = self.GAP.join([self.fit("YOUR GOALS", name)] + [self.fit("STAGE", stage)] * bool(stage)
+                                     + ["UPDATED"])
+                options += [Option("", disabled=True), Option(Content.assemble(("  " + head, "b $text-muted")),
+                                                              disabled=True), None]
+                options += [row(str(index)) for index in range(len(self.goals))]
+            self._marked = wanted
         self.query_one("#home-intro", Static).update(intro)
         goals.add_options(options)
-        goals.highlighted = highlighted
+        goals.highlighted = goals.get_option_index(wanted)
         goals.focus()
+        self._shown = True
+        self.refresh_hints()
 
+    @on(OptionList.OptionHighlighted, "#goals")
+    def highlight_moved(self, event):
+        """Draw ▸ beside the highlighted row, and only there."""
+        key = event.option.id
+        if self.first_run or key == self._marked:
+            return
+        goals = self.query_one("#goals", OptionList)
+        for old, marked in ((self._marked, False), (key, True)):
+            if old is not None:
+                goals.replace_option_prompt(old, self.row(old, marked))
+        self._marked = key
+        self.refresh_hints()
+
+    # ----- the footer -------------------------------------------------------
+    def refresh_hints(self):
+        """Keys for the list, and on the right what the settings are now: 'David · offline guide · Optics'."""
+        current = self.query_one("#goals", OptionList).highlighted_option
+        opens = "Open" if current is not None and str(current.id).isdigit() else "Choose"
+        about = [summary(self.settings)] if self.settings is not None else []
+        title = themes.short_title(self.theme)
+        voice = title.split(",")[0]  # without ", dark", when there is no room for it
+        self.query_one(HintBar).update_hints(
+            [("⏎", opens, "enter"), ("f1", "Help", "f1"), ("f2", "Settings", "f2"), ("^q", "Quit", "ctrl+q")],
+            summary=[" · ".join(about + [title]), " · ".join(about + [voice]), " · ".join(about), title, voice],
+            controls=False)
+
+    # ----- choosing -----------------------------------------------------------
     @on(OptionList.OptionSelected, "#goals")
     def chosen(self, event):
         choice = event.option.id
         if choice in (SAMPLE, TOUR):
             self.exit(choice)
-        elif choice in ("setup", "settings"):
-            self.setup(first_run=choice == "setup")
-        elif choice == "theme":
-            self.action_change_theme()
+        elif choice == "setup":
+            self.setup(first_run=True)
         elif choice == "start":
             # The defaults setup would offer; the next screen names the goal.
             self.settings.set(self.settings.get("name") or login_name() or "Me", "name")
@@ -2193,12 +2608,17 @@ class GoalsApp(ThemedApp):
     def action_help(self):
         self.push_screen(HelpScreen())
 
+    def can_set_up(self):
+        return self.settings is not None
+
+    def settings_closed(self, result):
+        if result == "setup":  # "You" in Settings: your name and consultant, the way first start asks
+            self.setup(first_run=False)
+
     def keep_theme(self, name):
         super().keep_theme(name)
-        if name and not self.first_run:  # the first-start menu has no Theme row
-            self.show_options()
-            goals = self.query_one("#goals", OptionList)
-            goals.highlighted = goals.get_option_index("theme")
+        if name:  # the list's colours and the footer follow the theme
+            self.show_options(keep=self._marked)
 
 
 def themed(style, variables):

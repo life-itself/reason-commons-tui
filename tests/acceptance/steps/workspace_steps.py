@@ -124,7 +124,9 @@ def activate(context, control):
     """Reach a visible control with Tab and activate it with Enter; 'A > B' then chooses B inside A."""
     w = context.workspace
     first, _, second = (part.strip() for part in control.partition(">"))
-    buttons = {"Other moves": "moves", "Explain this": "explain", "Help": "help", "Actions": "actions",
+    # The specification calls the list of every action "Actions"; on screen it is Commands, in the footer,
+    # and Help is in the footer too. Both are reached with Tab and Enter like the buttons.
+    buttons = {"Other moves": "moves", "Explain this": "explain", "Help": "help", "Actions": "commands",
                "Send": "send", "Retry": "retry"}
     if first in buttons:
         w.tab_to(buttons[first])
@@ -357,7 +359,10 @@ def full_screen(context):
 @then("save status, declared operator and focused control remain visible")
 def status_visible(context):
     text = context.workspace.screen_text()
-    assert "Saved" in text and "Sam" in text and "Focus: Answer" in text
+    assert "Saved" in text and "Sam" in text
+    # The focused control is the answer box, and it is visible as a heavy frame rather than named in a label.
+    focus = context.workspace.read(lambda app: (app.focused.id, app.query_one("#response").styles.border_top[0]))
+    assert focus == ("editor", "heavy"), focus
 
 
 @then("no tour or command syntax is required to answer or leave")

@@ -7,12 +7,18 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 
 | Part | What it shows |
 | --- | --- |
-| Top line | The goal's name, your name, whether everything is saved (or *Asking …* while the consultant works, *Answer ready* when its reply waits on **Next step**), the view, and on the right which control has the keyboard |
-| Pinned lines | Your goal and safeguards, and the open **Action**; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
-| Loop line | Goal, Test + forecast, Action, Observe, Review: ✓ finished, ● current, ○ still to come |
-| Middle | The current question and what it builds on (at review: the original forecast beside the result), or the view you chose |
-| Views list | On terminals 100 columns or wider; narrower, the **Views** button takes its place |
-| Answer box | Your answer; all typing is literal, including `?`, `q` and numbers. Its frame says who you answer as and who **Send** asks, and turns bright while you type. It grows as you write |
+| Top line | The goal's name on the left; on the right, your name and whether everything is saved (or *Asking …* while the consultant works, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
+| Pinned lines | Your goal and safeguards, and the open **Action**, once a goal has been recorded; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
+| Loop line | The spine of the screen: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
+| Views list | **VIEWS**, with ▸ beside the open one. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
+| The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what the question builds on (at review: the original forecast beside the result) |
+| Answer box | Right under the page, so you answer next to the question. All typing is literal, including `?`, `q` and numbers. Its tag says who you answer as, with the built-in guide an example of the answer shows faintly while it is empty, and the line beside the buttons says what **Send** will bring back. It grows as you write, and when the page is long the page scrolls above it, so the box never leaves the screen |
+| Footer | The keys that work where the keyboard is, then **Commands**, then **Help** on the right. On a narrow terminal the hints say less, then the last ones go; **Commands** and **Help** always stay |
+
+You can always see where the keyboard is: a heavy frame in the accent colour round the answer
+box or the Views list, a bar down the left edge of the page or the trees, or a highlighted
+button or footer control. There is no label for it; the footer says what the keys do there. Tab goes from the Views list to the open
+page's own list (History or Trees) if it has one, and back to the answer otherwise.
 
 On a small terminal (80×24) the views list gives way to the **Views** button, and
 the forecast and the result stack one above the other:
@@ -25,7 +31,7 @@ the forecast and the result stack one above the other:
 | --- | --- |
 | Enter | New line in your answer |
 | Ctrl+S, or Tab to **Send** then Enter | Send your answer |
-| Tab / Shift+Tab | Move between controls |
+| Tab / Shift+Tab | Move between controls: the answer box and its buttons, then **Commands**, **Help** and the Views list |
 | Esc | Leave the answer box to browse, your text kept; anywhere else, go back to where you were before you started looking around (view, scroll, draft and caret) |
 | Ctrl+T | Open the trees, with the keys on the drawing; press again to go back to the question and your draft |
 | ← / → | Step back or forward through saved steps, when the answer box is not in use |
@@ -35,11 +41,11 @@ the forecast and the result stack one above the other:
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations and evidence, or ask the consultant for advice or a different question; each item says which. Type to filter; **Back** or Esc leaves without choosing |
 | **Views** | Switch view, when the list on the left does not fit |
-| Ctrl+P (**Actions**) | Every action: export, import or export trees, retry, consultant calls, change consultant, views, help, quit; each says whether it is local or asks the consultant |
-| F1, or **Help** | Keys and controls |
+| Ctrl+P, or **Commands** in the footer | Every command: export, import or export trees, retry, consultant calls, change consultant, views, help, quit; each says whether it is local or asks the consultant |
+| F1, or **Help** in the footer | Keys and controls |
 | Ctrl+Q | Save your draft and quit |
 
-On the goals list: arrows choose, Enter opens, F1 shows help, Ctrl+Q quits.
+On the goals list: arrows choose, Enter opens, F1 shows help, F2 opens Settings, Ctrl+Q quits.
 
 ## First start, settings and the tour
 
@@ -48,8 +54,8 @@ straight away (the offline guide, with your login name), choose who asks the
 questions first, take the guided tour, or explore a real commons. Choosing
 first asks for your name (recorded with your answers), the consultant and, for
 Claude or LM Studio, checks the connection and lets you choose a model. Esc goes
-back a step; leaving setup changes nothing. **Settings** on the home screen runs
-it again.
+back a step; leaving setup changes nothing. F2 **Settings** on the home screen, then
+**You**, runs it again.
 
 The guided tour opens a practice goal with the built-in guide. A coaching strip
 explains each of the six steps; **Example answer** puts the tutorial's answer in
@@ -72,9 +78,16 @@ progress or the real commons. `scripts/render_screenshots.py` regenerates them.
 
 ### The goals list
 
+The list has two sections: **Start** (**New goal**, the real commons, the guided tour) and
+**Your goals**, a table of each goal's name, the stage it has reached and the day it last
+changed, with ▸ beside the highlighted row. The footer lists the keys and, on the right,
+what is set now: your name, who asks the questions and the theme. Settings are behind F2.
+
+![The goals list](images/home.png)
+
 | | |
 | --- | --- |
-| ![The goals list with Settings highlighted](images/home-settings.png) | Goals, **Start a new goal**, the real commons, the tour and **Settings** |
+| ![The Settings dialog: theme, light or dark, and You](images/home-settings.png) | F2 Settings: the voice and light or dark change as you press ← and →; **You** asks your name and consultant again |
 | ![Naming a new goal](images/new-goal.png) | Naming a new goal |
 | ![Help on the goals list](images/home-help.png) | F1: how the loop works |
 
@@ -102,7 +115,7 @@ If the consultant cannot be reached, your words are kept and **Retry** appears.
 
 ![The consultant could not be reached; Retry is offered](images/consultant-unavailable.png)
 
-**Help** (or F1) shows the keys and controls; **Explain this** is for the reasoning.
+**Help** (in the footer, or F1) shows the keys and controls; **Explain this** is for the reasoning.
 
 ![Help](images/help.png)
 
@@ -112,7 +125,7 @@ If the consultant cannot be reached, your words are kept and **Retry** appears.
 | --- | --- |
 | Goal | ![Goal view](images/view-goal.png) |
 | Tests | ![Tests view](images/forecast-vs-result.png) |
-| Actions | ![Actions view](images/view-actions.png) |
+| Loop actions | ![Loop actions view](images/view-actions.png) |
 | Reasoning | ![Reasoning view](images/view-reasoning.png) |
 | Your words | ![Your words view](images/view-sources.png) |
 | History | ![History view: every saved step with who, when and what changed](images/view-history.png) |
@@ -159,19 +172,19 @@ and Enter shows them full screen at any size.
 | 120 by 40 | ![A chosen cause in the Current Reality Tree, with its links, the assumption behind them and the words it came from in a panel beside the tree](images/trees-statement.png) |
 | 80 by 24, after Enter | ![The same statement's details full screen at 80 by 24](images/trees-statement-80x24.png) |
 
-### Actions (Ctrl+P)
+### Commands (Ctrl+P)
 
-![The Actions palette](images/actions-palette.png)
+![The Commands palette](images/actions-palette.png)
 
-Each action says whether it stays local or asks the consultant. Ctrl+P and the **Actions** control
+Each command says whether it stays local or asks the consultant. Ctrl+P and **Commands** in the footer
 open the same menu as Other moves, with the same filter, **Clear filter** and **Back**.
 **Consultant calls** shows how often
 the consultant has been asked in this goal, counted from the saved attempt receipts (imports, which
 ask no consultant, are counted apart). Type to filter the list.
 
-![Filtering the Actions palette](images/actions-palette-search.png)
+![Filtering the Commands palette](images/actions-palette-search.png)
 
-| Action | Screenshot |
+| Command | Screenshot |
 | --- | --- |
 | Export case | ![Export case](images/export-case.png) |
 | Export trees | ![Export trees](images/export-trees.png) |
@@ -187,9 +200,9 @@ Browsing views never calls the consultant.
 | Goal | Goal, measure and safeguards |
 | Trees | The six thinking-process trees, drawn from what was recorded; each branch says how a statement relates to the one above it. Choose a statement for its links, wording and origin |
 | Tests | Each test with its original forecast next to the reported result, and reviews |
-| Actions | Planned actions |
+| Loop actions | Planned actions |
 | Reasoning | All saved records, and what is still open |
-| Your words | Your answers, exactly as written |
+| Your words | Your answers, exactly as written, each with when you wrote it on your own clock (and who, when more than one person has written) |
 | History | Every saved step, oldest first: when, who, and what changed; Enter opens that moment |
 
 With the built-in guide, an empty answer skips an optional question (measure,
@@ -247,7 +260,7 @@ REWORDED.
 
 Claude and LM Studio add to the trees when you tell them about causes, conflicts,
 obstacles or plans, and reword or drop a statement when you ask. The built-in
-guide does not add to them. Under Actions (Ctrl+P), **Import trees** brings in an
+guide does not add to them. Under Commands (Ctrl+P), **Import trees** brings in an
 `.ltp.yaml` file and **Export trees** writes one; imported trees join the ones
 already there, and anything the trees cannot draw (a joint cause, an assessment)
 is kept as a note.
@@ -256,7 +269,7 @@ is kept as a note.
 
 | Command | What it does |
 | --- | --- |
-| `reason-commons` | The first time, the ways to start; then your goals: open one, start one, the tour, the real commons or Settings |
+| `reason-commons` | The first time, the ways to start; then your goals: open one, start one, the tour or the real commons; F2 opens Settings |
 | `reason-commons tui FOLDER` | Open a goal in that folder, creating it if needed |
 | `reason-commons resume FOLDER` | Open an existing goal; never creates one |
 | `reason-commons export FOLDER FILE` | Write a portable `.reasoncase` copy |
@@ -300,10 +313,10 @@ The workspace speaks in the same twelve voices as the Reason Commons web app, ea
 in a light form (the web palette) and a dark form (the same hues for a dark
 terminal). Choose one in the app, and it is kept:
 
-- **In the app:** **Settings** (Ctrl+P, **Settings**, or F2): Left and Right change the
-  voice or light/dark on the highlighted row and apply at once. Or Ctrl+P, **Theme**, or **Theme** on the goals list. Moving through
-  the list previews each voice; Left and Right switch between light and dark; Enter
-  keeps it and Esc puts back the one you had.
+- **In the app:** **Settings** (F2, or Ctrl+P, **Settings**): Left and Right change the
+  voice or light/dark on the highlighted row and apply at once. Or Ctrl+P, **Theme**, in a goal:
+  moving through the list previews each voice with its description; Left and Right switch
+  between light and dark; Enter keeps it and Esc puts back the one you had.
 - **In your settings file:** `theme: tanizaki-dark`. The app writes this line when
   you choose in the app.
 - **For one run:** `reason-commons --theme "Shadows dark"`, or

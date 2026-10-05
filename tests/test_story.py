@@ -97,7 +97,8 @@ def test_story_opens_read_only_on_the_next_action_and_steps_through_history(stor
             assert "stewarded review" not in band.export_text()
             screen = screen_text(app)
             assert "Hold the stewarded review" in screen and "Read-only" in screen
-            assert "Focus: Earlier" in screen
+            # The keyboard starts on the visible Earlier button, and the footer says what Enter does there.
+            assert app.focused.id == "earlier" and "◀ Earlier" in screen and "Press" in screen
             await pilot.press("ctrl+s")  # nothing to send in a story
             await pilot.pause()
             await pilot.press("left")

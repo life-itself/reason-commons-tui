@@ -13,7 +13,7 @@ from reason_commons.adapters.guided import GuidedConsultant  # noqa: E402
 from reason_commons.adapters.settings import Settings  # noqa: E402
 from reason_commons.adapters.tui import GoalsApp, SettingsScreen, ThemeScreen, themed  # noqa: E402
 from reason_commons.bootstrap import create_case  # noqa: E402
-from tests.test_tui import launch  # noqa: E402
+from tests.test_tui import launch, screen_text  # noqa: E402
 
 
 def contrast(one, other):
@@ -55,6 +55,7 @@ def test_a_theme_can_be_named_the_way_a_person_would_type_it():
     with pytest.raises(argparse.ArgumentTypeError):
         theme_choice("solarized")
     assert themes.title("tanizaki-dark") == "Shadows · Jun'ichirō Tanizaki, dark"
+    assert themes.short_title("tanizaki-dark") == "Shadows, dark" and themes.short_title("al-haytham") == "Optics"
 
 
 def test_settings_fill_in_the_theme_unless_the_environment_already_chose(tmp_path, monkeypatch):
@@ -117,25 +118,29 @@ def test_picker_previews_as_you_move_and_escape_puts_the_old_theme_back(tmp_path
     asyncio.run(run())
 
 
-def test_choosing_a_theme_on_the_home_screen_saves_it(tmp_path, monkeypatch):
-    monkeypatch.delenv(themes.ENVIRONMENT, raising=False)
+def test_choosing_a_theme_in_the_picker_saves_it(tmp_path, monkeypatch):
+    """The picker (Ctrl+P, Theme) previews as you move; Enter keeps the voice and saves it with the settings."""
+    from reason_commons.bootstrap import open_case
+    monkeypatch.setenv(themes.ENVIRONMENT, "")  # set first, so teardown puts back what a theme change wrote
+    monkeypatch.delenv(themes.ENVIRONMENT)
     settings = Settings(tmp_path / "settings.yaml", {"name": "Dana", "consultant": "guided"})
     settings.save()
+    path = tmp_path / "case"
+    create_case(path, "Colours").close()
 
     async def run():
-        app = GoalsApp(tmp_path / "goals", list_goals=lambda root: [], settings=settings)
+        from reason_commons.adapters.tui import ReasonCommonsApp
+        app = ReasonCommonsApp(path, "Dana", "guided", lambda c: open_case(path, consultant=c),
+                               lambda provider: GuidedConsultant(), settings=settings)
         async with app.run_test(size=(100, 30)) as pilot:
             await pilot.pause()
-            options = app.query_one("#goals")
-            options.highlighted = options.get_option_index("theme")
-            await pilot.press("enter")
+            app.action_change_theme()
             await pilot.pause()
             assert isinstance(app.screen, ThemeScreen)
             for key in ("end", "right", "enter"):
                 await pilot.press(key)
             await pilot.pause()
             assert app.theme == "khipu-dark"
-            assert "Channels" in str(options.get_option("theme").prompt)
     asyncio.run(run())
     saved = Settings.load(tmp_path / "settings.yaml")
     assert saved.get("theme") == "khipu-dark" and saved.get("name") == "Dana"
@@ -184,6 +189,9 @@ def test_opens_in_chromatics_and_settings_adjusts_and_saves_the_theme(tmp_path, 
         async with app.run_test(size=(100, 30)) as pilot:
             await pilot.pause()
             assert app.theme == "yoruba-dark"
+            # The footer says what is set now, so the home screen has no Settings or Theme rows.
+            assert "Dana · offline guide · Chromatics, dark" in screen_text(app) and "f2 Settings" in screen_text(app)
+            assert not any(option.id in ("settings", "theme") for option in app.query_one("#goals").options)
             await pilot.press("f2")
             await pilot.pause()
             assert isinstance(app.screen, SettingsScreen)
@@ -194,5 +202,6 @@ def test_opens_in_chromatics_and_settings_adjusts_and_saves_the_theme(tmp_path, 
             await pilot.press("escape")
             await pilot.pause()
             assert not isinstance(app.screen, SettingsScreen)
+            assert "Dana · offline guide · Five Phases" in screen_text(app)
     asyncio.run(run())
     assert Settings.load(tmp_path / "settings.yaml").get("theme") == "wuxing"

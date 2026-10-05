@@ -197,6 +197,12 @@ def title(name):
     return (f"{label} · {attribution}" if attribution else label) + (", dark" if mode == "dark" else "")
 
 
+def short_title(name):
+    """``"Shadows, dark"``: the label and the mode, for a status line."""
+    voice, mode = split_name(name)
+    return VOICES[voice].label + (", dark" if mode == "dark" else "")
+
+
 def textual_theme(name):
     voice, mode = split_name(name)
     frame, *palettes = PALETTES[voice]

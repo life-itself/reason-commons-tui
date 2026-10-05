@@ -1,11 +1,13 @@
 """Fixture adapters. Acceptance steps use application use cases for setup too."""
 
+from contextlib import contextmanager
 from copy import deepcopy
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
+import time
 
 from reason_commons.application.ports import StoreError
 from reason_commons.application.service import CaseApplication
@@ -13,6 +15,22 @@ from reason_commons.bootstrap import create_case
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@contextmanager
+def timezone(name):
+    """Run with this time zone as the computer's own, and put the real one back (``TZ`` and the C library's)."""
+    original = os.environ.get("TZ")
+    os.environ["TZ"] = name
+    time.tzset()
+    try:
+        yield
+    finally:
+        if original is None:
+            os.environ.pop("TZ", None)
+        else:
+            os.environ["TZ"] = original
+        time.tzset()
 
 
 def proposal(request):
