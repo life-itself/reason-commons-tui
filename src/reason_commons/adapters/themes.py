@@ -37,7 +37,7 @@ from typing import NamedTuple
 from textual.theme import Theme
 
 ENVIRONMENT = "REASON_COMMONS_THEME"
-DEFAULT_THEME = "commons-dark"
+DEFAULT_THEME = "yoruba-dark"  # Chromatics
 MODES = ("light", "dark")
 
 

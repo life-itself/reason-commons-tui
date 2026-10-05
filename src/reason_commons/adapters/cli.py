@@ -45,7 +45,7 @@ def theme_choice(value):
 
 
 THEME_HELP = ("Colour theme for this run: one of the twelve voices of the web app, light or dark, for example "
-              "commons-dark or tanizaki; otherwise REASON_COMMONS_THEME, your settings, then commons-dark")
+              "commons-dark or tanizaki; otherwise REASON_COMMONS_THEME, your settings, then yoruba-dark (Chromatics)")
 
 
 def main(argv=None):
