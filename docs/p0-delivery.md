@@ -220,3 +220,41 @@ conversation, `back-up-and-share.md` covers `.ltp.yaml` import/export and the
 The README and `the-trees.md` also explain why to open the Trees view and how
 (Ctrl+T, Ctrl+N, import/export), with a Current Reality Tree screenshot
 (`trees-current-reality.png`).
+
+## Trees you can read (5 October 2026)
+
+The Trees view became something to work with rather than only look at. All of it
+is in the adapters (`trees.py`, `timeline.py`, `tui.py`), over the existing
+`workspace`, `history` and `sources` reads; no specification, domain or application
+change was needed and no new scenario is claimed.
+
+- **Nothing recorded is hidden.** The outline dropped the assumption behind aside
+  links (the Evaporating Cloud's conflict, "comes before", "refines") and behind a
+  second link into a statement already drawn. In the shipped sample 4 of 22
+  assumptions never reached the screen, among them the one the Cloud exists to
+  question. Every assumption is now drawn under its link.
+- **The empty view tells the truth.** With the built-in guide it says the guide does
+  not add to the trees and points to Claude or a local model, or to importing.
+- **A reply's tree changes are named.** After a reply or import saved in the open
+  workspace, the question says what it changed, tree by tree; the tree names mark
+  which trees changed; and the drawing marks those statements NEW or REWORDED. A
+  reply that arrives while the trees are open leaves them open (S118's rule).
+  Opening the goal later starts unmarked; History still shows each step's changes.
+- **Choose a statement and inspect it.** Ctrl+T puts the keys on the drawing with
+  a statement chosen; ↑↓ choose another, marked by a bar separate from focus. Its
+  details read every link from its side with the assumption behind it, the tests
+  that carry it out, earlier wordings, and where it came from (who wrote the words
+  it cites, when, and the words, or the imported file). They sit beside the trees
+  from 120 columns (Master-Detail) and open full screen with Enter at any size
+  (Expand-to-Focus); Esc returns to the same statement. Ctrl+T goes back to the
+  question with the draft and caret as they were. The choice is kept in the
+  cursor's `selection`. Choosing and reading make no consultant call and no
+  revision.
+
+Adapter tests in `tests/test_trees.py`, `tests/test_tui.py` and
+`tests/test_story.py` cover each of these, including a reply that grows and
+rewords a tree through the TUI with a scripted consultant, 80×24, and restart;
+each new test was shown to fail first and to catch a deliberate break. The
+screenshots were regenerated; they had predated the theme change. Still
+outstanding: the p1 scenarios' steps through the TUI, a live-model check that a
+real consultant records tree statements well, and the p3–p5 tree structures.
