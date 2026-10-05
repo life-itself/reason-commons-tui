@@ -545,3 +545,21 @@ def test_statement_details_open_full_screen_at_80_columns_and_the_choice_survive
             assert app.view_name == "trees" and app.selected_claim == chosen["ref"]
     asyncio.run(first())
     asyncio.run(second())
+
+
+def test_a_live_resize_lays_the_workspace_out_for_the_new_size(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Resize").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            assert not app.query_one("#views").has_class("hidden")
+            await pilot.resize_terminal(80, 24)
+            await pilot.pause()
+            assert app.query_one("#views").has_class("hidden") and not app.query_one("#views-button").has_class("hidden")
+            assert app.query_one("#editor").styles.max_height.value == 5
+            await pilot.resize_terminal(120, 40)
+            await pilot.pause()
+            assert not app.query_one("#views").has_class("hidden") and app.query_one("#views-button").has_class("hidden")
+    asyncio.run(run())
