@@ -27,9 +27,11 @@ the forecast and the result stack one above the other:
 | Ctrl+S, or Tab to **Send** then Enter | Send your answer |
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the answer box to browse; your text stays |
-| Ctrl+T | Open the trees; press again to go back to the current question |
+| Ctrl+T | Open the trees, with the keys on the drawing; press again to go back to the question and your draft |
 | ← / → | Step back or forward through saved steps, when the answer box is not in use |
 | Ctrl+N | In the Trees view: the next tree, one at a time, then all six together |
+| ↑ / ↓ | In the Trees view: choose a statement |
+| Enter | In the Trees view: the chosen statement's details in full; Esc returns |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations, or ask the consultant for advice or a different question |
 | **Views** | Switch view, when the list on the left does not fit |
@@ -147,6 +149,14 @@ Ctrl+N steps through the trees:
 | Transition | ![Transition Tree](images/tutorial-trees.png) |
 | All six | ![All six trees together](images/tree-all-six.png) |
 
+↑ and ↓ choose a statement; on a wide terminal its details sit beside the trees,
+and Enter shows them full screen at any size.
+
+| Size | Screenshot |
+| --- | --- |
+| 120 by 40 | ![A chosen cause in the Current Reality Tree, with its links, the assumption behind them and the words it came from in a panel beside the tree](images/trees-statement.png) |
+| 80 by 24, after Enter | ![The same statement's details full screen at 80 by 24](images/trees-statement-80x24.png) |
+
 ### Actions (Ctrl+P)
 
 ![The Actions palette](images/actions-palette.png)
@@ -169,7 +179,7 @@ Browsing views never calls the consultant.
 | --- | --- |
 | Next step | The current question and what it builds on |
 | Goal | Goal, measure and safeguards |
-| Trees | The six thinking-process trees, drawn from what was recorded; each branch says how a statement relates to the one above it |
+| Trees | The six thinking-process trees, drawn from what was recorded; each branch says how a statement relates to the one above it. Choose a statement for its links, wording and origin |
 | Tests | Each test with its original forecast next to the reported result, and reviews |
 | Actions | Planned actions |
 | Reasoning | All saved records, and what is still open |
@@ -185,7 +195,7 @@ Every goal keeps each saved step. **History** lists them oldest first, with the
 date, who answered, the question they answered and what changed (statements added,
 reworded or withdrawn, links, tests). Tab to the list; Enter opens that moment: the
 goal exactly as it was, the question, the words that answered it, what changed, and
-what was asked next. The Trees view then marks that step's new statements NEW.
+what was asked next. The Trees view then marks that step's statements NEW or REWORDED.
 **← / →** (or **◀ Earlier**, **Later ▶**, shown in the footer while you look back)
 step through; **Back to now** returns. The top line says *Read-only*; nothing can be
 changed while looking back, and your unsent draft waits.
@@ -207,10 +217,27 @@ Ctrl+T opens the Trees view and shows one tree at a time: Goal, Current Reality,
 Evaporating Cloud, Future Reality, Prerequisite or Transition. Ctrl+N moves to the
 next one, and after the Transition Tree shows all six together; the line at the top
 says which tree is on screen and how many statements each holds. The app remembers
-the tree you last looked at. Ctrl+T again takes you back to the current question. Each statement shows its
+the tree you last looked at; the tree names are also links you can click. Each statement shows its
 role (for example ROOT CAUSE or OBSTACLE) and, where recorded, whether it is a
 hypothesis or a report. Branches read top down: "needs", "because", "overcomes",
-"produced by". A statement reached twice is drawn once and then referred to.
+"produced by", each with the assumption behind it. A statement reached twice is
+drawn once and then referred to.
+
+Ctrl+T puts the keys on the drawing, with a statement chosen; a bar in the margin
+marks it. ↑ and ↓ choose another. Its details read every link from its side
+("causes", "because", "required by"), with the assumption behind each, then the
+tests that carry it out, its earlier wordings, and where it came from: who wrote
+the words it cites, when, and the words themselves, or the file it was imported
+from. At 120 columns or wider they sit beside the trees and follow your choice;
+Enter shows them full screen at any size, and Esc returns to the same statement.
+Ctrl+T again takes you back to the question, with your draft as you left it. The
+app remembers the statement you chose. Choosing and reading never call the
+consultant.
+
+After a reply that changed the trees, the question says so ("In the trees, the
+last step: Current Reality Tree: 2 statements added · 1 link"), the tree names
+mark which trees changed, and the drawing marks those statements NEW or
+REWORDED.
 
 Claude and LM Studio add to the trees when you tell them about causes, conflicts,
 obstacles or plans, and reword or drop a statement when you ask. The built-in

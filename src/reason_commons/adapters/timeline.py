@@ -6,6 +6,8 @@ words and speaker come from the retained input that produced the revision.
 
 from datetime import datetime
 
+from reason_commons.adapters.trees import TREE_TITLES
+
 KIND_WORDS = {"goal": ("goal set", "goal set"), "test": ("test with a forecast", "tests with forecasts"),
               "action": ("action planned", "actions planned"), "observation": ("result reported", "results reported"),
               "review": ("review", "reviews"), "note": ("note", "notes"), "link": ("link", "links")}
@@ -21,7 +23,8 @@ def revision_changes(snapshots, sources):
         request = snapshot["applied_requests"][-1] if snapshot["applied_requests"] else None
         source = sources.get(request, {}) if request else {}
         question = next((r for r in records if r["ref"] == snapshot["current_intervention"]), None)
-        counts = {}
+        by_ref = {r["ref"]: r for r in records}
+        counts, trees = {}, {}
         for record in new:
             kind = record["kind"]
             if kind == "claim":
@@ -31,6 +34,12 @@ def revision_changes(snapshots, sources):
             elif kind == "intervention":
                 continue
             counts[kind] = counts.get(kind, 0) + 1
+            # The tree a change belongs to: its own, or for a withdrawal, the withdrawn record's.
+            target = by_ref.get(record["data"].get("target_ref")) if kind == "withdrawn" else record
+            tree = target["data"].get("tree") if target and target["kind"] in ("claim", "link") else None
+            if tree:
+                trees.setdefault(tree, {})
+                trees[tree][kind] = trees[tree].get(kind, 0) + 1
         asked = next((r for r in (previous or {}).get("records", [])
                       if r["ref"] == (previous or {}).get("current_intervention")), None)
         previous = snapshot
@@ -41,7 +50,7 @@ def revision_changes(snapshots, sources):
             "speaker": source.get("speaker"), "text": source.get("text"),
             "decision": (question or {}).get("data", {}).get("decision"),
             "fresh": {r["ref"] for r in new if r["kind"] == "claim"},
-            "counts": counts})
+            "counts": counts, "trees": trees})
     return entries
 
 
@@ -55,6 +64,19 @@ def change_summary(counts):
         if number:
             parts.append(f"{number} {one if number == 1 else many}" if kind != "goal" else one)
     return " · ".join(parts) or "no recorded change"
+
+
+def tree_summary(trees):
+    """What one revision changed in the trees, tree by tree in their usual order:
+    'Current Reality Tree: 2 statements added · 1 link'. A change to more than two
+    trees (an import, say) is summed: '69 statements added · 61 links, in 6 trees'."""
+    if len(trees) > 2:
+        total = {}
+        for counts in trees.values():
+            for kind, number in counts.items():
+                total[kind] = total.get(kind, 0) + number
+        return f"{change_summary(total)}, in {len(trees)} trees"
+    return "; ".join(f"{TREE_TITLES[tree][0]}: {change_summary(trees[tree])}" for tree in TREE_TITLES if tree in trees)
 
 
 def day(timestamp):

@@ -76,7 +76,9 @@ while the earlier wording stays in the history. Every arrow shows the assumption
 it rests on, so you can see where to push back.
 
 Press **Ctrl+T** to open the Trees view and **Ctrl+N** to step from one tree to
-the next; after the sixth it shows all six together. Trees you already have come
+the next; after the sixth it shows all six together. **↑** and **↓** choose a
+statement and show where it came from, what it links to and the assumption behind
+each link. After each reply, the question says what changed in the trees. Trees you already have come
 in from an `.ltp.yaml` file and go out the same way (**Ctrl+P**, then **Import
 trees** or **Export trees**).
 

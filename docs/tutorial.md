@@ -131,7 +131,8 @@ shows who said it, when, their exact words and what changed in the trees.
 
 Press **Ctrl+T**: the Trees view opens, and the line at the top lists all six trees
 and how many statements each holds. Press **Ctrl+N** until the Transition Tree is on
-screen. Its third action, a next step from a public contact into a first practice,
+screen. **↓** chooses a statement and shows what it links to and whose words it
+came from. Its third action, a next step from a public contact into a first practice,
 is the kind of test Mira ran. This is the moment to look: the trees show which
 actions nobody has tested yet, and which cause or assumption a surprising result
 calls into question. That is where the next loop comes from.

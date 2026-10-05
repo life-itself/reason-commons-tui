@@ -82,6 +82,17 @@ async def render(folder):
     await real_commons(folder)
     await shoot(workspace(finished), "trees-current-reality", (120, 56),
                 before=lambda app: app.show_tree("current_reality"))
+
+    def reality(app):
+        app.tree_choice = "current_reality"
+
+    async def choose(app, pilot, *more):
+        for key in ("ctrl+t", "down", "down", *more):
+            await pilot.press(key)
+            await pilot.pause()
+    await shoot(workspace(finished), "trees-statement", (120, 40), before=reality, steps=choose)
+    await shoot(workspace(finished), "trees-statement-80x24", (80, 24), before=reality,
+                steps=lambda app, pilot: choose(app, pilot, "enter"))
     await more_workspace(folder, goals, finished)
     await more_home(folder, goals)
 

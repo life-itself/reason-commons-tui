@@ -152,8 +152,13 @@ being lost in the conversation.
 the next; after the sixth you see all six together. The line at the top says which
 tree is on screen and how many statements each holds. Read top down: the coloured
 label says what a statement is, and the branch word ("because", "needs",
-"overcomes", "produced by") says how it relates to the one above. **Ctrl+T** again
-returns to the question. **Ctrl+P**, then **Import trees** or **Export trees**,
+"overcomes", "produced by") says how it relates to the one above, with the
+assumption behind it underneath. **↑** and **↓** choose a statement; its details
+show every link read from its side, the tests that carry it out, its earlier
+wordings and who said it, in their own words. On a wide terminal they sit beside
+the tree; **Enter** shows them full screen. After a reply that changed the trees,
+the question says what changed, and the tree marks those statements NEW or
+REWORDED. **Ctrl+T** again returns to the question. **Ctrl+P**, then **Import trees** or **Export trees**,
 moves trees in or out as `.ltp.yaml`.
 
 ![The Trees view showing the example's Goal Tree as an outline: the goal at the top, each critical success factor and necessary condition below it, with "needs" on every branch](images/trees-view.png)

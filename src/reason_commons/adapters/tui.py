@@ -30,8 +30,8 @@ from reason_commons.adapters.guided import STEPS
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
 from reason_commons.adapters.settings import Settings, describe
 from reason_commons.adapters.rendering import _literal
-from reason_commons.adapters.timeline import change_summary, day, next_action, revision_changes
-from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, trees_lines
+from reason_commons.adapters.timeline import change_summary, day, next_action, revision_changes, tree_summary
+from reason_commons.adapters.trees import ROLE_LABELS, TREE_TITLES, statement_details, trees_lines
 
 
 TOUR_FINISHED = "tour-finished"
@@ -47,7 +47,7 @@ FOCUS_NAMES = {"editor": "Answer", "send": "Send", "fill": "Example answer", "re
                "explain": "Explain this", "moves": "Other moves", "views-button": "Views", "actions": "Actions",
                "finish": "Finish tour", "views": "Views list", "main": "Reading", "timeline": "History list",
                "earlier": "Earlier", "later": "Later", "now": "Back to now", "first": "From the beginning",
-               "own": "Start my own goal", "home": "Back to start"}
+               "own": "Start my own goal", "home": "Back to start", "canvas": "Trees", "inspector": "Details"}
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
         ("review", "Review")]
 GUIDED_STAGE = {"goal": "goal", "goal_measure": "goal", "goal_protect": "goal", "test_change": "test",
@@ -75,6 +75,8 @@ EXECUTION_WORDS = {"unknown": "not known yet", "planned": "planned", "completed"
 ATTAINMENT_WORDS = {"unknown": "not known yet", "pending": "pending", "met": "met", "not_met": "not met"}
 # Pane width from which a forecast and its results sit side by side rather than one after the other.
 WIDE = 90
+# Terminal width from which a chosen statement's details sit beside the trees; below it, Enter opens them.
+INSPECTOR_FROM, INSPECTOR_WIDTH = 120, 36
 
 HELP = """\
 ## How Reason Commons works
@@ -99,6 +101,13 @@ what stands in the way or what you plan to do, and it records each statement in
 its tree, linked to the others. Ask it to reword or drop something and the tree
 changes; earlier wording stays in History. A test can carry out an action from
 the Transition Tree, and its forecast and result then show under that action.
+After a reply that changed the trees, the question says what changed, and the
+Trees view marks those statements NEW or REWORDED.
+
+In the Trees view, ↑ and ↓ choose a statement. Its details (every link read from
+its side, with the assumption behind it; the tests that carry it out; earlier
+wordings; and who said it, when, in their own words) sit beside the trees on a
+wide terminal. Enter shows them full screen; Esc returns.
 
 The built-in guide does not add to the trees; Anthropic or LM Studio do. Any
 consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
@@ -112,7 +121,9 @@ consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
 | Ctrl+S, or Tab to **Send** then Enter | Send your answer |
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the editor to browse; your text stays |
-| Ctrl+T | Open the trees; press again to go back to the current question |
+| Ctrl+T | Open the trees; press again to go back to the question and your draft |
+| ↑ / ↓ | In the Trees view: choose a statement |
+| Enter | In the Trees view: the chosen statement's details in full |
 | Ctrl+N | In the Trees view: the next tree, then all six together |
 | Ctrl+P | Actions: export, retry, change consultant, theme, quit |
 | F1 | This help |
@@ -337,6 +348,69 @@ def context_rows(workspace, record, pinned_goal):
     return [("Note", d.get("text"))]
 
 
+def styled(lines, variables, marked=None):
+    """Drawing lines as one Text, in the theme's colours. Lines in ``marked`` (a range) carry the
+    selection bar; every other line gets a blank gutter so nothing shifts when the selection moves."""
+    text = Text()
+    for index, line in enumerate(lines):
+        if marked is not None:
+            chosen = index in marked
+            text.append("▌ " if chosen else "  ", style=themed("bold $hand", variables) if chosen else None)
+        for part, style in line:
+            text.append(part, style=themed(style, variables) or None)
+        text.append("\n")
+    return text
+
+
+class TreeCanvas(Static):
+    """The drawing area. In the Trees view it takes focus: ↑↓ choose a statement, Enter opens its details."""
+
+    BINDINGS = [Binding("down", "choose(1)", "Choose", key_display="↑↓"),
+                Binding("up", "choose(-1)", "Choose", show=False),
+                Binding("enter", "details", "Details")]
+
+    def on_mount(self):
+        self.can_focus = False
+
+    def on_focus(self):
+        self.app.statement_focused()
+
+    def action_choose(self, step):
+        self.app.choose_statement(step)
+
+    def action_details(self):
+        self.app.open_statement()
+
+
+class StatementScreen(ModalScreen):
+    """One statement in full; Esc returns to the trees with the same statement chosen.
+
+    ``build(width)`` draws the details; they are drawn for the room the dialog actually has."""
+
+    BINDINGS = [Binding("escape,enter", "dismiss", "Back to the trees")]
+
+    def __init__(self, build):
+        super().__init__()
+        self.build = build
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="dialog"):
+            with VerticalScroll():
+                yield Static("", id="statement-text")
+            yield Label("Esc returns to the trees; nothing is sent.", classes="hint")
+
+    def on_mount(self):
+        self.call_after_refresh(self.fill)
+
+    def on_resize(self, event):
+        self.call_after_refresh(self.fill)
+
+    def fill(self):
+        text = self.query_one("#statement-text", Static)
+        # Leave room for the scroll bar that long details bring with them.
+        text.update(self.build(max(30, text.content_size.width - 3)))
+
+
 class HelpScreen(ModalScreen):
     BINDINGS = [Binding("escape,f1", "dismiss", "Close")]
 
@@ -503,7 +577,11 @@ class ReasonCommonsApp(ThemedApp):
     #main { border: none; border-left: blank; padding: 0 1; }
     #main:focus { border-left: heavy $accent; }
     #content { margin: 0; }
-    #canvas { margin: 0 0 1 0; padding: 0 2; }
+    #canvas { margin: 0 0 1 0; padding: 0 2 0 1; border-left: blank; }
+    #canvas:focus { border-left: heavy $accent; }
+    #inspector { width: 36; border-left: solid $border-blurred; padding: 0 1; }
+    #inspector:focus { border-left: heavy $accent; }
+    #inspector.hidden { display: none; }
     #canvas.hidden { display: none; }
     #content MarkdownH2 { margin: 0; color: $text-muted; background: transparent; text-style: bold; }
     #content MarkdownH3 { margin: 1 0 0 0; color: $text-muted; background: transparent; text-style: bold; }
@@ -539,10 +617,11 @@ class ReasonCommonsApp(ThemedApp):
     Step #dialog, Checking #dialog { padding: 0 2; }
     .explanation { margin-bottom: 1; }
     #choices { height: auto; max-height: 16; }
-    ChoiceScreen, PathScreen, HelpScreen, ThemeScreen, Step, Checking { align: center middle; }
+    ChoiceScreen, PathScreen, HelpScreen, ThemeScreen, StatementScreen, Step, Checking { align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
     HelpScreen #dialog, ThemeScreen #dialog { height: 90%; }
+    StatementScreen #dialog { max-width: 100; }
     #themes { height: 1fr; margin-top: 1; }
     .dialog-title { text-style: bold; margin-bottom: 1; }
     .hint { color: $text-muted; margin-top: 1; }
@@ -573,6 +652,9 @@ class ReasonCommonsApp(ThemedApp):
         self.workspace_value, self._restoring, self._save_timer = None, False, None
         # Which tree the Trees view shows: one of TREE_ORDER, "all", or None until first chosen.
         self.tree_choice = None
+        # The statement chosen in the Trees view (a claim reference), where each drawn statement sits,
+        # and the control to give focus back to when Ctrl+T leaves the trees.
+        self.selected_claim, self._tree_spans, self._focus_before_trees = None, [], None
 
     # ----- layout -------------------------------------------------------
     def compose(self) -> ComposeResult:
@@ -582,9 +664,11 @@ class ReasonCommonsApp(ThemedApp):
         with Horizontal(id="body"):
             yield OptionList(*[Option(label, id=key) for key, label in VIEW_LABELS], id="views")
             with VerticalScroll(id="main"):
-                yield Markdown(id="content")
-                yield Static(id="canvas")
+                yield Markdown(id="content", open_links=False)
+                yield TreeCanvas(id="canvas")
                 yield OptionList(id="timeline", classes="hidden")
+            with VerticalScroll(id="inspector", classes="hidden"):
+                yield Static(id="inspector-text")
         yield Static(id="coach", classes="" if self.tour else "hidden")
         story_only = "story-only" + ("" if self.story else " hidden")
         with Vertical(id="moment", classes="" if self.story else "hidden"):
@@ -615,6 +699,8 @@ class ReasonCommonsApp(ThemedApp):
         # The trees are drawn in the theme's colours, so they are redrawn with it.
         self.theme_changed_signal.subscribe(self, lambda _: self.workspace_value and self.render_all())
         cursor = self.case.inspect()["cursor"] or {}
+        # Steps saved after this point are this session's; their tree changes are marked.
+        self._opened_revision = self.case.inspect()["case"]["revision"]
         self.refresh_workspace()
         if cursor.get("draft"):
             self._restoring = True
@@ -624,6 +710,8 @@ class ReasonCommonsApp(ThemedApp):
             self._restoring = False
         if (cursor.get("display") or {}).get("tree") in TREE_ORDER + ["all"]:
             self.tree_choice = cursor["display"]["tree"]
+        if any(c["ref"] == cursor.get("selection") for t in self.workspace_value["trees"] for c in t["claims"]):
+            self.selected_claim = cursor["selection"]
         if cursor.get("view") in dict(VIEW_LABELS) and cursor["view"] != "next":
             self.show_view(cursor["view"])
         self.query_one("#earlier" if self.story else "#editor").focus()
@@ -664,11 +752,12 @@ class ReasonCommonsApp(ThemedApp):
 
     # ----- history ------------------------------------------------------
     def history(self):
-        """Every saved revision with what it changed (cached until the next save)."""
+        """Every saved revision with what it changed, and every source (cached until the next save)."""
         if self._history is None:
             snapshots = self.case.history()["revisions"]
             sources = self.case.sources()["sources"]
-            self._history = {"snapshots": snapshots, "entries": revision_changes(snapshots, sources)}
+            self._history = {"snapshots": snapshots, "entries": revision_changes(snapshots, sources),
+                             "sources": sources}
         return self._history
 
     def live_revision(self):
@@ -721,6 +810,10 @@ class ReasonCommonsApp(ThemedApp):
         canvas.set_class(drawing is None, "hidden")
         if drawing is not None:
             canvas.update(drawing)
+        canvas.can_focus = self.view_name == "trees" and bool(self._tree_spans)
+        if self.focused is canvas and not canvas.can_focus:
+            self.query_one("#main").focus()
+        self.render_inspector()
         # The band never repeats what the view is showing: safeguards move into a comparison.
         self.query_one("#pinned", Static).update(self.band(protect=not self.shows_safeguards()))
         timeline = self.query_one("#timeline", OptionList)
@@ -808,6 +901,9 @@ class ReasonCommonsApp(ThemedApp):
             data = w["question"]["data"]
             lines += [f"## {md(data.get('decision') or 'Next question')}", "", f"**{md(data['primary_prompt'])}**", ""]
             rationale = data["rationale"]
+            news = self.tree_news()
+            if news:
+                lines += [f"*In the trees, the last step: {md(tree_summary(news))}. Ctrl+T shows them.*", ""]
         else:
             # A new goal: its name is in the header, so the first question builds on it.
             lines += [f"## {md(STEPS['goal'][0])}", "",
@@ -883,17 +979,27 @@ class ReasonCommonsApp(ThemedApp):
             return "\n".join(lines) if sources else "\n".join(lines + ["Nothing written yet."])
         if view == "trees":
             if not any(t["claims"] for t in w["trees"]):
-                lines.append("No trees yet. They grow as you talk: tell the consultant what causes the problem, "
-                             "what conflict keeps you stuck, what stands in the way, or what you plan to do. "
-                             "Or bring in trees you already have: Ctrl+P, **Import trees**.")
+                if self.provider == "guided":
+                    lines.append("No trees yet. The built-in guide asks the loop's questions in order; it does "
+                                 "not add to the trees. To grow them as you talk, switch to Claude or a local "
+                                 "model: Ctrl+P, **Consultant**. Or bring in trees you already have: Ctrl+P, "
+                                 "**Import trees**.")
+                else:
+                    lines.append("No trees yet. They grow as you talk: tell the consultant what causes the problem, "
+                                 "what conflict keeps you stuck, what stands in the way, or what you plan to do. "
+                                 "Or bring in trees you already have: Ctrl+P, **Import trees**.")
             else:
-                shown = self.shown_tree()
+                shown, news = self.shown_tree(), self.tree_news(live_only=False)
                 tabs = []
                 for tree in w["trees"]:
-                    name = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])})"
-                    tabs.append(f"**▸ {name}**" if tree["tree"] == shown else name)
-                tabs.append("**▸ All six**" if shown == "all" else "All six")
+                    changed = ", changed" if tree["tree"] in news else ""
+                    name = f"{TREE_TITLES[tree['tree']][0]} ({len(tree['claims'])}{changed})"
+                    tabs.append(f"**▸ {name}**" if tree["tree"] == shown else f"[{name}](tree:{tree['tree']})")
+                tabs.append("**▸ All six**" if shown == "all" else "[All six](tree:all)")
                 lines += [" · ".join(tabs)]
+                if news:
+                    step = "This step" if self.revision is not None else "The last step"
+                    lines += ["", f"*{step}: {md(tree_summary(news))}. NEW and REWORDED mark those statements.*"]
             return "\n".join(lines)
         if view == "tests":
             if not w["comparisons"]:
@@ -909,17 +1015,95 @@ class ReasonCommonsApp(ThemedApp):
         return "\n".join(lines)
 
     def render_trees(self):
-        """The six trees, drawn from the recorded claims and links, coloured by role."""
-        width = max(40, self.query_one("#main").size.width - 6)
-        text = Text()
+        """The six trees, drawn from the recorded claims and links, coloured by role; the chosen
+        statement carries a bar in the gutter."""
+        width = max(40, self.query_one("#main").size.width - 9)
         shown = self.shown_tree()
-        fresh = self.history()["entries"][self.revision]["fresh"] if self.revision is not None else ()
-        for line in trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown,
-                                fresh=fresh):
-            for part, style in line:
-                text.append(part, style=themed(style, self.theme_variables) or None)
-            text.append("\n")
-        return text
+        step = self.marked_step(live_only=False)
+        fresh = step["fresh"] if step else ()
+        spans = []
+        lines = trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown,
+                            fresh=fresh, spans=spans)
+        self._tree_spans = spans
+        chosen = next((range(start, end) for ref, start, end in spans if ref == self.selected_claim), range(0))
+        return styled(lines, self.theme_variables, marked=chosen)
+
+    # ----- choosing and inspecting a statement ---------------------------
+    def drawn_selection(self):
+        """The chosen statement, if the tree on screen draws it."""
+        return self.selected_claim if any(ref == self.selected_claim for ref, _, _ in self._tree_spans) else None
+
+    def statement_focused(self):
+        """The drawing took focus: choose its first statement unless one on screen is already chosen."""
+        if self.drawn_selection() is None and self._tree_spans:
+            self.selected_claim = self._tree_spans[0][0]
+            self.render_all()
+        self.call_after_refresh(self.keep_statement_in_view)
+
+    def choose_statement(self, step):
+        """↑↓ in the drawing: the previous or next statement, in reading order."""
+        refs = [ref for ref, _, _ in self._tree_spans]
+        if not refs:
+            return
+        current = self.drawn_selection()
+        index = refs.index(current) + step if current else 0
+        self.selected_claim = refs[max(0, min(len(refs) - 1, index))]
+        self.render_all()
+        self.schedule_checkpoint()
+        self.call_after_refresh(self.keep_statement_in_view)
+
+    def keep_statement_in_view(self):
+        from textual.geometry import Region
+        span = next(((start, end) for ref, start, end in self._tree_spans if ref == self.drawn_selection()), None)
+        if span is None:
+            return
+        canvas = self.query_one("#canvas")
+        top = canvas.virtual_region.y + span[0]
+        self.query_one("#main").scroll_to_region(Region(0, top, 1, max(1, span[1] - span[0])),
+                                                 animate=False, immediate=True)
+
+    def statement_origins(self, ref, words=300):
+        """Where a statement came from: each cited input as who, when and their own words
+        (shortened to ``words`` characters unless None), and each cited file by name."""
+        sources, origins = self.history()["sources"], []
+        for item in self.workspace_value["attribution"].get(ref, []):
+            source = sources.get(item["source_ref"], {})
+            if "request_id" in source:
+                text = " ".join(str(source.get("text") or "").split())
+                origins.append((f"{source.get('speaker') or 'Someone'}, {day(source.get('timestamp'))}, wrote:",
+                                textwrap.shorten(text, words, placeholder=" …") if words and text else text))
+            elif source:
+                by = f", brought in by {source['speaker']}" if source.get("speaker") else ""
+                origins.append((f"From the file {source.get('name') or item['source_ref']}{by}", None))
+        return origins
+
+    def statement_text(self, width, words=300):
+        ref = self.drawn_selection()
+        if ref is None:
+            return None
+        lines = statement_details(self.workspace_value["trees"], ref, width, self.statement_origins(ref, words))
+        return styled(lines, self.theme_variables)
+
+    def render_inspector(self):
+        """Beside the trees on a wide terminal: the chosen statement's details, updated as you move."""
+        panel = self.query_one("#inspector")
+        # The panel's border, padding and scroll bar take six of its columns.
+        details = (self.statement_text(INSPECTOR_WIDTH - 6)
+                   if self.view_name == "trees" and self.size.width >= INSPECTOR_FROM else None)
+        shown = details is not None
+        if shown:
+            self.query_one("#inspector-text", Static).update(details)
+        if panel.has_class("hidden") == shown:
+            panel.set_class(not shown, "hidden")
+            # The trees are redrawn for the width the panel leaves them.
+            self.call_after_refresh(self.render_all)
+        if self.focused is panel and not shown:
+            self.query_one("#main").focus()
+
+    def open_statement(self):
+        """Enter on a chosen statement: its details in full, over the trees; Esc returns."""
+        if self.drawn_selection() is not None:
+            self.push_screen(StatementScreen(lambda width: self.statement_text(width, words=None)))
 
     # ----- looking back -------------------------------------------------
     def fill_timeline(self, timeline):
@@ -1096,6 +1280,20 @@ class ReasonCommonsApp(ThemedApp):
         self.revision = int(event.option.id)  # set first, so the step page opens directly
         self.show_view("next")
 
+    def marked_step(self, live_only=True):
+        """The saved step whose tree changes are named and marked: on the live goal, the latest
+        step if it was saved since the workspace opened (a reply or import just made); otherwise
+        the past step being looked at, unless ``live_only``. None when there is nothing to mark."""
+        entries = self.history()["entries"]
+        if self.revision is not None:
+            return None if live_only else entries[self.revision]
+        return entries[-1] if entries[-1]["revision"] > self._opened_revision else None
+
+    def tree_news(self, live_only=True):
+        """What the marked step changed in the trees, tree by tree."""
+        step = self.marked_step(live_only)
+        return step["trees"] if step else {}
+
     def shown_tree(self):
         """The tree on screen: the last one chosen, else the first that has statements."""
         if self.tree_choice:
@@ -1116,6 +1314,11 @@ class ReasonCommonsApp(ThemedApp):
     @on(OptionList.OptionSelected, "#views")
     def view_selected(self, event):
         self.show_view(event.option.id)
+
+    @on(Markdown.LinkClicked, "#content")
+    def tree_clicked(self, event):
+        if event.href.startswith("tree:") and event.href[5:] in TREE_ORDER + ["all"]:
+            self.show_tree(event.href[5:])
 
     @on(Button.Pressed, "#send")
     def send_pressed(self):
@@ -1173,8 +1376,21 @@ class ReasonCommonsApp(ThemedApp):
         self.show_view("trees")
 
     def action_trees(self):
-        """Ctrl+T: open the Trees view, or go back to the current question from it."""
-        self.show_view("next" if self.view_name == "trees" else "trees")
+        """Ctrl+T: open the Trees view with the keys on the drawing, or go back to the current
+        question and to the control that had focus before."""
+        if self.view_name == "trees":
+            before, self._focus_before_trees = self._focus_before_trees, None
+            self.show_view("next")
+            if before is not None and before.is_attached and before.focusable:
+                before.focus()
+            elif not self.story and self.revision is None:
+                self.query_one("#editor").focus()
+            return
+        self._focus_before_trees = self.focused
+        self.show_view("trees")
+        canvas = self.query_one("#canvas")
+        if canvas.can_focus:
+            canvas.focus()
 
     def action_next_tree(self):
         """Ctrl+N: show the next tree (the six in turn, then all six together)."""
@@ -1182,6 +1398,8 @@ class ReasonCommonsApp(ThemedApp):
             order = TREE_ORDER + ["all"]
             self.tree_choice = order[(order.index(self.shown_tree()) + 1) % len(order)]
         self.show_view("trees")
+        if self.focused is self.query_one("#canvas"):
+            self.statement_focused()
 
     def action_explain(self):
         self.explain = not self.explain
@@ -1260,7 +1478,10 @@ class ReasonCommonsApp(ThemedApp):
             self.explain = False
             # Never move the person: a reply that arrives while they browse waits on Next step.
             self.answer_ready = self.view_name != "next"
-            self.notify("Answer ready: Next step shows the new question." if self.answer_ready else "Saved.")
+            news = self.tree_news()
+            grown = f" In the trees: {tree_summary(news)}." if news else ""
+            self.notify(("Answer ready: Next step shows the new question." if self.answer_ready else "Saved.")
+                        + grown)
         elif result.get("input_retained"):
             if sent:
                 editor.clear()  # the words are retained in the case; Retry reuses them
@@ -1296,7 +1517,8 @@ class ReasonCommonsApp(ThemedApp):
                 "view": self.view_name, "focus": "response" if editor.has_focus else "browse",
                 "draft": draft, "caret": caret_index(draft, editor.cursor_location), "speaker": self.speaker,
                 "response_target": target["response_target"], "base_revision": target["base_revision"],
-                "display": {"tree": self.shown_tree()}})
+                "display": {"tree": self.shown_tree()},
+                **({"selection": self.selected_claim} if self.selected_claim else {})})
         except Exception:
             return
         if result["status"] != "saved":
@@ -1371,6 +1593,7 @@ class ReasonCommonsApp(ThemedApp):
                 self.notify(f"Import failed: {exc}", severity="error", timeout=10)
             finally:
                 self.case = self._open(self._consultant_factory(self.provider))
+                self._history = None
             self.show_view("trees")
         self.push_screen(PathScreen("Bring in trees from an LTP file (.ltp.yaml)", "",
                                     "Enter imports. They join the trees already here. Esc cancels."), chosen)
