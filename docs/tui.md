@@ -33,7 +33,7 @@ the forecast and the result stack one above the other:
 | ↑ / ↓ | In the Trees view: choose a statement |
 | Enter | In the Trees view: the chosen statement's details in full; Esc returns |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
-| **Other moves** | Local explanations, or ask the consultant for advice or a different question; each item says which, and **Cancel** or Esc leaves without choosing |
+| **Other moves** | Local explanations and evidence, or ask the consultant for advice or a different question; each item says which. Type to filter; **Back** or Esc leaves without choosing |
 | **Views** | Switch view, when the list on the left does not fit |
 | Ctrl+P (**Actions**) | Every action: export, import or export trees, retry, consultant calls, change consultant, views, help, quit; each says whether it is local or asks the consultant |
 | F1, or **Help** | Keys and controls |
@@ -92,7 +92,9 @@ On a narrow terminal the views list is hidden; **Views** opens it.
 
 ![Explain this](images/explain-question.png)
 
-**Other moves** offers local explanations, or asks the consultant for advice, a different question or help planning an observation. Each item says which ("local; opens saved explanation", "asks consultant"); **Cancel** or Esc leaves with nothing sent.
+**Other moves** offers local explanations and the question's evidence (the saved words and files it rests on), or asks the consultant for advice, a different question or help planning an observation. Each item says which ("local; opens saved explanation", "asks consultant"). Typing filters the list; with nothing matching, Enter does nothing and the menu offers **Clear filter** and **Back**. **Back** or Esc leaves with nothing sent.
+
+A menu belongs to the question it was opened for. If a reply moves the goal on while a menu is open, choosing from it does nothing: the menu says the question changed and shows the current choices. An open menu is kept with your draft; when you come back, it reopens only for the same question, and a choice from a later version of Reason Commons is refused with a note.
 
 ![Other moves](images/other-moves.png)
 
@@ -161,7 +163,9 @@ and Enter shows them full screen at any size.
 
 ![The Actions palette](images/actions-palette.png)
 
-Each action says whether it stays local or asks the consultant. **Consultant calls** shows how often
+Each action says whether it stays local or asks the consultant. Ctrl+P and the **Actions** control
+open the same menu as Other moves, with the same filter, **Clear filter** and **Back**.
+**Consultant calls** shows how often
 the consultant has been asked in this goal, counted from the saved attempt receipts (imports, which
 ask no consultant, are counted apart). Type to filter the list.
 
