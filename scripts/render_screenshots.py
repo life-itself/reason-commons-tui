@@ -100,8 +100,52 @@ async def render(folder):
     await shoot(workspace(finished), "trees-statement", (120, 40), before=reality, steps=choose)
     await shoot(workspace(finished), "trees-statement-80x24", (80, 24), before=reality,
                 steps=lambda app, pilot: choose(app, pilot, "enter"))
+    await heard(folder)
     await more_workspace(folder, goals, finished)
     await more_home(folder, goals)
+
+
+class Recorder:
+    """Stands in for Claude in one picture: its reply records a symptom, a cause and the link between them in
+    the Current Reality Tree, from the answer's own words, and asks the next question. The built-in guide
+    never adds to the trees, so without it the picture could not be taken offline."""
+    version = "screenshot/recorder"
+
+    def propose(self, request):
+        source = [request["input"]["request_id"]]
+
+        def claim(alias, role, statement):
+            return {"operation": "record_claim", "temporary_id": alias, "source_refs": source,
+                    "data": {"tree": "current_reality", "role": role, "statement": statement,
+                             "basis": "participant_report"}}
+        return {"schema_version": "1", "delivery_profile": "p2", "request_id": source[0],
+                "base_revision": request["input"]["base_revision"],
+                "intervention": {"kind": "question", "purpose": "choose_test", "decision": "Choose a test",
+                                 "primary_prompt": "What one small change could you try at the next open evening, "
+                                                   "and what do you expect it to do?",
+                                 "rationale": "A small change with a forecast tests the cause you named."},
+                "proposed_updates": [
+                    claim("ude", "undesirable_effect", "Newcomers do not come back after their first open evening"),
+                    claim("cause", "root_cause", "We never offer a next step at the end of an open evening"),
+                    {"operation": "record_link", "temporary_id": "because", "source_refs": source,
+                     "data": {"tree": "current_reality", "relation": "causes", "from_ref": "cause", "to_ref": "ude",
+                              "assumption": "Without an invitation, newcomers do not know a first practice exists"}}]}
+
+
+async def heard(folder):
+    """Under the next question: what a reply recorded in the trees, beside the words it came from."""
+    path = folder / "heard"
+    build_sample(path, answers=ANSWERS[:3], view="next", name=GOAL, clock=FixedClock("2026-10-14T20:00:00+00:00"))
+    app = ReasonCommonsApp(path, SPEAKER, "anthropic", lambda consultant: open_case(path, consultant=Recorder()),
+                           lambda provider: Recorder())
+
+    async def answer(app, pilot):
+        app.query_one("#editor").text = ("People come to one open evening and we never see them again. Nobody tells "
+                                         "them what to do next: we never offer a next step.")
+        app.action_send()
+        await app.workers.wait_for_complete()
+        await pilot.pause(0.3)
+    await shoot(app, "trees-heard", (120, 36), steps=answer)
 
 
 async def more_workspace(folder, goals, finished):
