@@ -146,7 +146,10 @@ one small question. Each branch shows the assumption it rests on, which is exact
 where a challenge belongs. Gaps stand out: an obstacle with no objective, or a
 tree with nothing in it, is the next good question. And because every statement
 keeps who said it and its earlier wordings, the reasoning builds up instead of
-being lost in the conversation.
+being lost in the conversation. Each tree's page counts what it does not say yet
+(links that state no assumption, statements that state no basis), and where several
+paths meet, the statement says how many of the tree's ends it leads to: the one root
+cause behind most of the symptoms is the thing a Current Reality Tree is drawn to find.
 
 **How.** Press **Ctrl+T** to open the trees. They open on **All six**: each tree
 with its question, folded at what it is for, so you can see the whole method at a
@@ -158,12 +161,15 @@ how a statement relates to the one above, its role follows in its colour, and th
 assumption behind the link hangs underneath after a dotted rule. A chain runs down
 one spine rather than stepping right, so a Prerequisite Tree reads as a ladder, and
 a complete Evaporating Cloud is drawn as its five boxes. **↑** and **↓** choose a
-statement; its details give the question worth asking of it, every link read from
-its side, the tests that carry it out, its earlier wordings and who said it, in
-their own words. On a wide terminal they sit beside the tree; **Enter** shows them
-full screen. After a reply that changed the trees, the question says what changed,
-and the tree marks those statements NEW or REWORDED. **Ctrl+T** again returns to the
-question. **Ctrl+P**, then **Import trees** or **Export trees**, moves trees in or
+statement, and the rest of the tree goes quiet around it, in place, so the statement
+it serves and the ones beneath it stand out; its details give the question worth
+asking of it, every link read from its side, the tests that carry it out, its earlier
+wordings and who said it, in their own words. On a wide terminal they sit beside the
+tree; **Enter** shows them full screen. **a** begins an answer about the chosen
+statement, so "that one is not a root cause" says which one. After a reply that changed
+the trees, the next question draws what was recorded beside the words it came from,
+so you can catch a wrong reading while you still know what you meant, and the tree
+marks those statements NEW or REWORDED. **Ctrl+T** again returns to the question. **Ctrl+P**, then **Import trees** or **Export trees**, moves trees in or
 out as `.ltp.yaml`.
 
 ![The Trees view opening on All six: each tree's name and question with the statement it starts from, folded, and how many statements lie below](images/trees-view.png)

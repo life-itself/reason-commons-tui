@@ -11,7 +11,7 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Pinned lines | Your goal and safeguards, and the open **Action**, once a goal has been recorded; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
 | Loop line | The spine of the screen: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
 | Views list | **VIEWS**, with ▸ beside the open one. While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
-| The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what the question builds on (at review: the original forecast beside the result) |
+| The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what your last answer added to the trees, if anything (see [the trees](#the-trees)), then what the question builds on (at review: the original forecast beside the result) |
 | Answer box | Right under the page, so you answer next to the question. All typing is literal, including `?`, `q` and numbers. Its tag says who you answer as, with the built-in guide an example of the answer shows faintly while it is empty, and the line beside the buttons says what **Send** will bring back. It grows as you write, and when the page is long the page scrolls above it, so the box never leaves the screen. On any view other than **Next step** its tag also names the question it answers ("Answer as Mira · Choose a test"), and while it is empty it folds to one line so the view has the room; Tab or a click opens it, and a draft keeps it open |
 | Footer | The keys that work where the keyboard is, then **Commands**, then **Help** on the right. On a narrow terminal the hints say less, then the last ones go; **Commands** and **Help** always stay |
 
@@ -41,6 +41,7 @@ the forecast and the result stack one above the other:
 | ↑ / ↓ | In the Trees view: choose a statement |
 | Space | In the Trees view: fold the chosen statement's branches away, or unfold them |
 | Enter | In the Trees view: the chosen statement's details in full, and Esc returns; in **All six**, the chosen statement's own tree |
+| a | In the Trees view, or its details: begin an answer about the chosen statement (its words go into your answer; nothing is sent) |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations and evidence, or ask the consultant for advice or a different question; each item says which. Type to filter; **Back** or Esc leaves without choosing |
 | **Views** | Switch view, when the list on the left does not fit |
@@ -170,13 +171,18 @@ step through them with Ctrl+N:
 | Prerequisite | ![Prerequisite Tree](images/tree-prerequisite.png) |
 | Transition | ![Transition Tree](images/tutorial-trees.png) |
 
-↑ and ↓ choose a statement; on a wide terminal its details sit beside the trees,
-and Enter shows them full screen at any size.
+↑ and ↓ choose a statement, and the rest of the tree goes quiet around it; on a wide
+terminal its details sit beside the trees, and Enter shows them full screen at any size.
 
 | Size | Screenshot |
 | --- | --- |
-| 120 by 40 | ![A chosen cause in the Current Reality Tree on a tinted band, with the question worth asking of it, its links, the assumption behind them and where it came from in a panel beside the tree](images/trees-statement.png) |
+| 120 by 40 | ![A chosen cause in the Current Reality Tree on a tinted band; the symptom it causes and the cause beneath it keep their colours while the rest of the tree is drawn in a quiet tone, and the question worth asking of it, its links, the assumption behind them and where it came from sit in a panel beside the tree](images/trees-statement.png) |
 | 80 by 24, after Enter | ![The same statement's details full screen at 80 by 24](images/trees-statement-80x24.png) |
+
+After a reply that recorded a few statements, the next question shows them, beside the
+words they came from:
+
+![Under the next question, "Choose a test": recorded in the trees from your answer, the Current Reality Tree's new symptom, newcomers do not come back after their first open evening, and the root cause beneath it, we never offer a next step, with the assumption behind the link, both marked NEW; then the answer they came from, and how to correct a wrong reading](images/trees-heard.png)
 
 ### Commands (Ctrl+P)
 
@@ -204,7 +210,7 @@ Browsing views never calls the consultant.
 | --- | --- |
 | Next step | The current question and what it builds on |
 | Goal | The goal, its measure and each safeguard, in full |
-| Trees | The six thinking-process trees, drawn from what was recorded: first all six, folded, then one at a time. Each statement says how it relates to the one above it. Choose a statement for the question worth asking of it, its links, wording and origin |
+| Trees | The six thinking-process trees, drawn from what was recorded: first all six, folded, then one at a time. Each statement says how it relates to the one above it, and where paths meet, how many of the tree's ends it leads to. Choose a statement for the question worth asking of it, its links, wording and origin; the rest of the tree goes quiet around it |
 | Tests | Each test with its original forecast next to the reported result, and reviews |
 | Loop actions | Each test and the action that carries it out, with its status |
 | Reasoning | What is still open first, then the loop's records, then how many statements each tree holds |
@@ -262,6 +268,19 @@ statement reached twice is drawn once and then referred to ("↑ … (shown abov
 Future Reality Tree shows its desired effects first and what could go wrong after.
 Space folds any branch away and shows how many statements it holds.
 
+Where paths meet, a statement says so on its own line, counted from the recorded
+links: in the Current Reality Tree a cause that "leads to 5 of 6 undesirable effects",
+in the Goal Tree a condition "needed for both critical success factors", and in the
+Future Reality Tree each change we make, with what could go wrong beside what it is
+for ("leads to all 7 desired effects and 1 of 2 undesirable effects"). It is a count
+of links someone recorded, not a finding about the constraint. Under its question, a
+tree's page says what it holds and what it does not say yet: "10 statements · 9 links
+· 6 links state no assumption · 10 statements state no basis".
+
+A test that carries out a statement hangs under it as a sealed prediction: the test,
+then its *original forecast, saved before any result*, then the result, or *not
+observed yet*.
+
 A complete Evaporating Cloud (a shared objective, two needs, the action each need
 seems to require, and the conflict between the actions) is drawn as its five boxes:
 the objective on top, each need with its action below it, side by side, and the
@@ -270,11 +289,16 @@ and written out underneath, and a link with no assumption recorded says so. A cl
 that is not complete yet is drawn as an outline.
 
 Ctrl+T puts the keys on the drawing, with a statement chosen; a tinted band marks it.
-↑ and ↓ choose another. Its details say what it is and in which tree, its wording and
+↑ and ↓ choose another. In a single tree, while the keys are on the drawing or the
+details, the chosen statement, the statements it hangs under and those directly below
+it keep their colours, and the rest of the tree goes quiet in place: nothing moves or
+is hidden, and Tab away brings the whole tree back evenly. **All six** never goes
+quiet, since it is for seeing the whole. Its details say what it is and in which tree, its wording and
 whether its basis is recorded, then **Worth asking**: the question to put to it in
 this tree ("When would this route fail to produce the effect?"). Then every link read
 from its side, grouped ("Causes", "Partly because", "Required by"), with the
-assumption behind each; the tests that carry it out; its earlier wordings; and where
+assumption behind each, or *no assumption stated yet*; the ends of the tree it leads
+to, where there are several; the tests that carry it out; its earlier wordings; and where
 it came from: who wrote the words it cites, when, and the words themselves, or the
 file it was brought in from. At 120 columns or wider they sit beside the trees and
 follow your choice; Enter shows them full screen at any size, and Esc returns to the
@@ -282,10 +306,24 @@ same statement. Ctrl+T again takes you back to the question, with your draft as 
 left it. The app remembers the statement you chose. Choosing, folding and reading
 never call the consultant.
 
-After a reply that changed the trees, the question says so ("In the trees, the
-last step: Current Reality Tree: 2 statements added · 1 link"), the Trees page says
-it again, and the drawing marks those statements NEW or REWORDED; a folded branch
-says how many of its statements changed.
+To say something about the chosen statement, press **a** (or Commands, **Answer about
+the chosen statement**). Its words, role and tree go at the end of your answer
+("About “Throughput is not yet operationally defined and accepted” (root cause,
+Current Reality Tree): "), and the keyboard goes there, so what you write next says
+which statement you mean, and the words that are kept say it too. It is ordinary text:
+change or delete it before you send. Your answer still answers the current question,
+and nothing is sent until you press Send.
+
+After a reply that changed the trees, **Next step** draws what it recorded under the
+new question: the statements and links, marked NEW or REWORDED, as the trees draw
+them, then the words they came from ("You wrote, Oct 6, 18:02: “…”"). This is the
+moment you still know what you meant, so check the reading there. If it is wrong, say
+so in your answer: the consultant can reword or withdraw it, and History keeps the
+first wording. Nothing there records that you agree. A larger change, such as an
+import, is summed up in a line instead ("In the trees, the last step: 69 statements
+added · 61 links, in 6 trees"). The Trees page says it again, and the drawing marks
+those statements NEW or REWORDED; a folded branch says how many of its statements
+changed.
 
 Claude and LM Studio add to the trees when you tell them about causes, conflicts,
 obstacles or plans, and reword or drop a statement when you ask. The built-in

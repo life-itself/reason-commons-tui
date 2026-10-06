@@ -64,10 +64,12 @@ statement in the right tree, in your words, and links it to what is already
 there. Ask it to reword or drop a statement and the tree changes; the earlier
 wording stays in **History**.
 
-After each reply the question says what changed in the trees, for example
-"Current Reality Tree: 2 statements added · 1 link". Press **Ctrl+T** to see them
-marked NEW, **Ctrl+N** to step through the trees, and **↑**/**↓** to choose a
-statement and check the words it came from. The
+After each reply that changed the trees, the next question draws what was recorded,
+marked NEW, beside the words it came from. Check it there, while you still know what
+you meant; if the reading is wrong, say so in your answer and the consultant rewords
+or withdraws it. Press **Ctrl+T** to see the whole tree, **Ctrl+N** to step through
+the trees, **↑**/**↓** to choose a statement and check the words it came from, and
+**a** to begin an answer about the chosen statement. The
 [workspace reference](tui.md#the-trees) explains how to read them. The built-in
 guide does not add to the trees; it only walks the loop.
 

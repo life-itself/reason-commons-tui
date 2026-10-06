@@ -260,6 +260,40 @@ screenshots were regenerated; they had predated the theme change. Still
 outstanding: the p1 scenarios' steps through the TUI, a live-model check that a
 real consultant records tree statements well, and the p3–p5 tree structures.
 
+## Seeing the part without losing the whole (6 October 2026)
+
+An outside expert's review of the TUI against Norman, Ware and *The Unarchivable
+Reason* was checked against the specification; [TUI-UX-PLAN.md](../TUI-UX-PLAN.md#conflicts-revision)
+records each recommendation and why it was adopted, adapted or left for a later
+phase. What was built is in the adapters (`trees.py`, `timeline.py`, `tui.py`) over
+the existing reads; no specification, domain or application change was needed and
+no new scenario is claimed.
+
+- **Dim, don't hide.** In one tree, while the keyboard is on the drawing or the
+  details, the chosen statement, what it hangs under and what hangs under it keep
+  their colours and the rest of the tree takes a quiet tone in place.
+- **Where paths meet, say so.** A statement reached by several paths says how many
+  of its tree's ends it leads to ("leads to 5 of 6 undesirable effects"), counted
+  from recorded links; in the Future Reality Tree, each change we make says what it
+  leads to, harms beside benefits. Each tree's page counts the links that state no
+  assumption and the statements that state no basis, and a statement's details say
+  "no assumption stated yet" on such a link.
+- **A forecast in a tree reads as sealed.** A test under a statement shows its
+  original forecast, saved before any result, then its result, on lines of their own.
+- **The reading, while the speaker still knows what they meant.** After a reply that
+  added a few statements, Next step draws them under the new question beside the
+  words they came from, with how to correct a wrong reading. No stance is recorded.
+- **Pointing kept in the words.** In the trees, **a** puts the chosen statement's
+  words, role and tree at the end of the draft as editable text.
+
+Adapter tests in `tests/test_trees.py` and `tests/test_tui.py` cover each, and each
+was shown to catch a deliberate break. The S131 step reads the test's new lines.
+Not built, because they need records the v1 schema does not have: recording a
+speaker's *Wording: Accurate* on what the consultant recorded (S24, S59, S60, p4),
+an exact subject reference on an input (p3 structured authoring), a consultant
+move that raises one reservation at a time (a new intent), and dependent review
+after a missed forecast (p5).
+
 ## P1 workspace scenarios through the TUI (5 October 2026)
 
 22 of the 32 p1 scenarios now run through the real workspace and pass: S07 (all
