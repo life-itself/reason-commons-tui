@@ -51,8 +51,23 @@ def revision_changes(snapshots, sources):
             "speaker": source.get("speaker"), "text": source.get("text"),
             "decision": (question or {}).get("data", {}).get("decision"),
             "fresh": {r["ref"] for r in new if r["kind"] == "claim"},
+            "fresh_links": {r["ref"] for r in new if r["kind"] == "link"},
+            # What was withdrawn, in the words it had: a statement's own, or a link's two ends.
+            "withdrawn": [withdrawn_words(by_ref, r["data"]["target_ref"]) for r in new if r["kind"] == "retraction"],
             "counts": counts, "trees": trees})
     return entries
+
+
+def withdrawn_words(records, ref):
+    """A withdrawn record as words: a statement's own, or 'a link from … to …' for a link."""
+    record = records.get(ref)
+    if record is None:
+        return ref
+    if record["kind"] == "claim":
+        return record["data"]["statement"]
+    ends = [records.get(record["data"].get(side), {}).get("data", {}).get("statement", "?")
+            for side in ("from_ref", "to_ref")]
+    return f"the link from “{ends[0]}” to “{ends[1]}”"
 
 
 def change_summary(counts):

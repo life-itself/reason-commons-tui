@@ -21,6 +21,7 @@ from rich.text import Text
 from textual import on, work
 from textual.app import App, ComposeResult, SystemCommand
 from textual.binding import Binding
+from textual.color import Color
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.content import Content
 from textual.css.query import NoMatches
@@ -36,8 +37,8 @@ from reason_commons.adapters.settings import Settings, summary
 from reason_commons.adapters.rendering import _literal
 from reason_commons.adapters.timeline import (change_summary, day, moment, next_action, revision_changes, short_day,
                                               tree_summary)
-from reason_commons.adapters.trees import (READING, ROLE_LABELS, TREE_TITLES, branches, roots, statement_details,
-                                           trees_lines)
+from reason_commons.adapters.trees import (READING, ROLE_LABELS, TREE_TITLES, bright_lines, branches, neighbours,
+                                           roots, statement_details, tally_line, tree_lines, trees_lines)
 
 
 TOUR_FINISHED = "tour-finished"
@@ -108,6 +109,12 @@ LATER_PROFILE_ACTIONS = {"explore-causal-model": "Explore causal model", "record
 OFFLINE_ADAPTERS = ("ltp-tree-import/", "story/")
 # Terminal width from which a chosen statement's details sit beside the trees; below it, Enter opens them.
 INSPECTOR_FROM, INSPECTOR_WIDTH = 120, 36
+# The most statements a reply may add to the trees and still be drawn under the next question; more (an import,
+# say) is summed up in a line, and Ctrl+T shows them.
+HEARD_AT_MOST = 8
+# How far a line outside the chosen statement's chunk moves from the text colour toward the ground: about a
+# third of full contrast, faint enough not to compete and still readable when the eye goes there.
+QUIET = 0.62
 
 HELP = """\
 ## The screen
@@ -131,6 +138,7 @@ Help covers the controls; **Explain this** covers the reasoning behind a questio
 | ↑ / ↓ | In the Trees view: choose a statement |
 | Space | In the Trees view: fold the chosen statement's branches away, or unfold them |
 | Enter | In the Trees view: the chosen statement's details in full; in all six, its tree |
+| a | In the Trees view: begin an answer about the chosen statement (nothing is sent) |
 | Ctrl+N | In the Trees view: the next tree, then all six again |
 | Ctrl+P, or **Commands** | Every command, each marked local or asking the consultant |
 | In a menu | Type to filter, arrows choose, Enter activates; **Back** or Esc returns |
@@ -163,14 +171,23 @@ what stands in the way or what you plan to do, and it records each statement in
 its tree, linked to the others. Ask it to reword or drop something and the tree
 changes; earlier wording stays in History. A test can carry out an action from
 the Transition Tree, and its forecast and result then show under that action.
-After a reply that changed the trees, the question says what changed, and the
-Trees view marks those statements NEW or REWORDED.
+The Trees view marks what the last reply changed NEW or REWORDED. Where paths meet, a statement
+says how many of its tree's ends it leads to ("leads to 5 of 6 undesirable
+effects"), and each tree's page counts what it does not state yet.
 
-In the Trees view, ↑ and ↓ choose a statement. Its details (the question worth
-asking of it; every link read from its side, with the assumption behind it; the
-tests that carry it out; earlier wordings; and who said it, when, in their own
-words) sit beside the trees on a wide terminal. Enter shows them full screen; Esc
-returns.
+After a reply that changed the trees, Next step draws what it recorded under the
+new question, beside the words it came from. Check it while you still know what
+you meant; if it is wrong, say so in your answer and the consultant rewords or
+withdraws it. Nothing there records that you agree.
+
+In the Trees view, ↑ and ↓ choose a statement. In a single tree the rest goes
+quiet around it, in place, until the keyboard leaves the drawing. Its details (the
+question worth asking of it; every link read from its side, with the assumption
+behind it or none stated; the tests that carry it out, each forecast saved before
+any result; earlier wordings; and who said it, when, in their own words) sit
+beside the trees on a wide terminal. Enter shows them full screen; Esc returns.
+**a** puts the statement's words at the end of your answer, so what you write says
+which statement you mean; change them as you like, and nothing is sent until Send.
 
 The built-in guide does not add to the trees; Anthropic or LM Studio do. Any
 consultant can work with trees you bring in: Ctrl+P, **Import trees** reads an
@@ -414,16 +431,25 @@ def context_rows(workspace, record, pinned_goal):
     return [("Note", d.get("text"))]
 
 
-def styled(lines, variables, marked=None, width=None, columns=None):
+def styled(lines, variables, marked=None, width=None, columns=None, bright=None):
     """Drawing lines as one Text, in the theme's colours. Lines in ``marked`` (a range) are the chosen
     statement: a band in the hand's tint, across ``width`` cells, or only across ``columns`` (first, end)
-    when the statement is one of several boxes side by side. Focus is the frame's business, not this."""
+    when the statement is one of several boxes side by side. Focus is the frame's business, not this.
+
+    When ``bright`` is a set of line indexes, every other line is quiet: still there, in the same place and
+    shape, but in one low-contrast tone, so the chosen statement's chunk stands out without the rest of the
+    tree moving or going. Terminal dimming is too faint for that on most themes, so the tone is mixed here."""
     text = Text()
     tint = themed("on $hand-tint", variables)
+    tone = Color.parse(variables["foreground"]).blend(Color.parse(variables["background"]), QUIET).hex
     for index, line in enumerate(lines):
         start = len(text)
+        quiet = bright is not None and index not in bright
         for part, style in line:
-            text.append(part, style=themed(style, variables) or None)
+            style = themed(style, variables)
+            if quiet:  # keep the shape (bold, italic) and lose the colour
+                style = " ".join([word for word in style.split() if word in ("bold", "italic", "strike")] + [tone])
+            text.append(part, style=style or None)
         if marked is not None and index in marked:
             if columns is None:
                 text.append(" " * max(0, (width or 0) - text[start:].cell_len))
@@ -448,12 +474,14 @@ def char_offsets(line, columns):
 
 
 class TreeCanvas(Static):
-    """The drawing area. In the Trees view it takes focus: ↑↓ choose a statement, Enter opens its details."""
+    """The drawing area. In the Trees view it takes focus: ↑↓ choose a statement, Enter opens its details,
+    and ``a`` starts an answer about it. Nothing here takes text, so a letter cannot swallow typing."""
 
     BINDINGS = [Binding("down", "choose(1)", "Choose", key_display="↑↓"),
                 Binding("up", "choose(-1)", "Choose", show=False),
                 Binding("enter", "details", "Details"),
-                Binding("space", "fold", "Fold")]
+                Binding("space", "fold", "Fold"),
+                Binding("a", "about", "About this")]
 
     def on_mount(self):
         self.can_focus = False
@@ -477,13 +505,22 @@ class TreeCanvas(Static):
     def action_fold(self):
         self.app.toggle_fold()
 
+    def action_about(self):
+        self.app.answer_about()
+
 
 class StatementScreen(ModalScreen):
-    """One statement in full; Esc returns to the trees with the same statement chosen.
+    """One statement in full; Esc returns to the trees with the same statement chosen, and ``a`` returns
+    with an answer about it begun.
 
     ``build(width)`` draws the details; they are drawn for the room the dialog actually has."""
 
-    BINDINGS = [Binding("escape,enter", "dismiss", "Back to the trees")]
+    BINDINGS = [Binding("escape,enter", "dismiss", "Back to the trees"),
+                Binding("a", "about", "Answer about this")]
+
+    def action_about(self):
+        self.dismiss()
+        self.app.answer_about()
 
     def __init__(self, build):
         super().__init__()
@@ -493,7 +530,8 @@ class StatementScreen(ModalScreen):
         with Vertical(id="dialog"):
             with VerticalScroll():
                 yield Static("", id="statement-text")
-            yield Label("Esc returns to the trees; nothing is sent.", classes="hint")
+            yield Label("Esc returns to the trees; a starts an answer about this statement. Nothing is sent.",
+                        classes="hint")
 
     def on_mount(self):
         self.call_after_refresh(self.fill)
@@ -834,7 +872,7 @@ class HintBar(Horizontal):
     has focus keeps it while the others change around it. They are fitted to the bar's width: a hint with a
     short label says less before it is dropped, the last hints go first, and Commands and Help always stay."""
 
-    BEFORE, AFTER = 5, 2
+    BEFORE, AFTER = 6, 2
     CONTROLS = {"commands": ("^p", "Commands", "ctrl+p"), "help": ("f1", "Help", "f1")}
     DEFAULT_CSS = """
     HintBar { dock: bottom; height: 1; background: $footer-background; color: $footer-foreground; }
@@ -1107,6 +1145,8 @@ class ReasonCommonsApp(ThemedApp):
         # The statement chosen in the Trees view (a claim reference), where each drawn statement sits,
         # and the control to give focus back to when Ctrl+T leaves the trees.
         self.selected_claim, self._tree_spans, self._focus_before_trees = None, [], None
+        # Whether the drawing on screen dims all but the chosen statement's chunk (see ``dims``).
+        self._dimmed = False
         # What is folded away (interface state, kept for this session): per tree, and opened in the overview.
         self._folds, self._overview_open = {}, set()
         # Where a local inspection began (view, explanation, past moment, scroll, focus), for Esc.
@@ -1211,7 +1251,7 @@ class ReasonCommonsApp(ThemedApp):
         if isinstance(cursor.get("menu"), dict):
             self.call_after_refresh(self.restore_menu, cursor["menu"])
         self.query_one("#earlier" if self.story else "#editor").focus()
-        self.watch(self.screen, "focused", lambda _: (self.refresh_hints(), self.fit_answer_box()))
+        self.watch(self.screen, "focused", lambda _: (self.refresh_hints(), self.fit_answer_box(), self.refit_dimming()))
         self.on_resize()
 
     MOMENT_LABELS = {"earlier": ("◀ Earlier", "◀ Earlier"), "later": ("Later ▶", "Later ▶"),
@@ -1489,7 +1529,7 @@ class ReasonCommonsApp(ThemedApp):
             lines += [f"###### {md(hint)}", ""] * bool(hint)
             rationale = data["rationale"]
             news = self.tree_news()
-            if news:
+            if news and not self.heard_in_full():  # a small change is drawn below the question instead
                 lines += [f"*In the trees, the last step: {md(tree_summary(news))}. Ctrl+T shows them.*", ""]
         else:
             # A new goal: its name is in the header, so the first question builds on it.
@@ -1514,9 +1554,53 @@ class ReasonCommonsApp(ThemedApp):
                           "Your words are kept. Use **Retry** to ask again.", ">", "> " + md(value["text"]), ""]
         return "\n".join(lines)
 
+    def heard_in_full(self):
+        """Whether the step just saved changed the trees by little enough to be drawn under the question."""
+        step = self.marked_step()
+        return bool(step and step["trees"] and len(step["fresh"]) <= HEARD_AT_MOST)
+
+    def heard(self):
+        """What the last answer led the consultant to record in the trees, drawn as the trees draw it and set
+        beside the words it came from, under the question that followed.
+
+        This is the moment the person who said it still knows what they meant, so a wrong reading is
+        cheapest to catch here: their next answer can say so, and the consultant rewords or withdraws it.
+        Only the step just saved is shown, and nothing here records agreement. Returns the drawing and the
+        records it draws; (None, no records) when that step changed no tree, or more than can be read at a
+        glance (an import, say), which a line sums up instead."""
+        if not self.heard_in_full():
+            return None, set()
+        step, w = self.marked_step(), self.workspace_value
+        width = max(40, self.query_one("#main").size.width - 7)
+        mine = not step["speaker"] or same_person(step["speaker"], self.speaker)
+        parts = [label("RECORDED IN THE TREES FROM " + ("YOUR ANSWER" if mine else "THE LAST ANSWER"))]
+        drawn = set()
+        for tree in w["trees"]:
+            links = [link for link in tree["links"] if link["ref"] in step["fresh_links"]
+                     or link["from"] in step["fresh"] or link["to"] in step["fresh"]]
+            shown = {c["ref"] for c in tree["claims"] if c["ref"] in step["fresh"]}
+            shown |= {end for link in links for end in (link["from"], link["to"])}
+            if not shown:
+                continue
+            part = {"tree": tree["tree"], "claims": [c for c in tree["claims"] if c["ref"] in shown], "links": links}
+            drawn |= shown | {link["ref"] for link in links}
+            parts += [Text(TREE_TITLES[tree["tree"]][0], style="bold"),
+                      styled(tree_lines(part, width, fresh=step["fresh"], title=False, whole=False),
+                             self.theme_variables)]
+        for words in step["withdrawn"]:
+            parts.append(Text.assemble(("withdrawn: ", "italic dim"), (str(words), "strike dim")))
+        if step["text"]:
+            who = "You" if mine else step["speaker"]
+            said = textwrap.shorten(" ".join(str(step["text"]).split()), 240, placeholder=" …")
+            parts.append(Text.assemble((f"{who} wrote, {moment(step['timestamp'])}: ", "dim"), (f"“{said}”", "italic")))
+        parts.append(Text("Not what you meant? Say so in your answer, and the consultant can reword or withdraw it. "
+                          "History keeps the first wording.", style="dim"))
+        return parts, drawn
+
     def render_context(self):
-        """What the current question builds on, below it: each forecast beside its results first,
-        then the other records the consultant attached, leaving out what the band shows."""
+        """What the current question builds on, below it: what the last answer added to the trees, then each
+        forecast beside its results, then the other records the consultant attached, leaving out what the band
+        shows."""
         if self.revision is not None:
             return None
         if self.story:
@@ -1524,7 +1608,10 @@ class ReasonCommonsApp(ThemedApp):
         w = self.workspace_value
         compared = self.compared()
         drawn = {r["ref"] for c in compared for r in [c["test"], *c["observations"], *c["reviews"]]}
-        parts = [comparison_block(w, c, self.pane_width() >= WIDE) for c in compared]
+        heard, told = self.heard()
+        drawn |= told  # what the block above draws is not listed again below it
+        parts = heard + [Text("")] * bool(compared) if heard else []
+        parts += [comparison_block(w, c, self.pane_width() >= WIDE) for c in compared]
         rows = Table.grid(padding=(0, 2))
         rows.add_column(style="bold dim", max_width=24)
         rows.add_column()
@@ -1632,8 +1719,9 @@ class ReasonCommonsApp(ThemedApp):
         return "\n".join(lines)
 
     def trees_page(self):
-        """The Trees page above the drawing: the tree's name, its question and which way to read it; for
-        the overview, how it works. With nothing recorded, the six questions and the ways to start."""
+        """The Trees page above the drawing: the tree's name, its question, which way to read it and what it
+        does not say yet; for the overview, how it works. With nothing recorded, the six questions and the ways
+        to start."""
         w = self.workspace_value
         if not self.has_trees():
             lines = ["## Trees", "", "No trees yet. They answer six questions about a goal:", ""]
@@ -1659,6 +1747,10 @@ class ReasonCommonsApp(ThemedApp):
         else:
             name, question = TREE_TITLES[shown]
             lines += [f"## {name}", "", question, "", f"###### {READING[shown]}"]
+            # What the tree holds and what it does not say yet, so its unfinished state shows without a prompt.
+            tree = next(t for t in w["trees"] if t["tree"] == shown)
+            if tree["claims"]:
+                lines += ["", f"###### {md(tally_line(tree))}"]
         if news:
             step = "This step" if self.revision is not None else "The last step"
             lines += ["", f"*{step}: {md(tree_summary(news))}. NEW and REWORDED mark those statements.*"]
@@ -1697,13 +1789,32 @@ class ReasonCommonsApp(ThemedApp):
         shown = self.shown_tree()
         step = self.marked_step(live_only=False)
         fresh = step["fresh"] if step else ()
-        spans, columns = [], {}
+        spans, columns, echoes = [], {}, []
         lines = trees_lines(self.workspace_value["trees"], width, only=None if shown == "all" else shown,
-                            fresh=fresh, spans=spans, folded=self.folded(), title=shown == "all", columns=columns)
+                            fresh=fresh, spans=spans, folded=self.folded(), title=shown == "all", columns=columns,
+                            echoes=echoes)
         self._tree_spans = spans
         chosen = next((range(start, end) for ref, start, end in spans if ref == self.selected_claim), range(0))
+        # Working in one tree, the chosen statement's chunk stays bright and the rest is dimmed, never hidden.
+        # Not in all six, which is for seeing the whole, nor in a Cloud's boxes, which are a chunk already.
+        self._dimmed = self.dims() and not columns
+        bright = (bright_lines(spans, echoes, neighbours(self.tree_of(self.selected_claim), self.selected_claim),
+                               self.selected_claim) if self._dimmed else None)
         return styled(lines, self.theme_variables, marked=chosen, width=width,
-                      columns=columns.get(self.selected_claim))
+                      columns=columns.get(self.selected_claim), bright=bright)
+
+    def refit_dimming(self):
+        """Focus moved: brighten the whole tree again when the keyboard left the chosen statement, or dim
+        around it when the keyboard came back."""
+        if self.workspace_value is not None and self.view_name == "trees" and self.dims() != self._dimmed:
+            self.render_all()
+
+    def dims(self):
+        """Whether the tree on screen dims what lies outside the chosen statement's chunk: in one tree, with a
+        statement chosen there, while the keyboard is on the drawing or on that statement's details."""
+        focus = getattr(self.focused, "id", None)
+        return (self.view_name == "trees" and self.shown_tree() != "all" and self.drawn_selection() is not None
+                and focus in ("canvas", "inspector"))
 
     def tree_of(self, ref):
         return next((t for t in self.workspace_value["trees"] if any(c["ref"] == ref for c in t["claims"])), None)
@@ -1800,6 +1911,29 @@ class ReasonCommonsApp(ThemedApp):
             self.call_after_refresh(self.render_all)
         if self.focused is panel and not shown:
             self.query_one("#main").focus()
+
+    def answer_about(self):
+        """Begin an answer about the chosen statement: its own words, its role and its tree go at the end of
+        the draft, and the keyboard goes there. What someone then writes ("that's not a root cause") says
+        which statement it means, in the words that are kept. It is ordinary text, to change or delete before
+        sending; nothing is sent, and the answer still answers the current question."""
+        ref = self.drawn_selection()
+        if ref is None:
+            return
+        if self.story or self.revision is not None:
+            self.notify("This is a record of what happened; nothing here can be answered. "
+                        + ("Start your own goal to write." if self.story else "Back to now to answer."))
+            return
+        tree = self.tree_of(ref)
+        claim = next(c for c in tree["claims"] if c["ref"] == ref)
+        quote = (f"About “{claim['statement']}” ({ROLE_LABELS[claim['role']].lower()}, "
+                 f"{TREE_TITLES[tree['tree']][0]}): ")
+        editor = self.query_one("#editor", TextArea)
+        text = editor.text
+        lead = "" if not text.strip() or text.endswith("\n\n") else "\n" if text.endswith("\n") else "\n\n"
+        editor.move_cursor(editor.document.end)
+        editor.insert(lead + quote)
+        editor.focus()
 
     def open_statement(self):
         """Enter on a chosen statement: its details in full, over the trees (Esc returns); in the
@@ -2151,7 +2285,11 @@ class ReasonCommonsApp(ThemedApp):
             can, folded = self.chosen_folds()
             fold = [("space", "Unfold" if folded else "Fold", "space")] if can else []
             enter = ("⏎", "Open tree", "enter", "Open") if self.shown_tree() == "all" else ("⏎", "Details", "enter")
-            return [choose, *fold, enter, ("^n", "Next tree", "ctrl+n"), trees], []
+            # Last, so it is the first to say less or go: getting back matters more. All six is for seeing
+            # the whole, where Enter opens a tree, so it is not offered there (the key still works).
+            about = ([] if self.story or self.revision is not None or self.shown_tree() == "all"
+                     else [("a", "Answer about this", "a", "About")])
+            return [choose, *fold, enter, ("^n", "Next tree", "ctrl+n"), trees, *about], []
         if focus == "timeline":
             return [("↑↓", "Choose step", None, "Choose"), ("⏎", "Open that step", "enter", "Open")], [tab]
         if focus in ("main", "inspector"):
@@ -2456,6 +2594,10 @@ class ReasonCommonsApp(ThemedApp):
         items += [(f"Tree: {TREE_TITLES[key][0] if key in TREE_TITLES else 'All six trees'}",
                    "Local: show this tree (Ctrl+N cycles)", lambda key=key: self.show_tree(key))
                   for key in TREE_ORDER + ["all"]]
+        if self.view_name == "trees" and self.drawn_selection() and not self.story and self.revision is None:
+            items.append(("Answer about the chosen statement",
+                          "Local: puts its words in your answer, to change as you like; nothing is sent (a)",
+                          self.answer_about))
         items.append(("History: step back", "Local: the goal as it was one step earlier (←)", self.action_earlier))
         if self.revision is not None:
             items += [("History: step forward", "Local: one step later (→)", self.action_later),

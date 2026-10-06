@@ -192,8 +192,9 @@ def observe(context):
 @then("the Trees view shows the test's original forecast and reported result under the action")
 def test_under_action(context):
     drawing = plain(trees_lines(context.app.workspace(view="trees")["trees"], 100, only="transition"))
-    assert drawing.index(context.action) < drawing.index("◆ Test: End each open evening with one clear invitation · "
-                                                         "forecast 6 of 30 · result 9 of 31")
+    assert drawing.index(context.action) < drawing.index("◆ Test: End each open evening with one clear invitation\n"
+                                                         "    original forecast, saved before any result: 6 of 30\n"
+                                                         "    result: 9 of 31")
 
 
 @then("the test's original forecast is unchanged")

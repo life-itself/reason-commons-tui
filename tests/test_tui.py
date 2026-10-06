@@ -37,6 +37,15 @@ def screen_text(app):
     return html.unescape(re.sub(r"<[^>]+>", "", app.export_screenshot())).replace("\xa0", " ")
 
 
+def as_read(renderable, width=200):
+    """A drawing's words as read: rendered to plain text, with wrapped lines joined."""
+    import io
+    from rich.console import Console
+    console = Console(width=width, file=io.StringIO(), record=True, color_system=None)
+    console.print(renderable)
+    return " ".join(console.export_text().split())
+
+
 async def settled(app, pilot, *selectors):
     """Pause until these widgets stop moving: the reading pane is fitted over a few frames, and a check made
     after a single pause can catch it a row out."""
@@ -547,8 +556,17 @@ def test_a_reply_that_grows_the_trees_is_named_and_marked_without_moving_the_vie
         async with app.run_test(size=(120, 40)) as pilot:
             await send(app, pilot, "Newcomers do not know the next step, because we never offer one")
             assert app.view_name == "next"
-            content = app.query_one("#content").source
-            assert "Current Reality Tree: 2 statements added · 1 link" in content and "Ctrl+T" in content
+            # Under the next question: what the answer led to in the trees, drawn as the trees draw it, beside
+            # the words it came from, while the person who said them still knows what they meant.
+            under = as_read(app.render_context())
+            assert "RECORDED IN THE TREES FROM YOUR ANSWER Current Reality Tree" in under
+            assert "Newcomers do not know the next step · undesirable effect NEW" in under
+            assert "because: We never offer one · cause · reported NEW" in under
+            assert "You wrote" in under and "“Newcomers do not know the next step, because we never offer one”" in under
+            assert "Not what you meant? Say so in your answer" in under
+            # Drawn, so not summed up in a line as well, nor listed again as context rows.
+            assert "In the trees" not in app.query_one("#content").source
+            assert under.count("We never offer one") == 1 and under.count("Newcomers do not know the next step ·") == 1
             await pilot.press("ctrl+t")
             await pilot.pause()
             # What the reply added opens in the overview, marked; nothing new is folded away.
@@ -569,6 +587,7 @@ def test_a_reply_that_grows_the_trees_is_named_and_marked_without_moving_the_vie
             app.show_view("next")
             await pilot.pause()
             assert "In the trees" not in app.query_one("#content").source
+            assert "RECORDED IN THE TREES" not in as_read(app.render_context())
             app.show_view("trees")
             await pilot.pause()
             assert "REWORDED" not in str(app.query_one("#canvas").render())
@@ -1028,3 +1047,127 @@ def test_words_someone_else_wrote_say_who_even_when_they_are_the_only_voice(tmp_
             await pilot.pause()
             return app.query_one("#content").source
     assert "Rufus · " in asyncio.run(run())
+
+
+def imported_trees(tmp_path):
+    from importlib.resources import files
+    from reason_commons.adapters.ltp_trees import import_trees
+    path = tmp_path / "case"
+    create_case(path, "Imported").close()
+    import_trees(path, str(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")), "David")
+    return path
+
+
+def ref_of(app, statement):
+    return next(c["ref"] for t in app.workspace_value["trees"] for c in t["claims"] if c["statement"] == statement)
+
+
+def styles_at(text, words):
+    """The styles a drawing gives the first character of these words (their first four, which a drawing
+    wrapped to its width keeps on one line)."""
+    start = text.plain.index(" ".join(words.split()[:4]))
+    return " ".join(str(span.style) for span in text.spans if span.start <= start < span.end)
+
+
+def test_working_in_a_tree_quiets_all_but_the_chosen_statements_chunk(tmp_path):
+    """Dim, not hide: while the keyboard is on a tree, the chosen statement, what it hangs under and what hangs
+    under it keep their colours, and every other line takes one quiet tone in the same place. Leaving the
+    drawing brings the whole tree back evenly; all six, which is for seeing the whole, never dims."""
+    from textual.color import Color
+    from reason_commons.adapters.tui import QUIET
+    path = imported_trees(tmp_path)
+    consultant = ScriptedConsultant()
+    chosen, above, below = ("Others may admire the work without reproducing it",
+                            "The group is busy while durable-adoption throughput remains low",
+                            "Pockets are difficult to form and remain fragile or isolated")
+    elsewhere = "Throughput is not yet operationally defined and accepted"
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.press("ctrl+t")
+            await pilot.pause()
+            variables = app.theme_variables
+            tone = Color.parse(variables["foreground"]).blend(Color.parse(variables["background"]), QUIET).hex
+            assert tone not in " ".join(str(span.style) for span in app.render_trees().spans)  # all six: whole
+            app.show_tree("current_reality")
+            app.query_one("#canvas").focus()
+            await pilot.pause()
+            while app.selected_claim != ref_of(app, chosen):
+                await pilot.press("down")
+            await pilot.pause()
+            drawing = app.render_trees()
+            for words in (chosen, above, below):
+                assert tone not in styles_at(drawing, words), words
+            assert tone in styles_at(drawing, elsewhere)
+            # Nothing moved or went: every statement is still drawn, in the same order.
+            assert all(words in " ".join(drawing.plain.replace("│", "").split()) for words in (chosen, above, below, elsewhere))
+            # The page says what the tree does not state yet.
+            assert "10 statements · 9 links · 10 statements state no basis" in app.query_one("#content").source
+            # The keyboard leaves the drawing: the whole tree is even again, with the choice still marked.
+            app.query_one("#editor").focus()
+            await pilot.pause()
+            assert not app._dimmed and tone not in " ".join(str(span.style) for span in app.render_trees().spans)
+            assert app.selected_claim == ref_of(app, chosen)
+    asyncio.run(run())
+    assert consultant.calls == []
+
+
+def test_answer_about_this_puts_the_statements_words_in_the_answer_and_sends_nothing(tmp_path):
+    """Pointing, kept in the words: "that one is not a root cause" says which one. The quote is ordinary text
+    to change before sending; the answer still answers the current question and nothing is sent."""
+    path = imported_trees(tmp_path)
+    consultant = ScriptedConsultant()
+    statement = "Throughput is not yet operationally defined and accepted"
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            target = dict(app.workspace_value["target"])
+            editor = app.query_one("#editor")
+            editor.load_text("half an answer")
+            app.show_tree("current_reality")
+            app.query_one("#canvas").focus()
+            await pilot.pause()
+            while app.selected_claim != ref_of(app, statement):
+                await pilot.press("down")
+            await pilot.pause()
+            assert "a About" in screen_text(app)
+            await pilot.press("a")
+            await pilot.pause()
+            assert editor.text == ("half an answer\n\nAbout “Throughput is not yet operationally defined and accepted” "
+                                   "(root cause, Current Reality Tree): ")
+            assert app.focused is editor and app.view_name == "trees"
+            decision = app.workspace_value["question"]["data"]["decision"]
+            assert str(app.query_one("#response").border_title) == f"Answer as David · {decision}"  # same question
+            # In the answer box every key is literal again, "a" included.
+            await pilot.press("a")
+            assert editor.text.endswith("Tree): a")
+            assert "answer-about-the-chosen-statement" in [key for key, *_ in app.action_list()]
+            assert app.workspace_value["target"] == target
+    asyncio.run(run())
+    assert consultant.calls == []
+    with open_case(path, writable=False) as case:
+        assert case.inspect()["case"]["revision"] == 1
+
+
+def test_a_change_too_big_to_read_at_a_glance_is_summed_up_under_the_question(tmp_path):
+    from importlib.resources import files
+    path = tmp_path / "case"
+    create_case(path, "Trees").close()
+
+    async def run():
+        app = launch(path, {"guided": ScriptedConsultant()})
+        async with app.run_test(size=(120, 40)) as pilot:
+            app.action_import_trees()
+            await pilot.pause()
+            app.screen.query_one("#destination").value = str(files("reason_commons.adapters").joinpath(
+                "sample-trees.ltp.yaml"))
+            await pilot.press("enter")
+            await pilot.pause()
+            app.show_view("next")
+            await pilot.pause()
+            assert "69 statements added · 61 links, in 6 trees. Ctrl+T shows them." in app.query_one("#content").source
+            assert "RECORDED IN THE TREES" not in as_read(app.render_context())
+    asyncio.run(run())

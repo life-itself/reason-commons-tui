@@ -12,6 +12,11 @@ A chain does not step to the right: when a statement's only branch with more
 below it is its last, that branch continues the spine at the same indent, so a
 Prerequisite Tree reads as a ladder rather than a staircase. A complete
 Evaporating Cloud is drawn as its five boxes, both sides at equal weight.
+
+Where paths meet, which an outline would otherwise hide, a statement's line says
+how many of its tree's ends it leads to ("leads to 3 of 4 undesirable effects").
+A test that carries a statement out reads as a sealed prediction: its forecast,
+saved before any result, then what was reported.
 """
 
 import textwrap
@@ -107,6 +112,16 @@ ROLE_ORDER = ["goal", "critical_success_factor", "necessary_condition", "undesir
 # A tree whose question puts one kind of root first: a Future Reality Tree asks "will it work" before
 # "what could go wrong", so its desired effects come before its negative branches.
 ROOTS_FIRST = {"future_reality": ["desired_effect"]}
+# What a tree is drawn towards, for saying how many of them a statement leads to: the convergence a Current
+# Reality Tree is drawn to find, and in a Future Reality Tree a change's benefits beside its harms. A count
+# of recorded links, read upward; it is not a diagnosis of the constraint.
+ENDS = {"current_reality": ["undesirable_effect"], "future_reality": ["desired_effect", "undesirable_effect"],
+        "goal": ["critical_success_factor"]}
+ENDS_PLURAL = {"undesirable_effect": "undesirable effects", "desired_effect": "desired effects",
+               "critical_success_factor": "critical success factors"}
+# In a Future Reality Tree almost everything leads to the desired effects; what is worth saying is what each
+# change we make leads to, benefits and harms together. Elsewhere any statement may say it.
+ENDS_FROM = {"future_reality": {"injection"}}
 # Glues a tag's words so it never breaks across lines.
 GLUE = " "
 
@@ -227,19 +242,113 @@ def branches(tree):
     return {ref: [child for _, child in below] for ref, below in _shape(tree)[1].items()}
 
 
-def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, columns=None):
+def _above(children):
+    """Each statement's references with those it hangs under: one for a plain branch, more where paths meet."""
+    above = {ref: [] for ref in children}
+    for upper, below in children.items():
+        for _, lower in below:
+            above[lower].append(upper)
+    return above
+
+
+def neighbours(tree, ref):
+    """The chosen statement's chunk: itself, every statement it hangs under, and those directly below it."""
+    children = _shape(tree)[1]
+    return {ref, *_above(children)[ref], *(child for _, child in children[ref])}
+
+
+def leads_to(tree, ref, above=None):
+    """The statements of the tree's ends (``ENDS``) that this one reaches by following its links upward.
+    ``above`` is the tree's ``_above`` map, when the caller has it already."""
+    ends = ENDS.get(tree["tree"], [])
+    if not ends:
+        return []
+    above = _above(_shape(tree)[1]) if above is None else above
+    roles = {c["ref"]: c["role"] for c in tree["claims"]}
+    seen, todo = set(), [ref]
+    while todo:
+        for upper in above[todo.pop()]:
+            if upper not in seen:
+                seen.add(upper)
+                todo.append(upper)
+    seen.discard(ref)
+    return sorted((r for r in seen if roles[r] in ends), key=_number)
+
+
+def reach(tree, ref, above=None):
+    """'leads to 3 of 4 undesirable effects', when a statement reaches two or more of its tree's ends; else None.
+
+    Paths meeting is the one relation an outline hides, since a statement reached twice is drawn once; this
+    says it on the statement's own line, as a count of recorded links."""
+    roles = {c["ref"]: c["role"] for c in tree["claims"]}
+    if tree["tree"] in ENDS_FROM and roles[ref] not in ENDS_FROM[tree["tree"]]:
+        return None
+    reached = leads_to(tree, ref, above)
+    if len(reached) < 2:
+        return None
+    parts = []
+    for role in ENDS[tree["tree"]]:
+        count = sum(1 for r in reached if roles[r] == role)
+        total = sum(1 for r in roles.values() if r == role)
+        noun = ENDS_PLURAL[role] if total > 1 else ROLE_LABELS[role].lower()
+        if count:
+            parts.append(f"the {noun}" if total == 1 else f"both {noun}" if count == total == 2
+                         else f"all {total} {noun}" if count == total else f"{count} of {total} {noun}")
+    return ("needed for " if tree["tree"] == "goal" else "leads to ") + " and ".join(parts)
+
+
+def tally(tree):
+    """What a tree holds and what it does not say yet: its statements and links, the links that state no
+    assumption and the statements that state no basis. Counts of recorded fields; nothing is judged."""
+    return {"statements": len(tree["claims"]), "links": len(tree["links"]),
+            "no_assumption": sum(1 for link in tree["links"] if not link.get("assumption")),
+            "no_basis": sum(1 for claim in tree["claims"] if not claim.get("basis"))}
+
+
+def tally_line(tree):
+    """'12 statements · 11 links · 4 links state no assumption · 12 statements state no basis'."""
+    counts = tally(tree)
+
+    def counted(number, one, many):
+        return f"{number} {one if number == 1 else many}"
+    parts = [counted(counts["statements"], "statement", "statements"), counted(counts["links"], "link", "links")]
+    if counts["no_assumption"]:
+        parts.append(counted(counts["no_assumption"], "link states", "links state") + " no assumption")
+    if counts["no_basis"]:
+        parts.append(counted(counts["no_basis"], "statement states", "statements state") + " no basis")
+    return " · ".join(parts)
+
+
+def test_lines(test, lead, width):
+    """A test that carries out a statement, read as a sealed prediction: what it tries, the forecast written
+    before any result, and what was reported, each on its own line."""
+    forecast = "; ".join(f for f in test["forecast"] if f) or "none"
+    result = "; ".join(test["results"]) or "not observed yet"
+    lines = _wrap([("◆ ", WANT), ("Test: ", "bold"), (test["statement"], "")], width, lead, lead + [("  ", "")])
+    lines += _wrap([("original forecast, saved before any result: ", "italic dim"), (forecast, WANT)], width,
+                   lead + [("  ", "")], lead + [("  ", "")])
+    lines += _wrap([("result: ", "italic dim"), (result, "" if test["results"] else "dim")], width,
+                   lead + [("  ", "")], lead + [("  ", "")])
+    return lines
+
+
+def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, columns=None, echoes=None,
+               whole=True):
     """One tree as lines of (text, style) segments; an empty style is plain text.
 
     Claims whose references are in ``fresh`` are marked NEW (the ones a past revision added), and those
     in ``folded`` are drawn without what lies below them, which is counted instead. When ``spans`` is a
     list, each drawn statement is appended to it as (ref, first line, end line), in reading order, so an
-    interface can choose a statement and keep it in view. A complete Evaporating Cloud with room for it is
-    drawn as boxes; then ``columns``, when a dict, receives each box's (first column, end column)."""
+    interface can choose a statement and keep it in view; ``echoes``, when a list, receives each reference
+    back to a statement drawn above as (ref, the statement it is drawn under, first line, end line). A
+    complete Evaporating Cloud with room for it is drawn as boxes; then ``columns``, when a dict, receives
+    each box's (first column, end column). A ``tree`` that is only part of one (not ``whole``) says nothing
+    about how many of its ends a statement leads to, since the rest of the paths are not there to count."""
     name, question = TREE_TITLES[tree["tree"]]
     lines = [[(name, "bold"), ("  " + question, "italic")], []] if title else []
     if not tree["claims"]:
         return lines + [[("Nothing in this tree yet.", "dim")]]
-    if tree["tree"] == "conflict" and not folded:
+    if tree["tree"] == "conflict" and not folded and whole:
         boxes = cloud_lines(tree, width, fresh)
         if boxes is not None:
             drawing, found, places = boxes
@@ -249,6 +358,7 @@ def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, colu
                 columns.update(places)
             return lines + drawing
     claims, children, asides, starts = _shape(tree)
+    above = _above(children)
     drawn = set()
 
     def under(ref, seen=None):
@@ -266,15 +376,19 @@ def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, colu
             lines.extend(_wrap([("assuming " + assumption, "italic dim")], width, rest + [("┆ ", "dim")],
                                rest + [("┆ ", "dim")]))
 
-    def draw(ref, lead, rest, below, relation=None, assumption=None):
-        """``lead`` opens the statement's first line and ``rest`` its others; its branches hang from ``below``."""
+    def draw(ref, lead, rest, below, relation=None, assumption=None, parent=None):
+        """``lead`` opens the statement's first line and ``rest`` its others; its branches hang from ``below``.
+        ``parent`` is the statement it is drawn under."""
         claim = claims[ref]
         parts = [(relation + ":", "italic dim"), (" ", "")] if relation else []
         if ref in drawn:
+            first = len(lines)
             short = textwrap.shorten(claim["statement"], 50, placeholder="…")
             lines.extend(_wrap(parts + [("↑ ", "dim"), (short, ""), (f" {GLUE}(shown{GLUE}above)", "dim")],
                                width, lead, rest))
             assuming(assumption, rest)
+            if echoes is not None:
+                echoes.append((ref, parent, first, len(lines)))
             return
         drawn.add(ref)
         first = len(lines)
@@ -284,6 +398,9 @@ def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, colu
         parts.append((tag, _family(claim["role"])))
         if claim.get("basis"):
             parts.append((f"{GLUE}·{GLUE}{BASIS[claim['basis']]}", "dim"))
+        meets = reach(tree, ref, above) if whole else None
+        if meets:
+            parts.append((f" {GLUE}·{GLUE}" + meets, "italic"))
         if ref in fresh:
             parts.append((" " + ("REWORDED" if claim.get("earlier_wording") else "NEW"), "bold " + DO))
         if opens:
@@ -300,10 +417,7 @@ def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, colu
                                    width, rest, rest))
                 assuming(aside_assumption, rest)
         for test in claim.get("tests", []):
-            forecast = "; ".join(f for f in test["forecast"] if f) or "none"
-            result = "; ".join(test["results"]) or "not observed yet"
-            lines.extend(_wrap([(f"◆ Test: {test['statement']} · forecast {forecast} · result {result}", WANT)],
-                               width, rest, rest))
+            lines.extend(test_lines(test, rest, width))
         if spans is not None:
             spans.append((ref, first, len(lines)))
         if opens:
@@ -317,21 +431,21 @@ def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, colu
         for index, (link, child) in enumerate(branches):
             last = index == len(branches) - 1 and spine is None
             draw(child, below + [("└─ " if last else "├─ ", "dim")], below + [("   " if last else "│  ", "dim")],
-                 below + [("   " if last else "│  ", "dim")], BELOW[link["relation"]], link.get("assumption"))
+                 below + [("   " if last else "│  ", "dim")], BELOW[link["relation"]], link.get("assumption"), ref)
         if spine is not None:
             link, child = spine
             if child in drawn:  # drawn on another path: refer to it like any other branch
                 draw(child, below + [("└─ ", "dim")], below + [("   ", "dim")], below + [("   ", "dim")],
-                     BELOW[link["relation"]], link.get("assumption"))
+                     BELOW[link["relation"]], link.get("assumption"), ref)
             else:
                 lines.append(below + [("│", "dim")])
-                step(child, below, BELOW[link["relation"]], link.get("assumption"))
+                step(child, below, BELOW[link["relation"]], link.get("assumption"), ref)
 
-    def step(ref, base, relation=None, assumption=None):
+    def step(ref, base, relation=None, assumption=None, parent=None):
         """A statement on a spine: a marker in its colour at ``base``, its branches hanging from there."""
         goes_on = bool(children[ref]) and not (folded and ref in folded)
         draw(ref, base + [("● ", _family(claims[ref]["role"]))], base + [("│ " if goes_on else "  ", "dim")],
-             base, relation, assumption)
+             base, relation, assumption, parent)
 
     for index, ref in enumerate(starts):
         if index:
@@ -340,7 +454,7 @@ def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, colu
     return lines
 
 
-def trees_lines(trees, width=80, only=None, fresh=(), spans=None, folded=(), title=True, columns=None):
+def trees_lines(trees, width=80, only=None, fresh=(), spans=None, folded=(), title=True, columns=None, echoes=None):
     """All trees (or one), separated by a blank line; the rest as for ``tree_lines``."""
     lines = []
     for tree in trees:
@@ -348,12 +462,27 @@ def trees_lines(trees, width=80, only=None, fresh=(), spans=None, folded=(), tit
             continue
         if lines:
             lines += [[], []]
-        found = []
-        drawn = tree_lines(tree, width, fresh, found, folded, title, columns)
+        found, referred = [], []
+        drawn = tree_lines(tree, width, fresh, found, folded, title, columns, referred)
         if spans is not None:
             spans += [(ref, start + len(lines), end + len(lines)) for ref, start, end in found]
+        if echoes is not None:
+            echoes += [(ref, parent, start + len(lines), end + len(lines)) for ref, parent, start, end in referred]
         lines += drawn
     return lines
+
+
+def bright_lines(spans, echoes, chunk, chosen):
+    """The drawn lines that stay at full contrast while ``chosen`` is worked on: the statements in its chunk
+    (``neighbours``), and each reference back that joins the chosen statement to one of them."""
+    keep = set()
+    for ref, start, end in spans:
+        if ref in chunk:
+            keep.update(range(start, end))
+    for ref, parent, start, end in echoes:
+        if chosen in (ref, parent) and {ref, parent} <= chunk:
+            keep.update(range(start, end))
+    return keep
 
 
 def cloud_lines(tree, width, fresh=()):
@@ -511,13 +640,21 @@ def statement_details(trees, ref, width=60, origins=()):
             role = claims[other]["role"]
             lines.extend(_wrap([("● ", _family(role)), (claims[other]["statement"], "")], width, [("  ", "")],
                                [("    ", "")]))
-            if link.get("assumption"):
-                lines.extend(_wrap([("assuming " + link["assumption"], "italic dim")], width,
-                                   [("    ┆ ", "dim")], [("    ┆ ", "dim")]))
+            # A link with nothing said about why it holds says so where you are looking, not in a dialog.
+            lines.extend(_wrap([("assuming " + link["assumption"], "italic dim") if link.get("assumption")
+                                else ("no assumption stated yet", "dim")], width,
+                               [("    ┆ ", "dim")], [("    ┆ ", "dim")]))
+    meets = reach(tree, ref)
+    if meets:
+        heading(meets[0].upper() + meets[1:])
+        for other in leads_to(tree, ref):
+            lines.extend(_wrap([("● ", _family(claims[other]["role"])), (claims[other]["statement"], "")], width,
+                               [("  ", "")], [("    ", "")]))
     for test in claim.get("tests", []):
         heading("Test that carries it out")
         para(test["statement"], "", "  ")
-        para("Original forecast: " + ("; ".join(f for f in test["forecast"] if f) or "none"), WANT, "  ")
+        para("Original forecast, saved before any result: " + ("; ".join(f for f in test["forecast"] if f) or "none"),
+             WANT, "  ")
         para("Result: " + ("; ".join(test["results"]) or "not observed yet"), "", "  ")
     if claim.get("earlier_wording"):
         heading("Earlier wording")
