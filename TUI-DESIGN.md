@@ -84,6 +84,28 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   under *Trees*. The trees open first on all six, folded at what each is for; Space folds and unfolds.
   The chosen statement is a tinted band; focus stays the frame. Its details lead with *Worth asking*,
   the tree's question from the visual-grammar table of the rendering contract.
+- **Dim, don't hide.** In one tree, while the keyboard is on the drawing or the chosen statement's
+  details, that statement, every statement it hangs under and those directly below it keep their
+  colours; every other line takes one quiet tone (about a third of full contrast) in the same place.
+  Nothing moves, folds or goes. Leaving the drawing brings the whole tree back evenly; *All six* and a
+  boxed Cloud never dim. Folding stays an explicit choice (Space), never a way of reducing attention.
+- **Where paths meet, say so.** A statement reached by several paths says, on its own line, how many
+  of its tree's ends it leads to ("leads to 5 of 6 undesirable effects"; in the Future Reality Tree only
+  a change we make, benefits and harms together). It is a count of recorded links, never a rank or a
+  finding about the constraint. A tree's page also counts what it does not state yet: links with no
+  assumption and statements with no basis. Each missing assumption is said where it is looked at
+  ("no assumption stated yet"), not raised in a prompt.
+- **A forecast in a tree is sealed.** A test under a statement reads as the test, then its *original
+  forecast, saved before any result*, then the result. No verdict mark appears that no one recorded.
+- **Show the reading while the speaker still knows what they meant.** After a reply that changed the
+  trees by a few statements, Next step draws them under the new question, as the trees draw them, beside
+  the words they came from, with how to correct a wrong reading (say so in the answer). It records no
+  agreement: silence is not assent, and a stance waits for the position records of p4. A larger change
+  is summed up in a line.
+- **Pointing goes into the words.** *Answer about this* (a) puts the chosen statement's words, role and
+  tree at the end of the draft as ordinary editable text, so the kept input says which statement "that
+  one" was. It changes neither the live question nor the target; an exact subject reference waits for
+  the structured authoring of p3.
 - **Records in columns.** Goal, Loop actions and Reasoning use the aligned label column of Next step;
   Reasoning puts what is still open first. History is one row per step. Commands are one line each,
   each still marked local or consultant.

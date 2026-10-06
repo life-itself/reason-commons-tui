@@ -133,6 +133,80 @@ def test_outline_draws_the_assumption_behind_every_link():
         assert text.count("assuming " + assumption) == 1, assumption
 
 
+def test_where_paths_meet_a_statement_says_how_many_ends_it_leads_to():
+    """An outline draws a statement reached twice once, so convergence, the thing a Current Reality Tree is
+    drawn to find, would be visible only in a back-reference. The count says it on the statement's own line."""
+    from reason_commons.adapters.trees import plain, reach, statement_details, tree_lines
+    reality = drawn_tree("current_reality", [("C1@1", "undesirable_effect", "Organisers burn out"),
+                                             ("C2@1", "undesirable_effect", "Few keep practising"),
+                                             ("C3@1", "undesirable_effect", "Funding is thin"),
+                                             ("C4@1", "intermediate_cause", "Newcomers lean on organisers"),
+                                             ("C5@1", "root_cause", "No path into practice")],
+                         [("causes", "C5@1", "C4@1", None), ("causes", "C4@1", "C1@1", None),
+                          ("causes", "C5@1", "C2@1", None)])
+    text = " ".join(plain(tree_lines(reality, width=200)).split())
+    assert "No path into practice · root cause · leads to 2 of 3 undesirable effects" in text
+    # One end reached is an ordinary branch, and an end does not count itself.
+    assert reach(reality, "C4@1") is None and reach(reality, "C1@1") is None and text.count("leads to") == 1
+    details = " ".join(plain(statement_details([reality], "C5@1", width=200)).split())
+    assert "Leads to 2 of 3 undesirable effects ● Organisers burn out ● Few keep practising" in details
+    # A part of a tree cannot count paths that are not there.
+    assert "leads to" not in plain(tree_lines(reality, width=200, whole=False))
+    # In a Future Reality Tree a change we make says what it leads to, harms with benefits; the effects do not.
+    future = drawn_tree("future_reality", [("C6@1", "desired_effect", "People keep practising"),
+                                           ("C7@1", "desired_effect", "Organisers rest"),
+                                           ("C8@1", "undesirable_effect", "Newcomers feel processed"),
+                                           ("C9@1", "desired_effect", "More pockets form"),
+                                           ("C10@1", "injection", "Offer a staged pathway")],
+                        [("causes", "C10@1", "C9@1", None), ("causes", "C9@1", "C6@1", None),
+                         ("causes", "C9@1", "C7@1", None), ("causes", "C10@1", "C8@1", None)])
+    assert reach(future, "C10@1") == "leads to all 3 desired effects and the undesirable effect"
+    assert reach(future, "C9@1") is None
+
+
+def test_the_chosen_statements_chunk_is_itself_what_it_hangs_under_and_what_hangs_under_it():
+    from reason_commons.adapters.trees import bright_lines, neighbours, plain, tree_lines
+    reality = drawn_tree("current_reality", [("C1@1", "undesirable_effect", "Organisers burn out"),
+                                             ("C2@1", "undesirable_effect", "Few keep practising"),
+                                             ("C3@1", "intermediate_cause", "Newcomers lean on organisers"),
+                                             ("C4@1", "root_cause", "No path into practice"),
+                                             ("C5@1", "root_cause", "Nobody asked them")],
+                         [("causes", "C3@1", "C1@1", None), ("causes", "C3@1", "C2@1", None),
+                          ("causes", "C4@1", "C3@1", None), ("causes", "C5@1", "C4@1", None)])
+    assert neighbours(reality, "C3@1") == {"C1@1", "C2@1", "C3@1", "C4@1"}
+    spans, echoes = [], []
+    lines = tree_lines(reality, width=200, spans=spans, echoes=echoes)
+    bright = bright_lines(spans, echoes, neighbours(reality, "C3@1"), "C3@1")
+    shown = [plain([line]).strip() for index, line in enumerate(lines) if index in bright]
+    # Both effects stay bright, the second through its reference back to the chosen statement; one step down
+    # stays bright, and two steps down does not.
+    assert any("Organisers burn out" in line for line in shown) and any("Few keep practising" in line for line in shown)
+    assert any("↑ Newcomers lean on organisers" in line for line in shown)
+    assert any("No path into practice" in line for line in shown)
+    assert not any("Nobody asked them" in line for line in shown)
+
+
+def test_a_tree_says_what_it_does_not_state_yet():
+    from reason_commons.adapters.trees import plain, statement_details, tally_line
+    reality = drawn_tree("current_reality", [("C1@1", "undesirable_effect", "Organisers burn out"),
+                                             ("C2@1", "root_cause", "No path into practice")],
+                         [("causes", "C2@1", "C1@1", None)])
+    reality["claims"][0]["basis"] = "observed"
+    assert tally_line(reality) == "2 statements · 1 link · 1 link states no assumption · 1 statement states no basis"
+    # Where you are looking, the missing assumption is said, not left as a gap.
+    assert "┆ no assumption stated yet" in plain(statement_details([reality], "C1@1", width=80))
+
+
+def test_a_test_under_a_statement_reads_as_a_sealed_prediction():
+    from reason_commons.adapters.trees import plain, tree_lines
+    action = drawn_tree("transition", [("C1@1", "transition_action", "Offer one next step")], [])
+    action["claims"][0]["tests"] = [{"ref": "P1@1", "statement": "Invite at the end", "forecast": ["6 of 30"],
+                                     "results": []}]
+    text = plain(tree_lines(action, width=100))
+    assert ("◆ Test: Invite at the end\n    original forecast, saved before any result: 6 of 30\n"
+            "    result: not observed yet") in text
+
+
 def test_every_imported_assumption_is_drawn(tmp_path):
     from importlib.resources import files
     import yaml

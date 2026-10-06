@@ -2,7 +2,7 @@
 
 **See a hard problem whole, as connected trees, then change it one honest test at a time.**
 
-![The Trees view showing a Current Reality Tree: the symptom "the group is busy while durable-adoption throughput remains low" at the top, and below it each cause reads as a sentence led by "because" or "partly because", with its role after it and the assumption behind the link under a dotted rule; a chain of symptoms runs down one spine instead of drifting right, and the six trees are listed under Trees on the left](docs/images/trees-current-reality.png)
+![The Trees view showing a Current Reality Tree: the symptom "the group is busy while durable-adoption throughput remains low" at the top, and below it each cause reads as a sentence led by "because" or "partly because", with its role after it and the assumption behind the link under a dotted rule; a chain of symptoms runs down one spine instead of drifting right, the root cause at its foot says it leads to all 6 undesirable effects, and the six trees are listed under Trees on the left](docs/images/trees-current-reality.png)
 
 Reason Commons is a calm terminal workspace for reasoning about change: what you are
 aiming for, what is really in the way, which conflict keeps you stuck and what to

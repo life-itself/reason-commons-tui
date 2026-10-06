@@ -76,6 +76,32 @@ No scenario text changed. Two acceptance steps read the drawing's words and were
 S119 splits a command's name from its detail at " · " instead of a new line, and S128 finds
 "└─ because: " before the cause rather than "└─ because ─ ROOT CAUSE".
 
+## Conflicts revision
+
+An outside expert was asked to use the Logical Thinking Process on the conflicts that make
+structured reasoning hard to show (structure against flow, whole against part, picture against words,
+the room against the inheritor, rigour against nagging), drawing on Norman, Ware and the essay
+*The Unarchivable Reason*, and then to fit the result into this TUI. Their reading of the screenshots
+named five leaks. Each was checked against the code and the specification before anything was built;
+where a recommendation needed records the v1 schema does not have, the part that fits v1 was built
+and the rest is left for the participant to decide.
+
+| Leak or recommendation | Verdict | What was built, or why not |
+| --- | --- | --- |
+| Folding hides; nothing dims (Ware: low-contrast context is nearly free, folding wipes location memory) | Adopted | In one tree the chosen statement's chunk keeps its colours and the rest takes one quiet tone in place, while the keyboard is on the drawing or the details. Space-to-fold and the folded *All six* stay: the overview is for the whole, and folding there was a decision already taken |
+| The outline cannot show convergence | Adopted | "leads to 5 of 6 undesirable effects" on the statement's own line and a *Leads to* list in its details; in the Future Reality Tree only on a change we make, with harms beside benefits. Counted from recorded links. On the sample trees it shows the root cause at the foot of a ladder leading to all six symptoms, which the outline had hidden behind a back-reference |
+| Proposals land as record; a consultant's statement should stay *proposed* until its speaker stands behind it (the Heard strip, with "That's what I meant", Reword, Not what I meant) | Adapted | The timing is right: the speaker should see the reading while they still know what they meant. Next step now draws what the last reply recorded, beside the words it came from, with how to correct it. Recording *Wording: Accurate* is S24/S59/S60, which are p4 and `@later`, and the v1 schema has no position record, so no stance is recorded and nothing is labelled proposed. The diagnosis also rested partly on a misreading the app invites: the trees colour roles with the theme's status families (a desired effect in *stood behind*, a cause in *disagreed*), which say nothing about anyone's stance |
+| Pointing is lost ("About this" sets the subject of the next answer to an exact statement version) | Adapted | **a** puts the statement's words, role and tree at the end of the draft as editable text, so the kept input says which statement it meant. An exact subject reference on the input is a schema change (input fields are closed) and belongs with p3 structured authoring |
+| Tree predictions are not sealed; a missed forecast should mark the chain *review needed*; held/missed marks | Partly adopted | A test under any statement (a test may already carry out any current claim) reads as the test, its *original forecast, saved before any result*, and its result. No ✓ or ✗: results are free text and no verdict is recorded (S122, "Projection, not authority"). Dependent review on a missed forecast is p5 |
+| The debt line: "24 statements · 6 proposed · 3 without a basis · 2 disputed" | Partly adopted | Each tree's page counts its statements and links, the links that state no assumption and the statements that state no basis. *Proposed* and *disputed* need position records (p4) |
+| A boxed fragment of the chosen statement in the details pane | Not built | Dimming puts the same chunk in place, in the outline, where the eye already is; a second drawing of it in 30 columns would wrap each box tall. Boxed canvases stay with p3–p5 |
+| *Check this branch*: the consultant raises one reservation at a time | Not built | A new consultant move needs a new intent, and `CONSULT_INTENTS` is a closed domain set; it is close to the specification's p3 *Challenge this* |
+| Withdrawn in their own words: modes as stages, single-key verbs in the editor, a prompt on every arrow, a separate Read view | Agreed | The specification already rules these out or already provides them |
+
+No scenario text, domain or application code changed. The S131 acceptance step reads the test's new
+lines ("original forecast, saved before any result: 6 of 30", then "result: 9 of 31") where it read the
+one-line form before.
+
 ## The short version
 
 The specification already describes the quiet tool the design-retreat answer
