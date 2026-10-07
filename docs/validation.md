@@ -404,7 +404,33 @@ come from one reply: in `attributed_correction-2`, Claude's third reply put a
 `decision` field at the top level of the proposal, and the application rejected
 it before commit, so that turn has nothing to judge. Every other reply was saved.
 
-The 108 rubric criteria wait for an attributed human review. A review page shows
-each case's turns, records and next move beside its criteria; its decisions are
-turned into `review.json` and checked with `scripts/review_evaluation.py`. Until
-then these scenarios are not passed, and the v1 participant gate stays separate.
+A review page shows each case's turns, records and next move beside its
+criteria; its decisions are turned into `review.json` and checked with
+`scripts/review_evaluation.py`.
+
+### Review (2026-10-07)
+
+The 108 criteria were reviewed by Codex, recorded as "AI semantic reviewer": an
+attributed review, but not the human review this record asked for. It was
+validated against the unchanged report (`review.json` and `reviewed.json` in the
+run directory): 92 pass, 15 fail, 1 can't judge (the rejected turn). The
+semantic status is **fail**, so these scenarios are not passed.
+
+| Pattern | Criteria failed |
+|---|---|
+| A move bundles separate asks instead of one prominent next move | goal_action_review c3 (both runs), realistic_blame c3 (both), realistic_mixed c3 (both) |
+| The reply returns to the setup's pilot question instead of the new input | realistic_twelve c3 (both) |
+| After Priya's correction, the move returns to framing success instead of investigating the mechanism Priya described | attributed_correction c2 (both) |
+| Asked whether acknowledgement shows fulfilment, the reply asks how to check it but not for an acceptable bound or who decides | guardrail_review c5 (both) |
+| The move does not ask who may authorise the pilot | immediate_action c3 (both) |
+| At an immature review date, the move does not ask for the pending outcomes or when to look again | immature_cohort c2 (run 1) |
+
+The reviewer also judged run 1's turn-3 advice to "count the first days as a
+baseline" misleading, since those days already run under the new queue.
+
+Some notes cite review-guide rules that the guide's revised version removed as
+stricter than the criterion text: "simply repeating the setup question" (both
+realistic_twelve failures) and requiring all four fulfilment items (both
+guardrail_review c5 failures). Those four decisions may change under the revised
+guide; the other eleven failures follow the criterion text either way. The v1
+participant gate stays separate.
