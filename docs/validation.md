@@ -511,3 +511,29 @@ S102 runs (one tuned, one held out) leave out a part while asking who may
 decide. The rejected first reply is also new. Two guide
 rules differ from the first review's (the reworded immediate_action c3, and
 "as needed" for the S105 fulfilment items), so the comparison is not exact.
+
+## Semantic scenarios with Claude, prompt 8 (2026-10-07)
+
+The prompt 7 pre-screen found recommendations without the need they serve or
+their expected effect, a record that gave Sam a pronoun nobody stated, and a
+reply rejected for its shape. Prompt 8 asks a recommendation for its four
+parts, refers to participants by name or as they, asks only who may decide
+to start an unowned test, and the Anthropic transport names the proposal's six
+top-level fields. Strict tool use was tried for the shape and dropped: the API
+refuses this contract's 45 optional and 68 union-typed fields (limits 24 and
+16).
+
+The same billed command (`.evaluation-runs/2026-10-07-semantic-sonnet-prompt8/`,
+report SHA-256 beginning `25a49052da1552eb`): 40 cases, each reply attempted
+once. Machine checks: 332 passed, 6 failed, all from two rejected replies, each
+the only evaluated reply of its case: in `attributed_correction-1` the next
+move carried a field it does not have (`purpose_note`), and in
+`blaming_question-1` the next move's fields were beside the intervention
+object. Their six criteria have nothing to judge.
+
+Mechanical signals, not judgements: no record or next move uses a gendered
+pronoun, and no next move asks more than one question (48 ask one, 4 none).
+The rejected replies did not fall: one in 44 under prompt 6, one in 52 under
+prompt 7, two here. Each attempt is made once by design, so a rejected reply
+costs its case; in use, the operator retries the retained input. The 138
+rubric criteria wait for review on their own page.
