@@ -67,6 +67,14 @@ To change a test before any result for it is recorded, record a new test with
 replaces set to the test's current ref: it is a new version of the same test, not
 a second test. Once a result is in the model the forecast stays as it is, and a
 changed plan is a new test. Results and reviews cite the test's current version.
+A test may also record the pilot's own baseline, its dose (how much of the change,
+how often) and an alternative explanation that would produce the same result; leave
+each null unless the participant said it.
+To record that an action was done, record a new action with replaces set to its
+current ref and execution completed. Completing an action does not establish its
+expected state: keep expected_state_attainment unknown or pending until a result
+for its test is recorded. expected_state says, in the participant's words, what
+the action should bring about.
 
 Construct proposed_updates before choosing the intervention. Retaining an input
 in sources alone does not account for its contribution in the reasoning case.

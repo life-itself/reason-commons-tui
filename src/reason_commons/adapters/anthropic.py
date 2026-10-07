@@ -83,7 +83,7 @@ class AnthropicConsultant:
 
     @property
     def version(self):
-        return (f"anthropic/adapter=1/prompt=6/schema=2/model={self._resolved_model or self.model}"
+        return (f"anthropic/adapter=1/prompt=6/schema=3/model={self._resolved_model or self.model}"
                 f"/max_tokens={self.max_tokens}/proposal=tool-auto"
                 f"/procedure={sha256(self._procedure.encode()).hexdigest()[:16]}"
                 f"/context={sha256(self._context.encode()).hexdigest()[:16]}")

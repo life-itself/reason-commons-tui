@@ -147,6 +147,40 @@ def project_backlog(snapshot, records, membership, sources):
     return entries
 
 
+def identity_of(ref):
+    return ref.split("@")[0] if isinstance(ref, str) else ref
+
+
+def review_fields(test, records, membership):
+    """What a pilot's review needs, in the order it is read, each value None while it is unknown.
+
+    The values are what someone recorded: the test's own fields, its forecast, the owner of its current
+    action and the safeguards of the goal it serves. Nothing is inferred to fill a gap."""
+    data, forecasts = test["data"], test["data"].get("forecast") or []
+    joined = lambda values: " · ".join(dict.fromkeys(str(v) for v in values if v)) or None
+    owners = [r["data"].get("owner") for r in records.values() if r["kind"] == "action"
+              and membership.current(r["ref"]) and identity_of(r["data"].get("test_ref")) == identity_of(test["ref"])]
+    goal = records.get(data.get("goal_ref"))
+    protections = list((goal or {}).get("data", {}).get("protections") or [])
+    protections += [f"{f.get('measure')}: {f['bound']}" for f in forecasts if f.get("bound")]
+    pair = lambda one, other, name: (None if not (one or other) else
+                                     " · ".join([one or f"{name} unknown", other] if other else [one]))
+    return [{"field": field, "value": value} for field, value in [
+        ("owner and scope", pair(joined(owners), data.get("scope"), "owner")),
+        ("intervention and dose", " · dose: ".join([data["statement"], data["dose"]]) if data.get("dose")
+         else data["statement"] + " · dose unknown"),
+        ("baseline and cohort", pair(data.get("baseline"), joined(f.get("scope") for f in forecasts), "baseline")),
+        ("exact prediction", joined(f"{f.get('expected')} ({f.get('measure')})" for f in forecasts
+                                    if f.get("expected"))),
+        ("measurement method", joined(f.get("measure") + (f" per {f['denominator']}" if f.get("denominator") else "")
+                                      for f in forecasts if f.get("measure"))),
+        ("observation window", joined(f.get("period") for f in forecasts)),
+        ("protected conditions", joined(protections)),
+        ("stopping conditions", data.get("stop_condition")),
+        ("alternative explanation", data.get("alternative_explanation")),
+        ("review date", data.get("review_date"))]]
+
+
 def project_workspace(snapshot, sources, *, view="next", selection=None, live_revision=None,
                       cursor=None, history=(), pending=()):
     require(view in VIEWS, "Unknown workspace view")
@@ -225,7 +259,21 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
                         and membership.current(r["ref"])]
         comparisons.append({"test": deepcopy(test), "observations": deepcopy(observations),
                             "reviews": [deepcopy(r) for r in records.values() if r["kind"] == "review"
-                                        and r["data"]["test_ref"] == test["ref"] and membership.current(r["ref"])]})
+                                        and r["data"]["test_ref"] == test["ref"] and membership.current(r["ref"])],
+                            "review_fields": review_fields(test, records, membership)})
+    # A test whose goal (or anything else it cites) has changed needs review before the next test decision.
+    flags = membership.flags()
+    test_reviews = [{"ref": ref, "statement": records[ref]["data"]["statement"],
+                     "flags": [f for f in flags if f["ref"] == ref]}
+                    for ref in dict.fromkeys(f["ref"] for f in flags)
+                    if ref in records and records[ref]["kind"] == "test"]
+    # Completing an action says the work happened; whether it had its effect waits for a result.
+    observed = {identity_of(r["data"]["test_ref"]) for r in records.values()
+                if r["kind"] == "observation" and membership.current(r["ref"])}
+    notices = [{"ref": r["ref"], "message": "Action completed; result awaiting observation."}
+               for r in records.values() if r["kind"] == "action" and membership.current(r["ref"])
+               and r["data"].get("execution") == "completed"
+               and identity_of(r["data"].get("test_ref")) not in observed]
     historical = live_revision is not None and live_revision != case["revision"]
     actions = [{"id": "view_" + name, "label": name.title(), "route": "local", "capability": "workspace",
                 "arguments": {"view": name, "revision": case["revision"]}} for name in VIEWS]
@@ -306,7 +354,8 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
             "selected_source": deepcopy(visible_sources.get(selection)),
             "sources": visible_sources if view == "sources" else {}, "uncertainty": unknowns,
             "diagram": {"kind": "recorded_references", "nodes": deepcopy(diagram_nodes), "links": diagram_links},
-            "comparisons": comparisons, "available_actions": actions,
+            "comparisons": comparisons, "test_reviews": test_reviews, "notices": notices,
+            "available_actions": actions,
             "trees": project_trees(all_records, membership),
             "acceptance": membership.acceptance, "backlog": backlog, "reply": reply,
             "membership": {ref: status for ref, status in membership.status.items()},

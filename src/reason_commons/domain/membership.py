@@ -66,7 +66,7 @@ class Membership:
 
     def replacements(self):
         return {r["data"]["replaces"]: ref for ref, r in self.records.items()
-                if self.accepted(ref) and r["kind"] in {"claim", "goal", "test"} and r["data"].get("replaces")}
+                if self.accepted(ref) and r["kind"] in {"claim", "goal", "test", "action"} and r["data"].get("replaces")}
 
     def withdrawn(self):
         return {r["data"]["target_ref"]: ref for ref, r in self.records.items()
@@ -132,6 +132,12 @@ class Membership:
                    for o, r in self.records.items()):
                 return "blocked", (f"a result for {record['data']['replaces']} is already in the model, so its "
                                    "forecast stays as it was; a changed plan is a new test")
+        if record["kind"] == "action" and record["data"].get("expected_state_attainment") in {"met", "not_met"}:
+            test = identity(record["data"]["test_ref"])
+            if not any(r["kind"] == "observation" and identity(r["data"]["test_ref"]) == test
+                       and (self.current(o) or o in together) for o, r in self.records.items()):
+                return "blocked", ("completing an action does not establish its expected state; that waits for a "
+                                   "result for its test")
         if record["kind"] == "goal" and not record["data"].get("replaces"):
             others = [g for g in self.goals(proposing) if g != ref and g not in together]
             if others:

@@ -306,3 +306,26 @@ def test_a_test_takes_new_versions_until_its_first_result():
     # A version proposed before the result is closed when the result is accepted, and says so.
     after, decision = decide(waiting_version, waiting_sources, "accept", ["B1@1"])
     assert decision["closes"] == ["P1@3"] and after.membership().status["P1@3"] == "closed"
+
+
+def test_completing_an_action_does_not_establish_its_expected_state():
+    case, value, sources = aggregate()
+    forecast = [{"measure": "first practice", "expected": "6 of 30", "scope": None, "denominator": "newcomers"}]
+    planned = dict(statement="Invite at the end", test_ref="test", execution="planned",
+                   expected_state_attainment="pending", expected_state="Newcomers know a practice exists")
+    case = reply(case, value, sources, update("goal", "goal", statement="A clear next step"),
+                 update("test", "test", statement="Invite", goal_ref="goal", scope=None, forecast=forecast,
+                        dose="one invitation per evening"),
+                 update("action", "temp_a", **planned))
+    case, _ = decide(case, sources, "accept", ["A1@1"])
+    done = dict(planned, test_ref="P1@1", replaces="A1@1", execution="completed")
+    with pytest.raises(InvalidCase, match="result"):
+        answer(case, value, sources, "in002", update("action", "temp_b", **dict(done, expected_state_attainment="met")))
+    completed, sources = answer(case, value, sources, "in002", update("action", "temp_b", **done))
+    completed, _ = decide(completed, sources, "accept", ["A1@2"])
+    assert [r for r in completed.membership().model() if r.startswith("A")] == ["A1@2"]
+    # Once a result is in the model (here in the same reply), the expected state can be judged.
+    result = update("observation", "temp_o", test_ref="P1@1", measure="first practice", value="9 of 31")
+    judged, _ = answer(completed, value, sources, "in003", result,
+                       update("action", "temp_c", **dict(done, replaces="A1@2", expected_state_attainment="met")))
+    assert judged.membership().status["A1@3"] == "proposed"

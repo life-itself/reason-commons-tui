@@ -246,7 +246,8 @@ flush failures remain `not_saved` and never trigger another consultant call.
 `python3 scripts/check_p0.py` runs document consistency, the pre-existing checker
 regressions, domain/storage/application/skill tests and, through Behave, **the
 nine p0 scenarios**, every scenario of the two p2 features delivered so far (trees
-in conversation, S128–S134, and deciding what enters the model, S135–S150), the
+in conversation, S128–S134, and deciding what enters the model, S135–S150), the other delivered p2
+scenarios (listed in `DELIVERED_P2`, the rest named as outstanding), the
 delivered p1 workspace scenarios and the conversation features. The runner locates
 external step definitions; it does not copy, rewrite or weaken the feature files.
 It also verifies the exact selected scenario identities and rejects undefined,

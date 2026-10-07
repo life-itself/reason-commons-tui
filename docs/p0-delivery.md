@@ -484,3 +484,29 @@ cases, `tests/test_tui.py` the withdrawal dialog, and six deliberate breaks (one
 rule above) each failed the scenario written for it. A live check with
 `claude-sonnet-5-5` passed all three rules; `claude-haiku-4-5-20251001` could not
 produce valid proposals reliably (see [validation](validation.md)).
+
+## The loop's records (p2 scenarios S32, S37, S95, S101, 7 October 2026)
+
+Toward finishing v1, the case engine scenarios of the goal-action-review loop:
+
+- **A pilot reviewable later (S32).** A test may record the pilot's own `baseline`, its
+  `dose` and an `alternative_explanation`. The workspace's comparisons carry ten
+  `review_fields` (owner and scope, intervention and dose, baseline and cohort, exact
+  prediction, measurement method, observation window, protected conditions, stopping
+  conditions, alternative explanation, review date), drawn from the test, its
+  forecast, its current action's owner and its goal's safeguards; a field nobody
+  recorded is `None`, shown as "unknown" in text and listed under "Not recorded yet"
+  in the Tests view.
+- **A review date is a date (S37).** It reads "Review October 19; no reminder
+  scheduled", and nothing is scheduled, sent or written outside the case.
+- **A test's goal changed (S95).** The existing review flag is also projected as
+  `test_reviews`, shown at the next test decision ("Review needed: …").
+- **Completing an action (S101).** An action may take new versions (`A1@2`) and
+  record its `expected_state`. Marking that state met or not met is refused until a
+  result for its test is in the model. A completed action without a result shows
+  "Action completed; result awaiting observation." The provider schema is now
+  `schema=3`, and the consultant prompt describes the new fields.
+
+`scripts/check_p0.py` now also runs the p2 scenarios delivered outside features 12
+and 13 (`DELIVERED_P2`) and names the rest of p2 as outstanding, as it does for p1.
+Five deliberate breaks, one per rule above, each failed the scenario written for it.

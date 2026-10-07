@@ -140,6 +140,13 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
     else:
         heading("Start this case")
         paragraph("What would you like to improve, and what must be protected? Contribute in your own words; unknown details can stay unknown.")
+    for notice in workspace.get("notices") or []:
+        paragraph(literal(notice["message"]) + " (" + notice["ref"] + ")")
+    for review in workspace.get("test_reviews") or []:
+        changed = "an earlier version of the goal" if any(f["field"] == "goal_ref" for f in review["flags"]) else \
+            "something that has since changed"
+        paragraph(f"Review needed: test {review['ref']} " + literal(review["statement"])
+                  + f" was planned for {changed}; check it still serves the current goal before the next test.")
     heading("Goal and safeguards")
     if not workspace["goals"]:
         paragraph("No formal goal is recorded yet.")
@@ -205,8 +212,12 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
     for comparison in workspace["comparisons"]:
         heading("Original forecast and reported results · " + comparison["test"]["ref"])
         data = comparison["test"]["data"]
-        paragraph("Test scope: " + literal(data.get("scope")) + "; review date: " + literal(data.get("review_date")))
+        paragraph("Test scope: " + literal(data.get("scope")))
+        paragraph(f"Review {literal(data['review_date'])}; no reminder scheduled" if data.get("review_date")
+                  else "Review date: unknown")
         paragraph("Stop condition: " + literal(data.get("stop_condition")))
+        for field in comparison.get("review_fields") or []:
+            paragraph(field["field"].capitalize() + ": " + (literal(field["value"]) if field["value"] else "unknown"))
         forecasts = data.get("forecast") or []
         if markdown and forecasts:
             lines.extend(["| Measure | Original forecast | Reported result |", "| --- | --- | --- |"])

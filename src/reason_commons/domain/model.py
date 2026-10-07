@@ -30,8 +30,12 @@ FIELDS = {
     "goal": {"statement", "scope", "horizon", "measure", "baseline", "protections", "replaces"},
     "note": {"text", "basis"},
     # A test can take new versions until a result for it is in the model; then its forecast is fixed.
-    "test": {"statement", "goal_ref", "scope", "forecast", "stop_condition", "review_date", "claim_ref", "replaces"},
-    "action": {"statement", "test_ref", "owner", "authority", "execution", "expected_state_attainment"},
+    # Its baseline, dose and alternative explanation are the pilot's own, apart from the goal's.
+    "test": {"statement", "goal_ref", "scope", "forecast", "stop_condition", "review_date", "claim_ref", "replaces",
+             "baseline", "dose", "alternative_explanation"},
+    # A new version of an action records its execution; reaching the expected state is a separate question.
+    "action": {"statement", "test_ref", "owner", "authority", "execution", "expected_state_attainment",
+               "expected_state", "replaces"},
     "observation": {"test_ref", "measure", "value", "scope", "denominator", "period", "basis"},
     "review": {"test_ref", "observation_refs", "assessment", "next_decision", "goal_ref"},
     # Thinking-process trees, in the LTP 1.0 vocabulary. A claim is one sourced
@@ -54,7 +58,7 @@ REQUIRED_REFERENCES = {"test": {"goal_ref"}, "action": {"test_ref"},
                        "link": {"from_ref", "to_ref"}, "retraction": {"target_ref"}}
 # Fields that cite another record, and the kinds each may cite.
 REFERENCE_KINDS = {"goal_ref": {"goal"}, "test_ref": {"test"}, "claim_ref": {"claim"},
-                   "from_ref": {"claim", "goal"}, "to_ref": {"claim", "goal"}, "replaces": {"claim", "goal", "test"},
+                   "from_ref": {"claim", "goal"}, "to_ref": {"claim", "goal"}, "replaces": {"claim", "goal", "test", "action"},
                    "target_ref": {"claim", "link"}}
 TREES = ("goal", "current_reality", "conflict", "future_reality", "prerequisite", "transition")
 ALL_TREES = set(TREES)

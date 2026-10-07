@@ -419,9 +419,13 @@ def comparison_block(workspace, comparison, wide):
     details = Table.grid(padding=(0, 2))
     details.add_column(style="bold dim", no_wrap=True)
     details.add_column()
-    for name, value in (("Stop condition", test.get("stop_condition")), ("Review date", test.get("review_date"))):
-        if value:
-            details.add_row(name, Text(str(value)))
+    if test.get("stop_condition"):
+        details.add_row("Stop condition", Text(str(test["stop_condition"])))
+    if test.get("review_date"):
+        details.add_row("Review", Text(f"{test['review_date']}; no reminder scheduled"))
+    unknown = [f["field"] for f in comparison.get("review_fields") or [] if not f["value"]]
+    if unknown:
+        details.add_row("Not recorded yet", Text(", ".join(unknown), style="italic"))
     for review in comparison["reviews"]:
         who = speakers(workspace, review["ref"])
         details.add_row("Review" + (f" · {who}" if who else ""), Text(str(review["data"]["assessment"])))
@@ -1631,6 +1635,14 @@ class ReasonCommonsApp(ThemedApp):
             lines += [f"## {md(data.get('decision') or 'Next question')}", "", md(question), ""]
             lines += [f"###### {md(hint)}", ""] * bool(hint)
             rationale = data["rationale"]
+            # What changes the next decision: work done whose effect is not known yet, and tests whose goal moved.
+            for notice in w.get("notices") or []:
+                lines += [f"**{md(notice['message'])}** It says the work happened, not that it had its effect.", ""]
+            for review in w.get("test_reviews") or []:
+                changed = ("an earlier version of the goal" if any(f["field"] == "goal_ref" for f in review["flags"])
+                           else "something that has since changed")
+                lines += [f"> **Review needed:** the test *{md(review['statement'])}* was planned for {changed}. "
+                          "Check it still serves the current goal; **h** in Backlog says it still holds.", ""]
             news = self.tree_news()
             if news and not self.heard_in_full():  # a small change is drawn below the question instead
                 lines += [f"*In the trees, the last step: {md(tree_summary(news))}. Ctrl+T shows them.*", ""]
