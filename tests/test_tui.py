@@ -338,7 +338,7 @@ def test_trees_view_draws_imported_trees_and_exports_them(tmp_path):
     assert consultant.calls == []
     assert exported.read_text().count("tree: ") >= 69
     with open_case(path, writable=False) as case:
-        assert case.inspect()["cursor"]["display"] == {"tree": "goal"}
+        assert case.inspect()["cursor"]["display"] == {"tree": "goal", "density": "compact"}
 
 
 def sample_at(tmp_path, answers):
@@ -1309,6 +1309,68 @@ def test_undo_from_history_shows_what_goes_and_is_final(tmp_path):
             await pilot.pause()
             assert not isinstance(app.screen, ChoiceScreen)
     asyncio.run(run())
+
+
+def test_accepting_a_withdrawal_shows_the_links_that_leave_with_it(tmp_path):
+    from reason_commons.adapters.tui import ChoiceScreen
+    from tests.test_trees import claim, link, with_updates
+    path = tmp_path / "case"
+    create_case(path, "Open evenings").close()
+    consultant = ScriptedConsultant([
+        with_updates(claim("temp_ude", "Newcomers do not know the next step"),
+                     claim("temp_cause", "We never offer a next step", role="root_cause"),
+                     link("temp_link", "temp_cause", "temp_ude")),
+        with_updates({"operation": "record_retraction", "temporary_id": "temp_x", "source_refs": ["x"],
+                      "data": {"target_ref": "C2@1", "reason": "Not what we think now"}}),
+    ])
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(140, 40)) as pilot:
+            await send(app, pilot, "Newcomers do not know the next step, because we never offer one")
+            app.accept_reply()
+            await pilot.pause()
+            await send(app, pilot, "Drop that cause")
+            app.accept_reply()
+            await pilot.pause()
+            # The withdrawal takes the link with it: that is shown first, and nothing changes until confirmed.
+            assert isinstance(app.screen, ChoiceScreen) and "Leaves your trees with it" in screen_text(app)
+            assert "We never offer a next step" in screen_text(app)
+            crt = next(t for t in app.workspace_value["trees"] if t["tree"] == "current_reality")
+            assert [l["ref"] for l in crt["links"]] == ["L1@1"]
+            await pilot.press("enter")  # Confirm
+            await pilot.pause()
+            crt = next(t for t in app.workspace_value["trees"] if t["tree"] == "current_reality")
+            assert [c["ref"] for c in crt["claims"]] == ["C1@1"] and crt["links"] == []
+    asyncio.run(run())
+
+
+def test_expanded_display_repeats_the_complete_context_and_is_saved_with_the_draft(tmp_path):
+    from tests.acceptance.steps.display_steps import PILOT
+    from tests.acceptance.steps.question_steps import GOAL
+    from tests.test_trees import with_updates
+    path = tmp_path / "case"
+    create_case(path, "Forge", acceptance="automatic", actor="Sam").close()
+    consultant = ScriptedConsultant([with_updates(GOAL), with_updates(PILOT)])
+
+    async def run(expand):
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            if expand:
+                await send(app, pilot, "90% on time by October 30")
+                await send(app, pilot, "Keep two urgent slots open")
+                assert app.density == "compact" and "Horizon" not in as_read(app.band())
+                calls = len(consultant.calls)
+                app.set_density("expanded")
+                await pilot.pause()
+                app.checkpoint()
+                assert len(consultant.calls) == calls
+            shown = as_read(app.band())
+            assert app.density == "expanded"
+            assert "Horizon October 30" in shown and "Baseline 71% in September" in shown
+            assert "Overtime at most 20 hours per week" in shown and "Keep two urgent slots open each day" in shown
+    asyncio.run(run(True))
+    asyncio.run(run(False))  # reopened: the preference came back with the draft
 
 
 def test_commands_switch_how_proposals_are_accepted(tmp_path):

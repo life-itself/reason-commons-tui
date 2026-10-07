@@ -196,8 +196,12 @@ class CaseApplication:
                 return self._failure(request_id, "not_saved", "not saved; input retained; request did not start",
                                      ["retry_retained_input"], persist=False)
             try:
+                # Only words the case took in, this answer and supplied sources: a stale answer is not shown.
+                taken_in = set(current.value["applied_requests"]) | {request_id}
+                sources = {ref: source for ref, source in self._store.sources().items()
+                           if "request_id" not in source or ref in taken_in}
                 proposal = self._consultant.propose({"input": deepcopy(value), "case": current.to_dict(),
-                                                    "sources": deepcopy(self._store.sources()),
+                                                    "sources": deepcopy(sources),
                                                     "model": consulting_view(current)})
             except ConsultantResponseError:
                 return self._failure(request_id, "rejected", "Input retained; invalid structured response rejected",
@@ -280,10 +284,13 @@ class CaseApplication:
                                                 self._store.next_revision(), self._clock.now(), self._timezone, value)
         except InvalidCase as exc:
             return {"status": "rejected", "message": str(exc)[:300]}
-        before = {(f["ref"], f["cites"]) for f in current.membership().flags()}
+        membership = current.membership()
+        before = {(f["ref"], f["cites"]) for f in membership.flags()}
         flags = [f for f in snapshot.membership().flags() if (f["ref"], f["cites"]) not in before]
-        outcome = {"action": action, "refs": decision["refs"], "closes": decision["closes"], "flags": flags}
-        takes_more = set(decision["refs"]) != set(refs) or decision["closes"]
+        leaves = membership.leaves_after(decision) if action in {"accept", "reject", "undo"} else []
+        outcome = {"action": action, "refs": decision["refs"], "closes": decision["closes"], "leaves": leaves,
+                   "flags": flags}
+        takes_more = set(decision["refs"]) != set(refs) or decision["closes"] or leaves
         if not confirmed and (action == "undo" or action in {"accept", "reject"} and takes_more):
             return {"status": "confirm", **outcome,
                     "message": "Final; it cannot be undone" if action == "undo" else "This takes more than you chose"}

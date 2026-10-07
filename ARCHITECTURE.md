@@ -98,9 +98,11 @@ Callers get copies of state, not mutable aggregate/repository handles.
 - `accept`, `reject`, `undo`: the operator's decisions about proposals, each one local
   revision with no consultant call. Accept takes the waiting proposals the chosen ones
   need, reject the waiting proposals that need them, undo whatever cannot stand without
-  the undone records. When that is more than was named (and for every undo) the result
-  is `confirm`, listing everything, and nothing changes until the call is repeated with
-  `confirmed=True`. A stale `base_revision` is refused.
+  the undone records; accepting a withdrawal also takes the links that join the
+  withdrawn statement out of the trees, returned as `leaves`. When that is more than
+  was named (and for every undo) the result is `confirm`, listing everything, and
+  nothing changes until the call is repeated with `confirmed=True`. A stale
+  `base_revision` is refused.
 - `still_holds`: closes a record's open review flags, recording the operator's judgment.
 - `set_acceptance`: `review` (the default) or `automatic`, recorded as a decision. The
   MCP bridge refuses it unless the operator started the server with
@@ -132,7 +134,8 @@ list; `domain/membership.py` derives everything else from them: what is in the m
 readiness, what a decision takes with it, the backlog's order and review flags. Flags
 are derived from explicit references rather than stored. Under automatic acceptance
 the ready proposals of a reply are accepted in the reply's own revision, recorded as
-automatic with that request.
+automatic with that request; a withdrawal that would take links with it waits for the
+operator.
 
 Only a newer consultant question makes a pending reply stale: decisions recorded while
 the consultant works leave the response target unchanged, and the reply's proposals are
@@ -212,6 +215,9 @@ before validation/publication, so interrupted commits retry without another call
 The snapshot's applied-request ledger remains authoritative if receipt writing
 fails after publication. Retry of an invalid proposal starts a fresh attempt;
 retry of a stale input requires a new, explicit evaluation against the new base.
+A stale input is not part of the case: the consultant is sent only applied inputs,
+the input it answers and supplied attachments, and a reply that cites any other
+input is rejected before commit.
 
 `allocations.yaml` durably reserves revision and object IDs before writing a
 candidate. Crashes may leave gaps. Orphan candidates are never current history;
@@ -240,7 +246,8 @@ flush failures remain `not_saved` and never trigger another consultant call.
 `python3 scripts/check_p0.py` runs document consistency, the pre-existing checker
 regressions, domain/storage/application/skill tests and, through Behave, **the
 nine p0 scenarios**, every scenario of the two p2 features delivered so far (trees
-in conversation, S128–S134, and deciding what enters the model, S135–S147), the
+in conversation, S128–S134, and deciding what enters the model, S135–S150), the other delivered p2
+scenarios (listed in `DELIVERED_P2`, the rest named as outstanding), the
 delivered p1 workspace scenarios and the conversation features. The runner locates
 external step definitions; it does not copy, rewrite or weaken the feature files.
 It also verifies the exact selected scenario identities and rejects undefined,

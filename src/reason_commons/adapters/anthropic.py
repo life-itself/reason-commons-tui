@@ -60,6 +60,10 @@ class AnthropicConsultant:
                             "exactly once. Supply the proposal as its input, rather than emitting JSON as plain text. "
                             "Give schema_version and delivery_profile as the exact strings the schema names "
                             "(schema_version is the string \"1\", never the number 1). "
+                            "The proposal's top level has exactly six fields: schema_version, delivery_profile, "
+                            "request_id, base_revision, intervention and proposed_updates. Everything about the next "
+                            "move (kind, purpose, primary_prompt, rationale, goal_ref, decision, options, "
+                            "required_context_refs) goes inside the intervention object, never beside it. "
                             "This is a data return channel, not an executable application capability.")
 
     @classmethod
@@ -83,7 +87,7 @@ class AnthropicConsultant:
 
     @property
     def version(self):
-        return (f"anthropic/adapter=1/prompt=6/schema=2/model={self._resolved_model or self.model}"
+        return (f"anthropic/adapter=1/prompt=8/schema=3/model={self._resolved_model or self.model}"
                 f"/max_tokens={self.max_tokens}/proposal=tool-auto"
                 f"/procedure={sha256(self._procedure.encode()).hexdigest()[:16]}"
                 f"/context={sha256(self._context.encode()).hexdigest()[:16]}")

@@ -33,8 +33,8 @@ Users work with questions, reports, relationships, goals, tests, actions and
 reviews. Internal consultant records do not become numbered stationery objects.
 
 - 17 jobs to be done with observable signals and traceability.
-- 13 `.feature` files: 147 named scenarios/outlines, expanding to 183 cases.
-- V1: 84 scenarios and 112 expanded cases across p0-p2.
+- 13 `.feature` files: 150 named scenarios/outlines, expanding to 186 cases.
+- V1: 87 scenarios and 115 expanded cases across p0-p2.
 - Later p3-p5: 63 scenarios and 71 expanded cases.
 - 38 ASCII screens across three synchronized TUI specimens.
 - `example-mvp-session.txt`: v1, 6 consultant calls and 9 revisions, 80x24;
@@ -56,7 +56,7 @@ reviews. Internal consultant records do not become numbered stationery objects.
 |---|---|---:|---:|
 | p0 | Durable minimal case | 9 | 9 |
 | p1 | Persistent TUI workspace | 32 | 47 |
-| p2 | Complete v1 goal-action-review loop, trees in conversation, proposals decided in a backlog | 43 | 56 |
+| p2 | Complete v1 goal-action-review loop, trees in conversation, proposals decided in a backlog | 46 | 59 |
 | p3 | Partial causal reasoning | 29 | 31 |
 | p4 | Facilitated positions and Cloud | 16 | 16 |
 | p5 | Full tools and cross-tool review | 18 | 24 |

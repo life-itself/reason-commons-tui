@@ -221,3 +221,111 @@ def test_a_case_recorded_before_proposals_needed_acceptance_opens_unchanged(tmp_
         assert case["records"][:records] == before["records"]
         assert [e["ref"] for e in app.workspace(view="backlog")["backlog"]] == [case["records"][records]["ref"]]
         accept_all(app, "David")
+
+
+def answer(case, value, sources, request_id, *updates):
+    """A later reply, answering ``request_id``; returns the case and the sources including it."""
+    later = dict(value, request_id=request_id, base_revision=case.revision, response_target=case.target)
+    sources = {**sources, request_id: later}
+    return reply(case, later, sources, *({**u, "source_refs": [request_id]} for u in updates),
+                 revision=case.revision + 1), sources
+
+
+def withdrawal(target):
+    return update("retraction", "temp_x", target_ref=target, reason="Not what we think now")
+
+
+def test_accepting_a_withdrawal_lists_the_links_it_takes_and_no_more():
+    case, sources = crt()
+    value = aggregate()[1]
+    case, _ = decide(case, sources, "accept", ["L1@1"])
+    of_cause, of_sources = answer(case, value, sources, "in002", withdrawal("C2@1"))
+    assert of_cause.membership().leaves_after({"action": "accept", "refs": ["X1@1"], "closes": []}) == ["L1@1"]
+    accepted, _ = decide(of_cause, of_sources, "accept", ["X1@1"])
+    assert accepted.membership().model() == ["C1@1", "L1@1", "X1@1"]  # the link is current but not drawn
+    assert not accepted.membership().drawn_link("L1@1")
+    of_link, _ = answer(case, value, sources, "in002", withdrawal("L1@1"))
+    assert of_link.membership().leaves_after({"action": "accept", "refs": ["X1@1"], "closes": []}) == []
+    _, undo = decide(case, sources, "undo", ["C2@1"])
+    assert undo["refs"] == ["C2@1", "L1@1"] and case.membership().leaves_after(undo) == []
+
+
+def test_automatic_acceptance_holds_a_withdrawal_that_would_take_links():
+    case, sources = crt()
+    value = aggregate()[1]
+    case, _ = decide(case, sources, "accept", ["L1@1"])
+    case, _ = decide(case, sources, "acceptance", [], "automatic")
+    held, held_sources = answer(case, value, sources, "in002", withdrawal("C2@1"))
+    assert held.membership().status["X1@1"] == "proposed" and held.membership().drawn_link("L1@1")
+    plain, _ = answer(case, value, sources, "in002", withdrawal("L1@1"))
+    assert plain.membership().status["X1@1"] == "accepted" and plain.value["decisions"][-1]["mode"] == "automatic"
+
+
+def test_a_reply_cites_only_answers_the_case_took_in_and_supplied_sources():
+    case, value, sources = aggregate()
+    case = reply(case, value, sources, update("note", "temp_n", text="Pilot"))
+    stale = dict(value, request_id="in002", base_revision=case.revision, response_target=case.target)
+    supplied = {"source_id": "s" + "0" * 32, "name": "notes.txt", "speaker": "Sam",
+                "content_base64": "", "sha256": "0" * 64}
+    sources = {**sources, "in002": stale, supplied["source_id"]: supplied}
+    later = dict(value, request_id="in003", base_revision=case.revision, response_target=case.target)
+    sources = {**sources, "in003": later}
+    note = lambda *refs: {**update("note", "temp_m", text="A second visit within four weeks"), "source_refs": list(refs)}
+    with pytest.raises(InvalidCase, match="in002"):
+        reply(case, later, sources, note("in003", "in002"), revision=case.revision + 1)
+    allowed = reply(case, later, sources, note("in003", "in001", supplied["source_id"]), revision=case.revision + 1)
+    assert allowed.membership().status["N2@1"] == "proposed"
+    # The rule governs new replies; a case already holding such a citation still validates and opens.
+    earlier = deepcopy(allowed.value)
+    earlier["records"][-2]["source_refs"] = ["in002"]
+    Snapshot(earlier).validate(sources)
+
+
+def test_a_test_takes_new_versions_until_its_first_result():
+    case, value, sources = aggregate()
+    forecast = [{"measure": "first practice", "expected": "6 of 30", "scope": None, "denominator": "newcomers"}]
+    case = reply(case, value, sources, update("goal", "goal", statement="A clear next step"),
+                 update("test", "test", statement="Invite at the end", goal_ref="goal", scope=None, forecast=forecast))
+    case, _ = decide(case, sources, "accept", ["P1@1"])
+    revised = [dict(forecast[0], expected="8 of 30")]
+    case, sources = answer(case, value, sources, "in002", update("test", "temp_p", statement="Invite at the end",
+                           goal_ref="G1@1", scope=None, forecast=revised, replaces="P1@1"))
+    case, _ = decide(case, sources, "accept", ["P1@2"])
+    assert [r for r in case.membership().model() if r.startswith("P")] == ["P1@2"]
+    result = lambda test: update("observation", "temp_o", test_ref=test, measure="first practice", value="9 of 31")
+    with pytest.raises(InvalidCase, match="earlier version"):
+        answer(case, value, sources, "in003", result("P1@1"))
+    case, sources = answer(case, value, sources, "in003", result("P1@2"))
+    waiting_version, waiting_sources = answer(case, value, sources, "in004", update(
+        "test", "temp_q", statement="Invite at the end", goal_ref="G1@1", scope=None, forecast=forecast,
+        replaces="P1@2"))
+    case, _ = decide(case, sources, "accept", ["B1@1"])
+    with pytest.raises(InvalidCase, match="result"):
+        answer(case, value, sources, "in004", update("test", "temp_q", statement="Invite at the end",
+               goal_ref="G1@1", scope=None, forecast=forecast, replaces="P1@2"))
+    # A version proposed before the result is closed when the result is accepted, and says so.
+    after, decision = decide(waiting_version, waiting_sources, "accept", ["B1@1"])
+    assert decision["closes"] == ["P1@3"] and after.membership().status["P1@3"] == "closed"
+
+
+def test_completing_an_action_does_not_establish_its_expected_state():
+    case, value, sources = aggregate()
+    forecast = [{"measure": "first practice", "expected": "6 of 30", "scope": None, "denominator": "newcomers"}]
+    planned = dict(statement="Invite at the end", test_ref="test", execution="planned",
+                   expected_state_attainment="pending", expected_state="Newcomers know a practice exists")
+    case = reply(case, value, sources, update("goal", "goal", statement="A clear next step"),
+                 update("test", "test", statement="Invite", goal_ref="goal", scope=None, forecast=forecast,
+                        dose="one invitation per evening"),
+                 update("action", "temp_a", **planned))
+    case, _ = decide(case, sources, "accept", ["A1@1"])
+    done = dict(planned, test_ref="P1@1", replaces="A1@1", execution="completed")
+    with pytest.raises(InvalidCase, match="result"):
+        answer(case, value, sources, "in002", update("action", "temp_b", **dict(done, expected_state_attainment="met")))
+    completed, sources = answer(case, value, sources, "in002", update("action", "temp_b", **done))
+    completed, _ = decide(completed, sources, "accept", ["A1@2"])
+    assert [r for r in completed.membership().model() if r.startswith("A")] == ["A1@2"]
+    # Once a result is in the model (here in the same reply), the expected state can be judged.
+    result = update("observation", "temp_o", test_ref="P1@1", measure="first practice", value="9 of 31")
+    judged, _ = answer(completed, value, sources, "in003", result,
+                       update("action", "temp_c", **dict(done, replaces="A1@2", expected_state_attainment="met")))
+    assert judged.membership().status["A1@3"] == "proposed"

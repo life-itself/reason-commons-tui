@@ -1,4 +1,4 @@
-"""Executable definitions for deciding what enters the model (S135-S147).
+"""Executable definitions for deciding what enters the model (S135-S150).
 
 Every step drives application use cases: the fixture consultant proposes, and the
 operator's decisions go through accept, reject, undo, still_holds and
@@ -625,3 +625,172 @@ def request_carries(context):
 def amendments_wait(context):
     assert context.result["proposed"] == ["X1@1"] and "X1@1" in waiting(context)
     assert [l["ref"] for l in tree(context, "current_reality")["links"]] == ["L1@1"]
+
+
+# S148 Withdraw a statement together with the links that join it.
+
+def test_record(alias, expected, **extra):
+    return {"operation": "record_test", "temporary_id": alias, "data": {
+        "statement": "Invite at the end for a month", "goal_ref": "G1@1", "scope": None,
+        "forecast": [{"measure": "first practice", "expected": expected, "scope": None,
+                      "denominator": "newcomers"}], **extra}}
+
+
+def withdrawal(target):
+    return {"operation": "record_retraction", "temporary_id": "temp_x",
+            "data": {"target_ref": target, "reason": "Not what we think now"}}
+
+
+@given("the Current Reality Tree holds an accepted cause with its causes link and a test that carries out the cause")
+def cause_with_test(context):
+    crt(context)
+    accepted(context, test_record("test", "6 of 30", claim_ref="C2@1"))
+
+
+@given("the consultant proposes withdrawing the cause")
+def propose_withdrawal(context):
+    assert reply(context, withdrawal("C2@1")) == ["X1@1"]
+
+
+@when("the operator accepts the withdrawal")
+def accept_withdrawal(context):
+    context.before = context.app.inspect()
+    decide(context, "accept", ["X1@1"])
+
+
+@then("the operator is shown that the link leaves the tree with the cause and the test is flagged for review")
+def shown_withdrawal(context):
+    result = context.result
+    assert result["status"] == "confirm" and result["refs"] == ["X1@1"], result
+    assert result["leaves"] == ["L1@1"] and result["closes"] == []
+    assert [(f["ref"], f["cites"], f["change"]) for f in result["flags"]] == [("P1@1", "C2@1", "withdrawn")]
+
+
+@then("nothing changes until the operator confirms")
+def nothing_yet(context):
+    assert context.app.inspect() == context.before
+    assert [l["ref"] for l in tree(context, "current_reality")["links"]] == ["L1@1"]
+
+
+@then("a new revision removes the cause and its link from the tree and the test's flag waits in the backlog")
+def withdrawn_with_link(context):
+    assert revision(context) == context.before["case"]["revision"] + 1
+    assert context.result["leaves"] == ["L1@1"]
+    current = tree(context, "current_reality")
+    assert [c["ref"] for c in current["claims"]] == ["C1@1"] and current["links"] == []
+    assert list(reviews(context)) == ["P1@1"]
+
+
+@then("in a case set to accept proposals automatically, the same withdrawal waits for the operator")
+def automatic_withdrawal_waits(context):
+    context.automatic = True
+    context.path = context.path.with_name("automatic-case")
+    crt(context)
+    assert reply(context, withdrawal("C2@1")) == ["X1@1"]
+    assert waiting(context) == ["X1@1"]
+    assert [l["ref"] for l in tree(context, "current_reality")["links"]] == ["L1@1"]
+    assert not any(d["mode"] == "automatic" and "X1@1" in d["refs"] for d in decisions(context))
+
+
+# S149 Cite only words the case has taken in.
+
+@given("an answer the operator sent became stale before the consultant replied to it")
+def stale_answer(context):
+    case_with_goal(context, "A clear next step after open evenings")
+    context.stale = retain(context.app, "A second visit means within four weeks")["request_id"]
+    reply(context, claim("temp_ude", "Newcomers do not know the next step"), text="The room is booked on Thursdays")
+    assert context.app.consult(context.stale)["status"] == "stale"
+
+
+@when("the operator sends another answer")
+def another_answer(context):
+    reply(context, claim("temp_cause", "We never offer a next step", role="root_cause"), text="We never offer one")
+
+
+@then("the consultant's request does not carry the stale answer")
+def request_without_stale(context):
+    request = context.provider.calls[-1]
+    assert context.stale not in request["sources"]
+    assert request["input"]["request_id"] in request["sources"]
+
+
+@then("a reply whose proposal cites the stale answer is rejected before commit, leaving the case unchanged")
+def citing_stale_rejected(context):
+    before = context.app.inspect()
+    def cites_stale(request):
+        value = proposal(request)
+        value["proposed_updates"].append({"operation": "record_note", "data": {
+            "text": "A second visit means within four weeks", "basis": "participant_report"},
+            "source_refs": [context.stale]})
+        return value
+    context.provider.responses.append(cites_stale)
+    result = submit(context.app, "What would you advise?")
+    assert result["status"] == "rejected" and context.stale in result["reason"], result
+    assert context.app.inspect()["case"] == before["case"]
+
+
+@then("the stale answer stays retained with its source, so the operator can send it again")
+def stale_retained(context):
+    assert context.app.sources()["sources"][context.stale]["text"] == "A second visit means within four weeks"
+    pending = context.app.workspace()["pending_requests"]
+    assert (context.stale, "stale") in [(p["input"]["request_id"], p["status"]) for p in pending]
+
+
+# S150 Revise a test's forecast only before its first result.
+
+def forecasts(context):
+    return [(c["test"]["ref"], c["test"]["data"]["forecast"][0]["expected"])
+            for c in context.app.workspace(view="tests")["comparisons"]]
+
+
+@given('an accepted test forecasting "{expected}" and an accepted action that carries it out')
+def test_with_action(context, expected):
+    case_with_goal(context, "A clear next step after open evenings")
+    accepted(context, test_record("test", expected),
+             {"operation": "record_action", "temporary_id": "temp_a",
+              "data": {"statement": "Give the invitation myself", "test_ref": "test"}})
+    assert forecasts(context) == [("P1@1", expected)]
+
+
+@when('the operator accepts a new version of the test forecasting "{expected}"')
+def new_test_version(context, expected):
+    assert accepted(context, test_record("temp_p", expected, replaces="P1@1")) == ["P1@2"]
+
+
+@then("the Tests view shows one test with the new forecast, and the case history keeps the earlier one")
+def one_test(context):
+    assert forecasts(context) == [("P1@2", "8 of 30")]
+    records = {r["ref"]: r for r in context.app.inspect()["case"]["records"]}
+    assert records["P1@1"]["data"]["forecast"][0]["expected"] == "6 of 30"
+
+
+@then("the action is flagged for review because it was planned for the earlier version")
+def action_flagged(context):
+    assert {ref: [(f["cites"], f["change"], f["now"]) for f in flags] for ref, flags in reviews(context).items()} == {
+        "A1@1": [("P1@1", "new_version", "P1@2")]}
+
+
+@when("a result is reported for the test and accepted")
+def result_accepted(context):
+    accepted(context, {"operation": "record_observation", "temporary_id": "temp_obs", "data": {
+        "test_ref": "P1@2", "measure": "first practice", "value": "9 of 31", "basis": "participant_report"}})
+
+
+@then("a further new version of the test is rejected before commit, so the forecast stays as it was before the result")
+def no_version_after_result(context):
+    before = context.app.inspect()
+    context.provider.responses.append(exactly(test_record("temp_p", "10 of 30", replaces="P1@2")))
+    result = submit(context.app, "Make it 10 of 30")
+    assert result["status"] == "rejected" and "result" in result["reason"], result
+    assert context.app.inspect()["case"] == before["case"]
+    assert forecasts(context) == [("P1@2", "8 of 30")]
+
+
+@then("a result citing the earlier version of the test is rejected before commit")
+def result_for_earlier_version(context):
+    before = context.app.inspect()
+    context.provider.responses.append(exactly({"operation": "record_observation", "temporary_id": "temp_obs",
+        "data": {"test_ref": "P1@1", "measure": "first practice", "value": "3 of 10", "basis": "participant_report"}}))
+    result = submit(context.app, "3 of 10 came")
+    assert result["status"] == "rejected" and "P1@1" in result["reason"], result
+    assert context.app.inspect()["case"] == before["case"]

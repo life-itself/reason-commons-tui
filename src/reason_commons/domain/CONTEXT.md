@@ -13,21 +13,23 @@ that contract onto executable code; it does not change acceptance scope.
 | Intervention | The consultant's stored next question, recommendation, or justified stop. An internal record, not a numbered user-facing document. |
 | Response target | The exact intervention the participant is answering, together with its base revision. |
 | Input | Literal participant text, declared speaker, target, intent and any explicit structured declarations. Retained before any provider call. |
-| Source | A retained input or supplied attachment. Interpretation cites sources; it does not replace them. |
+| Source | A retained input or supplied attachment. Interpretation cites sources; it does not replace them. A reply cites only the input it answers, inputs already applied and supplied attachments; an input that went stale before its reply was published is not part of the case, and the consultant is not shown it. |
 | Goal | A sourced statement of success, with scope, horizon, measure, baseline and protections. Missing values stay unknown. A case has one goal; it is the Goal Tree's top statement, and a different or reworded goal is a new version of it (`G1@2` replaces `G1@1`). |
 | Note | Sourced literal prose or a bounded interpretation, with its evidence basis. It cannot contain executable later-profile structures. |
-| Test | A bounded change tied to an exact goal, with an original prospective forecast. It may name the tree claim it carries out (`claim_ref`). |
-| Action | Proposed work for an exact test. Ownership requires cited explicit input; completing work is distinct from attaining an expected state. |
-| Observation | A sourced result for an exact test, retaining measure, scope, denominator and period where supplied. |
+| Test | A bounded change tied to an exact goal, with an original prospective forecast. It may name the tree claim it carries out (`claim_ref`). Until a result for it is in the model it can be given a new version (`P1@2` replaces `P1@1`); from then on its forecast is fixed, and a changed plan is a new test. It may record the pilot's own baseline, its dose and an alternative explanation; its review reads ten fields (owner and scope, intervention and dose, baseline and cohort, exact prediction, measurement method, observation window, protected conditions, stopping conditions, alternative explanation, review date), each unknown until someone records it. A review date is a date, never a reminder. |
+| Action | Proposed work for an exact test, with the state it should bring about (`expected_state`). Ownership requires cited explicit input. Recording that it was done is a new version (`A1@2`) with execution completed; its expected state cannot be marked met or not met until a result for its test is in the model. |
+| Observation | A sourced result for an exact test, retaining measure, scope, denominator and period where supplied. It cites the test's current version. |
 | Review | A bounded assessment referencing the original test and relevant observations. |
+| Breach | A reported result outside a bound recorded with the test's forecast for the same measure ("at least 95%" against "18 of 20"). It is judged only when both are plain numbers in the same unit; otherwise nothing is said. It stays pinned in every view, whatever the display density. |
+| Provisional goal | A goal with no measure yet. It is labelled provisional wherever it is pinned, until a measure is recorded. |
 | Tree | One of the six thinking-process trees (goal, current reality, conflict, future reality, prerequisite, transition), in the LTP 1.0 vocabulary. A tree is the current state of its claims and links; it is derived, never stored as a whole. |
 | Claim | One sourced statement placed in one tree with a role that belongs to that tree (any role but goal), and an optional evidence basis. Rewording records a new version of the same statement (`C3@2` replaces `C3@1`); its links follow it. |
 | Link | One explicit, typed relation between two statements, with an optional stated assumption. It belongs to one tree, and at least one of its statements is in that tree; the other may come from another tree and stays one statement in both. It records what someone asserted; it does not prove causality or necessity. |
-| Retraction | Withdraws a claim or link from its tree with a reason. The withdrawn record stays in history. |
+| Retraction | Withdraws a claim or link from its tree with a reason. Accepting the withdrawal of a statement also takes the links that join it out of the trees; the operator sees them before confirming, and automatic acceptance leaves such a withdrawal waiting. The withdrawn record stays in history. |
 | Proposal | A record a reply (or an import) added that waits for the operator's decision. It cites its source and may carry the consultant's confidence, which decides nothing. |
 | Membership | Whether a record is in the model: proposed, accepted (in the model), rejected, undone or closed. Accepting admits a record into the working model; it does not make it true, record a belief or authorize an action. |
 | Model | The accepted records that are current: not replaced by an accepted newer version and not withdrawn. Records published before the case kept decisions are in the model by definition. |
-| Decision | One choice of the operator's, recorded with who and when: accept (with the waiting proposals the chosen ones need), reject (with the waiting proposals that need them), undo (with whatever cannot stand without it), still holds, or the acceptance setting. Rejections and undos are final. |
+| Decision | One choice of the operator's, recorded with who and when: accept (with the waiting proposals the chosen ones need, and for a withdrawal the links that join the statement), reject (with the waiting proposals that need them), undo (with whatever cannot stand without it), still holds, or the acceptance setting. Rejections and undos are final. |
 | Acceptance setting | How a case admits proposals: held for review (the default) or accepted automatically, recorded as the operator's decision. Automatic acceptances are recorded as such, with the reply they came with. |
 | Backlog | The waiting proposals and open review flags, in the order they are best decided: what an entry cites first, then a new goal, the six trees in method order, tests, actions, observations, reviews and notes, older first. |
 | Review flag | A record in the model that cites a record which has since been given a new version, withdrawn or undone. Derived from explicit references; it changes nothing, and it closes when the flagged record changes or leaves the model, or the operator says it still holds. |
@@ -45,7 +47,8 @@ of this truth.
 
 Every published revision preserves prior records and decisions byte for byte at
 the file level and unchanged at the model level. Original forecasts cannot be
-edited by a later proposal. Records are appended with exact formulation
+edited by a later proposal: a test can have new versions only until a result for
+it is in the model. Records are appended with exact formulation
 references (`C3@1`); a new version keeps the identity and raises the version
 (`C3@2`), and the older formulation stays in history. A test that serves an older
 version of the goal is flagged for review when the goal changes.
@@ -61,7 +64,11 @@ A proposal that can never be accepted (it cites something rejected or undone, or
 an earlier version that was already replaced) is closed by the decision that made
 it so. Undo appends a decision that takes the accepted records out of the model
 with whatever cannot stand without them (the links of an undone statement, a
-test's work); records that only rely on them are flagged. Decisions recorded while
+test's work); records that only rely on them are flagged. Accepting a withdrawal
+likewise takes the links that join the withdrawn statement, and the operator sees
+them before confirming; under automatic acceptance such a withdrawal waits. A reply
+may cite only the input it answers, inputs already applied and supplied
+attachments. Decisions recorded while
 the consultant works do not make its reply stale; only a newer question does.
 
 A change flags only what explicitly cites the changed record, so consequences
@@ -91,6 +98,9 @@ direction visible while its measure, scope, horizon and baseline remain unknown.
 The first consequential decision is what meaningful success would look like and
 what must be protected. Ranking symptoms is not a substitute for that decision.
 Attributed notes account for information that cannot yet become a stronger claim.
+A participant's correction of a question's premise comes before that decision:
+the next move investigates the mechanism they describe, in neutral terms, and
+framing success waits for a later move. A next move asks for one thing.
 
 A pilot prediction and a system goal are different comparisons. Preserve the
 original prospective test, cohort, denominators, period and stop condition.

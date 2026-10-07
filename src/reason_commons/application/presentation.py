@@ -6,11 +6,13 @@ Layout, Markdown and terminal drawing belong to adapters.
 """
 
 from copy import deepcopy
+import re
 
 from reason_commons.domain.model import TREES, require
 
 
-VIEWS = ("next", "explain", "goal", "trees", "reasoning", "tests", "actions", "backlog", "history", "sources")
+VIEWS = ("next", "explain", "goal", "trees", "reasoning", "tests", "actions", "backlog", "history", "sources",
+         "context")
 LINK_FIELDS = {"goal_ref": "concerns goal", "test_ref": "concerns test", "claim_ref": "carries out",
                "observation_refs": "uses observation", "required_context_refs": "uses context"}
 LINK_LABELS = {("test", "goal_ref"): "tests progress toward", ("test", "claim_ref"): "carries out",
@@ -147,6 +149,82 @@ def project_backlog(snapshot, records, membership, sources):
     return entries
 
 
+def identity_of(ref):
+    return ref.split("@")[0] if isinstance(ref, str) else ref
+
+
+BOUND = re.compile(r"(at least|no less than|minimum|>=|≥|at most|no more than|maximum|<=|≤)\s*(\d+(?:\.\d+)?)\s*(%?)",
+                   re.IGNORECASE)
+LOWER = ("at least", "no less than", "minimum", ">=", "≥")
+
+
+def amount(value):
+    """A reported value as (number, unit) when it is plainly one: "90%", "18 of 20" or "18/20" (as a
+    percentage), or a bare number. Anything else is not judged."""
+    text = str(value)
+    percent = re.search(r"(\d+(?:\.\d+)?)\s*%", text)
+    if percent:
+        return float(percent.group(1)), "%"
+    share = re.search(r"(\d+)\s*(?:of|/|out of)\s*(\d+)", text)
+    if share and int(share.group(2)):
+        return 100 * int(share.group(1)) / int(share.group(2)), "%"
+    bare = re.fullmatch(r"\s*(\d+(?:\.\d+)?)\s*", text)
+    return (float(bare.group(1)), "") if bare else None
+
+
+def breaches(records, membership):
+    """Reported results outside a bound recorded with the test's forecast for the same measure.
+
+    A breach is judged only when the bound ("at least 95%") and the result ("18 of 20") are plain numbers in
+    the same unit; otherwise nothing is said. Display density can never hide one."""
+    found = []
+    for test in (r for r in records.values() if r["kind"] == "test" and membership.current(r["ref"])):
+        for forecast in test["data"].get("forecast") or []:
+            bound = BOUND.search(str(forecast.get("bound") or ""))
+            if not bound:
+                continue
+            limit, unit, lower = float(bound.group(2)), bound.group(3), bound.group(1).lower() in LOWER
+            for observation in (r for r in records.values() if r["kind"] == "observation"
+                                and membership.current(r["ref"]) and r["data"]["test_ref"] == test["ref"]
+                                and r["data"]["measure"] == forecast.get("measure")):
+                value = amount(observation["data"]["value"])
+                if value and value[1] == unit and (value[0] < limit if lower else value[0] > limit):
+                    found.append({"test_ref": test["ref"], "observation_ref": observation["ref"],
+                                  "measure": forecast.get("measure"), "value": observation["data"]["value"],
+                                  "bound": forecast["bound"]})
+    return found
+
+
+def review_fields(test, records, membership):
+    """What a pilot's review needs, in the order it is read, each value None while it is unknown.
+
+    The values are what someone recorded: the test's own fields, its forecast, the owner of its current
+    action and the safeguards of the goal it serves. Nothing is inferred to fill a gap."""
+    data, forecasts = test["data"], test["data"].get("forecast") or []
+    joined = lambda values: " · ".join(dict.fromkeys(str(v) for v in values if v)) or None
+    owners = [r["data"].get("owner") for r in records.values() if r["kind"] == "action"
+              and membership.current(r["ref"]) and identity_of(r["data"].get("test_ref")) == identity_of(test["ref"])]
+    goal = records.get(data.get("goal_ref"))
+    protections = list((goal or {}).get("data", {}).get("protections") or [])
+    protections += [f"{f.get('measure')}: {f['bound']}" for f in forecasts if f.get("bound")]
+    pair = lambda one, other, name: (None if not (one or other) else
+                                     " · ".join([one or f"{name} unknown", other] if other else [one]))
+    return [{"field": field, "value": value} for field, value in [
+        ("owner and scope", pair(joined(owners), data.get("scope"), "owner")),
+        ("intervention and dose", " · dose: ".join([data["statement"], data["dose"]]) if data.get("dose")
+         else data["statement"] + " · dose unknown"),
+        ("baseline and cohort", pair(data.get("baseline"), joined(f.get("scope") for f in forecasts), "baseline")),
+        ("exact prediction", joined(f"{f.get('expected')} ({f.get('measure')})" for f in forecasts
+                                    if f.get("expected"))),
+        ("measurement method", joined(f.get("measure") + (f" per {f['denominator']}" if f.get("denominator") else "")
+                                      for f in forecasts if f.get("measure"))),
+        ("observation window", joined(f.get("period") for f in forecasts)),
+        ("protected conditions", joined(protections)),
+        ("stopping conditions", data.get("stop_condition")),
+        ("alternative explanation", data.get("alternative_explanation")),
+        ("review date", data.get("review_date"))]]
+
+
 def project_workspace(snapshot, sources, *, view="next", selection=None, live_revision=None,
                       cursor=None, history=(), pending=()):
     require(view in VIEWS, "Unknown workspace view")
@@ -219,12 +297,30 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
     diagram_links = [e for e in links if e["from"] in diagram_refs and e["to"] in diagram_refs]
     diagram_nodes = [r for r in relevant if any(r["ref"] in (e["from"], e["to"]) for e in diagram_links)]
     comparisons = []
-    for test in (r for r in relevant if r["kind"] == "test"):
+    # A test's earlier versions stay in history; the comparison is with the current forecast.
+    for test in (r for r in relevant if r["kind"] == "test" and membership.current(r["ref"])):
         observations = [r for r in records.values() if r["kind"] == "observation" and r["data"]["test_ref"] == test["ref"]
                         and membership.current(r["ref"])]
         comparisons.append({"test": deepcopy(test), "observations": deepcopy(observations),
                             "reviews": [deepcopy(r) for r in records.values() if r["kind"] == "review"
-                                        and r["data"]["test_ref"] == test["ref"] and membership.current(r["ref"])]})
+                                        and r["data"]["test_ref"] == test["ref"] and membership.current(r["ref"])],
+                            "review_fields": review_fields(test, records, membership),
+                            "actions": [deepcopy(r) for r in records.values() if r["kind"] == "action"
+                                        and membership.current(r["ref"])
+                                        and identity_of(r["data"].get("test_ref")) == identity_of(test["ref"])]})
+    # A test whose goal (or anything else it cites) has changed needs review before the next test decision.
+    flags = membership.flags()
+    test_reviews = [{"ref": ref, "statement": records[ref]["data"]["statement"],
+                     "flags": [f for f in flags if f["ref"] == ref]}
+                    for ref in dict.fromkeys(f["ref"] for f in flags)
+                    if ref in records and records[ref]["kind"] == "test"]
+    # Completing an action says the work happened; whether it had its effect waits for a result.
+    observed = {identity_of(r["data"]["test_ref"]) for r in records.values()
+                if r["kind"] == "observation" and membership.current(r["ref"])}
+    notices = [{"ref": r["ref"], "message": "Action completed; result awaiting observation."}
+               for r in records.values() if r["kind"] == "action" and membership.current(r["ref"])
+               and r["data"].get("execution") == "completed"
+               and identity_of(r["data"].get("test_ref")) not in observed]
     historical = live_revision is not None and live_revision != case["revision"]
     actions = [{"id": "view_" + name, "label": name.title(), "route": "local", "capability": "workspace",
                 "arguments": {"view": name, "revision": case["revision"]}} for name in VIEWS]
@@ -305,7 +401,9 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
             "selected_source": deepcopy(visible_sources.get(selection)),
             "sources": visible_sources if view == "sources" else {}, "uncertainty": unknowns,
             "diagram": {"kind": "recorded_references", "nodes": deepcopy(diagram_nodes), "links": diagram_links},
-            "comparisons": comparisons, "available_actions": actions,
+            "comparisons": comparisons, "test_reviews": test_reviews, "notices": notices,
+            "breaches": breaches(records, membership),
+            "available_actions": actions,
             "trees": project_trees(all_records, membership),
             "acceptance": membership.acceptance, "backlog": backlog, "reply": reply,
             "membership": {ref: status for ref, status in membership.status.items()},

@@ -171,9 +171,11 @@ def moment(timestamp):
 
 def next_action(records):
     """The open action: planned or blocked, its test not yet observed. The latest one wins."""
+    # A test keeps its identity across versions (P1@1, P1@2): a result for any version observes it.
+    identity = lambda ref: ref.split("@")[0] if isinstance(ref, str) else ref
     by_ref = {r["ref"]: r for r in records}
-    observed = {r["data"]["test_ref"] for r in records if r["kind"] == "observation"}
-    open_actions = [r for r in records if r["kind"] == "action" and r["data"].get("test_ref") not in observed
+    observed = {identity(r["data"]["test_ref"]) for r in records if r["kind"] == "observation"}
+    open_actions = [r for r in records if r["kind"] == "action" and identity(r["data"].get("test_ref")) not in observed
                     and r["data"].get("execution") in (None, "unknown", "planned", "blocked")]
     if not open_actions:
         return None

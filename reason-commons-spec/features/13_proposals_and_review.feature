@@ -127,3 +127,32 @@ Feature: Decide what enters the model
     When the operator asks the consultant about the open reviews
     Then one consultant request carries the flagged statements and the changes that raised the flags
     And the amendments it proposes wait in the backlog like any other proposal
+
+  @S148 @p2 @v1 @automated
+  Scenario: Withdraw a statement together with the links that join it
+    Given the Current Reality Tree holds an accepted cause with its causes link and a test that carries out the cause
+    And the consultant proposes withdrawing the cause
+    When the operator accepts the withdrawal
+    Then the operator is shown that the link leaves the tree with the cause and the test is flagged for review
+    And nothing changes until the operator confirms
+    When the operator confirms
+    Then a new revision removes the cause and its link from the tree and the test's flag waits in the backlog
+    And in a case set to accept proposals automatically, the same withdrawal waits for the operator
+
+  @S149 @p2 @v1 @automated
+  Scenario: Cite only words the case has taken in
+    Given an answer the operator sent became stale before the consultant replied to it
+    When the operator sends another answer
+    Then the consultant's request does not carry the stale answer
+    And a reply whose proposal cites the stale answer is rejected before commit, leaving the case unchanged
+    And the stale answer stays retained with its source, so the operator can send it again
+
+  @S150 @p2 @v1 @automated
+  Scenario: Revise a test's forecast only before its first result
+    Given an accepted test forecasting "6 of 30" and an accepted action that carries it out
+    When the operator accepts a new version of the test forecasting "8 of 30"
+    Then the Tests view shows one test with the new forecast, and the case history keeps the earlier one
+    And the action is flagged for review because it was planned for the earlier version
+    When a result is reported for the test and accepted
+    Then a further new version of the test is rejected before commit, so the forecast stays as it was before the result
+    And a result citing the earlier version of the test is rejected before commit

@@ -165,5 +165,5 @@ Cloud, whose five places are fixed and need no routing, is drawn as its five box
 now, so both sides are visible; joint premises, rival routes and the other boxed
 canvases arrive in p3–p5; the TUI is not deferred. P2 also adds the Backlog, where the
 operator accepts or rejects what replies propose and closes review flags, with Undo in
-History (S135–S147). Use S114–S147 alongside earlier integrity and reasoning gates. Authored snapshots
+History (S135–S150). Use S114–S150 alongside earlier integrity and reasoning gates. Authored snapshots
 and document checks do not prove a running TUI or measured usability.

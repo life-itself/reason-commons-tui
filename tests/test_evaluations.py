@@ -17,7 +17,8 @@ def test_report_refuses_overwrite_and_records_failures(tmp_path):
     report.append({"id": "failed", "checks": [check("not repaired", False)]})
     report.finish()
     loaded = json.loads((report.directory / "report.json").read_text())
-    assert loaded["machine_checks"] == {"passed": 0, "failed": 1}
+    assert (loaded["machine_checks"]["passed"], loaded["machine_checks"]["failed"]) == (0, 1)
+    assert loaded["machine_checks"]["failed_by_category"]["consultant"] == 1
     assert "incomplete" in loaded["release_gate"]
     with pytest.raises(FileExistsError):
         Report(report.directory, {})
@@ -70,3 +71,46 @@ def test_review_cannot_omit_required_criteria_or_decide_without_evidence(tmp_pat
     write_json(tmp_path / "review.json", review)
     with pytest.raises(ValueError, match="every criterion"):
         apply_review(path, tmp_path / "review.json", tmp_path / "reviewed.json")
+
+
+def test_every_fixture_sets_up_through_the_application_and_runs(tmp_path):
+    from evaluations.fixtures import SEEDS
+    report = Report(tmp_path / "evidence", {"model": "authored-fixture"})
+    for scenario in SCENARIOS:
+        run_scenario(report, scenario, NoteConsultant(), 1)
+    report.finish()
+    runs = {run["id"]: run for run in report.value["runs"]}
+    assert len(runs) == len(SCENARIOS) and all(run["status"] == "completed" for run in runs.values())
+    # Every authored setup is valid, and every evaluated turn was published and retained exactly.
+    assert {s.seed_kind for s in SCENARIOS if s.seed} >= set(SEEDS) | {"pilot"}
+    assert all(t["result"]["status"] == "saved" for run in runs.values() for t in run["turns"])
+    covered = {sid for s in SCENARIOS for sid in s.scenarios}
+    assert {"S01", "S02", "S06", "S30", "S34", "S35", "S36", "S52", "S102", "S104", "S105", "S122"} <= covered
+
+
+def test_a_criterion_that_cannot_be_judged_never_counts_as_passed(tmp_path):
+    report = Report(tmp_path / "evidence", {})
+    report.append({"id": "sample", "rubric": ["First", "Second"]})
+    report.finish()
+    path = report.directory / "report.json"
+    review = review_template(path)
+    review.update(reviewer="Test reviewer", reviewed_at="2026-10-07", reviewer_role="test fixture")
+    review["decisions"][0].update(status="pass", evidence="Turn 1 keeps the forecast")
+    review["decisions"][1].update(status="unjudgeable", evidence="")
+    write_json(tmp_path / "review.json", review)
+    with pytest.raises(ValueError, match="evidence"):
+        apply_review(path, tmp_path / "review.json", tmp_path / "reviewed.json")
+    review["decisions"][1]["evidence"] = "Turn 3's reply was rejected before commit; nothing to judge"
+    write_json(tmp_path / "review.json", review)
+    assert apply_review(path, tmp_path / "review.json", tmp_path / "reviewed.json")["semantic_status"] == "incomplete"
+
+
+def test_runs_keep_their_setup_and_failures_by_kind(tmp_path):
+    report = Report(tmp_path / "evidence", {"model": "authored-fixture"})
+    run_scenario(report, next(s for s in SCENARIOS if s.seed is True), NoteConsultant(), 1)
+    report.finish()
+    run = report.value["runs"][0]
+    assert run["setup_text"] and any(r["kind"] == "test" for r in run["setup_records"])
+    assert run["unjudgeable_turns"] == []
+    assert set(report.value["machine_checks"]["failed_by_category"]) == {"consultant", "application", "consequence"}
+    assert {c["category"] for c in run["checks"]} <= {"consultant", "application", "consequence"}

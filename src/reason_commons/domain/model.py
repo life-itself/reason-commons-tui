@@ -29,8 +29,13 @@ FIELDS = {
     # A goal is the Goal Tree's top statement; a case has one, and changes it by new versions.
     "goal": {"statement", "scope", "horizon", "measure", "baseline", "protections", "replaces"},
     "note": {"text", "basis"},
-    "test": {"statement", "goal_ref", "scope", "forecast", "stop_condition", "review_date", "claim_ref"},
-    "action": {"statement", "test_ref", "owner", "authority", "execution", "expected_state_attainment"},
+    # A test can take new versions until a result for it is in the model; then its forecast is fixed.
+    # Its baseline, dose and alternative explanation are the pilot's own, apart from the goal's.
+    "test": {"statement", "goal_ref", "scope", "forecast", "stop_condition", "review_date", "claim_ref", "replaces",
+             "baseline", "dose", "alternative_explanation"},
+    # A new version of an action records its execution; reaching the expected state is a separate question.
+    "action": {"statement", "test_ref", "owner", "authority", "execution", "expected_state_attainment",
+               "expected_state", "replaces"},
     "observation": {"test_ref", "measure", "value", "scope", "denominator", "period", "basis"},
     "review": {"test_ref", "observation_refs", "assessment", "next_decision", "goal_ref"},
     # Thinking-process trees, in the LTP 1.0 vocabulary. A claim is one sourced
@@ -53,7 +58,7 @@ REQUIRED_REFERENCES = {"test": {"goal_ref"}, "action": {"test_ref"},
                        "link": {"from_ref", "to_ref"}, "retraction": {"target_ref"}}
 # Fields that cite another record, and the kinds each may cite.
 REFERENCE_KINDS = {"goal_ref": {"goal"}, "test_ref": {"test"}, "claim_ref": {"claim"},
-                   "from_ref": {"claim", "goal"}, "to_ref": {"claim", "goal"}, "replaces": {"claim", "goal"},
+                   "from_ref": {"claim", "goal"}, "to_ref": {"claim", "goal"}, "replaces": {"claim", "goal", "test", "action"},
                    "target_ref": {"claim", "link"}}
 TREES = ("goal", "current_reality", "conflict", "future_reality", "prerequisite", "transition")
 ALL_TREES = set(TREES)
@@ -491,6 +496,15 @@ class Snapshot:
             if "confidence" in update:
                 # Kept with the proposal; it decides nothing.
                 new_records[-1]["confidence"] = update["confidence"]
+        # A reply cites the answer it replies to, answers the case already took in, and supplied
+        # sources. An answer that went stale before its reply was published is not part of the case.
+        taken_in = set(self.value["applied_requests"]) | {input_record["request_id"]}
+        for record in new_records:
+            for source in record["source_refs"] if isinstance(record["source_refs"], list) else []:
+                require(not (isinstance(source, str) and "request_id" in sources.get(source, {}))
+                        or source in taken_in,
+                        f"{record['ref']} cites {source}, an answer the case has not taken in; a reply may cite "
+                        "only the answer it replies to, answers already taken in, and supplied sources")
 
         def resolve_data(data):
             require(isinstance(data, dict), "Record data must be an object")
@@ -529,7 +543,10 @@ class Snapshot:
         if result["membership"]["acceptance"] == "automatic" and new:
             accepted = []
             for ref in new:
-                if membership.requirement(ref, frozenset(accepted)) is None:
+                # A withdrawal that would take links with it waits for the operator to confirm.
+                takes_links = membership.records[ref]["kind"] == "retraction" and membership.leaves_after(
+                    {"action": "accept", "refs": [ref], "closes": []})
+                if membership.requirement(ref, frozenset(accepted)) is None and not takes_links:
                     accepted.append(ref)
             changed = [membership.records[r]["data"].get("replaces") or (
                 membership.records[r]["data"]["target_ref"] if membership.records[r]["kind"] == "retraction" else None)

@@ -5,7 +5,7 @@ Feature: Make the interface legible and the consultant evaluable
   Scenario: Retain critical context on a narrow terminal
     Given the accessible ordered text presentation in a terminal 40 columns wide and 16 rows high
     When a test review is rendered
-    Then compact status shows focus, revision, and save status
+    Then compact status shows save status and names the focused control
     And the question shows its consequential goal and protected condition
     And the Case context control exposes complete current context locally
     And lines wrap without horizontal scrolling

@@ -8,7 +8,7 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Part | What it shows |
 | --- | --- |
 | Top line | The goal's name on the left; on the right, your name and whether everything is saved (or *Asking …* while the consultant works, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
-| Pinned lines | Your goal and safeguards, and the open **Action**, once a goal is in your model; a goal still waiting in **Backlog** shows as *proposed, not yet accepted*. A long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
+| Pinned lines | Your goal and safeguards, and the open **Action**, once a goal is in your model; a goal still waiting in **Backlog** shows as *proposed, not yet accepted*, and one with no measure yet as *provisional*. A long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result. A **Breach** (a reported result outside a bound recorded with its forecast) stays pinned here in every view. Commands, **Display: Expanded** repeats the goal's measure, baseline, horizon and scope, each safeguard and each test's boundaries here; **Display: Compact** (the default) turns it back. The choice is saved with your draft and changes nothing else |
 | Loop line | The spine of the screen: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
 | Views list | **VIEWS**, with ▸ beside the open one; **Backlog** says how many entries wait ("Backlog · 3"). While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
 | The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what the last reply proposes, marked *proposed* (see [deciding what enters your model](#deciding-what-enters-your-model)), then what the question builds on (at review: the original forecast beside the result) |
@@ -217,11 +217,12 @@ Browsing views never calls the consultant.
 | Backlog | Everything waiting for your decision, in the order it is best decided, and records flagged for review; the chosen entry in full beside the list on a wide terminal. Deciding here calls no consultant |
 | Goal | The goal, its measure and each safeguard, in full |
 | Trees | The six thinking-process trees, drawn from what is in your model: first all six, folded, then one at a time. The goal is the Goal Tree's top statement, and a statement another tree's link uses is drawn there too, marked with its own tree. Each statement says how it relates to the one above it, and where paths meet, how many of the tree's ends it leads to. Choose a statement for the question worth asking of it, its links, wording and origin; the rest of the tree goes quiet around it |
-| Tests | Each test with its original forecast next to the reported result, and reviews |
+| Tests | Each test with its original forecast next to the reported result, a breach of a recorded bound marked where it happens, the action's status and the goal kept apart from the pilot, the review date (never a reminder), what is not recorded yet, and reviews |
 | Loop actions | Each test and the action that carries it out, with its status |
 | Reasoning | What is still open first, then the loop's records, then how many statements each tree holds |
 | Your words | Your answers, exactly as written, each with when you wrote it on your own clock (and who, when more than one person has written) |
 | History | Every saved step, oldest first, one row each: when, the question it answered or the decision taken, and what entered the model (and who, once more than one person has written); Enter opens that moment, **u** undoes what it accepted |
+| Case context | Everything the current question rests on, in full: the revision it is saved at, the whole goal with each safeguard, each test's scope, period, stop condition and review date, what you are answering, and what waits (proposals, reviews, unanswered answers). Local; nothing is sent |
 
 With the built-in guide, an empty answer skips an optional question (measure,
 safeguards, review date, stop condition).
@@ -362,15 +363,19 @@ reviews and notes; older entries first. A goal waiting to be decided blocks noth
 beside the list. Enter offers its choices; **a** accepts and **r** rejects. Accepting also
 takes the waiting entries it needs, and rejecting the waiting entries that need it;
 when that is more than you chose, the whole list comes first and nothing changes until
-you confirm. A rejection is final for that proposal; the consultant may propose the
-idea again. **Accept all**, beside Send, takes everything the last reply proposed.
+you confirm. Accepting a withdrawal also takes the links that join the statement out
+of your trees, and those links are listed first in the same way. A rejection is final
+for that proposal; the consultant may propose the idea again. **Accept all**, beside Send, takes everything the last reply proposed.
 Deciding never calls the consultant, and you can decide while it is working on your
 next answer.
 
 **Reviews.** When you accept a change to something (a new wording, a withdrawal, an
 undo), whatever cites it is flagged for review in Backlog, with the change that raised
 the flag: a link joined to a reworded statement, a test that carries out a withdrawn
-action, a test that served the goal before its new version. A flag changes nothing and
+action, a test that served the goal before its new version, an action planned for an
+earlier version of a test. A test can be given a new version (a changed forecast, say)
+until a result for it is in your model; after that its forecast stays as written, and a
+changed plan is a new test. A flag changes nothing and
 claims nothing is false. **h** says the record still holds; accepting a new version or
 withdrawal of it also closes the flag. Each change flags only what cites it directly,
 so a consequence reaches one step further each time you accept a change. **Ask about
@@ -382,6 +387,7 @@ hold; what it proposes waits like anything else.
 **Automatic acceptance.** Commands, **Accept proposals automatically** lets later
 replies' proposals enter your model as they arrive, recorded as accepted under your
 setting, and Next step says what was added; each can still be undone from History.
+A withdrawal that would take links with it still waits for you, so you see them first.
 **Hold proposals for review** turns it back. Proposals already waiting keep waiting
 either way, and only you change the setting: a consultant cannot, and an agent can
 only where you started its server with `--allow-acceptance-setting`.
@@ -405,6 +411,23 @@ answers; default: your login name), `--provider guided|anthropic|lm-studio`,
 `--model` and `--base-url`. `tui` takes `--name` for a new goal's name. Every
 way of opening the workspace takes `--theme` (see [Themes](#themes)). Commands
 for scripts and AI agents are listed by `reason-commons --help`.
+
+### The accessible ordered presentation
+
+`reason-commons tui FOLDER --accessible` (and `resume --accessible`) opens the same
+goal as ordered text that is appended, never redrawn, for a screen reader or a
+terminal that cannot redraw; it is also used when `TERM=dumb`. Each view begins with
+the case, who is answering and whether it is saved, then the view and the control
+with focus; then any breach, the decision and question with the goal and its
+safeguards, what is uncertain, the test review, what the last reply proposes, your
+draft, and the controls, each with its role and consequence. Tab and Shift+Tab move
+between controls and say which has focus; Enter or Space activates one; in Response
+every key is typed literally, Enter adds a line, and only **Send** asks the
+consultant. Page Down and Page Up page a long view ("Page 1 of 3"); Esc returns with
+your draft kept. **Case context**, **Explain this**, **Views**, **Backlog** (Accept,
+Reject and Still holds, with a decision that takes more listed first) and **Help**
+are local. A new view is announced as replacing the one above, so scrollback is not
+mistaken for what is current. Nothing depends on colour.
 
 ## Settings
 
@@ -480,7 +503,7 @@ whole; use export and import rather than editing files by hand.
 
 ## Not in this version yet
 
-An accessible plain-text mode (`--accessible`), switching between several people
+Switching between several people
 in one goal, attaching sources from the workspace, the trees' richer reasoning
 checks (joint causes, rival explanations, and boxed diagrams for the trees other than
 the Evaporating Cloud), review of consequences that no reference records, editing a

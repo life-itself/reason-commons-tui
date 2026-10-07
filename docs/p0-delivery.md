@@ -438,7 +438,7 @@ S07, S40, S43, S46, S52, S108 and S128–S133, and the dated decision in
   setting and ask about open reviews; the band shows a goal that is only proposed.
 
 `scripts/check_p0.py` runs every scenario of `13_proposals_and_review.feature`
-(S135–S147) and fails unless all pass. `tests/test_membership.py` covers the domain's
+(S135–S150) and fails unless all pass. `tests/test_membership.py` covers the domain's
 negative cases, forged decisions, ancestry and a case recorded by the previous release
 (`tests/fixtures/recorded-before-proposals.reasoncase`), which opens with everything
 in the model. Three deliberate breaks (no prerequisites on accept, flags never
@@ -452,3 +452,132 @@ wording in the workspace before accepting, review of consequences that no refere
 records, and Restore reasoning (S41, p3). Live-model behaviour with proposals (does a
 real consultant use `replaces`, cite waiting proposals and answer `review_flags`
 well?) is not yet evaluated.
+
+## Withdrawals, citations and test versions (p2 scenarios S148–S150, 7 October 2026)
+
+A live acceptance run against Claude found three gaps, and David chose the fixes
+(withdrawal confirmed like undo; the rest as recommended). The specification came
+first: section 2F (*Withdraw*, *Tests*, what a proposal may cite, which flags a
+change raises) and scenarios S148–S150 in `13_proposals_and_review.feature`.
+
+- **Withdrawal (S148).** Accepting the withdrawal of a statement used to remove the
+  links that join it without saying so. `Membership.leaves_after` names the links a
+  decision takes out of the trees; the decision use cases return them as `leaves`
+  and ask for confirmation when there are any, and automatic acceptance leaves such
+  a withdrawal waiting. The TUI dialog lists them under "Leaves your trees with it".
+- **Citations (S149).** A later reply could cite an answer that went stale and was
+  never applied, bringing its words into the case through another request. A reply
+  may now cite only the answer it replies to, answers already applied and supplied
+  sources (`Snapshot.apply`), and the consultant is no longer sent stale answers.
+  The rule governs new replies only, so cases that already hold such a citation
+  open unchanged.
+- **Test versions (S150).** A test can be given a new version (`P1@2` replaces
+  `P1@1`) until a result for it is in the model; from then on a further version is
+  refused, and a waiting one is closed when the result is accepted. A result, an
+  action or a review cites the test's current version. The Tests view compares the
+  current version; earlier ones stay in history. The consultant prompt says so.
+
+Not changed, by choice: a result reported before its test's stated start is not
+refused, because test periods and result dates are the participant's free text,
+and refusing would drop their report. `tests/test_membership.py` adds the negative
+cases, `tests/test_tui.py` the withdrawal dialog, and six deliberate breaks (one per
+rule above) each failed the scenario written for it. A live check with
+`claude-sonnet-5-5` passed all three rules; `claude-haiku-4-5-20251001` could not
+produce valid proposals reliably (see [validation](validation.md)).
+
+## The loop's records (p2 scenarios S32, S37, S95, S101, 7 October 2026)
+
+Toward finishing v1, the case engine scenarios of the goal-action-review loop:
+
+- **A pilot reviewable later (S32).** A test may record the pilot's own `baseline`, its
+  `dose` and an `alternative_explanation`. The workspace's comparisons carry ten
+  `review_fields` (owner and scope, intervention and dose, baseline and cohort, exact
+  prediction, measurement method, observation window, protected conditions, stopping
+  conditions, alternative explanation, review date), drawn from the test, its
+  forecast, its current action's owner and its goal's safeguards; a field nobody
+  recorded is `None`, shown as "unknown" in text and listed under "Not recorded yet"
+  in the Tests view.
+- **A review date is a date (S37).** It reads "Review October 19; no reminder
+  scheduled", and nothing is scheduled, sent or written outside the case.
+- **A test's goal changed (S95).** The existing review flag is also projected as
+  `test_reviews`, shown at the next test decision ("Review needed: …").
+- **Completing an action (S101).** An action may take new versions (`A1@2`) and
+  record its `expected_state`. Marking that state met or not met is refused until a
+  result for its test is in the model. A completed action without a result shows
+  "Action completed; result awaiting observation." The provider schema is now
+  `schema=3`, and the consultant prompt describes the new fields.
+
+`scripts/check_p0.py` now also runs the p2 scenarios delivered outside features 12
+and 13 (`DELIVERED_P2`) and names the rest of p2 as outstanding, as it does for p1.
+Five deliberate breaks, one per rule above, each failed the scenario written for it.
+
+## How the question is presented (p2 scenarios S03, S04, S17, S93, S121, 7 October 2026)
+
+- **One move, other paths visible (S03, S17).** These already held: one heading and one
+  prompt, Other moves visible, no unsolicited lesson, and no tree drawn for a question
+  it would not clarify. A test's context rows now give each forecast's measure ("not
+  stated yet" while unknown) and period, and the pilot's own baseline.
+- **What changes the answer beside the question (S04).** The band keeps the goal and
+  each safeguard; the question's context gives the pilot's baseline and period; an
+  estimate stays worded as one. The status line keeps its redesign (see the dated note
+  in `reason-commons-spec/delivery-phases.md`): the focused pane is framed, and the new
+  **Case context** view (last in Views) gives the revision with the complete goal, the
+  tests' boundaries, the response target and what waits. It is a workspace view
+  (`context`), local, with no consultant call.
+- **The decision and the goal it serves (S93).** A question's purpose shows under its
+  heading when it is written for people (a coded purpose is not shown); Explain this
+  names the exact goal formulation the question serves, and says when the goal has a
+  newer version. A goal with no measure is pinned as provisional.
+- **Forecast beside outcome, breach visible (S121).** The workspace now projects
+  `breaches`: a reported result outside a bound recorded with the test's forecast for
+  the same measure, judged only when both are plain numbers in the same unit. A breach
+  is pinned in the band in every view and marked on the review; the review also lists
+  the action's execution and the system goal ("judged by its own measure, not by this
+  pilot") on their own lines.
+
+Seven deliberate breaks each failed a scenario, two after their steps were tightened
+(the revision and the period were also matched by other text on screen).
+
+## Compact context, a pinned breach, leaving and returning (p1 S68, S69; p2 S94, 7 October 2026)
+
+- **Compact and Expanded (S68).** Display density is a presentation preference
+  (`display.density` in the cursor, `compact` by default), switched in Commands with
+  **Display: Expanded** or **Display: Compact**; it records no reasoning and calls no
+  consultant. Expanded repeats the goal's measure, baseline, horizon and scope, each
+  safeguard and each test's boundaries in the band (its label column widened so
+  "Baseline" is not cut). In Compact the page does not repeat what the band shows, and
+  the review's "System goal" line appears only once a result exists, so a routine
+  Tests view does not repeat the goal. Case context gives the complete context.
+- **A breach while browsing (S69).** The pinned breach stays visible in History, Your
+  words and behind Other moves, at either density.
+- **Leave and return (S94).** Already held: History and Esc bring back the question,
+  the response target, the exact draft and the focus, with no revision or call.
+
+A TUI test covers Expanded and its being saved with the draft. Seven deliberate breaks
+each failed a scenario (an eighth missed because it broke the restore-on-open path,
+which S94 does not exercise; two breaks of the Esc path were caught instead).
+
+## The accessible ordered presentation (p1 scenario S49, 7 October 2026)
+
+`reason-commons tui FOLDER --accessible` (or `TERM=dumb`) opens
+`adapters/accessible.py`: the same case through the same application use cases, as
+ordered text appended to the terminal without redrawing, as
+`reason-commons-spec/accessibility.md` describes. Each view starts with the case,
+the declared speaker and save state, then the view and the focused control in
+words (the redesign's frame cannot be seen in text); then any breach, the decision
+and question with the goal and safeguards, what is uncertain (grouped by record),
+the test review, what the last reply proposes, the draft and the labelled
+controls. Lines wrap to the terminal's width, a long view is paged ("Page 1 of 6.
+Page Down: more."), a new view says it replaces the one above, and no colour or
+cursor code is written. Tab and Shift+Tab announce each control's label, role and
+consequence; Response is literal and only Send submits; Esc returns with the draft
+kept; Case context, Explain this, Views, Backlog (Accept, Reject, Still holds, with
+a decision that takes more listed and confirmed by activating it again), Help and
+Save and quit are local, and the draft is checkpointed like the TUI's.
+
+S49 runs at 40 by 16; `tests/test_accessible.py` covers literal input and single
+submission, local navigation with Esc, backlog decisions through the use cases, plain
+wrapped output and the draft kept across sessions. Five deliberate breaks (no
+wrapping, no paging, focus not named, the revision missing from Case context, colour
+codes) each failed S49. Not done: assistive-technology users have not tried it; the
+participant gate in `reason-commons-spec/delivery-phases.md` asks for that.

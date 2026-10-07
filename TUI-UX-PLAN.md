@@ -41,8 +41,9 @@ says to map it to an existing capability or add the use case first, with its sce
 footer lists only what works.
 
 Where it meets the specification: S114 asks that the focused control stay visible, which the
-frame does, but S68 (not yet delivered) says the pinned header shows "focus", which this design
-puts in the frame instead; S07 and S119 call the list of every action **Actions**, which is now
+frame does. S04, S49 and S68 asked for focus and the revision in the header; on 7 October David
+chose this design, and their wording now has the frame mark focus and Case context give the
+revision (S49's text presentation names the focused control in words); S07 and S119 call the list of every action **Actions**, which is now
 **Commands** on screen, and their steps map one to the other. Neither scenario's text was changed.
 
 ## Trees and remaining views revision
@@ -107,7 +108,7 @@ one-line form before.
 
 The conflicts revision's first row is now settled differently, by a specification
 change rather than an adapter: the consultant's readings are proposals, and nothing
-enters the model until the operator accepts it (main specification section 2F, S135–S147).
+enters the model until the operator accepts it (main specification section 2F, S135–S150).
 This is membership, not a stance, so it needed no p4 position records. What was built:
 
 - Next step's strip now draws what the last reply *proposes*, marked proposed, beside the
