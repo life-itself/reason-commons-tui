@@ -87,7 +87,12 @@ python3 scripts/review_evaluation.py .evaluation-runs/my-model-check/report.json
 
 Reviews are bound to the SHA-256 of the completed evidence report. Changed
 reports, rewritten criteria, missing decisions or unsupported pass/fail entries
-are rejected. Pending criteria and failures remain visible. A completed review
+are rejected. A criterion whose evidence does not exist (its reply was rejected
+before commit) is marked `unjudgeable` with the reason; such a review reports
+`incomplete`, never `pass`. Each run keeps its authored setup (`setup_text`,
+`setup_records`) and the turns whose reply was not committed, and every machine
+check says what a failure would be evidence of: the consultant's reply, the
+application, or only the consequence of an uncommitted reply. Pending criteria and failures remain visible. A completed review
 of these fixtures still cannot approve the unimplemented TUI or substitute for
 five real first-time participants and assistive-technology testing.
 

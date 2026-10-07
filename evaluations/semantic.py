@@ -11,12 +11,14 @@ from evaluations.report import check
 def run_scenario(report, scenario, consultant, repeat):
     identity = f"semantic-{scenario.name}-{repeat}"
     path = report.directory / identity
-    checks, turns = [], []
+    checks, turns, setup = [], [], {"text": None, "records": []}
     def evidence(status):
         report.record({"id": identity, "status": status, "scenarios": list(scenario.scenarios), "case": str(path),
                        "setup": (f"authored setup '{scenario.seed_kind}' via application, accepted under Sam's "
                                  "automatic-acceptance setting") if scenario.seed else
                                 "empty case set to accept proposals automatically (Sam's recorded setting)",
+                       "setup_text": setup["text"], "setup_records": deepcopy(setup["records"]),
+                       "unjudgeable_turns": [t["number"] for t in turns if t["result"]["status"] != "saved"],
                        "checks": deepcopy(checks), "turns": deepcopy(turns), "rubric": list(scenario.rubric),
                        "semantic_review": "pending; no keyword score or self-grading model"})
     evidence("running")
@@ -29,6 +31,8 @@ def run_scenario(report, scenario, consultant, repeat):
             result = app.submit(text, "Sam", app.inspect()["case"]["revision"], None)
             if result["status"] != "saved":
                 raise RuntimeError("Authored evaluation setup failed")
+            # The reviewer sees what the setup recorded: the records the evaluated turns build on.
+            setup.update(text=text, records=[r for r in app.inspect()["case"]["records"]])
     with (open_case(str(path), consultant=consultant) if scenario.seed else
           create_case(str(path), scenario.name, consultant=consultant, acceptance="automatic", actor="Sam")) as app:
         for number, turn in enumerate(scenario.turns, 1):
@@ -44,12 +48,18 @@ def run_scenario(report, scenario, consultant, repeat):
                 check(f"turn {number}: exact input/attribution/target retained",
                       retained.get("text") == turn.text and retained.get("speaker") == turn.speaker
                       and retained.get("base_revision") == before["revision"]
-                      and retained.get("response_target") == before["current_intervention"]),
-                check(f"turn {number}: history unchanged", after["records"][:len(before["records"])] == before["records"]),
+                      and retained.get("response_target") == before["current_intervention"], category="application"),
+                check(f"turn {number}: history unchanged", after["records"][:len(before["records"])] == before["records"],
+                      category="application"),
+                # When the reply was not committed these two fail as a consequence, not as further faults.
                 check(f"turn {number}: contribution represented by sourced non-intervention record",
-                      any(r["kind"] != "intervention" and result.get("request_id") in r["source_refs"] for r in new)),
+                      any(r["kind"] != "intervention" and result.get("request_id") in r["source_refs"] for r in new),
+                      "" if result["status"] == "saved" else "no reply was committed",
+                      "consultant" if result["status"] == "saved" else "consequence"),
                 check(f"turn {number}: one prominent next intervention",
-                      sum(r["kind"] == "intervention" for r in new) == 1),
+                      sum(r["kind"] == "intervention" for r in new) == 1,
+                      "" if result["status"] == "saved" else "no reply was committed",
+                      "consultant" if result["status"] == "saved" else "consequence"),
             ]
             if scenario.name == "goal_action_review":
                 kinds = {r["kind"] for r in new}
@@ -84,5 +94,6 @@ def run_scenario(report, scenario, consultant, repeat):
         final = app.inspect()["case"]
         app.export(str(report.directory / (identity + ".reasoncase")))
     with open_case(str(path), writable=False) as app:
-        checks.append(check("restart reproduces published state offline", app.inspect()["case"] == final))
+        checks.append(check("restart reproduces published state offline", app.inspect()["case"] == final,
+                            category="application"))
     evidence("completed")

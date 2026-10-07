@@ -6,6 +6,10 @@ from pathlib import Path
 
 from evaluations.report import write_json
 
+# pass and fail judge the criterion; unjudgeable says the evidence to judge it does not exist (a reply that was
+# never committed), with the reason; pending is undecided. Every decision but pending cites its evidence.
+STATUSES = {"pass", "fail", "pending", "unjudgeable"}
+
 
 def review_template(report_path):
     path = Path(report_path)
@@ -38,14 +42,17 @@ def apply_review(report_path, review_path, output_path):
     if [(d.get("run_id"), d.get("criterion")) for d in decisions] != identities:
         raise ValueError("Review must cover every criterion in report order without omissions or duplicates")
     for actual, original in zip(decisions, expected["decisions"]):
-        if actual.get("rubric") != original["rubric"] or actual.get("status") not in {"pass", "fail", "pending"}:
+        if actual.get("rubric") != original["rubric"] or actual.get("status") not in STATUSES:
             raise ValueError("Review criteria cannot be rewritten")
         if actual["status"] != "pending" and (not isinstance(actual.get("evidence"), str) or not actual["evidence"].strip()):
             raise ValueError("Every decided criterion needs cited case/turn evidence")
     statuses = [d["status"] for d in decisions]
+    # A criterion that cannot be judged (its reply was never committed) never counts as passed.
+    semantic = ("fail" if "fail" in statuses else "pending" if "pending" in statuses
+                else "incomplete" if "unjudgeable" in statuses else "pass")
     result = {"format": "reason-commons-reviewed-evaluation/1", "report_sha256": expected["report_sha256"],
               "machine_checks": report["machine_checks"], "review": review,
-              "semantic_status": "fail" if "fail" in statuses else "pending" if "pending" in statuses else "pass",
+              "semantic_status": semantic,
               "release_gate": "incomplete: this review does not satisfy p1/p2 acceptance or participant gates"}
     output = Path(output_path)
     if output.exists():

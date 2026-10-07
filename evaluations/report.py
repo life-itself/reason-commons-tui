@@ -6,8 +6,13 @@ import os
 from pathlib import Path
 
 
-def check(name, passed, evidence=""):
-    return {"name": name, "status": "pass" if passed else "fail", "evidence": evidence}
+# What a failed check is evidence of: the consultant's reply, the application, or only the consequence of a
+# reply that was never committed. A harness error is found later, by a reviewer, and is never a category here.
+CATEGORIES = ("consultant", "application", "consequence")
+
+
+def check(name, passed, evidence="", category="consultant"):
+    return {"name": name, "status": "pass" if passed else "fail", "evidence": evidence, "category": category}
 
 
 def write_json(path, value):
@@ -49,7 +54,13 @@ class Report:
         self.value["finished"] = datetime.now(timezone.utc).isoformat()
         checks = [item for run in self.value["runs"] for item in run.get("checks", [])]
         self.value["machine_checks"] = {"passed": sum(c["status"] == "pass" for c in checks),
-                                        "failed": sum(c["status"] == "fail" for c in checks)}
+                                        "failed": sum(c["status"] == "fail" for c in checks),
+                                        "failed_by_category": {
+                                            category: sum(c["status"] == "fail" and c.get("category", "consultant")
+                                                          == category for c in checks)
+                                            for category in CATEGORIES},
+                                        "uncommitted_turns": sum(len(run.get("unjudgeable_turns", []))
+                                                                 for run in self.value["runs"])}
         self.save()
 
     def save(self):
