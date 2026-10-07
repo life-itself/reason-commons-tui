@@ -556,3 +556,28 @@ Seven deliberate breaks each failed a scenario, two after their steps were tight
 A TUI test covers Expanded and its being saved with the draft. Seven deliberate breaks
 each failed a scenario (an eighth missed because it broke the restore-on-open path,
 which S94 does not exercise; two breaks of the Esc path were caught instead).
+
+## The accessible ordered presentation (p1 scenario S49, 7 October 2026)
+
+`reason-commons tui FOLDER --accessible` (or `TERM=dumb`) opens
+`adapters/accessible.py`: the same case through the same application use cases, as
+ordered text appended to the terminal without redrawing, as
+`reason-commons-spec/accessibility.md` describes. Each view starts with the case,
+the declared speaker and save state, then the view and the focused control in
+words (the redesign's frame cannot be seen in text); then any breach, the decision
+and question with the goal and safeguards, what is uncertain (grouped by record),
+the test review, what the last reply proposes, the draft and the labelled
+controls. Lines wrap to the terminal's width, a long view is paged ("Page 1 of 6.
+Page Down: more."), a new view says it replaces the one above, and no colour or
+cursor code is written. Tab and Shift+Tab announce each control's label, role and
+consequence; Response is literal and only Send submits; Esc returns with the draft
+kept; Case context, Explain this, Views, Backlog (Accept, Reject, Still holds, with
+a decision that takes more listed and confirmed by activating it again), Help and
+Save and quit are local, and the draft is checkpointed like the TUI's.
+
+S49 runs at 40 by 16; `tests/test_accessible.py` covers literal input and single
+submission, local navigation with Esc, backlog decisions through the use cases, plain
+wrapped output and the draft kept across sessions. Five deliberate breaks (no
+wrapping, no paging, focus not named, the revision missing from Case context, colour
+codes) each failed S49. Not done: assistive-technology users have not tried it; the
+participant gate in `reason-commons-spec/delivery-phases.md` asks for that.

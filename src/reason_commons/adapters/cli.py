@@ -70,6 +70,9 @@ def main(argv=None):
         workspace.add_argument("--model", help="Selected provider's model ID")
         workspace.add_argument("--base-url", help="Selected provider's URL")
         workspace.add_argument("--theme", type=theme_choice, default=argparse.SUPPRESS, help=THEME_HELP)
+        workspace.add_argument("--accessible", action="store_true",
+                               help="Ordered text without redrawing the screen, for screen readers (also used "
+                                    "when TERM=dumb); the same controls and records")
     new = commands.add_parser("new", help="Create a durable minimal case (p0)")
     new.add_argument("--store", required=True)
     new.add_argument("--name", default="Untitled case")
@@ -158,6 +161,14 @@ def main(argv=None):
                 raise ValueError(f"No goal at {args.store}; use 'reason-commons tui {args.store}' to start one")
             if args.theme:  # a flag wins over the environment and settings, which only fill what is unset
                 os.environ["REASON_COMMONS_THEME"] = args.theme
+            if getattr(args, "store", None) is not None and (
+                    getattr(args, "accessible", False) or os.environ.get("TERM") == "dumb"):
+                from reason_commons.adapters.accessible import run as run_accessible
+                if not getattr(args, "accessible", False):
+                    print("TERM=dumb: opening the accessible ordered text presentation.")
+                run_accessible(args.store, name=getattr(args, "name", None), speaker=args.speaker,
+                               provider=args.provider, model=args.model, base_url=args.base_url)
+                return 0
             try:
                 from reason_commons.adapters.tui import run, run_home
             except ImportError:

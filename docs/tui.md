@@ -412,6 +412,23 @@ answers; default: your login name), `--provider guided|anthropic|lm-studio`,
 way of opening the workspace takes `--theme` (see [Themes](#themes)). Commands
 for scripts and AI agents are listed by `reason-commons --help`.
 
+### The accessible ordered presentation
+
+`reason-commons tui FOLDER --accessible` (and `resume --accessible`) opens the same
+goal as ordered text that is appended, never redrawn, for a screen reader or a
+terminal that cannot redraw; it is also used when `TERM=dumb`. Each view begins with
+the case, who is answering and whether it is saved, then the view and the control
+with focus; then any breach, the decision and question with the goal and its
+safeguards, what is uncertain, the test review, what the last reply proposes, your
+draft, and the controls, each with its role and consequence. Tab and Shift+Tab move
+between controls and say which has focus; Enter or Space activates one; in Response
+every key is typed literally, Enter adds a line, and only **Send** asks the
+consultant. Page Down and Page Up page a long view ("Page 1 of 3"); Esc returns with
+your draft kept. **Case context**, **Explain this**, **Views**, **Backlog** (Accept,
+Reject and Still holds, with a decision that takes more listed first) and **Help**
+are local. A new view is announced as replacing the one above, so scrollback is not
+mistaken for what is current. Nothing depends on colour.
+
 ## Settings
 
 Setup saves your name, consultant, model, Claude key and LM Studio address in
@@ -486,7 +503,7 @@ whole; use export and import rather than editing files by hand.
 
 ## Not in this version yet
 
-An accessible plain-text mode (`--accessible`), switching between several people
+Switching between several people
 in one goal, attaching sources from the workspace, the trees' richer reasoning
 checks (joint causes, rival explanations, and boxed diagrams for the trees other than
 the Evaporating Cloud), review of consequences that no reference records, editing a
