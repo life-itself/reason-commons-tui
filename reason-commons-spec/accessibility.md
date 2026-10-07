@@ -52,6 +52,6 @@ columns are unsuitable. Never reduce an adverse path to a success-only summary.
 At less than 40x24 retain state and offer resize or this ordered presentation.
 S49 covers narrow ordered context; S50 equivalent relation text; S51 drafts;
 S54-S71 focus/selection/target behavior; S115-S120 deliberate submission, restoration
-and recovery; S135-S147 decisions about proposals. The participant gates in delivery-phases.md include assistive
+and recovery; S135-S150 decisions about proposals. The participant gates in delivery-phases.md include assistive
 technology users. These requirements need implementation and actual reader tests;
 a text specimen or passing document check is not evidence of accessibility.

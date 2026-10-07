@@ -66,7 +66,7 @@ class Membership:
 
     def replacements(self):
         return {r["data"]["replaces"]: ref for ref, r in self.records.items()
-                if self.accepted(ref) and r["kind"] in {"claim", "goal"} and r["data"].get("replaces")}
+                if self.accepted(ref) and r["kind"] in {"claim", "goal", "test"} and r["data"].get("replaces")}
 
     def withdrawn(self):
         return {r["data"]["target_ref"]: ref for ref, r in self.records.items()
@@ -124,6 +124,14 @@ class Membership:
                 return "blocked", f"{target} has already been replaced or withdrawn"
             if field in {"from_ref", "to_ref", "claim_ref"} and self.latest(target) in withdrawn:
                 return "blocked", f"{target} has been withdrawn"
+            if field == "test_ref" and self.latest(target) != target:
+                return "blocked", f"it cites {target}, an earlier version of the test; cite {self.latest(target)}"
+        if record["kind"] == "test" and record["data"].get("replaces") in self.records:
+            test = identity(record["data"]["replaces"])
+            if any(r["kind"] == "observation" and self.current(o) and identity(r["data"]["test_ref"]) == test
+                   for o, r in self.records.items()):
+                return "blocked", (f"a result for {record['data']['replaces']} is already in the model, so its "
+                                   "forecast stays as it was; a changed plan is a new test")
         if record["kind"] == "goal" and not record["data"].get("replaces"):
             others = [g for g in self.goals(proposing) if g != ref and g not in together]
             if others:
@@ -195,6 +203,20 @@ class Membership:
                         closed.append(ref)
                         changed = True
         return self.ordered(closed)
+
+    def leaves_after(self, decision):
+        """Links in the trees now that ``decision`` takes out without naming them.
+
+        Accepting a withdrawal takes its statement's links with it: they cannot be
+        drawn without it. Records the decision names, and links it withdraws, are not
+        listed again here.
+        """
+        after = Membership(self.value)
+        after.record(decision)
+        named = set(decision["refs"]) | {self.records[ref]["data"]["target_ref"] for ref in decision["refs"]
+                                         if self.records[ref]["kind"] == "retraction"}
+        return self.ordered([ref for ref, record in self.records.items() if record["kind"] == "link"
+                             and ref not in named and self.drawn_link(ref) and not after.drawn_link(ref)])
 
     def ordered(self, refs):
         return sorted(refs, key=self.index.__getitem__)

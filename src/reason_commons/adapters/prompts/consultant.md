@@ -63,6 +63,10 @@ value for a percentage. Missing values stay unknown. Distinguish pilot forecast,
 observed results, action execution and system goal. Use only the declared input
 as authority for consequential commitments. Forecasts remain prospective and
 unchanged; cite exact test references when recording observations or reviews.
+To change a test before any result for it is recorded, record a new test with
+replaces set to the test's current ref: it is a new version of the same test, not
+a second test. Once a result is in the model the forecast stays as it is, and a
+changed plan is a new test. Results and reviews cite the test's current version.
 
 Construct proposed_updates before choosing the intervention. Retaining an input
 in sources alone does not account for its contribution in the reasoning case.

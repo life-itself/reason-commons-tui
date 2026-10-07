@@ -362,15 +362,19 @@ reviews and notes; older entries first. A goal waiting to be decided blocks noth
 beside the list. Enter offers its choices; **a** accepts and **r** rejects. Accepting also
 takes the waiting entries it needs, and rejecting the waiting entries that need it;
 when that is more than you chose, the whole list comes first and nothing changes until
-you confirm. A rejection is final for that proposal; the consultant may propose the
-idea again. **Accept all**, beside Send, takes everything the last reply proposed.
+you confirm. Accepting a withdrawal also takes the links that join the statement out
+of your trees, and those links are listed first in the same way. A rejection is final
+for that proposal; the consultant may propose the idea again. **Accept all**, beside Send, takes everything the last reply proposed.
 Deciding never calls the consultant, and you can decide while it is working on your
 next answer.
 
 **Reviews.** When you accept a change to something (a new wording, a withdrawal, an
 undo), whatever cites it is flagged for review in Backlog, with the change that raised
 the flag: a link joined to a reworded statement, a test that carries out a withdrawn
-action, a test that served the goal before its new version. A flag changes nothing and
+action, a test that served the goal before its new version, an action planned for an
+earlier version of a test. A test can be given a new version (a changed forecast, say)
+until a result for it is in your model; after that its forecast stays as written, and a
+changed plan is a new test. A flag changes nothing and
 claims nothing is false. **h** says the record still holds; accepting a new version or
 withdrawal of it also closes the flag. Each change flags only what cites it directly,
 so a consequence reaches one step further each time you accept a change. **Ask about
@@ -382,6 +386,7 @@ hold; what it proposes waits like anything else.
 **Automatic acceptance.** Commands, **Accept proposals automatically** lets later
 replies' proposals enter your model as they arrive, recorded as accepted under your
 setting, and Next step says what was added; each can still be undone from History.
+A withdrawal that would take links with it still waits for you, so you see them first.
 **Hold proposals for review** turns it back. Proposals already waiting keep waiting
 either way, and only you change the setting: a consultant cannot, and an agent can
 only where you started its server with `--allow-acceptance-setting`.

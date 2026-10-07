@@ -302,7 +302,11 @@ is retained first and stays available with its source. The consultant then draft
 candidate reasoning from it: goal changes, notes, tests, actions, observations,
 reviews, tree statements, links, new wordings and withdrawals. Each proposal cites
 the words it came from and may carry the consultant's confidence that it represents
-them faithfully. Drafting is automatic; entry into the model is a decision.
+them faithfully. A proposal may cite only the answer it replies to, answers the
+case has already taken in, and sources the operator supplied; an answer that became
+stale before its reply was published is not part of the case, so the consultant is
+not shown it and no later reply may cite it. The operator can send it again.
+Drafting is automatic; entry into the model is a decision.
 
 The goal, the six trees and the tests are one model, not separate concerns. The
 case has one goal; it is the Goal Tree's top statement, and every change to it is
@@ -347,8 +351,9 @@ cause can be accepted while the goal is still open.
 
 **Review flags and cascades.** When an accepted change gives a record a new
 version, withdraws it, or undoes it, everything in the model that explicitly cites
-it is flagged for review: the links that join it (in any tree), a test that carries
-it out, a test that serves a changed goal. A flag names the change that raised it.
+it and stays in the model is flagged for review: the links that join a statement
+given a new version (in any tree), a test that carries it out, a test that serves a
+changed goal, an action or a result planned for an earlier version of a test. A flag names the change that raised it.
 It changes nothing and claims nothing is false; observations and unaffected
 branches stay usable. It closes when the flagged record gets a new version or
 leaves the model, or when the operator says it still holds. Each change flags only
@@ -360,6 +365,18 @@ can also ask it about them directly. Its amendments are proposals like any other
 they wait, or are accepted automatically under that setting. A consequence the
 consultant only suspects stays a proposal or a question; it never gains blocking
 authority on its own.
+
+**Withdraw.** A withdrawal is a proposal like any other. Accepting it takes the
+statement out of the model together with the links that join it, which cannot be
+drawn without it; records that cite it in another way are flagged. Because that
+takes more than the operator named, the operator sees the links before confirming,
+and under automatic acceptance a withdrawal that would take links waits in the
+backlog for the operator.
+
+**Tests.** A test can be given a new version, like a statement or the goal, until a
+result for it is in the model. From then on its original forecast is fixed: a
+further version is rejected, and a changed plan is a new test. A result cites the
+current version of its test.
 
 **Undo.** Every acceptance, explicit or automatic, can be undone. Undo appends a
 local revision that takes the accepted records out of the model, together with
@@ -743,7 +760,7 @@ all failure branches. Every scenario still needs its own fixture and release gat
 | J01–J03, J06–J07, J09, J11–J16 | 10 goal progress and delivery | S91–S113 | M03–M07; R01–R04 | Goal connection, execution/attainment and dependent review |
 | J02–J03, J05–J07, J09, J12–J16 | 11 TUI workspace | S114–S127 | M01–M07; S01–S24; R01–R04 | Canonical interaction, async focus and complete diagrams |
 | J03, J07, J11–J12, J14 | 12 trees in conversation | S128–S134 | none yet | Claims and single links in six trees, rewording, LTP 1.0 import/export |
-| J07–J08, J14, J17 | 13 proposals and review | S135–S147 | M02–M03 | Backlog, acceptance setting, order, review flags, undo and one goal |
+| J07–J08, J14, J17 | 13 proposals and review | S135–S150 | M02–M03 | Backlog, acceptance setting, order, review flags, undo and one goal |
 
 ## 6. Build sequence
 
@@ -2717,6 +2734,35 @@ Feature: Decide what enters the model
     When the operator asks the consultant about the open reviews
     Then one consultant request carries the flagged statements and the changes that raised the flags
     And the amendments it proposes wait in the backlog like any other proposal
+
+  @S148 @p2 @v1 @automated
+  Scenario: Withdraw a statement together with the links that join it
+    Given the Current Reality Tree holds an accepted cause with its causes link and a test that carries out the cause
+    And the consultant proposes withdrawing the cause
+    When the operator accepts the withdrawal
+    Then the operator is shown that the link leaves the tree with the cause and the test is flagged for review
+    And nothing changes until the operator confirms
+    When the operator confirms
+    Then a new revision removes the cause and its link from the tree and the test's flag waits in the backlog
+    And in a case set to accept proposals automatically, the same withdrawal waits for the operator
+
+  @S149 @p2 @v1 @automated
+  Scenario: Cite only words the case has taken in
+    Given an answer the operator sent became stale before the consultant replied to it
+    When the operator sends another answer
+    Then the consultant's request does not carry the stale answer
+    And a reply whose proposal cites the stale answer is rejected before commit, leaving the case unchanged
+    And the stale answer stays retained with its source, so the operator can send it again
+
+  @S150 @p2 @v1 @automated
+  Scenario: Revise a test's forecast only before its first result
+    Given an accepted test forecasting "6 of 30" and an accepted action that carries it out
+    When the operator accepts a new version of the test forecasting "8 of 30"
+    Then the Tests view shows one test with the new forecast, and the case history keeps the earlier one
+    And the action is flagged for review because it was planned for the earlier version
+    When a result is reported for the test and accepted
+    Then a further new version of the test is rejected before commit, so the forecast stays as it was before the result
+    And a result citing the earlier version of the test is rejected before commit
 ```
 
 ## 8. V1 TUI goal action review session
@@ -4508,6 +4554,6 @@ columns are unsuitable. Never reduce an adverse path to a success-only summary.
 At less than 40x24 retain state and offer resize or this ordered presentation.
 S49 covers narrow ordered context; S50 equivalent relation text; S51 drafts;
 S54-S71 focus/selection/target behavior; S115-S120 deliberate submission, restoration
-and recovery; S135-S147 decisions about proposals. The participant gates in delivery-phases.md include assistive
+and recovery; S135-S150 decisions about proposals. The participant gates in delivery-phases.md include assistive
 technology users. These requirements need implementation and actual reader tests;
 a text specimen or passing document check is not evidence of accessibility.

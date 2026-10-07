@@ -2107,6 +2107,9 @@ class ReasonCommonsApp(ThemedApp):
     def consequences(self, action, result):
         verb = {"accept": "Enters your model", "reject": "Rejected, finally", "undo": "Leaves your model"}[action]
         lines = [f"**{verb}:**", ""] + [f"- {md(self.record_words(ref))}" for ref in result["refs"]]
+        if result.get("leaves"):
+            lines += ["", "**Leaves your trees with it, because it joins what is withdrawn:**", ""]
+            lines += [f"- {md(self.record_words(ref))}" for ref in result["leaves"]]
         if result["closes"]:
             lines += ["", "**Closed, because what they need will not be in your model:**", ""]
             lines += [f"- {md(self.record_words(ref))}" for ref in result["closes"]]
@@ -2124,6 +2127,8 @@ class ReasonCommonsApp(ThemedApp):
                 "undo": f"Undone: {count} left your model.", "still_holds": "Recorded: it still holds.",
                 "acceptance": "Saved."}[action]
         more = []
+        if result.get("leaves"):
+            more.append(f"{len(result['leaves'])} link{'s' * (len(result['leaves']) != 1)} left your trees with it")
         if result.get("closes"):
             more.append(f"{len(result['closes'])} waiting proposal{'s' * (len(result['closes']) != 1)} closed")
         if result.get("flags"):
@@ -2505,7 +2510,8 @@ class ReasonCommonsApp(ThemedApp):
                     (f"  \n  *measure:* {md(data['measure'])}" if data.get("measure") else ""))
         if record["kind"] == "test":
             forecast = "; ".join(f.get("expected") or "" for f in data.get("forecast") or [])
-            return f"- *Test:* {md(data['statement'])}  \n  *forecast, written first:* {md(forecast)}"
+            return (f"- *Test{', new version' if data.get('replaces') else ''}:* {md(data['statement'])}  \n"
+                    f"  *forecast, written first:* {md(forecast)}")
         if record["kind"] == "action":
             return f"- *Action planned:* {md(data['statement'])}"
         if record["kind"] == "note":

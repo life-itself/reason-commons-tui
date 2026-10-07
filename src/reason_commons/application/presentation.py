@@ -219,7 +219,8 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
     diagram_links = [e for e in links if e["from"] in diagram_refs and e["to"] in diagram_refs]
     diagram_nodes = [r for r in relevant if any(r["ref"] in (e["from"], e["to"]) for e in diagram_links)]
     comparisons = []
-    for test in (r for r in relevant if r["kind"] == "test"):
+    # A test's earlier versions stay in history; the comparison is with the current forecast.
+    for test in (r for r in relevant if r["kind"] == "test" and membership.current(r["ref"])):
         observations = [r for r in records.values() if r["kind"] == "observation" and r["data"]["test_ref"] == test["ref"]
                         and membership.current(r["ref"])]
         comparisons.append({"test": deepcopy(test), "observations": deepcopy(observations),

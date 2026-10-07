@@ -169,3 +169,12 @@ S52, S108 and S128–S133 were amended to match; no scenario was removed. Review
 of consequences that no reference records, correction receipts and Restore
 reasoning stay in p3. A confidence threshold for automatic acceptance is a later
 setting; v1 records the consultant's confidence without using it.
+
+Later the same day, after a live run against Claude, three rules were added to
+that contract (S148–S150). Accepting a withdrawal names the links it takes out of
+the trees and waits for the operator's confirmation, also under automatic
+acceptance. A reply cites only the answer it replies to, answers already taken
+in and supplied sources, so an answer that went stale stays out of the case. A
+test can be given a new version until its first result is in the model; from
+then on its forecast is fixed. A result reported before a test's stated start is
+not refused, because those dates are the participant's free text.

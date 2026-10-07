@@ -107,7 +107,7 @@ one-line form before.
 
 The conflicts revision's first row is now settled differently, by a specification
 change rather than an adapter: the consultant's readings are proposals, and nothing
-enters the model until the operator accepts it (main specification section 2F, S135–S147).
+enters the model until the operator accepts it (main specification section 2F, S135–S150).
 This is membership, not a stance, so it needed no p4 position records. What was built:
 
 - Next step's strip now draws what the last reply *proposes*, marked proposed, beside the

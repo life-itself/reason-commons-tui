@@ -438,7 +438,7 @@ S07, S40, S43, S46, S52, S108 and S128–S133, and the dated decision in
   setting and ask about open reviews; the band shows a goal that is only proposed.
 
 `scripts/check_p0.py` runs every scenario of `13_proposals_and_review.feature`
-(S135–S147) and fails unless all pass. `tests/test_membership.py` covers the domain's
+(S135–S150) and fails unless all pass. `tests/test_membership.py` covers the domain's
 negative cases, forged decisions, ancestry and a case recorded by the previous release
 (`tests/fixtures/recorded-before-proposals.reasoncase`), which opens with everything
 in the model. Three deliberate breaks (no prerequisites on accept, flags never
@@ -452,3 +452,34 @@ wording in the workspace before accepting, review of consequences that no refere
 records, and Restore reasoning (S41, p3). Live-model behaviour with proposals (does a
 real consultant use `replaces`, cite waiting proposals and answer `review_flags`
 well?) is not yet evaluated.
+
+## Withdrawals, citations and test versions (p2 scenarios S148–S150, 7 October 2026)
+
+A live acceptance run against Claude found three gaps, and David chose the fixes
+(withdrawal confirmed like undo; the rest as recommended). The specification came
+first: section 2F (*Withdraw*, *Tests*, what a proposal may cite, which flags a
+change raises) and scenarios S148–S150 in `13_proposals_and_review.feature`.
+
+- **Withdrawal (S148).** Accepting the withdrawal of a statement used to remove the
+  links that join it without saying so. `Membership.leaves_after` names the links a
+  decision takes out of the trees; the decision use cases return them as `leaves`
+  and ask for confirmation when there are any, and automatic acceptance leaves such
+  a withdrawal waiting. The TUI dialog lists them under "Leaves your trees with it".
+- **Citations (S149).** A later reply could cite an answer that went stale and was
+  never applied, bringing its words into the case through another request. A reply
+  may now cite only the answer it replies to, answers already applied and supplied
+  sources (`Snapshot.apply`), and the consultant is no longer sent stale answers.
+  The rule governs new replies only, so cases that already hold such a citation
+  open unchanged.
+- **Test versions (S150).** A test can be given a new version (`P1@2` replaces
+  `P1@1`) until a result for it is in the model; from then on a further version is
+  refused, and a waiting one is closed when the result is accepted. A result, an
+  action or a review cites the test's current version. The Tests view compares the
+  current version; earlier ones stay in history. The consultant prompt says so.
+
+Not changed, by choice: a result reported before its test's stated start is not
+refused, because test periods and result dates are the participant's free text,
+and refusing would drop their report. `tests/test_membership.py` adds the negative
+cases, `tests/test_tui.py` the withdrawal dialog, and six deliberate breaks (one per
+rule above) each failed the scenario written for it. These changes were not run
+against a live model.

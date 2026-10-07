@@ -30,7 +30,7 @@ repository.
 | Real commons | The Second Renaissance story (`adapters/stories/second-renaissance.yaml`), built one revision per chapter by `scripts/build_story.py` into the packaged `.reasoncase`; History becomes a steppable timeline for every goal |
 | First start | Ways to begin, setup (name, consultant, checked key and model), Settings and the in-app guided tour (`adapters/onboarding.py`, `adapters/settings.py`) |
 | Six trees | Tree statements, links (which may reach another tree), new versions and withdrawals, with the goal at the Goal Tree's top (p2, S128–S134); Trees view, `trees` command, `.ltp.yaml` import/export |
-| Deciding what enters the model | Proposals, the acceptance setting, the ordered Backlog, review flags and undo (p2, S135–S147; `domain/membership.py`); Backlog view, Accept all, Undo in History, `decide` command, MCP decision tools |
+| Deciding what enters the model | Proposals, the acceptance setting, the ordered Backlog, review flags and undo (p2, S135–S150; `domain/membership.py`); Backlog view, Accept all, Undo in History, `decide` command, MCP decision tools |
 | Full p1 contract | Not yet delivered: `--accessible`, speaker switching, 80×24 specimens, usability evidence |
 | p2 and later | Consulting-quality gates, review loop acceptance, joint causes and rival routes remain later work |
 
