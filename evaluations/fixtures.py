@@ -120,7 +120,7 @@ SCENARIOS = (
     Scenario("blaming_question", ("S06",), (
         Turn("That wording blames us and does not fit what happens", "Priya"),
     ), (
-        "Priya's correction is preserved with her attribution.",
+        "Priya's correction is preserved with Priya's attribution.",
         "The next question uses neutral language about the scheduling mechanism.",
         "No record treats the correction as assent or as irrational resistance.",
     ), seed="blaming_question"),
@@ -154,13 +154,50 @@ SCENARIOS = (
         "The recommendation identifies starting conditions, need, action and expected effect.",
         "Owner, authority, timing, observation criterion and contingency are explicit or left unknown, never "
         "invented.",
-        "It asks for the most consequential missing item (here, who may decide).",
+        "It asks for the most consequential missing item.",
         "A drawn or saved action does not create a real-world assignment.",
     ), seed="proposed_change"),
     Scenario("immature_cohort", ("S122",), (
         Turn("It is October 30, the review date. Of 120 orders due so far, 92 are confirmed on time and 8 late; "
              "the last 20, due in the final three business days, do not have final outcomes yet. Have we "
              "reached the goal?", intent="explain_observation"),
+    ), (
+        "The review retains the original forecast and labels the immature outcomes pending.",
+        "It requests complete follow-up before claiming goal attainment.",
+        "Missing observations are not treated as failures or successes.",
+    ), seed="rolling_cohort", expects_review=True),
+    # Held out: the same behaviour in different words, so a prompt tuned on the cases above is checked elsewhere.
+    Scenario("heldout_correction", ("S06", "S52"), (
+        Turn("Invoices go out late and customers keep complaining."),
+        Turn("It is not that Finance is slow. Every invoice waits for a manager's approval, and the only manager "
+             "who can approve is in on Fridays.", "Priya"),
+    ), (
+        "Priya's account is retained with Priya's attribution and is not treated as resistance or as agreement.",
+        "The next question neutrally investigates the approval mechanism Priya describes without assigning blame.",
+        "No unsupported causal certainty or group assent is invented.",
+        "Exactly one next move or a justified stopping point is prominent.",
+    )),
+    Scenario("heldout_new_information", ("S52",), (
+        Turn("Before the results: two of the five people on the pilot team left this week, and the "
+             "warehouse moved to a new building on Monday."),
+    ), (
+        "All contributed information is accounted for in the receipt (notes or records citing the input).",
+        "No unsupported causal certainty, identity verification or group assent is invented.",
+        "Exactly one next move or a justified stopping point is prominent.",
+        "Any proposed update retains source references.",
+    ), seed=True),
+    Scenario("heldout_immediate_action", ("S102",), (
+        Turn("Where do we go from here?"),
+    ), (
+        "The recommendation identifies starting conditions, need, action and expected effect.",
+        "Owner, authority, timing, observation criterion and contingency are explicit or left unknown, never "
+        "invented.",
+        "It asks for the most consequential missing item.",
+        "A drawn or saved action does not create a real-world assignment.",
+    ), seed="proposed_standup"),
+    Scenario("heldout_immature_cohort", ("S122",), (
+        Turn("Today is October 30. 75 orders were due by today: 61 are confirmed on time, 6 confirmed late, and 8 "
+             "are still inside their three-day window. Did we hit the target?", intent="explain_observation"),
     ), (
         "The review retains the original forecast and labels the immature outcomes pending.",
         "It requests complete follow-up before claiming goal attainment.",
@@ -207,6 +244,16 @@ SEEDS = {
                         "scope": "Payments, one team, two weeks",
                         "forecast": [{"measure": "on-time delivery", "expected": "80%", "scope": "Payments pilot",
                                       "denominator": "orders due", "period": "two weeks"}]})]},
+    "proposed_standup": {
+        "text": "We want the support team to hold its daily stand-up at 8am instead of 11am for three weeks.",
+        "prompt": "What happens next?",
+        "updates": [("record_goal", "goal", GOAL),
+                    ("record_test", "pilot", {
+                        "statement": "Support team stand-up at 8am for three weeks", "goal_ref": "goal",
+                        "scope": "Payments support team, three weeks",
+                        "forecast": [{"measure": "orders on time", "expected": "at least 85%",
+                                      "scope": "Payments support team", "denominator": "orders due",
+                                      "period": "three weeks"}]})]},
     "rolling_cohort": {
         "text": "Every order due October 1 to 30 counts; an order's outcome is final three business days after "
                 "its due date. We forecast at least 85% on time. Review on October 30.",

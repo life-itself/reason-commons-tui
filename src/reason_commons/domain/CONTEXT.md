@@ -98,6 +98,9 @@ direction visible while its measure, scope, horizon and baseline remain unknown.
 The first consequential decision is what meaningful success would look like and
 what must be protected. Ranking symptoms is not a substitute for that decision.
 Attributed notes account for information that cannot yet become a stronger claim.
+A participant's correction of a question's premise comes before that decision:
+the next move investigates the mechanism they describe, in neutral terms, and
+framing success waits for a later move. A next move asks for one thing.
 
 A pilot prediction and a system goal are different comparisons. Preserve the
 original prospective test, cohort, denominators, period and stop condition.
