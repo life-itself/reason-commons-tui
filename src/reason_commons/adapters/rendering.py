@@ -140,6 +140,9 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
     else:
         heading("Start this case")
         paragraph("What would you like to improve, and what must be protected? Contribute in your own words; unknown details can stay unknown.")
+    for breach in workspace.get("breaches") or []:
+        paragraph(f"Breach: {literal(breach['measure'])}: {literal(breach['value'])}, outside the bound "
+                  f"{literal(breach['bound'])} (test {breach['test_ref']})")
     for notice in workspace.get("notices") or []:
         paragraph(literal(notice["message"]) + " (" + notice["ref"] + ")")
     for review in workspace.get("test_reviews") or []:

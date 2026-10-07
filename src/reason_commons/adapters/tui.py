@@ -57,7 +57,7 @@ TREE_NAV = {"all": "All six", "goal": "Goal Tree", "current_reality": "Current R
             "future_reality": "Future Reality", "prerequisite": "Prerequisite", "transition": "Transition"}
 VIEW_LABELS = [("next", "Next step"), ("backlog", "Backlog"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"),
                ("actions", "Loop actions"), ("reasoning", "Reasoning"), ("sources", "Your words"),
-               ("history", "History")]
+               ("history", "History"), ("context", "Case context")]
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
         ("review", "Review")]
 GUIDED_STAGE = {"goal": "goal", "goal_measure": "goal", "goal_protect": "goal", "test_change": "test",
@@ -401,6 +401,10 @@ def comparison_block(workspace, comparison, wide):
             parts.append(side_by_side([(before, after), (expected, reported(found))]))
         else:
             parts += [before, expected, after, reported(found)]
+        for breach in (b for b in workspace.get("breaches") or [] if b["test_ref"] == comparison["test"]["ref"]
+                       and b["measure"] == forecast.get("measure")):
+            parts.append(Text(f"BREACH · reported {breach['value']}, outside the bound {breach['bound']}",
+                              style="bold red"))
     named = {f.get("measure") for f in forecasts} | set(protections)
     for observation in (o for o in observations if o["data"]["measure"] not in named):
         parts.append(Group(label(f"ADDITIONAL RESULT · {observation['data']['measure']}"),
@@ -426,6 +430,14 @@ def comparison_block(workspace, comparison, wide):
     unknown = [f["field"] for f in comparison.get("review_fields") or [] if not f["value"]]
     if unknown:
         details.add_row("Not recorded yet", Text(", ".join(unknown), style="italic"))
+    for action in comparison.get("actions") or []:
+        data = action["data"]
+        done = EXECUTION_WORDS.get(data.get("execution"), "not known yet")
+        details.add_row("Action", Text(f"{data['statement']} · {done}{' as reported' * (done == 'done')} · "
+                                       f"expected effect: {ATTAINMENT_WORDS.get(data.get('expected_state_attainment'), 'not known yet')}"))
+    if goal:
+        details.add_row("System goal", Text(f"{goal['data']['statement']} · judged by its own measure, "
+                                            "not by this pilot"))
     for review in comparison["reviews"]:
         who = speakers(workspace, review["ref"])
         details.add_row("Review" + (f" · {who}" if who else ""), Text(str(review["data"]["assessment"])))
@@ -447,7 +459,13 @@ def context_rows(workspace, record, pinned_goal):
         return rows
     if kind == "test":
         rows = [("Test", d["statement"])]
-        rows += [("Original forecast", f.get("expected") or "not stated") for f in d.get("forecast") or []]
+        if d.get("baseline"):
+            rows.append(("Baseline", d["baseline"]))
+        for forecast in d.get("forecast") or []:
+            rows += [("Original forecast", forecast.get("expected") or "not stated"),
+                     ("Measure", forecast.get("measure") or "not stated yet")]
+            if forecast.get("period"):
+                rows.append(("Period", forecast["period"]))
         rows += [(name, d[field]) for name, field in (("Review date", "review_date"), ("Stop condition", "stop_condition"))
                  if d.get(field)]
         return rows
@@ -1585,10 +1603,18 @@ class ReasonCommonsApp(ThemedApp):
         grid = Table.grid(padding=(0, 1))
         grid.add_column(style="bold", width=7, no_wrap=True)
         grid.add_column()
-        grid.add_row("Goal", Text(clip(goal["data"]["statement"], width, 2 if self.terminal.height >= 30 else 1)))
+        statement = goal["data"]["statement"]
+        provisional = not goal["data"].get("measure") and "provisional" not in statement.lower()
+        grid.add_row("Goal", Text.assemble(("provisional · ", "italic dim") if provisional else "",
+                                           clip(statement, width - 14 * provisional,
+                                                2 if self.terminal.height >= 30 else 1)))
         if protect and not self.story:
             protections = " · ".join(goal["data"].get("protections") or []) or "none recorded"
             grid.add_row("Protect", Text(clip(protections, width, 1)))
+        for breach in self.workspace_value.get("breaches") or []:
+            grid.add_row(Text("Breach", style="bold red"),
+                         Text(clip(f"{breach['measure']}: {breach['value']}, outside {breach['bound']}", width, 1),
+                              style="bold"))
         upcoming = next_action(self.viewed_records())
         if upcoming and not self.shows_action(upcoming["action"]["ref"]):
             data = upcoming["action"]["data"]
@@ -1632,7 +1658,11 @@ class ReasonCommonsApp(ThemedApp):
             data = w["question"]["data"]
             # The heading is the strongest line, the question plain, and an "optional answer" hint the quietest.
             question, hint = split_hint(data["primary_prompt"])
-            lines += [f"## {md(data.get('decision') or 'Next question')}", "", md(question), ""]
+            lines += [f"## {md(data.get('decision') or 'Next question')}", ""]
+            purpose = str(data.get("purpose") or "")
+            if " " in purpose.strip():  # a coded purpose (guided steps, fixtures) is not for people
+                lines += [f"*{md(purpose)}*", ""]
+            lines += [md(question), ""]
             lines += [f"###### {md(hint)}", ""] * bool(hint)
             rationale = data["rationale"]
             # What changes the next decision: work done whose effect is not known yet, and tests whose goal moved.
@@ -1658,6 +1688,12 @@ class ReasonCommonsApp(ThemedApp):
         if self.explain:
             lines += ["> **Why this question** (saved explanation, no consultant call)", ">",
                       "> " + md(rationale), ""]
+            served = (w["question"] or {}).get("data", {}).get("goal_ref")
+            goal = {r["ref"]: r for r in self.viewed_records()}.get(served)
+            if goal:
+                current = (self.pinned_goal() or {}).get("ref")
+                note = "" if served == current else " (worded so then; the goal has a newer version)"
+                lines += [f"> **Serves the goal:** {md(goal['data']['statement'])}{note}", ""]
             if not w["question"]:
                 lines += ["How one loop works, one small change at a time:", "",
                           WELCOME_WIDE if self.terminal.width >= 100 else WELCOME_NARROW,
@@ -1875,6 +1911,8 @@ class ReasonCommonsApp(ThemedApp):
             return "\n".join(lines)
         if view == "backlog":
             return self.backlog_page()
+        if view == "context":
+            return self.context_page()
         if view == "sources":
             sources = [s for s in w["sources"].values() if "request_id" in s]
             # Who wrote matters with more than one voice, or when the one voice is not you (a goal someone shared).
@@ -1895,6 +1933,55 @@ class ReasonCommonsApp(ThemedApp):
         shown = [r for r in w["records"] if (r["kind"] in kinds if kinds else r["kind"] != "intervention")]
         if not shown and not (view == "reasoning" and w["uncertainty"]):
             lines.append("Nothing recorded here yet.")
+        return "\n".join(lines)
+
+    def context_page(self):
+        """Everything the live question rests on, complete and in one place: where the case is saved, the goal
+        with all its fields, the tests in the model and their boundaries, what is being answered, what waits
+        and any breach. Local; nothing is sent."""
+        w = self.workspace_value
+        state = "read-only" if self.story or self.revision is not None else "saved"
+        lines = ["## Case context", "", "Everything the current question rests on, in full. Local: nothing is sent.",
+                 "", f"**{md(w['case_name'])}** · {state} at revision {w['revision']} · answering as "
+                 f"{md(self.speaker)} · proposals are {'accepted automatically' if w.get('acceptance') == 'automatic' else 'held for you'}",
+                 ""]
+        for breach in w.get("breaches") or []:
+            lines += [f"> **Breach:** {md(breach['measure'])}: {md(breach['value'])}, outside {md(breach['bound'])}", ""]
+        goal = self.pinned_goal()
+        lines += ["### Goal", ""]
+        if goal is None:
+            lines += ["No goal in the model yet." + (" One waits in Backlog." if any(
+                e["entry"] == "proposal" and e["kind"] == "goal" for e in self.backlog()) else ""), ""]
+        else:
+            data = goal["data"]
+            lines += [f"- **Goal** ({goal['ref']}): {md(data['statement'])}"
+                      + (" · provisional: no measure yet" if not data.get("measure") else "")]
+            lines += [f"- **{name.capitalize()}:** {md(data[name]) if data.get(name) else 'not known yet'}"
+                      for name in ("measure", "baseline", "horizon", "scope")]
+            lines += [f"- **Protect:** {md(p)}" for p in data.get("protections") or []] or ["- **Protect:** none recorded"]
+            lines.append("")
+        tests = [c for c in self.case.workspace(view="tests")["comparisons"]]
+        lines += ["### Tests in the model", ""]
+        for comparison in tests:
+            data = comparison["test"]["data"]
+            periods = ", ".join(dict.fromkeys(f["period"] for f in data.get("forecast") or [] if f.get("period")))
+            lines += [f"- **{md(data['statement'])}** ({comparison['test']['ref']}) · scope: "
+                      f"{md(data.get('scope') or 'not known yet')} · period: {md(periods or 'not known yet')} · "
+                      f"stop if: {md(data.get('stop_condition') or 'not known yet')} · review: "
+                      f"{md(data['review_date'] + '; no reminder scheduled' if data.get('review_date') else 'no date')}"]
+        lines += ["- None yet."] * (not tests) + [""]
+        question = (w["question"] or {}).get("data", {})
+        lines += ["### Answering", "", f"- {md(question.get('primary_prompt') or 'The first question: what is happening?')}"
+                  + (f" ({w['target']['response_target']}, revision {w['target']['base_revision']})"
+                     if w["target"]["response_target"] else ""), ""]
+        waiting = [e for e in self.backlog() if e["entry"] == "proposal"]
+        flagged = [e for e in self.backlog() if e["entry"] == "review"]
+        pending = w.get("pending_requests") or []
+        lines += ["### What waits", "",
+                  f"- {len(waiting)} proposal{'s' * (len(waiting) != 1)} in Backlog, not yet in the model",
+                  f"- {len(flagged)} record{'s' * (len(flagged) != 1)} flagged for review",
+                  f"- {len(pending)} answer{'s' * (len(pending) != 1)} saved but not answered yet",
+                  f"- {sum(1 for s in w['membership'].values() if s == 'accepted')} records accepted into the model", ""]
         return "\n".join(lines)
 
     def trees_page(self):

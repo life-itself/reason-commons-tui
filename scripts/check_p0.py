@@ -20,7 +20,7 @@ DELIVERED_P1 = ["S07", "S08", "S09", "S10", "S11", "S12", "S13", "S47", "S51", "
                 "S58", "S63", "S67", "S70", "S72", "S107", "S110", "S113", "S114", "S115", "S116", "S117",
                 "S118", "S119", "S120"]
 # The p2 scenarios delivered outside the two whole features above; the rest of p2 is listed as outstanding.
-DELIVERED_P2 = ["S32", "S37", "S95", "S101"]
+DELIVERED_P2 = ["S03", "S04", "S17", "S32", "S37", "S93", "S95", "S101", "S121"]
 
 
 def run(*args):

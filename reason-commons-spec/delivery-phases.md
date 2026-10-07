@@ -178,3 +178,11 @@ in and supplied sources, so an answer that went stale stays out of the case. A
 test can be given a new version until its first result is in the model; from
 then on its forecast is fixed. A result reported before a test's stated start is
 not refused, because those dates are the participant's free text.
+
+Also on 7 October, the status line kept its redesign (the goal's name, who is
+answering and whether it is saved), with focus shown by a heavy frame round the
+focused pane. S04, S49 and S68 were reworded to match: the focused control is
+framed, or named in words in the accessible text presentation, and Case context
+gives the revision with the rest of the complete context. Their other steps are
+unchanged. The authored specimen frames, which print the revision and focus in
+their header line, are illustrations and were left as they are.

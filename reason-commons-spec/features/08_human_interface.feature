@@ -124,11 +124,11 @@ Feature: Make rigorous local work discoverable through workspace controls
   Scenario: Compress routine context and repeat consequential changes
     Given Compact display and an unchanged goal and protections
     When Sam opens Explain this and returns to the current question
-    Then the pinned header shows case, revision, save status, speaker and focus
+    Then the pinned header shows case, save status and speaker, and the focused control is framed
     And complete unchanged context is not duplicated inside each view
     And the goal and consequential safeguard band remain pinned
     When the goal changes or Sam activates Goal or Case context
-    Then complete goal, horizon, protections, test boundaries and response target appear
+    Then complete goal, horizon, protections, test boundaries, response target and revision appear
     And requesting context makes no consultant call
 
   @S69 @p1 @v1 @automated

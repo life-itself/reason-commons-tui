@@ -510,3 +510,30 @@ Toward finishing v1, the case engine scenarios of the goal-action-review loop:
 `scripts/check_p0.py` now also runs the p2 scenarios delivered outside features 12
 and 13 (`DELIVERED_P2`) and names the rest of p2 as outstanding, as it does for p1.
 Five deliberate breaks, one per rule above, each failed the scenario written for it.
+
+## How the question is presented (p2 scenarios S03, S04, S17, S93, S121, 7 October 2026)
+
+- **One move, other paths visible (S03, S17).** These already held: one heading and one
+  prompt, Other moves visible, no unsolicited lesson, and no tree drawn for a question
+  it would not clarify. A test's context rows now give each forecast's measure ("not
+  stated yet" while unknown) and period, and the pilot's own baseline.
+- **What changes the answer beside the question (S04).** The band keeps the goal and
+  each safeguard; the question's context gives the pilot's baseline and period; an
+  estimate stays worded as one. The status line keeps its redesign (see the dated note
+  in `reason-commons-spec/delivery-phases.md`): the focused pane is framed, and the new
+  **Case context** view (last in Views) gives the revision with the complete goal, the
+  tests' boundaries, the response target and what waits. It is a workspace view
+  (`context`), local, with no consultant call.
+- **The decision and the goal it serves (S93).** A question's purpose shows under its
+  heading when it is written for people (a coded purpose is not shown); Explain this
+  names the exact goal formulation the question serves, and says when the goal has a
+  newer version. A goal with no measure is pinned as provisional.
+- **Forecast beside outcome, breach visible (S121).** The workspace now projects
+  `breaches`: a reported result outside a bound recorded with the test's forecast for
+  the same measure, judged only when both are plain numbers in the same unit. A breach
+  is pinned in the band in every view and marked on the review; the review also lists
+  the action's execution and the system goal ("judged by its own measure, not by this
+  pilot") on their own lines.
+
+Seven deliberate breaks each failed a scenario, two after their steps were tightened
+(the revision and the period were also matched by other text on screen).

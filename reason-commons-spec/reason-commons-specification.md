@@ -1316,7 +1316,7 @@ Feature: Help a group make its next reasoning move
     And the case protects "Overtime at most 20 hours per week"
     When the pilot workspace is rendered
     Then the consequential goal and protected condition appear beside the question
-    And compact status shows current focus, revision, and save status
+    And compact status shows save status, the focused control is framed, and Case context gives the revision
     And an estimate is not relabeled as a measurement
     And the pilot workspace shows the relevant baseline and period
 
@@ -1786,7 +1786,7 @@ Feature: Make the interface legible and the consultant evaluable
   Scenario: Retain critical context on a narrow terminal
     Given the accessible ordered text presentation in a terminal 40 columns wide and 16 rows high
     When a test review is rendered
-    Then compact status shows focus, revision, and save status
+    Then compact status shows save status and names the focused control
     And the question shows its consequential goal and protected condition
     And the Case context control exposes complete current context locally
     And lines wrap without horizontal scrolling
@@ -1964,11 +1964,11 @@ Feature: Make rigorous local work discoverable through workspace controls
   Scenario: Compress routine context and repeat consequential changes
     Given Compact display and an unchanged goal and protections
     When Sam opens Explain this and returns to the current question
-    Then the pinned header shows case, revision, save status, speaker and focus
+    Then the pinned header shows case, save status and speaker, and the focused control is framed
     And complete unchanged context is not duplicated inside each view
     And the goal and consequential safeguard band remain pinned
     When the goal changes or Sam activates Goal or Case context
-    Then complete goal, horizon, protections, test boundaries and response target appear
+    Then complete goal, horizon, protections, test boundaries, response target and revision appear
     And requesting context makes no consultant call
 
   @S69 @p1 @v1 @automated

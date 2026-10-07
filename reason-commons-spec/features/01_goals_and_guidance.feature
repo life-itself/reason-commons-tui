@@ -40,7 +40,7 @@ Feature: Help a group make its next reasoning move
     And the case protects "Overtime at most 20 hours per week"
     When the pilot workspace is rendered
     Then the consequential goal and protected condition appear beside the question
-    And compact status shows current focus, revision, and save status
+    And compact status shows save status, the focused control is framed, and Case context gives the revision
     And an estimate is not relabeled as a measurement
     And the pilot workspace shows the relevant baseline and period
 

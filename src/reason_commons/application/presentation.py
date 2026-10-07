@@ -6,11 +6,13 @@ Layout, Markdown and terminal drawing belong to adapters.
 """
 
 from copy import deepcopy
+import re
 
 from reason_commons.domain.model import TREES, require
 
 
-VIEWS = ("next", "explain", "goal", "trees", "reasoning", "tests", "actions", "backlog", "history", "sources")
+VIEWS = ("next", "explain", "goal", "trees", "reasoning", "tests", "actions", "backlog", "history", "sources",
+         "context")
 LINK_FIELDS = {"goal_ref": "concerns goal", "test_ref": "concerns test", "claim_ref": "carries out",
                "observation_refs": "uses observation", "required_context_refs": "uses context"}
 LINK_LABELS = {("test", "goal_ref"): "tests progress toward", ("test", "claim_ref"): "carries out",
@@ -151,6 +153,48 @@ def identity_of(ref):
     return ref.split("@")[0] if isinstance(ref, str) else ref
 
 
+BOUND = re.compile(r"(at least|no less than|minimum|>=|≥|at most|no more than|maximum|<=|≤)\s*(\d+(?:\.\d+)?)\s*(%?)",
+                   re.IGNORECASE)
+LOWER = ("at least", "no less than", "minimum", ">=", "≥")
+
+
+def amount(value):
+    """A reported value as (number, unit) when it is plainly one: "90%", "18 of 20" or "18/20" (as a
+    percentage), or a bare number. Anything else is not judged."""
+    text = str(value)
+    percent = re.search(r"(\d+(?:\.\d+)?)\s*%", text)
+    if percent:
+        return float(percent.group(1)), "%"
+    share = re.search(r"(\d+)\s*(?:of|/|out of)\s*(\d+)", text)
+    if share and int(share.group(2)):
+        return 100 * int(share.group(1)) / int(share.group(2)), "%"
+    bare = re.fullmatch(r"\s*(\d+(?:\.\d+)?)\s*", text)
+    return (float(bare.group(1)), "") if bare else None
+
+
+def breaches(records, membership):
+    """Reported results outside a bound recorded with the test's forecast for the same measure.
+
+    A breach is judged only when the bound ("at least 95%") and the result ("18 of 20") are plain numbers in
+    the same unit; otherwise nothing is said. Display density can never hide one."""
+    found = []
+    for test in (r for r in records.values() if r["kind"] == "test" and membership.current(r["ref"])):
+        for forecast in test["data"].get("forecast") or []:
+            bound = BOUND.search(str(forecast.get("bound") or ""))
+            if not bound:
+                continue
+            limit, unit, lower = float(bound.group(2)), bound.group(3), bound.group(1).lower() in LOWER
+            for observation in (r for r in records.values() if r["kind"] == "observation"
+                                and membership.current(r["ref"]) and r["data"]["test_ref"] == test["ref"]
+                                and r["data"]["measure"] == forecast.get("measure")):
+                value = amount(observation["data"]["value"])
+                if value and value[1] == unit and (value[0] < limit if lower else value[0] > limit):
+                    found.append({"test_ref": test["ref"], "observation_ref": observation["ref"],
+                                  "measure": forecast.get("measure"), "value": observation["data"]["value"],
+                                  "bound": forecast["bound"]})
+    return found
+
+
 def review_fields(test, records, membership):
     """What a pilot's review needs, in the order it is read, each value None while it is unknown.
 
@@ -260,7 +304,10 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
         comparisons.append({"test": deepcopy(test), "observations": deepcopy(observations),
                             "reviews": [deepcopy(r) for r in records.values() if r["kind"] == "review"
                                         and r["data"]["test_ref"] == test["ref"] and membership.current(r["ref"])],
-                            "review_fields": review_fields(test, records, membership)})
+                            "review_fields": review_fields(test, records, membership),
+                            "actions": [deepcopy(r) for r in records.values() if r["kind"] == "action"
+                                        and membership.current(r["ref"])
+                                        and identity_of(r["data"].get("test_ref")) == identity_of(test["ref"])]})
     # A test whose goal (or anything else it cites) has changed needs review before the next test decision.
     flags = membership.flags()
     test_reviews = [{"ref": ref, "statement": records[ref]["data"]["statement"],
@@ -355,6 +402,7 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
             "sources": visible_sources if view == "sources" else {}, "uncertainty": unknowns,
             "diagram": {"kind": "recorded_references", "nodes": deepcopy(diagram_nodes), "links": diagram_links},
             "comparisons": comparisons, "test_reviews": test_reviews, "notices": notices,
+            "breaches": breaches(records, membership),
             "available_actions": actions,
             "trees": project_trees(all_records, membership),
             "acceptance": membership.acceptance, "backlog": backlog, "reply": reply,

@@ -217,11 +217,12 @@ Browsing views never calls the consultant.
 | Backlog | Everything waiting for your decision, in the order it is best decided, and records flagged for review; the chosen entry in full beside the list on a wide terminal. Deciding here calls no consultant |
 | Goal | The goal, its measure and each safeguard, in full |
 | Trees | The six thinking-process trees, drawn from what is in your model: first all six, folded, then one at a time. The goal is the Goal Tree's top statement, and a statement another tree's link uses is drawn there too, marked with its own tree. Each statement says how it relates to the one above it, and where paths meet, how many of the tree's ends it leads to. Choose a statement for the question worth asking of it, its links, wording and origin; the rest of the tree goes quiet around it |
-| Tests | Each test with its original forecast next to the reported result, and reviews |
+| Tests | Each test with its original forecast next to the reported result, a breach of a recorded bound marked where it happens, the action's status and the goal kept apart from the pilot, the review date (never a reminder), what is not recorded yet, and reviews |
 | Loop actions | Each test and the action that carries it out, with its status |
 | Reasoning | What is still open first, then the loop's records, then how many statements each tree holds |
 | Your words | Your answers, exactly as written, each with when you wrote it on your own clock (and who, when more than one person has written) |
 | History | Every saved step, oldest first, one row each: when, the question it answered or the decision taken, and what entered the model (and who, once more than one person has written); Enter opens that moment, **u** undoes what it accepted |
+| Case context | Everything the current question rests on, in full: the revision it is saved at, the whole goal with each safeguard, each test's scope, period, stop condition and review date, what you are answering, and what waits (proposals, reviews, unanswered answers). Local; nothing is sent |
 
 With the built-in guide, an empty answer skips an optional question (measure,
 safeguards, review date, stop condition).
