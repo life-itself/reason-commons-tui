@@ -17,10 +17,10 @@ DELIVERED_P2_FEATURES = ["12_trees_in_conversation.feature", "13_proposals_and_r
 # The p1 workspace scenarios delivered so far. Each runs through the real workspace and must pass;
 # the rest of p1 is listed as outstanding on every run, never filtered out silently.
 DELIVERED_P1 = ["S07", "S08", "S09", "S10", "S11", "S12", "S13", "S47", "S51", "S54", "S55", "S56", "S57",
-                "S58", "S63", "S67", "S70", "S72", "S107", "S110", "S113", "S114", "S115", "S116", "S117",
-                "S118", "S119", "S120"]
+                "S58", "S63", "S67", "S68", "S69", "S70", "S72", "S107", "S110", "S113", "S114", "S115", "S116",
+                "S117", "S118", "S119", "S120"]
 # The p2 scenarios delivered outside the two whole features above; the rest of p2 is listed as outstanding.
-DELIVERED_P2 = ["S03", "S04", "S17", "S32", "S37", "S93", "S95", "S101", "S121"]
+DELIVERED_P2 = ["S03", "S04", "S17", "S32", "S37", "S93", "S94", "S95", "S101", "S121"]
 
 
 def run(*args):

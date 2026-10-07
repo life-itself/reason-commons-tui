@@ -85,6 +85,8 @@ EXECUTION_WORDS = {"unknown": "not known yet", "planned": "planned", "completed"
 ATTAINMENT_WORDS = {"unknown": "not known yet", "pending": "pending", "met": "met", "not_met": "not met"}
 # The records the Goal and Loop actions views show; a goal in Loop actions is left to the band and Goal.
 RECORD_KINDS = {"goal": {"goal"}, "actions": {"test", "action"}}
+# How much context the band repeats; a presentation preference saved with the cursor.
+DENSITIES = ("compact", "expanded")
 # What each kind of record is called where Reasoning lists what is still open about it.
 OPEN_KINDS = {"goal": "Goal", "test": "Test", "action": "Action", "observation": "Result", "review": "Review"}
 # Pane width from which a forecast and its results sit side by side rather than one after the other.
@@ -435,7 +437,7 @@ def comparison_block(workspace, comparison, wide):
         done = EXECUTION_WORDS.get(data.get("execution"), "not known yet")
         details.add_row("Action", Text(f"{data['statement']} · {done}{' as reported' * (done == 'done')} · "
                                        f"expected effect: {ATTAINMENT_WORDS.get(data.get('expected_state_attainment'), 'not known yet')}"))
-    if goal:
+    if goal and observations:  # at review, a pilot's result is kept apart from the goal; before it, the band has it
         details.add_row("System goal", Text(f"{goal['data']['statement']} · judged by its own measure, "
                                             "not by this pilot"))
     for review in comparison["reviews"]:
@@ -1254,6 +1256,7 @@ class ReasonCommonsApp(ThemedApp):
         # What is folded away (interface state, kept for this session): per tree, and opened in the overview.
         self._folds, self._overview_open = {}, set()
         # Where a local inspection began (view, explanation, past moment, scroll, focus), for Esc.
+        self.density = "compact"  # Compact is the default; Expanded repeats the complete context
         self._origin = None
         # The open menu's name, and its state as kept in the cursor (filter, choice, binding).
         self._menu_name, self._menu_state = None, None
@@ -1351,6 +1354,9 @@ class ReasonCommonsApp(ThemedApp):
             self._restoring = False
         if (cursor.get("display") or {}).get("tree") in TREE_ORDER + ["all"]:
             self.tree_choice = cursor["display"]["tree"]
+        if (cursor.get("display") or {}).get("density") in DENSITIES:
+            self.density = cursor["display"]["density"]
+            self.render_all()
         if any(c["ref"] == cursor.get("selection") for t in self.workspace_value["trees"] for c in t["claims"]):
             self.selected_claim = cursor["selection"]
         if cursor.get("view") in dict(VIEW_LABELS) and cursor["view"] != "next":
@@ -1599,16 +1605,27 @@ class ReasonCommonsApp(ThemedApp):
             grid.add_row("Goal", Text.assemble(("proposed, not yet accepted: ", "italic dim"),
                                                clip(proposed["summary"], self.terminal.width - 40, 1)))
             return grid
-        width = self.terminal.width - 11
+        expanded = self.density == "expanded" and not self.story
+        width = self.terminal.width - 11 - expanded
         grid = Table.grid(padding=(0, 1))
-        grid.add_column(style="bold", width=7, no_wrap=True)
+        grid.add_column(style="bold", width=8 if expanded else 7, no_wrap=True)  # Expanded's "Baseline" fits
         grid.add_column()
         statement = goal["data"]["statement"]
         provisional = not goal["data"].get("measure") and "provisional" not in statement.lower()
         grid.add_row("Goal", Text.assemble(("provisional · ", "italic dim") if provisional else "",
                                            clip(statement, width - 14 * provisional,
                                                 2 if self.terminal.height >= 30 else 1)))
-        if protect and not self.story:
+        if expanded:
+            for name in ("measure", "baseline", "horizon", "scope"):
+                grid.add_row(name.capitalize(), Text(clip(goal["data"].get(name) or "not known yet", width, 1)))
+            for index, protection in enumerate(goal["data"].get("protections") or ["none recorded"]):
+                grid.add_row("Protect" if index == 0 else "", Text(clip(protection, width, 1)))
+            for comparison in self.workspace_value["comparisons"]:
+                data = comparison["test"]["data"]
+                periods = ", ".join(dict.fromkeys(f["period"] for f in data.get("forecast") or [] if f.get("period")))
+                grid.add_row("Test", Text(clip(" · ".join(filter(None, [data["statement"], data.get("scope"), periods,
+                                                                       data.get("stop_condition")])), width, 1)))
+        elif protect and not self.story:
             protections = " · ".join(goal["data"].get("protections") or []) or "none recorded"
             grid.add_row("Protect", Text(clip(protections, width, 1)))
         for breach in self.workspace_value.get("breaches") or []:
@@ -3144,7 +3161,7 @@ class ReasonCommonsApp(ThemedApp):
                 "view": self.view_name, "focus": "response" if editor.has_focus else "browse",
                 "draft": draft, "caret": caret_index(draft, editor.cursor_location), "speaker": self.speaker,
                 "response_target": target["response_target"], "base_revision": target["base_revision"],
-                "display": {"tree": self.shown_tree()},
+                "display": {"tree": self.shown_tree(), "density": self.density},
                 **({"selection": self.selected_claim} if self.selected_claim else {}),
                 **({"menu": self._menu_state} if self._menu_state else {})})
         except Exception:
@@ -3192,6 +3209,12 @@ class ReasonCommonsApp(ThemedApp):
                 items.append(("Ask about the open reviews",
                               "Asks the consultant whether the flagged records still hold; your answer goes with it",
                               lambda: self.action_send(intent="review_flags")))
+        other = "expanded" if self.density == "compact" else "compact"
+        items.append((f"Display: {other.capitalize()}",
+                      "Local preference, saved with your draft: " + (
+                          "repeat the complete goal, every safeguard and each test's boundaries in the band"
+                          if other == "expanded" else "keep the band to the goal and its safeguards")
+                      + "; a breach always stays", lambda: self.set_density(other)))
         items.append(("History: step back", "Local: the goal as it was one step earlier (←)", self.action_earlier))
         if self.revision is not None:
             items += [("History: step forward", "Local: one step later (→)", self.action_later),
@@ -3209,6 +3232,14 @@ class ReasonCommonsApp(ThemedApp):
                   ("Help", "Local: keys and controls (F1); Explain this covers the reasoning", self.action_help),
                   ("Save and quit", "Local: keep your draft and close (Ctrl+Q)", self.action_quit)]
         return [(re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-"), name, detail, run) for name, detail, run in items]
+
+    def set_density(self, density):
+        """Compact (the default) or Expanded: a presentation preference, saved with the cursor; it records no
+        reasoning and calls no consultant, and no density hides a breach."""
+        self.density = density
+        self.render_all()
+        self.schedule_checkpoint()
+        self.notify(f"Display: {density}. Saved with your draft; nothing else changed.")
 
     def get_system_commands(self, screen):
         for _, name, detail, run in self.action_list():

@@ -292,7 +292,7 @@ def reported_results(context):
     case_with(context, context.replies + [("40 of 50 on time; 18 of 20 urgent requests acknowledged in time",
                                            asking("Review the pilot", "What do you make of this result?",
                                                   "The forecast was written first.", updates=observations), None)],
-              size=(90, 70))
+              size=getattr(context, "review_size", (90, 70)))
 
 
 @when("the review screen is rendered")

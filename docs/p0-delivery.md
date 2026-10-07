@@ -537,3 +537,22 @@ Five deliberate breaks, one per rule above, each failed the scenario written for
 
 Seven deliberate breaks each failed a scenario, two after their steps were tightened
 (the revision and the period were also matched by other text on screen).
+
+## Compact context, a pinned breach, leaving and returning (p1 S68, S69; p2 S94, 7 October 2026)
+
+- **Compact and Expanded (S68).** Display density is a presentation preference
+  (`display.density` in the cursor, `compact` by default), switched in Commands with
+  **Display: Expanded** or **Display: Compact**; it records no reasoning and calls no
+  consultant. Expanded repeats the goal's measure, baseline, horizon and scope, each
+  safeguard and each test's boundaries in the band (its label column widened so
+  "Baseline" is not cut). In Compact the page does not repeat what the band shows, and
+  the review's "System goal" line appears only once a result exists, so a routine
+  Tests view does not repeat the goal. Case context gives the complete context.
+- **A breach while browsing (S69).** The pinned breach stays visible in History, Your
+  words and behind Other moves, at either density.
+- **Leave and return (S94).** Already held: History and Esc bring back the question,
+  the response target, the exact draft and the focus, with no revision or call.
+
+A TUI test covers Expanded and its being saved with the draft. Seven deliberate breaks
+each failed a scenario (an eighth missed because it broke the restore-on-open path,
+which S94 does not exercise; two breaks of the Esc path were caught instead).
