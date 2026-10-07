@@ -481,5 +481,6 @@ Not changed, by choice: a result reported before its test's stated start is not
 refused, because test periods and result dates are the participant's free text,
 and refusing would drop their report. `tests/test_membership.py` adds the negative
 cases, `tests/test_tui.py` the withdrawal dialog, and six deliberate breaks (one per
-rule above) each failed the scenario written for it. These changes were not run
-against a live model.
+rule above) each failed the scenario written for it. A live check with
+`claude-sonnet-5-5` passed all three rules; `claude-haiku-4-5-20251001` could not
+produce valid proposals reliably (see [validation](validation.md)).

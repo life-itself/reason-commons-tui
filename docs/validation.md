@@ -350,3 +350,24 @@ empty. The drawing therefore shows six disconnected fragments, not one argument,
 and the freeze → stable plan → fewer interruptions chain Sam implied is not
 drawn. One run of four short messages; this is not a measure of consulting quality
 across cases, and a different run may record or link differently.
+
+## Live check of withdrawals, citations and test versions (2026-10-07)
+
+A billed run through the CLI and `reason_commons.bootstrap` in a temporary case
+(`/tmp/rc-live3`, not under `~/ReasonCommons`), messages sent as "David". No key,
+request body or provider response is recorded here. The symptom, cause and link were
+brought in with a local LTP import (no provider call), so the calls went to the rules
+under test (S148–S150).
+
+**Model choice.** `claude-haiku-4-5-20251001` was tried first as the cheapest model.
+One of its five replies was valid. The other four were rejected before commit:
+updates sent as a string, a link to a note instead of a statement, and intervention
+fields (`purpose`, `required_context_refs`) placed at the top level of the proposal.
+It is not workable with this proposal contract today. `claude-sonnet-5-5` (the
+default) then made nine calls, all `saved` on the first attempt.
+
+| Rule | What happened | Result |
+|---|---|---|
+| Test versions (S150) | Asked to change the forecast before the start, Claude proposed `P1@2` replacing `P1@1`. After acceptance the Tests view showed one test (8 of 30), history kept 6 of 30, and the action was flagged (`new_version`). The reported result and its review cited `P1@2`. Asked to change the forecast after the result, Claude recorded only a note and said the forecast "has to stay as it was", offering a new test instead. | Pass (the domain refusal was not needed) |
+| Withdrawal (S148) | Claude proposed `X1@1` withdrawing the cause. `decide accept X1@1` returned `confirm` with `leaves: [L1@1]` and changed nothing; with `--confirm` the cause and its link left the tree. Under automatic acceptance, a new cause and its link entered automatically; the withdrawal of that cause (`X2@1`) waited in the backlog while its note was accepted. | Pass |
+| Citations (S149) | An answer was held, a different answer moved the case on, and the held answer came back `stale` with no call. The next request (asking for advice) was not sent the stale answer, no record cites it, and the advice did not use its wording. (In the run before the fix, the same sequence put the stale answer's words into the model.) | Pass |
