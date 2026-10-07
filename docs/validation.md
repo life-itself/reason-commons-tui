@@ -457,3 +457,57 @@ A rough signal, not a judgement: under prompt 6, 16 of 45 next moves asked more
 than one question (counting question marks in the prompt); under prompt 7, none
 of 51 did, held-out cases included. The 138 rubric criteria wait for review on
 their own page; until then these scenarios are not passed.
+
+### AI pre-screen (2026-10-07)
+
+The 138 criteria were pre-screened by Claude in a handoff session, recorded as
+"AI semantic pre-screen". It is attributed, but it is not the human review this
+record asks for, and a Claude session was grading a prompt change that another
+Claude session wrote. It was validated against the unchanged report
+(`review.json` and `reviewed.json` in the run directory): 128 pass, 3 fail and 7
+can't judge (the seven criteria of `goal_action_review-1`, whose first reply was
+rejected). The semantic status is **fail**, so these scenarios are not passed.
+The judging was blind: the runs' machine checks, the first review and the
+question-mark count were read only after every criterion was decided.
+
+| Pattern | Criteria failed |
+|---|---|
+| The S102 recommendation leaves out one of its four parts: the need it serves, or its expected effect | immediate_action c1 (run 2: the 90% goal is not named), heldout_immediate_action c1 (run 1: the 85% forecast is not named) |
+| A move bundles separate asks | goal_action_review c3 (run 2, turn 3: who may decide and which team would run it) |
+
+Close calls passed, with the concern recorded in their notes:
+`attributed_correction-2` c3 (after "I don't know", the move sets the mechanism
+aside with a reason and returns to framing success, though Priya could still
+answer) and `heldout_correction-2` c3 (links inferred from Priya's account,
+with the inference stated as an assumption). Outside any criterion,
+`goal_action_review-2` turn 4 records "Sam states he has authority", a pronoun
+nobody gave.
+
+Against the first run, fixture by fixture over the 16 shared fixtures (pass of
+the criteria in both runs; the first review was Codex's under the earlier guide):
+
+| Fixture | Prompt 6 | Prompt 7 |
+|---|---|---|
+| goal_action_review | 12 of 14 | 6 of 14 (7 can't judge) |
+| attributed_correction | 3 of 6 (1 can't judge) | 6 of 6 |
+| guardrail_review | 10 of 12 | 12 of 12 |
+| inconclusive_review, classify_* (5 fixtures) | 20 of 20 | 20 of 20 |
+| blaming_question | 6 of 6 | 6 of 6 |
+| realistic_cannot | 8 of 8 | 8 of 8 |
+| realistic_twelve | 6 of 8 | 8 of 8 |
+| realistic_blame | 6 of 8 | 8 of 8 |
+| realistic_mixed | 6 of 8 | 8 of 8 |
+| two_explanations | 4 of 4 | 4 of 4 |
+| immediate_action | 6 of 8 | 7 of 8 |
+| immature_cohort | 5 of 6 | 6 of 6 |
+| Total | 92 of 108 (15 fail) | 99 of 108 (2 fail) |
+
+The four held-out fixtures: 29 of 30 pass (heldout_correction 8 of 8,
+heldout_new_information 8 of 8, heldout_immediate_action 7 of 8,
+heldout_immature_cohort 6 of 6). Of the first review's failure patterns, only
+the bundled move fails again, once. The S102 omission is new: both
+immediate_action runs passed c1 under prompt 6; under prompt 7, two of the four
+S102 runs (one tuned, one held out) leave out a part while asking who may
+decide. The rejected first reply is also new. Two guide
+rules differ from the first review's (the reworded immediate_action c3, and
+"as needed" for the S105 fulfilment items), so the comparison is not exact.
