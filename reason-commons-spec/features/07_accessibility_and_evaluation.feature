@@ -34,7 +34,7 @@ Feature: Make the interface legible and the consultant evaluable
     Then all contributed information is accounted for in the receipt
     And no unsupported causal certainty, identity verification, or group assent is invented
     And exactly one next move or a justified stopping point is prominent
-    And any recorded update retains source references
+    And any proposed update retains source references
 
     Examples:
       | input                                             |

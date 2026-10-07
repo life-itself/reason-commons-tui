@@ -1,17 +1,17 @@
 # Workspace reference
 
 Facts to look up while you work. To learn the workspace step by step, follow the
-[tutorial](tutorial.md); to install it, see the [README](../README.md#try-it).
+[tutorial](tutorial.md); to install it, see the [README](../README.md#quick-start).
 
 ## The screen
 
 | Part | What it shows |
 | --- | --- |
 | Top line | The goal's name on the left; on the right, your name and whether everything is saved (or *Asking …* while the consultant works, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
-| Pinned lines | Your goal and safeguards, and the open **Action**, once a goal has been recorded; a long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
+| Pinned lines | Your goal and safeguards, and the open **Action**, once a goal is in your model; a goal still waiting in **Backlog** shows as *proposed, not yet accepted*. A long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result |
 | Loop line | The spine of the screen: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
-| Views list | **VIEWS**, with ▸ beside the open one. While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
-| The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what your last answer added to the trees, if anything (see [the trees](#the-trees)), then what the question builds on (at review: the original forecast beside the result) |
+| Views list | **VIEWS**, with ▸ beside the open one; **Backlog** says how many entries wait ("Backlog · 3"). While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
+| The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what the last reply proposes, marked *proposed* (see [deciding what enters your model](#deciding-what-enters-your-model)), then what the question builds on (at review: the original forecast beside the result) |
 | Answer box | Right under the page, so you answer next to the question. All typing is literal, including `?`, `q` and numbers. Its tag says who you answer as, with the built-in guide an example of the answer shows faintly while it is empty, and the line beside the buttons says what **Send** will bring back. It grows as you write, and when the page is long the page scrolls above it, so the box never leaves the screen. On any view other than **Next step** its tag also names the question it answers ("Answer as Mira · Choose a test"), and while it is empty it folds to one line so the view has the room; Tab or a click opens it, and a draft keeps it open |
 | Footer | The keys that work where the keyboard is, then **Commands**, then **Help** on the right. On a narrow terminal the hints say less, then the last ones go; **Commands** and **Help** always stay |
 
@@ -20,7 +20,7 @@ box or the Views list, a bar down the left edge of the page or the trees, or a h
 button or footer control. There is no label for it; the footer says what the keys do there.
 In the trees, the chosen statement lies on a band of the same colour's tint: that marks
 what is chosen, not where the keyboard is. Tab goes from the Views list to the open
-page's own list (History or Trees) if it has one, and back to the answer otherwise.
+page's own list (Backlog, History or Trees) if it has one, and back to the answer otherwise.
 
 On a small terminal (80×24) the views list gives way to the **Views** button, and
 the forecast and the result stack one above the other:
@@ -42,10 +42,13 @@ the forecast and the result stack one above the other:
 | Space | In the Trees view: fold the chosen statement's branches away, or unfold them |
 | Enter | In the Trees view: the chosen statement's details in full, and Esc returns; in **All six**, the chosen statement's own tree |
 | a | In the Trees view, or its details: begin an answer about the chosen statement (its words go into your answer; nothing is sent) |
+| **Accept all** | Beside **Send** while the last reply's proposals wait: admits them all to your model, with anything they need (you see that list first) |
+| Enter, a, r, h | In **Backlog**: the choices for the chosen entry; accept it; reject it; say a flagged record still holds |
+| u | In **History**: undo what the chosen step accepted; what leaves with it is shown first, and an undo is final |
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations and evidence, or ask the consultant for advice or a different question; each item says which. Type to filter; **Back** or Esc leaves without choosing |
 | **Views** | Switch view, when the list on the left does not fit |
-| Ctrl+P, or **Commands** in the footer | Every command, one to a line: export, import or export trees, retry, consultant calls, change consultant, views, trees, help, quit; each says whether it is local or asks the consultant |
+| Ctrl+P, or **Commands** in the footer | Every command, one to a line: accept all the last reply proposed, accept proposals automatically (or hold them for review), ask about the open reviews, export, import or export trees, retry, consultant calls, change consultant, views, trees, help, quit; each says whether it is local or asks the consultant |
 | F1, or **Help** in the footer | Keys and controls |
 | Ctrl+Q | Save your draft and quit |
 
@@ -127,6 +130,7 @@ If the consultant cannot be reached, your words are kept and **Retry** appears.
 
 | View | Screenshot |
 | --- | --- |
+| Backlog | ![Backlog: a proposed new goal marked decide first, a proposed cause and the link that waits for it, a Transition Tree action, and beside the list the chosen entry in full](images/backlog.png) |
 | Goal | ![Goal view](images/view-goal.png) |
 | Tests | ![Tests view](images/forecast-vs-result.png) |
 | Loop actions | ![Loop actions view](images/view-actions.png) |
@@ -137,7 +141,8 @@ If the consultant cannot be reached, your words are kept and **Retry** appears.
 ### Looking back and the real commons
 
 Enter on a History step opens that moment, read-only: the question it answered, the
-words, what changed and what was asked next. ← and → step through.
+words, what entered the model, what was proposed or decided, and what was asked next.
+← and → step through.
 
 ![An earlier step of Mira's goal, read-only](images/history-moment.png)
 
@@ -179,10 +184,10 @@ terminal its details sit beside the trees, and Enter shows them full screen at a
 | 120 by 40 | ![A chosen cause in the Current Reality Tree on a tinted band; the symptom it causes and the cause beneath it keep their colours while the rest of the tree is drawn in a quiet tone, and the question worth asking of it, its links, the assumption behind them and where it came from sit in a panel beside the tree](images/trees-statement.png) |
 | 80 by 24, after Enter | ![The same statement's details full screen at 80 by 24](images/trees-statement-80x24.png) |
 
-After a reply that recorded a few statements, the next question shows them, beside the
-words they came from:
+After a reply that proposes a few statements, the next question shows them, marked
+proposed, beside the words they came from, with **Accept all** beside **Send**:
 
-![Under the next question, "Choose a test": recorded in the trees from your answer, the Current Reality Tree's new symptom, newcomers do not come back after their first open evening, and the root cause beneath it, we never offer a next step, with the assumption behind the link, both marked NEW; then the answer they came from, and how to correct a wrong reading](images/trees-heard.png)
+![Under the next question, "Choose a test": proposed from your answer, not yet in your model, the Current Reality Tree's new symptom, newcomers do not come back after their first open evening, and the root cause beneath it, we never offer a next step, with the assumption behind the link, both marked NEW; then the answer they came from, and that Accept all admits them without making them true](images/trees-heard.png)
 
 ### Commands (Ctrl+P)
 
@@ -208,14 +213,15 @@ Browsing views never calls the consultant.
 
 | View | Shows |
 | --- | --- |
-| Next step | The current question and what it builds on |
+| Next step | The current question, what the last reply proposes, and what the question builds on |
+| Backlog | Everything waiting for your decision, in the order it is best decided, and records flagged for review; the chosen entry in full beside the list on a wide terminal. Deciding here calls no consultant |
 | Goal | The goal, its measure and each safeguard, in full |
-| Trees | The six thinking-process trees, drawn from what was recorded: first all six, folded, then one at a time. Each statement says how it relates to the one above it, and where paths meet, how many of the tree's ends it leads to. Choose a statement for the question worth asking of it, its links, wording and origin; the rest of the tree goes quiet around it |
+| Trees | The six thinking-process trees, drawn from what is in your model: first all six, folded, then one at a time. The goal is the Goal Tree's top statement, and a statement another tree's link uses is drawn there too, marked with its own tree. Each statement says how it relates to the one above it, and where paths meet, how many of the tree's ends it leads to. Choose a statement for the question worth asking of it, its links, wording and origin; the rest of the tree goes quiet around it |
 | Tests | Each test with its original forecast next to the reported result, and reviews |
 | Loop actions | Each test and the action that carries it out, with its status |
 | Reasoning | What is still open first, then the loop's records, then how many statements each tree holds |
 | Your words | Your answers, exactly as written, each with when you wrote it on your own clock (and who, when more than one person has written) |
-| History | Every saved step, oldest first, one row each: when, the question it answered and what changed (and who, once more than one person has written); Enter opens that moment |
+| History | Every saved step, oldest first, one row each: when, the question it answered or the decision taken, and what entered the model (and who, once more than one person has written); Enter opens that moment, **u** undoes what it accepted |
 
 With the built-in guide, an empty answer skips an optional question (measure,
 safeguards, review date, stop condition).
@@ -223,12 +229,18 @@ safeguards, review date, stop condition).
 ## Looking back
 
 Every goal keeps each saved step. **History** lists them oldest first, one row each:
-the day (written once, where it changes) and time, who answered when more than one
-person has, the question they answered and what changed (statements added, reworded
-or withdrawn, links, tests); a step that changed nothing is quiet. Tab to the list;
-Enter opens that moment: the
-goal exactly as it was, the question, the words that answered it, what changed, and
-what was asked next. The Trees view then marks that step's statements NEW or REWORDED.
+the day (written once, where it changes) and time, who answered or decided when more
+than one person has, the question they answered or the decision they took ("Accepted
+3 proposals", "Undid 2 changes"), and what entered the model (statements added,
+reworded or withdrawn, links, tests). A reply whose proposals still wait says how many
+it proposed; a step that changed nothing in the model is quiet. Tab to the list;
+Enter opens that moment: the goal exactly as it was, the question, the words that
+answered it, what entered the model, what was proposed, rejected or undone, and what
+was asked next. **u** on a step undoes what it accepted that is still in your model:
+the list of what leaves (with whatever cannot stand without it), the waiting proposals
+that close and the records that will be flagged comes first, and nothing changes until
+you confirm. An undo is final: it cannot be undone, and what leaves does not return to
+the Backlog, though the consultant may propose it again. The Trees view then marks that step's statements NEW or REWORDED.
 **← / →** (or **◀ Earlier**, **Later ▶**, shown in the footer while you look back)
 step through; **Back to now** returns. The top line says *Read-only*; nothing can be
 changed while looking back, and your unsent draft waits.
@@ -314,23 +326,65 @@ which statement you mean, and the words that are kept say it too. It is ordinary
 change or delete it before you send. Your answer still answers the current question,
 and nothing is sent until you press Send.
 
-After a reply that changed the trees, **Next step** draws what it recorded under the
-new question: the statements and links, marked NEW or REWORDED, as the trees draw
-them, then the words they came from ("You wrote, Oct 6, 18:02: “…”"). This is the
-moment you still know what you meant, so check the reading there. If it is wrong, say
-so in your answer: the consultant can reword or withdraw it, and History keeps the
-first wording. Nothing there records that you agree. A larger change, such as an
-import, is summed up in a line instead ("In the trees, the last step: 69 statements
-added · 61 links, in 6 trees"). The Trees page says it again, and the drawing marks
-those statements NEW or REWORDED; a folded branch says how many of its statements
-changed.
+After a reply, **Next step** draws what it proposes under the new question: the
+statements and links, marked NEW or REWORDED, as the trees draw them, then the words
+they came from ("You wrote, Oct 6, 18:02: “…”"). This is the moment you still know what
+you meant, so check the reading there. Nothing in it is in your trees yet: **Accept
+all** admits it, **Backlog** decides it one entry at a time, and if it is wrong you can
+reject it or say so in your answer. A larger change, such as an import, is summed up in
+a line. Once accepted, the Trees page says what changed ("The last step: 68 statements
+added · 61 links, in 6 trees"), and the drawing marks those statements NEW or
+REWORDED; a folded branch says how many of its statements changed.
 
-Claude and LM Studio add to the trees when you tell them about causes, conflicts,
-obstacles or plans, and reword or drop a statement when you ask. The built-in
-guide does not add to them. Under Commands (Ctrl+P), **Import trees** brings in an
-`.ltp.yaml` file and **Export trees** writes one; imported trees join the ones
-already there, and anything the trees cannot draw (a joint cause, an assessment)
-is kept as a note.
+Claude and LM Studio propose additions to the trees when you tell them about causes,
+conflicts, obstacles or plans, and a new wording or a withdrawal when you ask. The
+built-in guide proposes the loop's records, not tree statements. Under Commands
+(Ctrl+P), **Import trees** brings in an `.ltp.yaml` file and **Export trees** writes
+one; what a file brings in waits in Backlog (the file's goal is proposed as your goal,
+or as a new version of it), and anything the trees cannot draw (a joint cause, an
+assessment) is kept as a note.
+
+## Deciding what enters your model
+
+The consultant drafts what your words could mean; you decide what becomes part of
+your model. What a reply proposes waits in **Backlog**, with the words it came from,
+until you accept or reject it. Accepting admits a statement to your model; it does not
+make it true, record that you agree, or commit you to act on it.
+
+**Order.** Backlog lists entries in the order they are best decided. An entry comes
+after anything it needs that is still waiting, and says so ("waits for 2"). Among the
+rest, a new goal comes first, marked *Decide first*, because everything else is judged
+against the goal; then the Goal Tree, Current Reality Tree, Evaporating Cloud, Future
+Reality Tree, Prerequisite Tree and Transition Tree; then tests, actions, results,
+reviews and notes; older entries first. A goal waiting to be decided blocks nothing.
+
+**Deciding.** Choose an entry with ↑ and ↓; on a wide terminal it is shown in full
+beside the list. Enter offers its choices; **a** accepts and **r** rejects. Accepting also
+takes the waiting entries it needs, and rejecting the waiting entries that need it;
+when that is more than you chose, the whole list comes first and nothing changes until
+you confirm. A rejection is final for that proposal; the consultant may propose the
+idea again. **Accept all**, beside Send, takes everything the last reply proposed.
+Deciding never calls the consultant, and you can decide while it is working on your
+next answer.
+
+**Reviews.** When you accept a change to something (a new wording, a withdrawal, an
+undo), whatever cites it is flagged for review in Backlog, with the change that raised
+the flag: a link joined to a reworded statement, a test that carries out a withdrawn
+action, a test that served the goal before its new version. A flag changes nothing and
+claims nothing is false. **h** says the record still holds; accepting a new version or
+withdrawal of it also closes the flag. Each change flags only what cites it directly,
+so a consequence reaches one step further each time you accept a change. **Ask about
+the open reviews** (Commands) asks the consultant whether the flagged records still
+hold; what it proposes waits like anything else.
+
+**Undo.** In **History**, **u** undoes a step's acceptance (see [looking back](#looking-back)).
+
+**Automatic acceptance.** Commands, **Accept proposals automatically** lets later
+replies' proposals enter your model as they arrive, recorded as accepted under your
+setting, and Next step says what was added; each can still be undone from History.
+**Hold proposals for review** turns it back. Proposals already waiting keep waiting
+either way, and only you change the setting: a consultant cannot, and an agent can
+only where you started its server with `--allow-acceptance-setting`.
 
 ## Commands
 
@@ -342,7 +396,8 @@ is kept as a note.
 | `reason-commons export FOLDER FILE` | Write a portable `.reasoncase` copy |
 | `reason-commons import FILE --store FOLDER` | Continue from a copy in a new folder |
 | `reason-commons show FOLDER_OR_FILE` | Print a goal without opening the workspace |
-| `reason-commons trees FOLDER` | Draw the goal's trees; `--import FILE` brings trees in from an `.ltp.yaml` file, `--export FILE` writes them out; `--tree current_reality` draws just one |
+| `reason-commons trees FOLDER` | Draw the goal's trees; `--import FILE` brings trees in from an `.ltp.yaml` file (they wait in the backlog), `--export FILE` writes them out; `--tree current_reality` draws just one |
+| `reason-commons decide FOLDER accept REF...` | Accept, reject or undo proposals by their refs (`show FOLDER --view backlog` lists them), `still-holds REF`, or `acceptance review\|automatic`; without `--confirm` a decision that takes more than you named lists it and changes nothing |
 | `reason-commons --version` | Show the version |
 
 `tui` and `resume` also take `--speaker NAME` (the name recorded with your
@@ -426,7 +481,9 @@ whole; use export and import rather than editing files by hand.
 ## Not in this version yet
 
 An accessible plain-text mode (`--accessible`), switching between several people
-in one goal, attaching sources from the workspace, and the trees' richer reasoning
+in one goal, attaching sources from the workspace, the trees' richer reasoning
 checks (joint causes, rival explanations, and boxed diagrams for the trees other than
-the Evaporating Cloud). They
+the Evaporating Cloud), review of consequences that no reference records, editing a
+proposal's wording yourself before accepting it, and automatic acceptance above a
+confidence you choose. They
 are specified in [TUI-DESIGN.md](../TUI-DESIGN.md).

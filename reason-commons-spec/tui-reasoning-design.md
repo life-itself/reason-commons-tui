@@ -17,7 +17,7 @@ archetypes, patterns, keyboard adaptations and visual direction.
 A settled screen MUST answer: where am I, what are we deciding, what should I
 attend to, what is uncertain, what can I do next, and has my contribution been
 saved? Show one recommended reasoning move with visible alternative routes.
-Destinations are Next, Goal, Reasoning, Unlinked, Tests, Actions and History.
+Destinations are Next, Backlog, Goal, Reasoning, Unlinked, Tests, Actions and History.
 They are not stages. No tour, expert mode, assent, vocabulary lesson or prescribed
 answer can block browsing, correction, direct help or exit.
 
@@ -96,8 +96,9 @@ A joint inference is stored as one relation with all inputs and one output,
 not several ordinary edges whose lines touch. Necessity and conflict have
 separate types. Node evidence and relation warrant are independent. Report,
 hypothesis, prediction, review freshness, execution and attainment are independent
-fields. Model membership is connected/unlinked, not true/false. UI says Unlinked;
-legacy WIP IDs remain valid.
+fields. Membership is proposed, in the model, or out of it (rejected or undone),
+never true/false; inside the model, Unlinked means not yet connected (legacy WIP
+IDs remain valid).
 
 ## Inspect and correct the exact object
 
@@ -119,6 +120,34 @@ test version; historical targets are explicit. Silence, inspection, typing acces
 or willingness to test cannot imply belief, authority or group agreement.
 Speaker labels are declarations, not authentication.
 
+## Proposals, the backlog and undo
+
+A reply's proposals appear first where the speaker still knows what they meant:
+Next step draws them under the new question, as the trees would draw them, beside
+the words they came from, labelled proposed and not yet in the model, with Accept
+all and Backlog. Under automatic acceptance the same place says what entered the
+model with the reply and that History can undo it. A proposal is never drawn as
+part of a tree; the Trees view shows the model and a count of what waits.
+
+The Backlog view lists proposals and review flags in decision order (main
+specification, section 2F). Each row reads as the record it would become, with its
+tree or kind, the reply it came from and what it waits for. A proposed new goal is
+marked decide first. A review flag names the change that raised it. Selecting a
+row opens its details: the exact proposed record (a new version shows old and new
+wording), its source words, what it cites, and how its tree would read with it,
+the proposal set in place among accepted statements and marked proposed. Accept,
+Reject and, on a flag, Still holds act on the selected row; Accept all acts on
+everything one reply proposed. When an action takes other records with it, a
+confirmation lists every one before anything changes; a single ready proposal
+needs no confirmation. A rejection is final and says so.
+
+History shows each decision as a step: who accepted, rejected or undid what, and
+whether under the automatic setting. An accepted step offers Undo; its
+confirmation lists what leaves the model with it, the waiting proposals it closes
+and the records it flags, and says the undo is final. Restore reasoning (p3) is a
+different, later action. Accepting is not agreement: no control combines admission
+with endorsement, reliance or execution, and silence admits nothing.
+
 ## Interaction and asynchronous behavior
 
 Exactly one control owns keyboard focus; name it and mark it visually. Selection
@@ -137,8 +166,9 @@ arrows select. Every important action has a path without syntax.
 
 Stored navigation/explanation/export says local. Send, a new explanation or
 another consultant intervention says asks consultant. Explicit structured local
-decisions can create revisions without consultant responses. A clearly requested
-consultant alternative needs no redundant second confirmation.
+decisions can create revisions without consultant responses. Decisions about
+proposals stay available while a reply is pending and do not make it stale. A
+clearly requested consultant alternative needs no redundant second confirmation.
 
 Retain input durably before requesting a response. Show input retained separately
 from revision saved. Keep inspection usable while waiting. Completion shows
@@ -165,7 +195,8 @@ the 80% October goal; 90% acknowledgements breaches 95%.
 ## Implementation and evidence boundary
 
 P1 delivers the workspace, focus routing, local navigation, restoration, async notices,
-linear alternative and 80×24. P2 adds goal/action/observation review in that workspace.
+linear alternative and 80×24. P2 adds goal/action/observation review, the Trees view and
+the Backlog in that workspace.
 P3–p5 add typed tool views with their schemas. S114–S127 make these part of
 delivery selection. No full graph schema is a prerequisite for the initial TUI.
 

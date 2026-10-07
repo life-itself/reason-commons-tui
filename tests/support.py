@@ -112,6 +112,23 @@ def submit(app, text="A participant report", request_id=None, declarations=None)
                       request_id=request_id, declarations=declarations)
 
 
+def accept_all(app, speaker="Sam"):
+    """Accept every waiting proposal, as an operator pressing Accept all would."""
+    waiting = [e["ref"] for e in app.workspace(view="backlog")["backlog"] if e["entry"] == "proposal"]
+    if not waiting:
+        return None
+    result = app.accept(waiting, speaker, app.inspect()["case"]["revision"], confirmed=True)
+    assert result["status"] == "saved", result
+    return result
+
+
+def automatic(app, speaker="Sam"):
+    """Set the case to accept proposals automatically."""
+    result = app.set_acceptance("automatic", speaker, app.inspect()["case"]["revision"])
+    assert result["status"] == "saved", result
+    return result
+
+
 def retain(app, text="A participant report", request_id=None):
     case = app.inspect()["case"]
     return app.retain_input(text, "Sam", case["revision"], case["current_intervention"], request_id=request_id)

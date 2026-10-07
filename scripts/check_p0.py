@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Run the complete p0 gate, the delivered p1 workspace scenarios and every delivered p2 tree scenario,
-without changing the specification."""
+"""Run the complete p0 gate, the delivered p1 workspace scenarios and every scenario of the two delivered p2
+features (trees in conversation; deciding what enters the model), without changing the specification."""
 
 import json
 import os
@@ -11,6 +11,8 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# The p2 features delivered ahead of the rest of p2: every scenario in each must run and pass.
+DELIVERED_P2_FEATURES = ["12_trees_in_conversation.feature", "13_proposals_and_review.feature"]
 # The p1 workspace scenarios delivered so far. Each runs through the real workspace and must pass;
 # the rest of p1 is listed as outstanding on every run, never filtered out silently.
 DELIVERED_P1 = ["S07", "S08", "S09", "S10", "S11", "S12", "S13", "S47", "S51", "S54", "S55", "S56", "S57",
@@ -45,18 +47,19 @@ def main():
         if len(selected) != len(expected) or actual != expected or any(s["status"] != "passed" for s in selected):
             raise SystemExit("FAIL: incomplete p0 acceptance coverage")
         print(f"PASS: all {len(expected)} authoritative p0 scenarios executed and passed: {', '.join(sorted(actual))}")
-        # The trees feature is delivered ahead of the rest of p2: every scenario in it must run and pass.
-        trees_feature = ROOT / "reason-commons-spec/features/12_trees_in_conversation.feature"
-        trees_output = Path(directory) / "trees.json"
-        run("-m", "behave", "--include", trees_feature.name, "--format", "json", "--outfile", str(trees_output))
-        ran = [s for feature in json.loads(trees_output.read_text()) for s in feature.get("elements", [])
-               if s.get("type") == "scenario"]
-        cases = sum(sum(len(e.table.rows) for e in s.examples) if hasattr(s, "examples") else 1
-                    for s in parse_file(str(trees_feature)).scenarios)
-        if len(ran) != cases or any(s["status"] != "passed" for s in ran):
-            raise SystemExit("FAIL: incomplete trees acceptance coverage")
-        ids = sorted({t for s in ran for t in s["tags"] if t.startswith("S") and t[1:].isdigit()})
-        print(f"PASS: all {len(ran)} trees cases executed and passed: {', '.join(ids)}")
+        for name in DELIVERED_P2_FEATURES:
+            feature = ROOT / "reason-commons-spec/features" / name
+            output_file = Path(directory) / (feature.stem + ".json")
+            run("-m", "behave", "--include", feature.name, "--format", "json", "--outfile", str(output_file))
+            ran = [s for item in json.loads(output_file.read_text()) for s in item.get("elements", [])
+                   if s.get("type") == "scenario"]
+            cases = sum(sum(len(e.table.rows) for e in s.examples) if hasattr(s, "examples") else 1
+                        for s in parse_file(str(feature)).scenarios)
+            if len(ran) != cases or any(s["status"] != "passed" for s in ran):
+                raise SystemExit(f"FAIL: incomplete acceptance coverage for {name}")
+            ids = sorted({t for s in ran for t in s["tags"] if t.startswith("S") and t[1:].isdigit()},
+                         key=lambda tag: int(tag[1:]))
+            print(f"PASS: all {len(ran)} cases of {name} executed and passed: {', '.join(ids)}")
         p1 = {tag: scenario for path in (ROOT / "reason-commons-spec/features").glob("*.feature")
               for scenario in parse_file(str(path)).scenarios if "p1" in scenario.tags
               for tag in scenario.tags if tag.startswith("S") and tag[1:].isdigit()}

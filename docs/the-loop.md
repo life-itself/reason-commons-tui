@@ -39,10 +39,12 @@ from what you hoped. Your exact words are recorded, never rewritten.
 
 ## The built-in guide and AI consultants
 
-The built-in guide asks the same questions in the same order and only records your
-answers; it never interprets them or gives advice. An AI consultant (Claude or a
-local model) adapts its questions and can advise when you ask. Either way, the
-application checks every proposal before it is saved, and your words stay yours.
+The built-in guide asks the same questions in the same order and only proposes your
+answers as the loop's records; it never interprets them or gives advice. An AI
+consultant (Claude or a local model) adapts its questions and can advise when you
+ask. Either way, the application checks every proposal before it is saved, nothing
+it proposes enters your goal until you accept it (or choose automatic acceptance),
+and your words stay yours.
 See [use Claude or a local model](use-a-model.md).
 
 ## Words used in the workspace

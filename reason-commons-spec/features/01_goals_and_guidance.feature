@@ -14,13 +14,13 @@ Feature: Help a group make its next reasoning move
     Then the input is preserved with Sam's declared attribution
     And one prominent question asks what meaningful progress would look like and what must be protected
     And the visible context labels the goal as provisional
-    And the effects remain attributed notes with no invented relationships
+    And the effects are proposed as attributed notes with no invented relationships
 
   @S02 @p2 @v1 @semantic
   Scenario: Record a goal without inventing agreement or measures
     Given Sam proposes "At least 90% of orders on time by October 30"
     When the consultant creates the next useful response
-    Then the goal records Sam as its source
+    Then the goal it proposes records Sam as its source
     And absent baseline, scope, and protected conditions are shown as unknown
     And no other participant is recorded as agreeing
     And the next prompt addresses the most consequential missing item

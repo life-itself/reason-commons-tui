@@ -15,25 +15,39 @@ KIND_WORDS = {"goal": ("goal set", "goal set"), "test": ("test with a forecast",
 
 
 def revision_changes(snapshots, sources):
-    """One entry per revision, oldest first: when, who, what they wrote, and what changed."""
-    entries, seen, previous = [], set(), None
+    """One entry per revision, oldest first: when, who, what they wrote, and what changed.
+
+    What changed is what entered the model: a reply's proposals count when they are
+    accepted, in the revision that accepted them (the reply's own under automatic
+    acceptance). A revision that only records a decision has no words of its own; its
+    entry names who decided and what. Cases recorded before proposals needed acceptance
+    count every record in the revision that published it.
+    """
+    entries, seen, applied, decided, previous = [], set(), set(), 0, None
     for snapshot in snapshots:
         records = snapshot["records"]
+        index = {r["ref"]: i for i, r in enumerate(records)}
+        start = (snapshot.get("membership") or {}).get("proposals_from", len(records))
         new = [r for r in records if r["ref"] not in seen]
         seen.update(r["ref"] for r in records)
-        request = snapshot["applied_requests"][-1] if snapshot["applied_requests"] else None
+        requests = [r for r in snapshot["applied_requests"] if r not in applied]
+        applied.update(snapshot["applied_requests"])
+        decisions = (snapshot.get("decisions") or [])[decided:]
+        decided = len(snapshot.get("decisions") or [])
+        request = requests[0] if requests else None
         source = sources.get(request, {}) if request else {}
         question = next((r for r in records if r["ref"] == snapshot["current_intervention"]), None)
         by_ref = {r["ref"]: r for r in records}
+        accepted = {ref for d in decisions if d["action"] == "accept" for ref in d["refs"]}
+        entered = [r for r in new if index[r["ref"]] < start and r["kind"] != "intervention"] + [
+            by_ref[ref] for ref in sorted(accepted, key=index.__getitem__)]
         counts, trees = {}, {}
-        for record in new:
+        for record in entered:
             kind = record["kind"]
-            if kind == "claim":
-                kind = "reworded" if record["data"].get("replaces") else "claim"
+            if kind in ("claim", "goal") and record["data"].get("replaces"):
+                kind = "reworded" if kind == "claim" else "goal"
             elif kind == "retraction":
                 kind = "withdrawn"
-            elif kind == "intervention":
-                continue
             counts[kind] = counts.get(kind, 0) + 1
             # The tree a change belongs to: its own, or for a withdrawal, the withdrawn record's.
             target = by_ref.get(record["data"].get("target_ref")) if kind == "withdrawn" else record
@@ -44,18 +58,38 @@ def revision_changes(snapshots, sources):
         asked = next((r for r in (previous or {}).get("records", [])
                       if r["ref"] == (previous or {}).get("current_intervention")), None)
         previous = snapshot
+        proposed = [r["ref"] for r in new if index[r["ref"]] >= start and r["kind"] != "intervention"]
+        actor = next((d["actor"] for d in decisions if d["mode"] == "explicit"), None)
         entries.append({
             "revision": snapshot["revision"], "timestamp": snapshot["timestamp"],
-            "answered": (asked or {}).get("data", {}).get("decision"),
-            "asked": (asked or {}).get("data", {}).get("primary_prompt"),
-            "speaker": source.get("speaker"), "text": source.get("text"),
+            "answered": (asked or {}).get("data", {}).get("decision") if request else None,
+            "asked": (asked or {}).get("data", {}).get("primary_prompt") if request else None,
+            "speaker": source.get("speaker") if request else actor, "text": source.get("text"),
             "decision": (question or {}).get("data", {}).get("decision"),
-            "fresh": {r["ref"] for r in new if r["kind"] == "claim"},
-            "fresh_links": {r["ref"] for r in new if r["kind"] == "link"},
+            "fresh": {r["ref"] for r in entered if r["kind"] in ("claim", "goal")},
+            "fresh_links": {r["ref"] for r in entered if r["kind"] == "link"},
             # What was withdrawn, in the words it had: a statement's own, or a link's two ends.
-            "withdrawn": [withdrawn_words(by_ref, r["data"]["target_ref"]) for r in new if r["kind"] == "retraction"],
-            "counts": counts, "trees": trees})
+            "withdrawn": [withdrawn_words(by_ref, r["data"]["target_ref"]) for r in entered if r["kind"] == "retraction"],
+            "counts": counts, "trees": trees, "proposed": [r for r in proposed if r not in accepted],
+            "decisions": decisions, "request_id": request})
     return entries
+
+
+def decision_words(decision, records=None):
+    """A decision as a short line: 'accepted 3 proposals', 'undid 2', 'chose automatic acceptance'."""
+    count = len(decision["refs"])
+    noun = "proposal" if count == 1 else "proposals"
+    if decision["action"] == "accept":
+        return (f"{count} {noun} accepted automatically" if decision["mode"] == "automatic"
+                else f"accepted {count} {noun}")
+    if decision["action"] == "reject":
+        return f"rejected {count} {noun}"
+    if decision["action"] == "undo":
+        return f"undid {count} {'change' if count == 1 else 'changes'}"
+    if decision["action"] == "still_holds":
+        return "said a flagged record still holds"
+    return ("chose automatic acceptance" if decision.get("value") == "automatic"
+            else "chose to review proposals before they enter the model")
 
 
 def withdrawn_words(records, ref):
@@ -79,7 +113,7 @@ def change_summary(counts):
         number = counts.get(kind)
         if number:
             parts.append(f"{number} {one if number == 1 else many}" if kind != "goal" else one)
-    return " · ".join(parts) or "no recorded change"
+    return " · ".join(parts) or "no change to the model"
 
 
 def tree_summary(trees):

@@ -4,7 +4,7 @@ In this tutorial you take one small goal through a whole loop: goal, test with a
 forecast, action, observation and review. At the end you see where the test sits in
 the six trees. The typing takes a few minutes; the
 test itself runs in your real life for as long as you choose. You need nothing but
-Reason Commons itself ([install it](../README.md#try-it)); the built-in guide works
+Reason Commons itself ([install it](../README.md#quick-start)); the built-in guide works
 offline.
 
 Prefer to learn inside the app? Choose **Take the guided tour** on the first
@@ -51,6 +51,16 @@ becomes the first safeguard.
 
 > Nobody feels recruited or pressured
 > Organisers' hours stay as they are
+
+The guide now proposes the goal, with its measure and safeguards, under its next
+question. It is marked *proposed*: nothing enters your goal's model until you accept
+it. Check that it says what you meant, then press **Accept all** beside **Send** (Tab
+reaches it). The goal moves into the pinned lines at the top. Each answer from here on
+works the same way: what the guide records from it is proposed under the next
+question, and **Accept all** takes it. **Backlog** in the list on the left keeps
+anything you leave for later. If you would rather not confirm each step, **Ctrl+P**,
+**Accept proposals automatically** lets proposals in as they arrive; you can still
+undo any of them from **History**.
 
 Notice the line under the pinned goal: it marks where you are in the loop.
 
@@ -124,7 +134,7 @@ time-boxed, stewarded review of the trees.
 Press **←** (or **◀ Earlier**) to step back through how it got here, one saved step
 at a time: David's first goal tree on the forum, Robert's objections, the move to
 decide how the trees get updated before defining throughput, and so on. Each step
-shows who said it, when, their exact words and what changed in the trees.
+shows who said it, when, their exact words and what entered the trees.
 **History** lists every step; Enter opens one.
 
 ![Step 6: David's words, the source, and what changed in the trees](images/story-moment.png)
@@ -144,9 +154,10 @@ calls into question. That is where the next loop comes from.
 
 Your own goal starts with empty trees. With Claude or a local model as your
 consultant, tell it what causes a problem, which conflict keeps you stuck, what
-stands in the way or what you plan to do, and it adds each statement to its tree
-in your words ([how](use-a-model.md#grow-the-trees-as-you-talk)). The built-in
-guide does not add to the trees, but you can
+stands in the way or what you plan to do, and it proposes each statement for its
+tree in your words, for you to accept
+([how](use-a-model.md#grow-the-trees-as-you-talk)). The built-in guide does not
+propose tree statements, but you can
 [bring in trees you already have](back-up-and-share.md#bring-trees-in-or-out).
 Press **Ctrl+T** again to go back to the question.
 

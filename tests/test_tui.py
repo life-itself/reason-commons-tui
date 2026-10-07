@@ -251,8 +251,10 @@ def test_example_goal_is_a_finished_loop(tmp_path):
         workspace = app.workspace()
         kinds = {record["kind"] for record in app.inspect()["case"]["records"]}
         assert app.inspect()["cursor"]["view"] == "tests"
-    # One revision per answer, then one that brings in the trees.
-    assert workspace["revision"] == len(ANSWERS) + 1
+    # Every answer, then the trees brought in; the organiser accepted each reply's proposals as they came,
+    # and kept her own goal when the trees' file proposed another.
+    assert workspace["backlog"] == [] and workspace["goals"][0]["data"]["statement"] == ANSWERS[0]
+    assert len(workspace["history"]) == 0 and app.history()["revisions"][-1]["decisions"]
     assert {"goal", "test", "action", "observation", "claim", "link"} <= kinds
     assert workspace["question"]["data"]["purpose"] == "guided:test_change"
 
@@ -290,6 +292,13 @@ def test_trees_view_draws_imported_trees_and_exports_them(tmp_path):
             app.screen.query_one("#destination").value = str(source)
             await pilot.press("enter")
             await pilot.pause()
+            # What the file brings waits for the operator; Accept all takes it.
+            assert app.view_name == "backlog" and "Decide it first" in app.query_one("#content").source
+            assert all(not t["claims"] for t in app.workspace_value["trees"])
+            app.accept_reply()
+            await pilot.pause()
+            app.show_view("trees")
+            await pilot.pause()
             assert app.view_name == "trees"
             titles = ["Goal Tree", "Current Reality Tree", "Evaporating Cloud", "Future Reality Tree",
                       "Prerequisite Tree", "Transition Tree"]
@@ -298,7 +307,7 @@ def test_trees_view_draws_imported_trees_and_exports_them(tmp_path):
             assert all(title in drawing for title in titles) and "▸ 9 below" in drawing
             assert "## All six trees" in app.query_one("#content").source
             prompts = [str(o.prompt) for o in app.query_one("#views").options]
-            assert prompts[2:5] == ["▸ Trees", "  ▸ All six", "    Goal Tree"]
+            assert prompts[3:6] == ["▸ Trees", "  ▸ All six", "    Goal Tree"]
             # Ctrl+N steps through the six, one at a time, then back to all six.
             for index, title in enumerate(titles):
                 await pilot.press("ctrl+n")
@@ -463,10 +472,10 @@ def test_the_views_list_has_its_own_frame_and_tab_goes_back_to_the_answer(tmp_pa
             # The open view is marked, and the one the cursor is on is highlighted.
             prompts = [str(option.prompt) for option in app.query_one("#views").options]
             assert prompts[0] == "▸ Next step" and all(not prompt.startswith("▸") for prompt in prompts[1:])
-            await pilot.press("down", "down", "enter")
+            await pilot.press("down", "down", "down", "enter")
             await pilot.pause()
             assert app.view_name == "trees"
-            assert [str(o.prompt) for o in app.query_one("#views").options][2] == "▸ Trees"
+            assert [str(o.prompt) for o in app.query_one("#views").options][3] == "▸ Trees"
             await pilot.press("tab")
             await pilot.pause()
             assert app.focused.id == "editor"
@@ -556,29 +565,41 @@ def test_a_reply_that_grows_the_trees_is_named_and_marked_without_moving_the_vie
         async with app.run_test(size=(120, 40)) as pilot:
             await send(app, pilot, "Newcomers do not know the next step, because we never offer one")
             assert app.view_name == "next"
-            # Under the next question: what the answer led to in the trees, drawn as the trees draw it, beside
-            # the words it came from, while the person who said them still knows what they meant.
+            # Under the next question: what the answer led the consultant to propose, drawn as the trees draw it,
+            # beside the words it came from, while the person who said them still knows what they meant.
             under = as_read(app.render_context())
-            assert "RECORDED IN THE TREES FROM YOUR ANSWER Current Reality Tree" in under
+            assert "PROPOSED FROM YOUR ANSWER · NOT YET IN YOUR MODEL Current Reality Tree" in under
             assert "Newcomers do not know the next step · undesirable effect NEW" in under
             assert "because: We never offer one · cause · reported NEW" in under
             assert "You wrote" in under and "“Newcomers do not know the next step, because we never offer one”" in under
-            assert "Not what you meant? Say so in your answer" in under
+            assert "Accept all admits these to your model; it does not make them true" in under
             # Drawn, so not summed up in a line as well, nor listed again as context rows.
             assert "In the trees" not in app.query_one("#content").source
             assert under.count("We never offer one") == 1 and under.count("Newcomers do not know the next step ·") == 1
+            # Nothing is in the trees until it is accepted; Accept all is beside Send.
+            assert all(not t["claims"] for t in app.workspace_value["trees"])
+            assert not app.query_one("#accept-all").has_class("hidden") and "Backlog · 3" in screen_text(app)
+            await pilot.click("#accept-all")
+            await pilot.pause()
+            assert app.query_one("#accept-all").has_class("hidden") and "PROPOSED" not in as_read(app.render_context())
             await pilot.press("ctrl+t")
             await pilot.pause()
-            # What the reply added opens in the overview, marked; nothing new is folded away.
+            # What the acceptance added opens in the overview, marked; nothing new is folded away.
             drawing = str(app.query_one("#canvas").render())
             assert drawing.count("NEW") == 2 and "because: We never offer one" in drawing
-            # A reply that arrives while the trees are open leaves them open and marks what it changed.
+            # A reply that arrives while the trees are open leaves them open; what it proposes waits.
             await send(app, pilot, "Say the cause more precisely")
-            assert app.view_name == "trees"
+            assert app.view_name == "trees" and "We never offer one" in str(app.query_one("#canvas").render())
+            assert "1 proposal for the trees waits in Backlog" in app.query_one("#content").source.replace(
+                "proposal for the trees wait in", "proposal for the trees waits in")
+            app.accept_reply()
+            await pilot.pause()
             drawing = " ".join(str(app.query_one("#canvas").render()).split())  # as read, across wrapped lines
             assert "REWORDED" in drawing and "We never offer a next step after open evenings" in drawing
             assert "NEW" not in drawing and "We never offer one" not in drawing
             assert "Current Reality Tree: 1 statement reworded" in app.query_one("#content").source
+            # The link was stated for the earlier wording, so it waits in Backlog to be reviewed.
+            assert [e["entry"] for e in app.backlog()] == ["review"]
 
     async def later():
         # Opened again later, the goal is not marked; History still shows what each step changed.
@@ -587,7 +608,7 @@ def test_a_reply_that_grows_the_trees_is_named_and_marked_without_moving_the_vie
             app.show_view("next")
             await pilot.pause()
             assert "In the trees" not in app.query_one("#content").source
-            assert "RECORDED IN THE TREES" not in as_read(app.render_context())
+            assert "PROPOSED FROM" not in as_read(app.render_context())
             app.show_view("trees")
             await pilot.pause()
             assert "REWORDED" not in str(app.query_one("#canvas").render())
@@ -600,7 +621,7 @@ def test_choose_a_tree_statement_and_see_where_it_came_from(tmp_path):
     from tests.test_trees import claim, link, with_updates
     from reason_commons.adapters.tui import StatementScreen
     path = tmp_path / "case"
-    create_case(path, "Open evenings").close()
+    create_case(path, "Open evenings", acceptance="automatic", actor="David").close()
     consultant = ScriptedConsultant([
         with_updates(claim("temp_ude", "Newcomers do not know the next step"),
                      claim("temp_cause", "We never offer one", role="intermediate_cause", basis="participant_report"),
@@ -636,13 +657,13 @@ def test_choose_a_tree_statement_and_see_where_it_came_from(tmp_path):
             # In all six, Enter opens the statement's own tree, still chosen; there Enter opens its details.
             await pilot.press("enter")
             await pilot.pause()
-            assert app.shown_tree() == "current_reality" and app.selected_claim == "C3@1"
+            assert app.shown_tree() == "current_reality" and app.selected_claim == "C2@2"
             await pilot.press("enter")
             await pilot.pause()
             assert isinstance(app.screen, StatementScreen)
             await pilot.press("escape")
             await pilot.pause()
-            assert app.focused.id == "canvas" and app.selected_claim == "C3@1"
+            assert app.focused.id == "canvas" and app.selected_claim == "C2@2"
             # Ctrl+T goes back to the question with the draft and caret as they were.
             await pilot.press("ctrl+t")
             await pilot.pause()
@@ -659,7 +680,7 @@ def test_statement_details_open_full_screen_at_80_columns_and_the_choice_survive
     from reason_commons.adapters.ltp_trees import import_trees
     from reason_commons.adapters.tui import StatementScreen
     path = tmp_path / "case"
-    create_case(path, "Imported").close()
+    create_case(path, "Imported", acceptance="automatic", actor="David").close()
     import_trees(path, str(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")), "David")
     chosen = {}
 
@@ -897,7 +918,7 @@ def test_the_footer_fits_the_smallest_terminals_and_keeps_commands_and_help(tmp_
     from importlib.resources import files
     from reason_commons.adapters.ltp_trees import import_trees
     path = tmp_path / "case"
-    create_case(path, "Narrow").close()
+    create_case(path, "Narrow", acceptance="automatic", actor="David").close()
     import_trees(path, str(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")), "David")
 
     async def run(size):
@@ -1053,7 +1074,8 @@ def imported_trees(tmp_path):
     from importlib.resources import files
     from reason_commons.adapters.ltp_trees import import_trees
     path = tmp_path / "case"
-    create_case(path, "Imported").close()
+    # These tests are about reading the trees, so the case accepts what it brings in as it arrives.
+    create_case(path, "Imported", acceptance="automatic", actor="David").close()
     import_trees(path, str(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")), "David")
     return path
 
@@ -1168,6 +1190,148 @@ def test_a_change_too_big_to_read_at_a_glance_is_summed_up_under_the_question(tm
             await pilot.pause()
             app.show_view("next")
             await pilot.pause()
-            assert "69 statements added · 61 links, in 6 trees. Ctrl+T shows them." in app.query_one("#content").source
-            assert "RECORDED IN THE TREES" not in as_read(app.render_context())
+            assert "proposals from the last reply wait for you" in as_read(app.render_context())
+            app.accept_reply()
+            await pilot.pause()
+            assert "68 statements added · 61 links, in 6 trees. Ctrl+T shows them." in app.query_one("#content").source
+            assert "PROPOSED FROM" not in as_read(app.render_context())
     asyncio.run(run())
+
+
+def backlog_case(tmp_path):
+    """A goal in the model, then replies proposing a Transition Tree action, a cause with its link to an
+    accepted symptom, and a new version of the goal (S138's backlog)."""
+    from tests.test_trees import claim, link, with_updates
+    path = tmp_path / "case"
+    create_case(path, "Open evenings").close()
+    goal = {"operation": "record_goal", "temporary_id": "goal", "source_refs": ["x"],
+            "data": {"statement": "A clear next step after open evenings", "protections": []}}
+    consultant = ScriptedConsultant([
+        with_updates(goal, claim("temp_ude", "Newcomers do not know the next step")),
+        with_updates(claim("temp_act", "Offer one clear invitation", tree="transition", role="transition_action")),
+        with_updates(claim("temp_cause", "We never offer a next step", role="root_cause"),
+                     link("temp_link", "temp_cause", "C1@1")),
+        with_updates({**goal, "data": {**goal["data"], "statement": "Most newcomers reach a first practice",
+                                       "replaces": "G1@1"}}),
+    ])
+    return path, consultant
+
+
+def test_the_backlog_lists_proposals_in_decision_order_and_decides_them(tmp_path):
+    from reason_commons.adapters.tui import ChoiceScreen
+    path, consultant = backlog_case(tmp_path)
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(140, 40)) as pilot:
+            await send(app, pilot, "The goal is a clear next step; newcomers do not know it")
+            # Before anything is accepted the band says the goal is only proposed.
+            assert "proposed, not yet accepted: A clear next step" in as_read(app.band())
+            app.accept_reply()
+            await pilot.pause()
+            for words in ("Offer an invitation", "Because we never offer one", "Aim higher"):
+                await send(app, pilot, words)
+            app.show_view("backlog")
+            await pilot.pause()
+            listing = app.query_one("#backlog-list")
+            rows = [str(o.prompt) for o in listing.options]
+            assert [r.split(".")[0].strip() for r in rows] == ["1", "2", "3", "4"]
+            assert "Decide first" in rows[0] and "Most newcomers reach a first practice" in rows[0]
+            assert "We never offer a next step" in rows[1] and "waits for 2" in rows[2]
+            assert "Offer one clear invitation" in rows[3]
+            assert "Decide it first" in app.query_one("#content").source and "Backlog · 4" in screen_text(app)
+            listing.focus()
+            await pilot.pause()
+            assert "a Accept" in screen_text(app) and "r Reject" in screen_text(app)
+            # Beside the list on a wide terminal: the chosen entry in full.
+            assert "Most newcomers reach a first practice" in str(app.query_one("#inspector-text").render())
+            # Accepting the link takes the cause it needs; that is shown first, and nothing changes until confirmed.
+            listing.highlighted = 2
+            await pilot.press("a")
+            await pilot.pause()
+            assert isinstance(app.screen, ChoiceScreen) and "Accept 2 together?" in screen_text(app)
+            assert "We never offer a next step" in screen_text(app)
+            await pilot.press("enter")  # Confirm
+            await pilot.pause()
+            crt = next(t for t in app.workspace_value["trees"] if t["tree"] == "current_reality")
+            assert [l["ref"] for l in crt["links"]] == ["L1@1"]
+            # A single ready proposal needs no confirmation; a rejection is final.
+            listing.highlighted = [str(o.prompt) for o in listing.options].index(
+                next(str(o.prompt) for o in listing.options if "Offer one clear invitation" in str(o.prompt)))
+            await pilot.press("r")
+            await pilot.pause()
+            assert not isinstance(app.screen, ChoiceScreen)
+            assert [e["ref"] for e in app.backlog()] == ["G1@2"]
+            # Enter offers the choices for the chosen entry.
+            listing.highlighted = 0
+            await pilot.press("enter")
+            await pilot.pause()
+            assert isinstance(app.screen, ChoiceScreen) and "Accept · admits it to your model" in screen_text(app)
+            await pilot.press("escape")
+            await pilot.pause()
+            assert [e["ref"] for e in app.backlog()] == ["G1@2"]
+    asyncio.run(run())
+    assert len(consultant.calls) == 4  # deciding asked the consultant nothing
+
+
+def test_undo_from_history_shows_what_goes_and_is_final(tmp_path):
+    from reason_commons.adapters.tui import ChoiceScreen
+    path, consultant = backlog_case(tmp_path)
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            await send(app, pilot, "The goal is a clear next step; newcomers do not know it")
+            app.accept_reply()
+            await pilot.pause()
+            app.show_view("history")
+            await pilot.pause()
+            timeline = app.query_one("#timeline")
+            rows = [str(o.prompt) for o in timeline.options]
+            assert "Accepted 2 proposals" in rows[-1] and "goal set" in rows[-1] and "1 statement added" in rows[-1]
+            assert "2 proposed" in rows[-2]
+            timeline.focus()
+            timeline.highlighted = len(rows) - 1
+            await pilot.pause()
+            assert "u Undo this change" in screen_text(app)
+            await pilot.press("u")
+            await pilot.pause()
+            assert isinstance(app.screen, ChoiceScreen) and "Undo? This is final." in screen_text(app)
+            assert "Leaves your model" in screen_text(app)
+            await pilot.press("enter")
+            await pilot.pause()
+            assert app.workspace_value["goals"] == [] and app.backlog() == []
+            # The undo is a step too; there is nothing left in the model for u to undo.
+            rows = [str(o.prompt) for o in app.query_one("#timeline").options]
+            assert "Undid 2 changes" in rows[-1]
+            timeline.highlighted = len(rows) - 2
+            await pilot.press("u")
+            await pilot.pause()
+            assert not isinstance(app.screen, ChoiceScreen)
+    asyncio.run(run())
+
+
+def test_commands_switch_how_proposals_are_accepted(tmp_path):
+    path, consultant = backlog_case(tmp_path)
+
+    async def run():
+        app = launch(path, {"guided": consultant})
+        async with app.run_test(size=(120, 40)) as pilot:
+            commands = {key: run for key, _, _, run in app.action_list()}
+            assert "accept-proposals-automatically" in commands and "hold-proposals-for-review" not in commands
+            commands["accept-proposals-automatically"]()
+            await pilot.pause()
+            assert app.workspace_value["acceptance"] == "automatic"
+            await send(app, pilot, "The goal is a clear next step; newcomers do not know it")
+            # The reply's proposals entered the model with it, and Next step says so.
+            assert app.backlog() == [] and app.workspace_value["goals"]
+            assert "UNDER YOUR AUTOMATIC ACCEPTANCE" in as_read(app.render_context())
+            commands = {key: run for key, _, _, run in app.action_list()}
+            commands["hold-proposals-for-review"]()
+            await pilot.pause()
+            assert app.workspace_value["acceptance"] == "review"
+    asyncio.run(run())
+    with open_case(path, writable=False) as case:
+        decisions = case.inspect()["case"]["decisions"]
+    assert [(d["action"], d.get("value"), d["actor"]) for d in decisions if d["action"] == "acceptance"] == [
+        ("acceptance", "automatic", "David"), ("acceptance", "review", "David")]

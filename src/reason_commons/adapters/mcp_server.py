@@ -58,14 +58,36 @@ TOOLS += [
          {"name": STRING}, ("name",)),
     tool("context", "Read the owning domain glossary, capability contract and contribution procedure.", case=False),
 ]
+# The operator's decisions about proposals. Each acts only on the participant's explicit choice;
+# a "confirm" result lists what else the decision would take and changes nothing until confirmed.
+REFS = {"type": "array", "items": STRING, "description": "Exact record refs the participant chose, such as C3@1."}
+DECISION = {"refs": REFS, "speaker": STRING, "base_revision": {"type": "integer", "minimum": 0},
+            "confirmed": {"type": "boolean"}}
+TOOLS += [
+    tool("accept", "Admit the participant's chosen proposals into the model, with the waiting proposals they need.",
+         DECISION, ("refs", "speaker", "base_revision")),
+    tool("reject", "Reject the participant's chosen proposals, with the waiting proposals that need them.",
+         DECISION, ("refs", "speaker", "base_revision")),
+    tool("undo", "Undo accepted records the participant chose; final. Always confirm first.",
+         DECISION, ("refs", "speaker", "base_revision")),
+    tool("still_holds", "Record that the participant says a flagged record still holds.",
+         {"ref": STRING, "speaker": STRING, "base_revision": {"type": "integer", "minimum": 0}},
+         ("ref", "speaker", "base_revision")),
+    tool("set_acceptance", "Change how later proposals enter the model. Refused unless the operator started "
+         "this server with --allow-acceptance-setting.",
+         {"mode": {"type": "string", "enum": ["review", "automatic"]}, "speaker": STRING,
+          "base_revision": {"type": "integer", "minimum": 0}}, ("mode", "speaker", "base_revision")),
+]
 
 
 class CaseToolBridge:
-    def __init__(self, case_root, consultant):
+    def __init__(self, case_root, consultant, allow_acceptance_setting=False):
         self.root = Path(case_root).resolve(strict=True)
         if not self.root.is_dir():
             raise ValueError("Case root must be an existing directory")
         self.consultant = consultant
+        # Automatic acceptance delegates the operator's decision; an agent gets it only when granted.
+        self.allow_acceptance_setting = allow_acceptance_setting
 
     def _case(self, name):
         if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}", name):
@@ -89,6 +111,9 @@ class CaseToolBridge:
                 return app.inspect()
         if name not in {t["name"] for t in TOOLS}:
             raise ValueError("Unknown case capability")
+        if name == "set_acceptance" and not self.allow_acceptance_setting:
+            return {"status": "rejected", "message": "Only the operator changes how proposals are accepted; "
+                    "this server was not granted that capability"}
         with open_case(path, consultant=self.consultant, writable=name not in READS) as app:
             if name == "export":
                 bundle = args["bundle"]
@@ -150,8 +175,9 @@ def build_server(bridge):
     return server
 
 
-def serve(case_root, model=None, base_url=None, provider=None):
-    bridge = CaseToolBridge(case_root, configured_consultant(provider=provider, model=model, base_url=base_url))
+def serve(case_root, model=None, base_url=None, provider=None, allow_acceptance_setting=False):
+    bridge = CaseToolBridge(case_root, configured_consultant(provider=provider, model=model, base_url=base_url),
+                            allow_acceptance_setting)
     server = build_server(bridge)
     from mcp.server.stdio import stdio_server
 

@@ -15,6 +15,10 @@ from examples.p0_slice import AuthoredConsultant
 from tests.support import ScriptedConsultant, bounded_case, cli, proposal, submit
 
 
+# These tests are about what the views show of the model, so the case accepts proposals as they arrive.
+AUTOMATIC = {"acceptance": "automatic", "actor": "Sam"}
+
+
 @pytest.mark.parametrize("view", VIEWS)
 def test_open_and_local_views_do_not_consult_or_change_state(tmp_path, view):
     consultant = ScriptedConsultant([bounded_case])
@@ -41,7 +45,7 @@ def test_open_and_local_views_do_not_consult_or_change_state(tmp_path, view):
 
 def test_frozen_read_is_independent_of_later_updates_and_caller_edits(tmp_path):
     consultant = ScriptedConsultant([bounded_case])
-    with create_case(tmp_path / "case", consultant=consultant) as app:
+    with create_case(tmp_path / "case", consultant=consultant, **AUTOMATIC) as app:
         submit(app)
         original_current = app._store.current
         reads = []
@@ -73,7 +77,7 @@ def test_frozen_read_is_independent_of_later_updates_and_caller_edits(tmp_path):
 
 def test_original_forecast_actual_safeguard_and_execution_remain_distinct(tmp_path):
     consultant = AuthoredConsultant()
-    with create_case(tmp_path / "case", "Payments", consultant=consultant) as app:
+    with create_case(tmp_path / "case", "Payments", consultant=consultant, **AUTOMATIC) as app:
         for text, declarations in [("Bounded pilot", None), ("I own and completed the work", {"ownership": ["Sam"]}),
                                    ("Actual measured results", None), ("Pause for the safeguard breach", None)]:
             assert submit(app, text, declarations=declarations)["status"] == "saved"
@@ -106,7 +110,7 @@ def test_diagram_uses_only_explicit_resolved_references_and_escapes_labels(tmp_p
             {"id": "advice", "label": "Get advice", "action": {"type": "consult", "intent": "direct_advice"}}]
         return value
     consultant = ScriptedConsultant([output])
-    with create_case(tmp_path / "case", consultant=consultant) as app:
+    with create_case(tmp_path / "case", consultant=consultant, **AUTOMATIC) as app:
         assert submit(app)["status"] == "saved"
         workspace = app.workspace(view="reasoning")
         assert workspace["diagram"]["links"] == [{"from": "P1@1", "to": "G1@1", "field": "goal_ref", "label": "tests progress toward"}]

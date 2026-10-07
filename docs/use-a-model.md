@@ -59,19 +59,23 @@ choice is verified.
 
 With Claude or LM Studio as consultant, the six trees grow from the conversation.
 Tell it what causes a problem, which conflict keeps you stuck, what a change
-should lead to, what stands in the way or what you plan to do. It records each
-statement in the right tree, in your words, and links it to what is already
-there. Ask it to reword or drop a statement and the tree changes; the earlier
-wording stays in **History**.
+should lead to, what stands in the way or what you plan to do. It proposes each
+statement for the right tree, in your words, linked to what is already there. Ask it
+to reword or drop a statement and it proposes that; once you accept, the tree
+changes and the earlier wording stays in **History**.
 
-After each reply that changed the trees, the next question draws what was recorded,
-marked NEW, beside the words it came from. Check it there, while you still know what
-you meant; if the reading is wrong, say so in your answer and the consultant rewords
-or withdraws it. Press **Ctrl+T** to see the whole tree, **Ctrl+N** to step through
+After each reply, the next question draws what it proposes, marked NEW, beside the
+words it came from. Check it there, while you still know what you meant. **Accept all**
+puts it in your trees; **Backlog** decides one entry at a time; if the reading is wrong,
+reject it or say so in your answer. When you accept a new wording, the links and tests
+that cite the old one are flagged for review in Backlog, and **Ask about the open
+reviews** (Ctrl+P) asks the consultant whether they still hold. The
+[workspace reference](tui.md#deciding-what-enters-your-model) explains deciding, undo and
+automatic acceptance. Press **Ctrl+T** to see the whole tree, **Ctrl+N** to step through
 the trees, **↑**/**↓** to choose a statement and check the words it came from, and
 **a** to begin an answer about the chosen statement. The
 [workspace reference](tui.md#the-trees) explains how to read them. The built-in
-guide does not add to the trees; it only walks the loop.
+guide does not propose tree statements; it only walks the loop.
 
 ## When the consultant can't be reached
 

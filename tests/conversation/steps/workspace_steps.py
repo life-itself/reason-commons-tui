@@ -2,7 +2,7 @@ from behave import given, when, then
 
 from reason_commons.bootstrap import open_case
 from examples.p0_slice import AuthoredConsultant
-from tests.support import bounded_case, submit
+from tests.support import accept_all, bounded_case, submit
 
 
 def save_question(context):
@@ -33,6 +33,7 @@ def advanced(context):
 def goal_test(context):
     context.consultant.responses.append(bounded_case)
     save_question(context)
+    accept_all(context.app)  # saved: the operator accepted what the reply proposed
 
 
 @given("a completed pilot with recorded observations and a safeguard review")
@@ -41,6 +42,8 @@ def reviewed(context):
     for text, declarations in [("Pilot", None), ("Sam owns and completed work", {"ownership": ["Sam"]}),
                                ("Measured observations", None), ("Pause for safeguard breach", None)]:
         assert submit(context.app, text, declarations=declarations)["status"] == "saved"
+        accept_all(context.app)  # the operator accepts what each reply proposes, as it comes
+        context.published = getattr(context, "published", None) or context.app.inspect()["case"]["revision"]
 
 
 @when("I open the next workspace")
@@ -78,7 +81,8 @@ def tests(context):
 
 @when("I inspect the first published revision")
 def historical(context):
-    context.workspace = context.app.workspace(view="tests", revision=1)
+    # The first revision with the pilot in the model: the one that accepted the first reply's proposals.
+    context.workspace = context.app.workspace(view="tests", revision=context.published)
 
 
 @when("I open the reasoning workspace")

@@ -78,12 +78,14 @@ def bytes_unchanged(context):
         assert a.read("revisions/000013.yaml") == b.read("revisions/000013.yaml")
 
 
-@then("the intervention and its supported goal, note, or test updates appear together")
+@then("the intervention and the goal, note, test or tree updates it proposes appear together")
 def atomic_records(context):
     case = context.app.inspect()["case"]
     additions = case["records"][len(context.before["records"]):]
     assert {r["kind"] for r in additions} == {"note", "intervention"}
     assert all(context.result["request_id"] in r["source_refs"] for r in additions)
+    # The update is a proposal, published in the same revision as the question it came with.
+    assert context.result["proposed"] == [r["ref"] for r in additions if r["kind"] != "intervention"]
 
 
 @then('"saved" is shown only after the local commit succeeds')
@@ -171,7 +173,7 @@ def retry14(context):
     assert context.app.retry(context.request_id)["already_applied"]
 
 
-@then("the accepted response creates exactly one committed intervention and one revision")
+@then("the valid response creates exactly one committed intervention and one revision")
 def exactly_once(context):
     case = context.app.inspect()["case"]
     assert case["revision"] == context.before["case"]["revision"] + 1
@@ -264,7 +266,7 @@ def stale_base(context):
     input_at14(context)
 
 
-@given("the case has advanced to revision 15")
+@given("a reply to another input has advanced the case to revision 15 with a new question")
 def advanced15(context):
     assert submit(context.app)["status"] == "saved"
     context.advanced = context.app.inspect()
@@ -313,7 +315,7 @@ def owner_help(context):
     assert "not tamper-proof" in context.help
 
 
-@given("the v1 schema allows only goal, note, intervention, test, action, observation, bounded review, and typed tree claim, link and retraction records")
+@given("the v1 schema allows only goal, note, intervention, test, action, observation, bounded review, and typed tree claim, link and retraction records, and the operator's decisions about them")
 def v1_case(context):
     new_app(context)
     seed(context.app, context.provider)

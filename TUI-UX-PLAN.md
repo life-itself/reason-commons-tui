@@ -3,9 +3,10 @@
 Status: Steps 1–4 and the automated part of Step 6 are implemented, one commit
 each, plus regenerated screenshots. Step 5 is deliberately deferred until
 participants show the need, and the S73 participant check has not been run.
-Scope: adapters, docs and screenshots only. No domain, application or
-specification change was needed; every element below uses fields the `workspace`
-projection already returns.
+Scope of the plan's steps: adapters, docs and screenshots only, over fields the
+`workspace` projection already returned. The later revisions recorded first below are
+dated; one of them, [proposals and the backlog](#proposals-and-the-backlog-7-october-2026),
+came with a specification, domain and application change.
 
 Where the build differs from the text below: the first question is labelled
 "Clarify the goal" rather than repeating the goal's name, which the header
@@ -90,7 +91,7 @@ and the rest is left for the participant to decide.
 | --- | --- | --- |
 | Folding hides; nothing dims (Ware: low-contrast context is nearly free, folding wipes location memory) | Adopted | In one tree the chosen statement's chunk keeps its colours and the rest takes one quiet tone in place, while the keyboard is on the drawing or the details. Space-to-fold and the folded *All six* stay: the overview is for the whole, and folding there was a decision already taken |
 | The outline cannot show convergence | Adopted | "leads to 5 of 6 undesirable effects" on the statement's own line and a *Leads to* list in its details; in the Future Reality Tree only on a change we make, with harms beside benefits. Counted from recorded links. On the sample trees it shows the root cause at the foot of a ladder leading to all six symptoms, which the outline had hidden behind a back-reference |
-| Proposals land as record; a consultant's statement should stay *proposed* until its speaker stands behind it (the Heard strip, with "That's what I meant", Reword, Not what I meant) | Adapted | The timing is right: the speaker should see the reading while they still know what they meant. Next step now draws what the last reply recorded, beside the words it came from, with how to correct it. Recording *Wording: Accurate* is S24/S59/S60, which are p4 and `@later`, and the v1 schema has no position record, so no stance is recorded and nothing is labelled proposed. The diagnosis also rested partly on a misreading the app invites: the trees colour roles with the theme's status families (a desired effect in *stood behind*, a cause in *disagreed*), which say nothing about anyone's stance |
+| Proposals land as record; a consultant's statement should stay *proposed* until its speaker stands behind it (the Heard strip, with "That's what I meant", Reword, Not what I meant) | Adapted, then superseded on 7 October by [proposals and the backlog](#proposals-and-the-backlog-7-october-2026) | The timing is right: the speaker should see the reading while they still know what they meant. Next step now draws what the last reply recorded, beside the words it came from, with how to correct it. Recording *Wording: Accurate* is S24/S59/S60, which are p4 and `@later`, and the v1 schema has no position record, so no stance is recorded and nothing is labelled proposed. The diagnosis also rested partly on a misreading the app invites: the trees colour roles with the theme's status families (a desired effect in *stood behind*, a cause in *disagreed*), which say nothing about anyone's stance |
 | Pointing is lost ("About this" sets the subject of the next answer to an exact statement version) | Adapted | **a** puts the statement's words, role and tree at the end of the draft as editable text, so the kept input says which statement it meant. An exact subject reference on the input is a schema change (input fields are closed) and belongs with p3 structured authoring |
 | Tree predictions are not sealed; a missed forecast should mark the chain *review needed*; held/missed marks | Partly adopted | A test under any statement (a test may already carry out any current claim) reads as the test, its *original forecast, saved before any result*, and its result. No ✓ or ✗: results are free text and no verdict is recorded (S122, "Projection, not authority"). Dependent review on a missed forecast is p5 |
 | The debt line: "24 statements · 6 proposed · 3 without a basis · 2 disputed" | Partly adopted | Each tree's page counts its statements and links, the links that state no assumption and the statements that state no basis. *Proposed* and *disputed* need position records (p4) |
@@ -101,6 +102,27 @@ and the rest is left for the participant to decide.
 No scenario text, domain or application code changed. The S131 acceptance step reads the test's new
 lines ("original forecast, saved before any result: 6 of 30", then "result: 9 of 31") where it read the
 one-line form before.
+
+## Proposals and the backlog (7 October 2026)
+
+The conflicts revision's first row is now settled differently, by a specification
+change rather than an adapter: the consultant's readings are proposals, and nothing
+enters the model until the operator accepts it (main specification section 2F, S135–S147).
+This is membership, not a stance, so it needed no p4 position records. What was built:
+
+- Next step's strip now draws what the last reply *proposes*, marked proposed, beside the
+  words it came from, with **Accept all** beside Send. Under automatic acceptance it says
+  what entered the model instead. The "That's what I meant" ratification is not built:
+  accepting is the act that admits a reading, and a stance on its wording stays with p4.
+- A **Backlog** view lists proposals and review flags in decision order, with the chosen
+  entry beside the list on a wide terminal; Enter offers choices and `a`, `r`, `h` act.
+  Every decision that takes more than was chosen shows the application's own list first.
+- History names decisions as steps, and `u` undoes a step's acceptance after showing what
+  leaves with it.
+- The debt line's *proposed* now has a meaning: Backlog's count in the Views list, and the
+  Trees page's count of proposals for the trees. *Disputed* still needs p4.
+- Trees colour roles with the theme's status families, as before; the fourth open item of
+  the conflicts revision (separating role colour from stance colour) is still open.
 
 ## The short version
 

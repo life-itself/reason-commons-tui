@@ -2,8 +2,10 @@
 
 The TUI is a projection over ``CaseApplication``: it reads ``workspace`` and
 ``inspect``, and changes the case only through ``retain_input``, ``consult``,
-``retry``, ``export`` and ``checkpoint``. It owns layout, focus, the editor and
-which view is shown; it defines no reasoning or persistence rules.
+``retry``, the operator's decisions (``accept``, ``reject``, ``undo``,
+``still_holds``, ``set_acceptance``), ``export`` and ``checkpoint``. It owns
+layout, focus, the editor and which view is shown; it defines no reasoning or
+persistence rules, and the application decides what a decision takes with it.
 """
 
 from datetime import date
@@ -35,8 +37,9 @@ from reason_commons.adapters.guided import STEPS, placeholder, split_hint
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
 from reason_commons.adapters.settings import Settings, summary
 from reason_commons.adapters.rendering import _literal
-from reason_commons.adapters.timeline import (change_summary, day, moment, next_action, revision_changes, short_day,
-                                              tree_summary)
+from reason_commons.adapters.timeline import (change_summary, day, decision_words, moment, next_action,
+                                              revision_changes, short_day, tree_summary)
+from reason_commons.application.presentation import describe
 from reason_commons.adapters.trees import (READING, ROLE_LABELS, TREE_TITLES, bright_lines, branches, neighbours,
                                            roots, statement_details, tally_line, tree_lines, trees_lines)
 
@@ -52,7 +55,7 @@ OVERVIEW_OPEN = 3
 # The trees as the Views list names them under Trees, the overview first. Short enough for the list.
 TREE_NAV = {"all": "All six", "goal": "Goal Tree", "current_reality": "Current Reality", "conflict": "Cloud",
             "future_reality": "Future Reality", "prerequisite": "Prerequisite", "transition": "Transition"}
-VIEW_LABELS = [("next", "Next step"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"),
+VIEW_LABELS = [("next", "Next step"), ("backlog", "Backlog"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"),
                ("actions", "Loop actions"), ("reasoning", "Reasoning"), ("sources", "Your words"),
                ("history", "History")]
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
@@ -88,8 +91,11 @@ OPEN_KINDS = {"goal": "Goal", "test": "Test", "action": "Action", "observation":
 WIDE = 90
 # Controls a person passes through on the way to something else. Esc does not return focus to them:
 # it returns to the answer they were writing.
-NAVIGATION_CONTROLS = {"send", "fill", "retry", "explain", "moves", "views-button", "commands", "help", "finish",
-                       "views"}
+NAVIGATION_CONTROLS = {"send", "fill", "retry", "accept-all", "explain", "moves", "views-button", "commands", "help",
+                       "finish", "views"}
+# What each kind of proposal is called in the Backlog and in decisions.
+KIND_NAMES = {"goal": "Goal", "note": "Note", "test": "Test", "action": "Action", "observation": "Result",
+              "review": "Review", "claim": "Statement", "link": "Link", "retraction": "Withdrawal"}
 # The alternatives to answering the current question. Each says whether it stays local or asks the consultant.
 OTHER_MOVES = [("explain", "Inspect rationale · local; opens saved explanation"),
                ("evidence", "Inspect evidence · local; opens this question's saved sources"),
@@ -139,6 +145,8 @@ Help covers the controls; **Explain this** covers the reasoning behind a questio
 | Space | In the Trees view: fold the chosen statement's branches away, or unfold them |
 | Enter | In the Trees view: the chosen statement's details in full; in all six, its tree |
 | a | In the Trees view: begin an answer about the chosen statement (nothing is sent) |
+| Enter, a, r, h | In Backlog: choices for the chosen entry; accept; reject; a flagged record still holds |
+| u | In History: undo the chosen step's acceptance (you see what goes first) |
 | Ctrl+N | In the Trees view: the next tree, then all six again |
 | Ctrl+P, or **Commands** | Every command, each marked local or asking the consultant |
 | In a menu | Type to filter, arrows choose, Enter activates; **Back** or Esc returns |
@@ -167,18 +175,19 @@ line reads as a sentence ("because: …"), with the statement's role after it an
 assumption behind the link under it; a complete Evaporating Cloud is drawn as its
 five boxes. They grow as you
 talk: tell the consultant what causes a problem, what conflict keeps you stuck,
-what stands in the way or what you plan to do, and it records each statement in
-its tree, linked to the others. Ask it to reword or drop something and the tree
-changes; earlier wording stays in History. A test can carry out an action from
+what stands in the way or what you plan to do, and it proposes each statement for
+its tree, linked to the others. Ask it to reword or drop something and it proposes
+that too; once you accept, the tree changes and earlier wording stays in History. A test can carry out an action from
 the Transition Tree, and its forecast and result then show under that action.
 The Trees view marks what the last reply changed NEW or REWORDED. Where paths meet, a statement
 says how many of its tree's ends it leads to ("leads to 5 of 6 undesirable
 effects"), and each tree's page counts what it does not state yet.
 
-After a reply that changed the trees, Next step draws what it recorded under the
-new question, beside the words it came from. Check it while you still know what
-you meant; if it is wrong, say so in your answer and the consultant rewords or
-withdraws it. Nothing there records that you agree.
+After a reply, Next step draws what it proposes under the new question, beside
+the words it came from, while you still know what you meant. Nothing a reply
+proposes is in your model until you accept it: **Accept all** takes everything that
+reply proposed, and **Backlog** decides one at a time. Accepting admits it to your
+model; it does not make it true or record that you agree.
 
 In the Trees view, ↑ and ↓ choose a statement. In a single tree the rest goes
 quiet around it, in place, until the keyboard leaves the drawing. Its details (the
@@ -213,12 +222,38 @@ New to it? **Take the guided tour** from the home screen: a practice goal with
 coaching at each step and example answers. **Explore a real commons** shows how a
 movement's shared reasoning grew, step by step. Nothing from either is kept.
 
+## Deciding what enters your model
+
+The consultant drafts; you decide. What a reply proposes waits in **Backlog** with
+the words it came from, in the order it is best decided: a new goal first, because
+everything else is judged against it, then the trees in their usual order, then
+tests and results. A proposal that needs another waits for it, and says so.
+
+In Backlog, Enter offers the choices for the chosen entry; **a** accepts it and
+**r** rejects it. Accepting also takes the proposals it needs, and rejecting the
+proposals that need it; you see the whole list before anything changes. A
+rejection is final, though the consultant may propose the idea again.
+
+When an accepted change rewords or withdraws something, whatever cites it is
+flagged for review in Backlog, with the change that raised the flag. It changes
+nothing: **h** says it still holds, or ask the consultant about the open reviews
+(Commands), and accept or reject what it proposes. A change reaches one step
+further each time you accept one.
+
+Every acceptance can be undone: in **History**, choose the step and press **u**.
+The list of what leaves the model with it comes first. An undo is final.
+
+**Commands** has **Accept proposals automatically**: from then on, a reply's
+proposals enter the model with the reply, marked as accepted under your setting,
+and each can still be undone. **Hold proposals for review** turns it back.
+Proposals already waiting keep waiting either way.
+
 ## Looking back
 
 **History** lists every saved step, one row each: when, the question it answered
-and what changed. Enter opens that
-moment exactly as it was; ← and → step through, **Back to now** returns. Nothing
-can be changed while looking back.
+or the decision taken, and what entered the model. Enter opens that moment exactly
+as it was; ← and → step through, **Back to now** returns. Nothing can be changed
+while looking back, but **u** undoes the chosen step's acceptance.
 """
 
 
@@ -293,8 +328,8 @@ def clip(text, width, lines):
 
 
 def latest(records, kind):
-    return max((r for r in records if r["kind"] == kind), key=lambda r: int(r["ref"][1:].split("@")[0]),
-               default=None)
+    return max((r for r in records if r["kind"] == kind),
+               key=lambda r: tuple(int(n) for n in r["ref"][1:].split("@")), default=None)
 
 
 def speakers(workspace, ref):
@@ -650,6 +685,47 @@ class MenuScreen(ModalScreen):
     @on(Button.Pressed, "#back")
     def back(self):
         self.dismiss(None)
+
+
+class ChoiceScreen(ModalScreen):
+    """A decision about what enters the model: what it concerns, then labelled choices.
+
+    Returns the chosen key, or None for Esc. Nothing changes until a choice is made, and the
+    application, not this screen, decides what a choice takes with it."""
+
+    BINDINGS = [Binding("escape", "dismiss", "Back")]
+
+    def __init__(self, title, body, choices):
+        super().__init__()
+        self.title_text, self.body, self.choices = title, body, choices
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="dialog"):
+            yield Label(self.title_text, classes="dialog-title")
+            with VerticalScroll(id="choice-body"):
+                yield Markdown(self.body)
+            yield OptionList(*[Option(label, id=key) for key, label in self.choices], id="choices")
+            yield Label("Arrows choose · Enter decides · Esc returns; nothing changes until you choose.",
+                        classes="hint")
+
+    def on_mount(self):
+        self.query_one("#choices").focus()
+
+    @on(OptionList.OptionSelected, "#choices")
+    def chosen(self, event):
+        self.dismiss(event.option.id)
+
+
+class Timeline(OptionList):
+    """The History list. u undoes the chosen step's acceptance; the workspace asks first."""
+    BINDINGS = [Binding("u", "app.undo_step", "Undo", show=False)]
+
+
+class BacklogList(OptionList):
+    """The Backlog list. Keys act on the chosen entry; the workspace shows what a decision takes first."""
+    BINDINGS = [Binding("a", "app.decide('accept')", "Accept", show=False),
+                Binding("r", "app.decide('reject')", "Reject", show=False),
+                Binding("h", "app.decide('still_holds')", "Still holds", show=False)]
 
 
 class TextScreen(ModalScreen):
@@ -1088,10 +1164,15 @@ class ReasonCommonsApp(ThemedApp):
     #moment-controls Button:hover { color: $text; }
     #moment-controls #own { color: $success; }
     #moment-controls Button:focus { background: $hand-tint; color: $foreground; text-style: bold; }
-    #timeline > .option-list--option-highlighted { background: $boost; }
-    #timeline:focus > .option-list--option-highlighted { background: $hand-tint; color: $foreground; }
-    #moment.hidden, #response.hidden, #timeline.hidden, .story-only.hidden { display: none; }
-    #timeline { height: auto; max-height: 100%; border: none; margin-top: 1; background: transparent; }
+    #timeline > .option-list--option-highlighted, #backlog-list > .option-list--option-highlighted {
+        background: $boost; }
+    #timeline:focus > .option-list--option-highlighted, #backlog-list:focus > .option-list--option-highlighted {
+        background: $hand-tint; color: $foreground; }
+    #moment.hidden, #response.hidden, #timeline.hidden, #backlog-list.hidden, .story-only.hidden { display: none; }
+    #timeline, #backlog-list { height: auto; max-height: 100%; border: none; margin-top: 1; background: transparent; }
+    #controls #accept-all { color: $success; }
+    #accept-all.hidden { display: none; }
+    #choice-body { height: auto; max-height: 60%; }
     .step-count { color: $text-muted; }
     Step #dialog, Checking #dialog { padding: 0 2; }
     .explanation { margin-bottom: 1; }
@@ -1105,7 +1186,8 @@ class ReasonCommonsApp(ThemedApp):
     MenuScreen #menu-controls Button { min-width: 8; height: 1; border: none; margin-right: 2;
                                        background: transparent; color: $text-muted; text-style: none; }
     MenuScreen #menu-controls Button:focus { background: $hand-tint; color: $foreground; text-style: bold; }
-    MenuScreen, PathScreen, HelpScreen, ThemeScreen, SettingsScreen, StatementScreen, CallsScreen, TextScreen, Step, Checking {
+    MenuScreen, PathScreen, HelpScreen, ThemeScreen, SettingsScreen, StatementScreen, CallsScreen, TextScreen, Step, Checking,
+    ChoiceScreen {
         align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
@@ -1169,13 +1251,15 @@ class ReasonCommonsApp(ThemedApp):
                 with VerticalScroll(id="main"):
                     yield Page(id="content", open_links=False)
                     yield TreeCanvas(id="canvas")
-                    yield OptionList(id="timeline", classes="hidden")
+                    yield Timeline(id="timeline", classes="hidden")
+                    yield BacklogList(id="backlog-list", classes="hidden")
                 with Pane(id="response", classes="hidden" if self.story else ""):
                     yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
                     with Horizontal(id="controls"):
                         yield Button("Send ^s", id="send", variant="primary")
                         yield Button("Example answer", id="fill", classes="" if self.tour else "hidden")
                         yield Button("Retry", id="retry", variant="warning", classes="hidden")
+                        yield Button("Accept all", id="accept-all", classes="hidden")
                         yield Button("Explain this", id="explain")
                         yield Button("Other moves", id="moves")
                         yield Button("Views", id="views-button")
@@ -1199,8 +1283,9 @@ class ReasonCommonsApp(ThemedApp):
         yield HintBar()
 
     def view_prompt(self, key):
-        """A view's name in the list, with ▸ beside the one that is open."""
-        return ("▸ " if key == self.view_name else "  ") + dict(VIEW_LABELS)[key]
+        """A view's name in the list, with ▸ beside the one that is open; Backlog says how much waits."""
+        waiting = len(self.backlog()) if key == "backlog" else 0
+        return ("▸ " if key == self.view_name else "  ") + dict(VIEW_LABELS)[key] + (f" · {waiting}" if waiting else "")
 
     def view_options(self):
         """The Views list: every view, and under an open Trees view with something in it, the overview
@@ -1415,9 +1500,19 @@ class ReasonCommonsApp(ThemedApp):
             self.query_one("#pinned", Static).update(band)
         timeline = self.query_one("#timeline", OptionList)
         timeline.set_class(self.view_name != "history", "hidden")
-        self.query_one("#main").set_class(self.view_name == "history", "fills")  # the list scrolls, not the page
+        backlog = self.query_one("#backlog-list", OptionList)
+        backlog.set_class(self.view_name != "backlog" or not self.backlog(), "hidden")
+        # The lists scroll, not the page.
+        self.query_one("#main").set_class(self.view_name in ("history", "backlog"), "fills")
         if self.view_name == "history":
             self.fill_timeline(timeline)
+        if self.view_name == "backlog":
+            self.fill_backlog(backlog)
+        self.query_one("#accept-all").set_class(not self.reply_waiting(), "hidden")
+        # The Views list names what waits in Backlog, so it changes with the case.
+        views = self.query_one("#views", OptionList)
+        if [str(o.prompt) for o in views.options] != [str(o.prompt) for o in self.view_options()]:
+            self.refresh_views()
         looking_back = self.revision is not None
         self.query_one("#moment").set_class(not (self.story or looking_back), "hidden")
         self.query_one("#response").set_class(bool(self.story) or looking_back, "hidden")
@@ -1470,10 +1565,18 @@ class ReasonCommonsApp(ThemedApp):
 
     def band(self, protect=True):
         """The goal and its safeguards, at most two labelled lines; a cut is marked, and Goal shows it all.
-        None until a goal has been recorded."""
+        A goal that only waits in the Backlog is shown as proposed. None until a goal has been proposed."""
         goal = self.pinned_goal()
         if goal is None:
-            return None  # nothing recorded yet: the stepper's "Measure: not set" says so
+            proposed = next((e for e in self.backlog() if e["entry"] == "proposal" and e["kind"] == "goal"), None)
+            if proposed is None or self.story:
+                return None  # nothing recorded yet: the stepper's "Measure: not set" says so
+            grid = Table.grid(padding=(0, 1))
+            grid.add_column(style="bold", width=7, no_wrap=True)
+            grid.add_column()
+            grid.add_row("Goal", Text.assemble(("proposed, not yet accepted: ", "italic dim"),
+                                               clip(proposed["summary"], self.terminal.width - 40, 1)))
+            return grid
         width = self.terminal.width - 11
         grid = Table.grid(padding=(0, 1))
         grid.add_column(style="bold", width=7, no_wrap=True)
@@ -1554,47 +1657,109 @@ class ReasonCommonsApp(ThemedApp):
                           "Your words are kept. Use **Retry** to ask again.", ">", "> " + md(value["text"]), ""]
         return "\n".join(lines)
 
+    def backlog(self):
+        """What waits for a decision, live; nothing while looking back or reading a story."""
+        if self.workspace_value is None or self.revision is not None or self.story:
+            return []
+        return self.workspace_value.get("backlog") or []
+
+    def reply_waiting(self):
+        """The last reply's proposals that still wait, when the live question is on screen."""
+        reply = (self.workspace_value or {}).get("reply")
+        if not reply or self.revision is not None or self.story:
+            return []
+        return [r for r in reply["records"] if r["status"] == "proposed"]
+
     def heard_in_full(self):
-        """Whether the step just saved changed the trees by little enough to be drawn under the question."""
-        step = self.marked_step()
-        return bool(step and step["trees"] and len(step["fresh"]) <= HEARD_AT_MOST)
+        """Whether what the last reply proposed, or added under automatic acceptance, is small enough to be
+        drawn under the question."""
+        shown = self.reply_shown()
+        return bool(shown) and len(shown) <= HEARD_AT_MOST
+
+    def reply_shown(self):
+        """The records the reply block is about: the last reply's waiting proposals, or, right after a reply
+        accepted under the automatic setting, what it added."""
+        waiting = self.reply_waiting()
+        if waiting:
+            return waiting
+        reply, step = (self.workspace_value or {}).get("reply"), self.marked_step()
+        if reply and reply["automatic"] and step and step["request_id"] == reply["request_id"]:
+            return [r for r in reply["records"] if r["status"] == "accepted"]
+        return []
 
     def heard(self):
-        """What the last answer led the consultant to record in the trees, drawn as the trees draw it and set
-        beside the words it came from, under the question that followed.
+        """What the last reply proposes, drawn as the trees draw it and set beside the words it came from,
+        under the question that followed.
 
         This is the moment the person who said it still knows what they meant, so a wrong reading is
-        cheapest to catch here: their next answer can say so, and the consultant rewords or withdraws it.
-        Only the step just saved is shown, and nothing here records agreement. Returns the drawing and the
-        records it draws; (None, no records) when that step changed no tree, or more than can be read at a
-        glance (an import, say), which a line sums up instead."""
-        if not self.heard_in_full():
+        cheapest to catch here. Nothing a reply proposes is in the model until it is accepted; Accept all
+        takes all of it, Backlog one at a time. Under automatic acceptance it says what entered the model.
+        Returns the drawing and the records it draws; (None, no records) when there is nothing to show, or
+        more than can be read at a glance (an import, say), which a line sums up instead."""
+        shown = self.reply_shown()
+        w = self.workspace_value
+        if not shown:
             return None, set()
-        step, w = self.marked_step(), self.workspace_value
+        waiting = bool(self.reply_waiting())
+        if len(shown) > HEARD_AT_MOST:
+            what = (f"{len(shown)} proposals from the last reply wait for you. Accept all takes them; Backlog "
+                    "decides them one by one." if waiting else
+                    f"{len(shown)} records from the last reply entered your model under your automatic acceptance.")
+            return [Text(what, style="italic")], set()
+        request = w["reply"]["request_id"]
+        source = self.history()["sources"].get(request, {})
         width = max(40, self.query_one("#main").size.width - 7)
-        mine = not step["speaker"] or same_person(step["speaker"], self.speaker)
-        parts = [label("RECORDED IN THE TREES FROM " + ("YOUR ANSWER" if mine else "THE LAST ANSWER"))]
-        drawn = set()
-        for tree in w["trees"]:
-            links = [link for link in tree["links"] if link["ref"] in step["fresh_links"]
-                     or link["from"] in step["fresh"] or link["to"] in step["fresh"]]
-            shown = {c["ref"] for c in tree["claims"] if c["ref"] in step["fresh"]}
-            shown |= {end for link in links for end in (link["from"], link["to"])}
-            if not shown:
+        mine = not source.get("speaker") or same_person(source["speaker"], self.speaker)
+        whose = "YOUR ANSWER" if mine else "THE LAST ANSWER"
+        parts = [label(f"PROPOSED FROM {whose} · NOT YET IN YOUR MODEL" if waiting else
+                       f"ADDED TO YOUR MODEL FROM {whose}, UNDER YOUR AUTOMATIC ACCEPTANCE")]
+        records = {r["ref"]: r["record"] for r in shown}
+        nodes = {c["ref"]: c for tree in w["trees"] for c in tree["claims"]}
+        everything = {**{r["ref"]: r for r in w["records"]}, **w["proposals"]}
+        drawn = set(records)
+        for name in TREE_ORDER:
+            claims = [r for r in records.values() if r["kind"] == "claim" and r["data"]["tree"] == name]
+            links = [r for r in records.values() if r["kind"] == "link" and r["data"]["tree"] == name]
+            if not claims and not links:
                 continue
-            part = {"tree": tree["tree"], "claims": [c for c in tree["claims"] if c["ref"] in shown], "links": links}
-            drawn |= shown | {link["ref"] for link in links}
-            parts += [Text(TREE_TITLES[tree["tree"]][0], style="bold"),
-                      styled(tree_lines(part, width, fresh=step["fresh"], title=False, whole=False),
+            part = {"tree": name, "claims": [], "links": []}
+            for record in claims:
+                old = everything.get(record["data"].get("replaces"))
+                part["claims"].append({"ref": record["ref"], "role": record["data"]["role"],
+                                       "statement": record["data"]["statement"], "basis": record["data"].get("basis"),
+                                       "earlier_wording": [old["data"]["statement"]] if old else [], "tests": []})
+            present = {c["ref"] for c in part["claims"]}
+            for record in links:
+                ends = record["data"]["from_ref"], record["data"]["to_ref"]
+                for end in ends:
+                    if end not in present and (end in nodes or end in everything):
+                        found = nodes.get(end) or {"ref": end, "statement": everything[end]["data"]["statement"],
+                                                   "role": everything[end]["data"].get("role", "goal"),
+                                                   "basis": None, "earlier_wording": [], "tests": []}
+                        part["claims"].append(found)
+                        present.add(end)
+                if set(ends) <= present:
+                    part["links"].append({"ref": record["ref"], "relation": record["data"]["relation"],
+                                          "from": ends[0], "to": ends[1], "assumption": record["data"].get("assumption")})
+            parts += [Text(TREE_TITLES[name][0], style="bold"),
+                      styled(tree_lines(part, width, fresh=set(records), title=False, whole=False),
                              self.theme_variables)]
-        for words in step["withdrawn"]:
-            parts.append(Text.assemble(("withdrawn: ", "italic dim"), (str(words), "strike dim")))
-        if step["text"]:
-            who = "You" if mine else step["speaker"]
-            said = textwrap.shorten(" ".join(str(step["text"]).split()), 240, placeholder=" …")
-            parts.append(Text.assemble((f"{who} wrote, {moment(step['timestamp'])}: ", "dim"), (f"“{said}”", "italic")))
-        parts.append(Text("Not what you meant? Say so in your answer, and the consultant can reword or withdraw it. "
-                          "History keeps the first wording.", style="dim"))
+        rows = Table.grid(padding=(0, 2))
+        rows.add_column(style="bold dim", max_width=24)
+        rows.add_column()
+        for record in records.values():
+            if record["kind"] not in ("claim", "link"):
+                for name, value in context_rows(w, record, None):
+                    rows.add_row(name, Text(str(value)))
+        if rows.row_count:
+            parts.append(rows)
+        if source.get("text"):
+            who = "You" if mine else source["speaker"]
+            said = textwrap.shorten(" ".join(str(source["text"]).split()), 240, placeholder=" …")
+            parts.append(Text.assemble((f"{who} wrote, {moment(source['timestamp'])}: ", "dim"), (f"“{said}”", "italic")))
+        parts.append(Text("Accept all admits these to your model; it does not make them true. Backlog decides them "
+                          "one by one. Not what you meant? Reject it, or say so in your answer." if waiting else
+                          "Not what you meant? Undo it from History, or say so in your answer.", style="dim"))
         return parts, drawn
 
     def render_context(self):
@@ -1693,9 +1858,11 @@ class ReasonCommonsApp(ThemedApp):
         title = dict(VIEW_LABELS)[view]
         lines = [f"## {title}", ""]
         if view == "history":
-            lines.append("Every saved step, oldest first, and what it changed. Enter opens one as it was; "
-                         "nothing there can be changed.")
+            lines.append("Every saved step, oldest first, and what entered the model. Enter opens one as it was; "
+                         "u undoes a step's acceptance, after showing what goes with it.")
             return "\n".join(lines)
+        if view == "backlog":
+            return self.backlog_page()
         if view == "sources":
             sources = [s for s in w["sources"].values() if "request_id" in s]
             # Who wrote matters with more than one voice, or when the one voice is not you (a goal someone shared).
@@ -1754,7 +1921,263 @@ class ReasonCommonsApp(ThemedApp):
         if news:
             step = "This step" if self.revision is not None else "The last step"
             lines += ["", f"*{step}: {md(tree_summary(news))}. NEW and REWORDED mark those statements.*"]
+        waiting = [e for e in self.backlog() if e["entry"] == "proposal" and e["kind"] in ("claim", "link", "retraction")]
+        if waiting:
+            lines += ["", f"###### {len(waiting)} proposal{'s' * (len(waiting) != 1)} for the trees wait in Backlog; "
+                          "they are drawn here once accepted."]
         return "\n".join(lines)
+
+    # ----- the backlog ----------------------------------------------------
+    def backlog_page(self):
+        """The Backlog page above its list: what waits, how acceptance works now, and a goal to decide first."""
+        w, entries = self.workspace_value, self.backlog()
+        lines = ["## Backlog", ""]
+        if self.revision is not None or self.story:
+            return "\n".join(lines + ["The backlog is live: Back to now to decide what waits."])
+        automatic = w["acceptance"] == "automatic"
+        if not entries:
+            lines.append("Nothing waits. What a reply proposes appears here until you accept or reject it."
+                         if not automatic else
+                         "Nothing waits. Replies' proposals enter your model as they arrive, under your automatic "
+                         "acceptance (Commands to change it).")
+            return "\n".join(lines)
+        proposals = sum(e["entry"] == "proposal" for e in entries)
+        reviews = len(entries) - proposals
+        said = [f"{proposals} proposal{'s' * (proposals != 1)} wait" + ("s" if proposals == 1 else "")] * bool(proposals)
+        said += [f"{reviews} record{'s' * (reviews != 1)} flagged for review"] * bool(reviews)
+        lines += [" and ".join(said) + ", in the order they are best decided: what an entry needs comes first.", ""]
+        if any(e["decide_first"] for e in entries):
+            lines += ["**A new goal is proposed. Decide it first: everything else is judged against the goal.**", ""]
+        lines.append("###### Enter: choices · a: accept · r: reject · h: a flagged record still holds. Accepting "
+                     "admits it to your model; it does not make it true." + (
+                         " New replies are accepted automatically." if automatic else ""))
+        return "\n".join(lines)
+
+    def entry_row(self, number, entry):
+        """One Backlog row: its place, what it is, its words, and what it waits for or why it is flagged."""
+        record = entry["record"]
+        where = TREE_TITLES[entry["tree"]][0] if entry.get("tree") else KIND_NAMES[entry["kind"]]
+        if entry["kind"] == "claim":
+            where += ", " + ROLE_LABELS[record["data"]["role"]].lower()
+        elif entry["kind"] == "goal":
+            where = "Goal" + (", new version" if entry.get("replaces") else "")
+        text = Text(f"{number:>2}. ", style="dim")
+        if entry["entry"] == "review":
+            text.append("Review  ", style=themed("$warning", self.theme_variables))
+        elif entry["decide_first"]:
+            text.append("Decide first  ", style="bold " + themed("$warning", self.theme_variables))
+        text.append(f"{where}: ", style="bold dim")
+        text.append(textwrap.shorten(" ".join(str(entry["summary"]).split()), 90, placeholder=" …"))
+        if entry["waits_for"]:
+            text.append("  · waits for " + ", ".join(self.entry_name(ref) for ref in entry["waits_for"]), style="dim")
+        for flag in entry.get("flags", []):
+            change = {"new_version": "was reworded", "withdrawn": "was withdrawn", "undone": "was undone"}[flag["change"]]
+            text.append(f"  · stated before “{textwrap.shorten(flag['cites_summary'], 40, placeholder='…')}” {change}",
+                        style="dim")
+        return text
+
+    def entry_name(self, ref):
+        """A waiting proposal named by its place in the Backlog, so a reader can find it there."""
+        for number, entry in enumerate(self.backlog(), 1):
+            if entry["entry"] == "proposal" and entry["ref"] == ref:
+                return f"{number}"
+        return ref
+
+    def fill_backlog(self, listing):
+        entries = self.backlog()
+        current = listing.highlighted
+        listing.clear_options()
+        listing.add_options([Option(self.entry_row(n, e), id=f"{e['entry']}:{e['ref']}")
+                             for n, e in enumerate(entries, 1)])
+        if entries:
+            listing.highlighted = current if current is not None and current < len(entries) else 0
+
+    def chosen_entry(self):
+        listing = self.query_one("#backlog-list", OptionList)
+        entries = self.backlog()
+        if self.view_name != "backlog" or listing.highlighted is None or listing.highlighted >= len(entries):
+            return None
+        return entries[listing.highlighted]
+
+    def entry_details(self, entry, markdown=True):
+        """An entry in full: the exact record, the words it came from, what it needs, and any review.
+        Markdown for a dialog; plain text (``markdown=False``) for the panel beside the list."""
+        record, data = entry["record"], entry["record"]["data"]
+        md = globals()["md"] if markdown else str
+        lines = []
+        if entry["entry"] == "review":
+            lines += ["**Flagged for review.** It was stated before something it cites changed. Nothing about it has "
+                      "changed and it is not marked false.", ""]
+            for flag in entry["flags"]:
+                change = {"new_version": "was reworded", "withdrawn": "was withdrawn", "undone": "was undone"}
+                lines.append(f"- It cites “{md(flag['cites_summary'])}”, which {change[flag['change']]}"
+                             + (f" to “{md(flag['now_summary'])}”." if flag.get("now_summary") else "."))
+            lines.append("")
+        bold = (lambda text: f"**{text}**") if markdown else str
+        end = "  " if markdown else ""
+        for name, value in context_rows(self.workspace_value, record, None):
+            if entry["kind"] != "link":
+                lines.append(f"{bold(md(name))}: {md(value)}{end}")
+        if entry["kind"] == "link":
+            lines.append(f"{bold(TREE_TITLES[data['tree']][0] + ' link')}: {md(self.link_words(record))}{end}")
+            if data.get("assumption"):
+                lines.append(f"{bold('Assuming')}: {md(data['assumption'])}{end}")
+        if entry.get("replaces"):
+            lines.append(f"{bold('New version of')}: {md(entry['replaces']['summary'])}{end}")
+        if entry["waits_for"]:
+            lines.append(f"{bold('Waits for')}: " + "; ".join(md(self.record_words(ref)) for ref in entry["waits_for"])
+                         + end)
+        words = [w for w in entry.get("words") or [] if w]
+        if words:
+            lines += ["", "From the words: " + " ".join(f"“{md(' '.join(w.split()))}”" for w in words)]
+        return "\n".join(lines)
+
+    def record_words(self, ref):
+        """A record in words: a statement's own, or for a link or withdrawal the statements it concerns."""
+        records = {r["ref"]: r for r in self.case.inspect()["case"]["records"]}
+        return describe(records[ref], records) if ref in records else ref
+
+    def link_words(self, record):
+        records = {r["ref"]: r for r in self.case.inspect()["case"]["records"]}
+        return describe(record, records)
+
+    @on(OptionList.OptionSelected, "#backlog-list")
+    def backlog_selected(self, event):
+        entry = self.chosen_entry()
+        if entry is None:
+            return
+        choices = ([("still_holds", "Still holds · records that you looked and it stands"),
+                    ("about", "Answer about this · puts its words in your answer; nothing is sent")]
+                   if entry["entry"] == "review" else
+                   [("accept", "Accept · admits it to your model, with what it needs"),
+                    ("reject", "Reject · final, with what needs it")])
+        title = ("Review: " if entry["entry"] == "review" else "Proposed: ") + textwrap.shorten(
+            " ".join(str(entry["summary"]).split()), 70, placeholder="…")
+        self.push_screen(ChoiceScreen(title, self.entry_details(entry), choices + [("back", "Back")]),
+                         lambda key: self.entry_chosen(entry, key))
+
+    def entry_chosen(self, entry, key):
+        if key in ("accept", "reject", "still_holds"):
+            self.perform(key, [entry["ref"]])
+        elif key == "about":
+            self.answer_about_record(entry["record"])
+
+    def action_decide(self, action):
+        entry = self.chosen_entry()
+        if entry is None:
+            return
+        if (action == "still_holds") != (entry["entry"] == "review"):
+            self.notify("Accept and reject decide a proposal; a flagged record is reviewed with h (still holds).",
+                        severity="warning")
+            return
+        self.perform(action, [entry["ref"]])
+
+    def perform(self, action, refs, confirmed=False):
+        """Ask the application to record a decision. When it would take more than was chosen (or is an undo),
+        the application lists everything first, and nothing changes until the person confirms."""
+        if self.story or self.revision is not None:
+            self.notify("This is a record of what happened; Back to now to decide.")
+            return
+        revision = self.workspace_value["revision"]
+        if action == "still_holds":
+            result = self.case.still_holds(refs[0], self.speaker, revision)
+        else:
+            result = getattr(self.case, action)(refs, self.speaker, revision, confirmed=confirmed)
+        if result["status"] == "confirm":
+            self.push_screen(ChoiceScreen(self.decision_title(action, result), self.consequences(action, result),
+                                          [("confirm", "Confirm" + (": undo, finally" if action == "undo" else "")),
+                                           ("back", "Back, nothing changes")]),
+                             lambda key: key == "confirm" and self.perform(action, refs, confirmed=True))
+            return
+        if result["status"] != "saved":
+            self.notify(result.get("message") or result["status"], severity="warning", timeout=8)
+            self.refresh_workspace()
+            return
+        self._history = None
+        self.refresh_workspace()
+        self.refresh_views()
+        self.notify(self.decided_words(action, result))
+        self.schedule_checkpoint()
+
+    def decision_title(self, action, result):
+        count = len(result["refs"])
+        return {"accept": f"Accept {count} together?", "reject": f"Reject {count} together?",
+                "undo": "Undo? This is final."}[action]
+
+    def consequences(self, action, result):
+        verb = {"accept": "Enters your model", "reject": "Rejected, finally", "undo": "Leaves your model"}[action]
+        lines = [f"**{verb}:**", ""] + [f"- {md(self.record_words(ref))}" for ref in result["refs"]]
+        if result["closes"]:
+            lines += ["", "**Closed, because what they need will not be in your model:**", ""]
+            lines += [f"- {md(self.record_words(ref))}" for ref in result["closes"]]
+        if result["flags"]:
+            lines += ["", "**Flagged for review, because they cite what changes:**", ""]
+            lines += [f"- {md(self.record_words(flag['ref']))}" for flag in result["flags"]]
+        if action == "undo":
+            lines += ["", "History keeps the words, the proposal, its acceptance and this undo. An undo cannot be "
+                          "undone, and what leaves does not return to the Backlog; the consultant may propose it again."]
+        return "\n".join(lines)
+
+    def decided_words(self, action, result):
+        count = len(result["refs"])
+        done = {"accept": f"Accepted {count}: in your model now.", "reject": f"Rejected {count}.",
+                "undo": f"Undone: {count} left your model.", "still_holds": "Recorded: it still holds.",
+                "acceptance": "Saved."}[action]
+        more = []
+        if result.get("closes"):
+            more.append(f"{len(result['closes'])} waiting proposal{'s' * (len(result['closes']) != 1)} closed")
+        if result.get("flags"):
+            more.append(f"{len(result['flags'])} flagged for review in Backlog")
+        return done + (" " + "; ".join(more) + "." if more else "")
+
+    @on(Button.Pressed, "#accept-all")
+    def accept_all_pressed(self):
+        self.accept_reply()
+
+    def accept_reply(self):
+        waiting = self.reply_waiting()
+        if waiting:
+            self.perform("accept", [r["ref"] for r in waiting])
+
+    def set_acceptance(self, mode):
+        result = self.case.set_acceptance(mode, self.speaker, self.workspace_value["revision"])
+        if result["status"] != "saved":
+            self.notify(result.get("message") or result["status"], severity="warning")
+            return
+        self._history = None
+        self.refresh_workspace()
+        self.notify("From now on, a reply's proposals enter your model as it arrives; each can be undone from "
+                    "History. What already waits still waits." if mode == "automatic" else
+                    "From now on, a reply's proposals wait in Backlog for you.")
+
+    def action_undo_step(self):
+        """u in History: undo what the chosen step accepted and is still in the model, after showing what goes."""
+        timeline = self.query_one("#timeline", OptionList)
+        refs = self.undoable(timeline.highlighted)
+        if not refs:
+            self.notify("Nothing this step accepted is in your model now.", severity="warning")
+            return
+        self.perform("undo", refs)
+
+    def undoable(self, revision):
+        """What the step at ``revision`` accepted that is still accepted now."""
+        if revision is None or self.story or self.workspace_value is None:
+            return []
+        entries = self.history()["entries"]
+        if revision >= len(entries):
+            return []
+        membership = self.case.workspace(view="backlog")["membership"]
+        return [ref for decision in entries[revision]["decisions"] if decision["action"] == "accept"
+                for ref in decision["refs"] if membership.get(ref) == "accepted"]
+
+    def answer_about_record(self, record):
+        """Put a flagged record's words at the end of the answer, as Answer about this does for a statement."""
+        editor = self.query_one("#editor", TextArea)
+        words = describe(record) if record["kind"] != "link" else self.link_words(record)
+        editor.insert(("" if not editor.text or editor.text.endswith(("\n", " ")) else "\n") + f"About “{words}”: ",
+                      editor.document.end)
+        self.show_view("next")
+        editor.focus()
 
     def folded(self):
         """The statements drawn folded: in the overview every tree's starting statements, except those
@@ -1900,8 +2323,11 @@ class ReasonCommonsApp(ThemedApp):
         """Beside the trees on a wide terminal: the chosen statement's details, updated as you move."""
         panel = self.query_one("#inspector")
         # The panel's border, padding and scroll bar take six of its columns.
-        details = (self.statement_text(INSPECTOR_WIDTH - 6)
-                   if self.view_name == "trees" and self.terminal.width >= INSPECTOR_FROM else None)
+        details = None
+        if self.terminal.width >= INSPECTOR_FROM and self.view_name == "trees":
+            details = self.statement_text(INSPECTOR_WIDTH - 6)
+        elif self.terminal.width >= INSPECTOR_FROM and self.view_name == "backlog" and self.chosen_entry():
+            details = Text(self.entry_details(self.chosen_entry(), markdown=False))
         shown = details is not None
         if shown:
             self.query_one("#inspector-text", Static).update(details)
@@ -1959,13 +2385,15 @@ class ReasonCommonsApp(ThemedApp):
             when, time = self.when_parts(entry)
             created = entry["revision"] == 0
             title = "The goal was created" if created else self.step_title(entry)
-            change = "" if created else change_summary(entry["counts"])
+            change = "" if created else (change_summary(entry["counts"]) if entry["counts"] else
+                                         f"{len(entry['proposed'])} proposed" if entry["proposed"] else
+                                         change_summary(entry["counts"]))
             rows.append((when, time, (entry["speaker"] or "unknown") if shared and not created else "", title, change))
         widths = [max(len(row[column]) for row in rows) for column in range(3)]
         title_width = min(36, max(len(row[3]) for row in rows))
         options, previous = [], None
         for entry, (when, time, who, title, change) in zip(entries, rows):
-            quiet = not change or change == "no recorded change"
+            quiet = not change or change == "no change to the model" or change.endswith(" proposed")
             label = Text()
             label.append((when if when != previous else "").ljust(widths[0]), style="dim")
             previous = when
@@ -1993,8 +2421,11 @@ class ReasonCommonsApp(ThemedApp):
         return (day_part, time) if day_part and re.fullmatch(r"\d\d:\d\d", time) else (stamp, "")
 
     def step_title(self, entry):
-        """A story chapter's title, else the question this step answered."""
+        """A story chapter's title, else the question this step answered, else the decision it records."""
         chapter = self.chapters.get(entry["revision"], {})
+        if not chapter and entry["request_id"] is None and entry["decisions"]:
+            decision = entry["decisions"][0]
+            return decision_words(decision).capitalize()
         return chapter.get("title") or entry.get("answered") or entry["decision"] or "Saved"
 
     def moment_text(self):
@@ -2021,44 +2452,67 @@ class ReasonCommonsApp(ThemedApp):
             lines += [f"*{md(' '.join(chapter['summary'].split()))}*", ""]
         elif entry.get("asked"):
             lines += [md(entry["asked"]), ""]  # the question these words answered
-        paragraphs = [md(part).replace("\n", "  \n> ") for part in (entry["text"] or "").split("\n\n")]
-        lines += ["> " + "\n>\n> ".join(paragraphs), ""]
+        if entry["text"]:
+            paragraphs = [md(part).replace("\n", "  \n> ") for part in entry["text"].split("\n\n")]
+            lines += ["> " + "\n>\n> ".join(paragraphs), ""]
         notes = [chapter[key] for key in ("words_note",) if chapter.get(key)]
         if chapter.get("source"):
             notes.append(f"Source: {chapter['source']}")
         if notes:
             lines += [f"*{md(' · '.join(notes))}*", ""]
-        lines += ["### What changed", "", change_summary(entry["counts"]), ""]
-        before = {r["ref"]: r for r in history["snapshots"][self.revision - 1]["records"]}
+        lines += ["### What entered the model", "", change_summary(entry["counts"]), ""]
         now = history["snapshots"][self.revision]["records"]
-        everything = {**before, **{r["ref"]: r for r in now}}
-        for record in (r for r in now if r["ref"] not in before):
-            data = record["data"]
-            if record["kind"] == "claim":
-                where = f"{TREE_TITLES[data['tree']][0]}, {ROLE_LABELS[data['role']].lower()}"
-                if data.get("replaces"):
-                    old = everything[data["replaces"]]["data"]["statement"]
-                    lines.append(f"- *Reworded, {md(where)}:* {md(data['statement'])}  \n  *was:* {md(old)}")
-                else:
-                    lines.append(f"- *{md(where)}:* {md(data['statement'])}")
-            elif record["kind"] == "retraction":
-                target = everything.get(data["target_ref"], {}).get("data", {})
-                lines.append(f"- *Withdrawn:* {md(target.get('statement') or data['target_ref'])}  \n"
-                             f"  *why:* {md(data['reason'])}")
-            elif record["kind"] == "goal":
-                lines.append(f"- *Goal:* {md(data['statement'])}" +
-                             (f"  \n  *measure:* {md(data['measure'])}" if data.get("measure") else ""))
-            elif record["kind"] == "test":
-                forecast = "; ".join(f.get("expected") or "" for f in data.get("forecast") or [])
-                lines.append(f"- *Test:* {md(data['statement'])}  \n  *forecast, written first:* {md(forecast)}")
-            elif record["kind"] == "action":
-                lines.append(f"- *Action planned:* {md(data['statement'])}")
-            elif record["kind"] == "note":
-                lines.append(f"- *Note:* {md(data['text'])}")
+        everything = {r["ref"]: r for r in now}
+        accepted = [ref for d in entry["decisions"] if d["action"] == "accept" for ref in d["refs"]]
+        before = {r["ref"] for r in history["snapshots"][self.revision - 1]["records"]}
+        start = (history["snapshots"][self.revision].get("membership") or {}).get("proposals_from", len(now))
+        index = {r["ref"]: i for i, r in enumerate(now)}
+        entered = [r["ref"] for r in now if r["ref"] not in before and index[r["ref"]] < start] + accepted
+        lines += [self.change_line(everything[ref], everything) for ref in entered if everything[ref]["kind"] != "intervention"]
+        if entry["proposed"]:
+            lines += ["", "### Proposed, waiting for a decision", ""]
+            lines += [self.change_line(everything[ref], everything) for ref in entry["proposed"]]
+        for decision in entry["decisions"]:
+            if decision["action"] in ("reject", "undo") or decision["closes"]:
+                verb = {"reject": "Rejected", "undo": "Undone"}.get(decision["action"])
+                if verb:
+                    lines += ["", f"### {verb}", ""] + [self.change_line(everything[ref], everything)
+                                                        for ref in decision["refs"]]
+                if decision["closes"]:
+                    lines += ["", "### Closed, because what they needed was not in the model", ""]
+                    lines += [self.change_line(everything[ref], everything) for ref in decision["closes"]]
+        lines = [line for line in lines if line is not None]
         question = (self.workspace_value["question"] or {}).get("data", {})
         if question.get("primary_prompt"):
             lines += ["", "### Asked next", "", md(question["primary_prompt"])]
         return "\n".join(lines)
+
+    def change_line(self, record, everything):
+        """One record in a step's page, as a list item in plain words."""
+        data = record["data"]
+        if record["kind"] == "claim":
+            where = f"{TREE_TITLES[data['tree']][0]}, {ROLE_LABELS[data['role']].lower()}"
+            if data.get("replaces") and data["replaces"] in everything:
+                old = everything[data["replaces"]]["data"]["statement"]
+                return f"- *Reworded, {md(where)}:* {md(data['statement'])}  \n  *was:* {md(old)}"
+            return f"- *{md(where)}:* {md(data['statement'])}"
+        if record["kind"] == "retraction":
+            target = everything.get(data["target_ref"], {}).get("data", {})
+            return (f"- *Withdrawn:* {md(target.get('statement') or data['target_ref'])}  \n"
+                    f"  *why:* {md(data['reason'])}")
+        if record["kind"] == "goal":
+            return (f"- *Goal{', new version' if data.get('replaces') else ''}:* {md(data['statement'])}" +
+                    (f"  \n  *measure:* {md(data['measure'])}" if data.get("measure") else ""))
+        if record["kind"] == "test":
+            forecast = "; ".join(f.get("expected") or "" for f in data.get("forecast") or [])
+            return f"- *Test:* {md(data['statement'])}  \n  *forecast, written first:* {md(forecast)}"
+        if record["kind"] == "action":
+            return f"- *Action planned:* {md(data['statement'])}"
+        if record["kind"] == "note":
+            return f"- *Note:* {md(data['text'])}"
+        if record["kind"] == "link":
+            return f"- *{md(TREE_TITLES[data['tree']][0])} link:* {md(self.link_words(record))}"
+        return f"- *{KIND_NAMES[record['kind']]}:* {md(describe(record))}"
 
     def render_story_now(self):
         """The decision the story is waiting on leads; the action's details follow as rows."""
@@ -2142,6 +2596,13 @@ class ReasonCommonsApp(ThemedApp):
     @on(Button.Pressed, "#home")
     def home_pressed(self):
         self.exit(STORY_HOME)
+
+    @on(OptionList.OptionHighlighted, "#timeline")
+    @on(OptionList.OptionHighlighted, "#backlog-list")
+    def list_moved(self, event):
+        self.refresh_hints()
+        if self.view_name == "backlog":
+            self.render_inspector()
 
     @on(OptionList.OptionSelected, "#timeline")
     def moment_selected(self, event):
@@ -2249,7 +2710,7 @@ class ReasonCommonsApp(ThemedApp):
     def tab_target(self):
         """Where Tab goes from the views list: the open page's own list when it has one (the History
         timeline, the Trees drawing), else back to the answer. None when it just goes on to the next control."""
-        for name in ("#timeline", "#canvas"):
+        for name in ("#timeline", "#backlog-list", "#canvas"):
             widget = self.query_one(name)
             if widget.display and widget.can_focus:
                 return widget
@@ -2291,7 +2752,13 @@ class ReasonCommonsApp(ThemedApp):
                      else [("a", "Answer about this", "a", "About")])
             return [choose, *fold, enter, ("^n", "Next tree", "ctrl+n"), trees, *about], []
         if focus == "timeline":
-            return [("↑↓", "Choose step", None, "Choose"), ("⏎", "Open that step", "enter", "Open")], [tab]
+            undo = [("u", "Undo this change", "u", "Undo")] if self.undoable(self.query_one("#timeline").highlighted) else []
+            return [("↑↓", "Choose step", None, "Choose"), ("⏎", "Open that step", "enter", "Open"), *undo], [tab]
+        if focus == "backlog-list":
+            entry = self.chosen_entry()
+            keys = ([("h", "Still holds", "h", "Holds")] if entry and entry["entry"] == "review" else
+                    [("a", "Accept", "a"), ("r", "Reject", "r")])
+            return [("↑↓", "Choose", None), ("⏎", "Choices", "enter"), *keys], [tab]
         if focus in ("main", "inspector"):
             return [("↑↓", "Scroll", None), trees], [back]
         if focus in ("commands", "help"):
@@ -2482,6 +2949,8 @@ class ReasonCommonsApp(ThemedApp):
         if w["historical"]:
             return
         text = self.query_one("#editor", TextArea).text
+        if intent == "review_flags" and not text.strip():
+            text = "Do the records flagged for review still hold?"
         if not text.strip() and self.provider != "guided" and intent == "answer":
             self.notify("Write an answer first.", severity="warning")
             return
@@ -2528,8 +2997,11 @@ class ReasonCommonsApp(ThemedApp):
             self.answer_ready = self.view_name != "next"
             news = self.tree_news()
             grown = f" In the trees: {tree_summary(news)}." if news else ""
+            waiting = len(self.case.workspace(view="backlog")["backlog"]) and result.get("proposed") and not result.get(
+                "accepted_automatically")
+            proposed = f" {len(result['proposed'])} proposed; they wait in Backlog." if waiting else ""
             self.notify(("Answer ready: Next step shows the new question." if self.answer_ready else "Saved.")
-                        + grown)
+                        + grown + proposed)
         elif result.get("input_retained"):
             if sent:
                 editor.clear()  # the words are retained in the case; Retry reuses them
@@ -2598,6 +3070,23 @@ class ReasonCommonsApp(ThemedApp):
             items.append(("Answer about the chosen statement",
                           "Local: puts its words in your answer, to change as you like; nothing is sent (a)",
                           self.answer_about))
+        if self.reply_waiting():
+            items.append(("Accept all the last reply proposed",
+                          "Local: admits them to your model, with what they need; no consultant call",
+                          self.accept_reply))
+        if not self.story and self.revision is None:
+            if self.workspace_value["acceptance"] == "review":
+                items.append(("Accept proposals automatically",
+                              "Local setting, recorded: later replies' proposals enter your model as they arrive",
+                              lambda: self.set_acceptance("automatic")))
+            else:
+                items.append(("Hold proposals for review",
+                              "Local setting, recorded: later replies' proposals wait in Backlog for you",
+                              lambda: self.set_acceptance("review")))
+            if any(e["entry"] == "review" for e in self.backlog()):
+                items.append(("Ask about the open reviews",
+                              "Asks the consultant whether the flagged records still hold; your answer goes with it",
+                              lambda: self.action_send(intent="review_flags")))
         items.append(("History: step back", "Local: the goal as it was one step earlier (←)", self.action_earlier))
         if self.revision is not None:
             items += [("History: step forward", "Local: one step later (→)", self.action_later),
@@ -2663,19 +3152,24 @@ class ReasonCommonsApp(ThemedApp):
             from reason_commons.adapters.ltp_trees import import_trees
             self.checkpoint()
             self.case.close()
+            waiting = False
             try:
                 summary = import_trees(self.store, os.path.expanduser(path), self.speaker)
-                self.notify(f"Brought in {summary['claims']} statements and {summary['links']} links." +
-                            (f" {summary['notes']} items the trees cannot draw are kept as notes."
-                             if summary["notes"] else ""), timeout=8)
+                waiting = len(summary["proposed"]) > len(summary["accepted"])
+                self.notify(f"Brought in {summary['claims']} statements and {summary['links']} links" +
+                            (f"; {summary['notes']} items the trees cannot draw are kept as notes" if summary["notes"]
+                             else "") + (". They wait in Backlog: accept what you want in your model." if waiting
+                                         else ", into your model under your automatic acceptance."), timeout=8)
             except Exception as exc:
                 self.notify(f"Import failed: {exc}", severity="error", timeout=10)
             finally:
                 self.case = self._open(self._consultant_factory(self.provider))
                 self._history = None
-            self.show_view("trees")
+            # What waits is decided in Backlog; what was accepted is drawn in the trees.
+            self.show_view("backlog" if waiting else "trees")
         self.push_screen(PathScreen("Bring in trees from an LTP file (.ltp.yaml)", "",
-                                    "Enter imports. They join the trees already here. Esc cancels."), chosen)
+                                    "Enter imports. What it brings waits in Backlog for you to accept. Esc cancels."),
+                         chosen)
 
     def action_export_trees(self):
         default = str(Path(self.store).with_name(f"{Path(self.store).name}-trees-{date.today().isoformat()}.ltp.yaml"))

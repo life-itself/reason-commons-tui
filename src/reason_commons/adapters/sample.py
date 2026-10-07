@@ -1,9 +1,12 @@
 """A finished example loop, built through the application with the built-in guide.
 
 The home screen offers it so a newcomer can look at a whole loop (goal, test with a
-forecast, action, observation, review) before starting their own. The finished
-example also brings in the six trees of the analysis the test comes from. It is
-written to a throwaway folder; the people and numbers are fictional.
+forecast, action, observation, review) before starting their own. The organiser
+accepts what each reply proposes, as anyone would with Accept all, so History shows
+those decisions too. The finished example also brings in the six trees of the
+analysis the test comes from. She keeps her own goal: she rejects the file's goal,
+with the links that need it, and accepts the rest. It is written to a throwaway
+folder; the people and numbers are fictional.
 """
 
 from functools import partial
@@ -38,6 +41,13 @@ ANSWERS = [
 ]
 
 
+def accept_reply(app, result):
+    if result["proposed"]:
+        decided = app.accept(result["proposed"], SPEAKER, app.inspect()["case"]["revision"], confirmed=True)
+        if decided["status"] != "saved":
+            raise RuntimeError(f"Example could not be built: {decided.get('message', decided['status'])}")
+
+
 def build_sample(path, answers=None, clock=None, view="tests", name=NAME, trees=None):
     """Create the example case at path (which must not exist) and return path.
 
@@ -52,9 +62,16 @@ def build_sample(path, answers=None, clock=None, view="tests", name=NAME, trees=
             result = app.consult(result["request_id"])
             if result["status"] != "saved":
                 raise RuntimeError(f"Example could not be built: {result['status']}")
+            accept_reply(app, result)
     if answers is None if trees is None else trees:
         with as_file(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")) as source:
-            import_trees(path, source, SPEAKER, open_case=partial(open_case, clock=clock))
+            summary = import_trees(path, source, SPEAKER, open_case=partial(open_case, clock=clock))
+        with open_case(path, clock=clock) as app:
+            goals = [r for r in summary["proposed"] if r.startswith("G")]
+            if goals:
+                app.reject(goals, SPEAKER, app.inspect()["case"]["revision"], confirmed=True)
+            waiting = app.workspace(view="backlog")["membership"]
+            accept_reply(app, {"proposed": [r for r in summary["proposed"] if waiting[r] == "proposed"]})
     with open_case(path, clock=clock) as app:
         # Open on Tests, where the original forecast sits next to the reported result.
         target = app.workspace()["target"]

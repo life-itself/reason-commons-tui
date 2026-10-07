@@ -23,6 +23,7 @@ everyday use:
   reason-commons resume FOLDER        Open an existing goal; never creates one
   reason-commons export FOLDER FILE   Save a portable copy (.reasoncase)
   reason-commons trees FOLDER         Draw the goal's six trees; --import or --export an .ltp.yaml
+  reason-commons decide FOLDER ...    Accept, reject or undo proposals, or choose automatic acceptance
   reason-commons --version            Show the version
 
 The workspace works offline with a built-in guide. Inside it, F1 shows help and
@@ -30,7 +31,7 @@ Ctrl+P switches to Claude or a local model, or changes the theme."""
 
 ADVANCED = """\
 advanced (scripts, AI agents and diagnostics):
-  new, show, inspect, history, import, contribute, retry, receipts, mcp, storage-help
+  new, show, inspect, history, import, contribute, decide, retry, receipts, mcp, storage-help
   Run 'reason-commons COMMAND --help' for details. REASON_COMMONS_HOME changes where
   your goals are kept."""
 
@@ -125,6 +126,17 @@ def main(argv=None):
         command.add_argument("--base-url", help="Selected provider's URL; otherwise use environment/default")
         command.add_argument("--runner", choices=["agent", "procedure"], default="procedure",
                              help="procedure follows the fixed sequence (default); agent executes the Markdown skill with a model")
+    decide = commands.add_parser("decide", help="Decide what enters the model, offline; no consultant call",
+                                 description="Accept, reject or undo proposals by their refs (see 'show --view "
+                                             "backlog'), say a flagged record still holds, or set how later "
+                                             "proposals are accepted. A decision that takes more than you named "
+                                             "lists it and changes nothing unless you add --confirm.")
+    decide.add_argument("store", metavar="FOLDER")
+    decide.add_argument("action", choices=["accept", "reject", "undo", "still-holds", "acceptance"])
+    decide.add_argument("refs", nargs="+", metavar="REF",
+                        help="Record refs such as C3@1; for acceptance, review or automatic")
+    decide.add_argument("--speaker", help="Your name as recorded with the decision (default: $USER)")
+    decide.add_argument("--confirm", action="store_true", help="Confirm a decision that takes more, or an undo")
     receipts = commands.add_parser("receipts", help="Inspect attempts for a retained request offline")
     receipts.add_argument("store")
     receipts.add_argument("request_id")
@@ -133,6 +145,8 @@ def main(argv=None):
     mcp.add_argument("--provider", choices=list(PROVIDERS), help="Consultant provider; otherwise REASON_COMMONS_PROVIDER or lm-studio")
     mcp.add_argument("--model", help="Selected provider's model ID")
     mcp.add_argument("--base-url", help="Selected provider's URL")
+    mcp.add_argument("--allow-acceptance-setting", action="store_true",
+                     help="Let the client switch cases to automatic acceptance; off unless you grant it")
     args = parser.parse_args(argv)
     try:
         if args.command is None and not (sys.stdin.isatty() and sys.stdout.isatty()):
@@ -178,6 +192,10 @@ def main(argv=None):
                 summary = import_trees(args.store, args.import_file, speaker)
                 print(f"Brought in {summary['claims']} statements and {summary['links']} links"
                       + (f"; {summary['notes']} items kept as notes." if summary["notes"] else "."))
+                waiting = len(summary["proposed"]) - len(summary["accepted"])
+                if waiting:
+                    print(f"{waiting} proposals wait in the backlog: see 'reason-commons show {args.store} --view "
+                          f"backlog', then accept them there or in the workspace.")
             else:
                 with open_case(args.store, writable=False) as app:
                     workspace = app.workspace(view="trees")
@@ -225,7 +243,24 @@ def main(argv=None):
             return 0 if result["procedure_completed"] and result["result"]["status"] == "saved" else 1
         elif args.command == "mcp":
             from reason_commons.adapters.mcp_server import serve
-            serve(args.case_root, args.model, args.base_url, provider=args.provider)
+            serve(args.case_root, args.model, args.base_url, provider=args.provider,
+                  allow_acceptance_setting=args.allow_acceptance_setting)
+        elif args.command == "decide":
+            speaker = args.speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
+            with open_case(args.store) as app:
+                revision = app.inspect()["case"]["revision"]
+                if args.action == "acceptance":
+                    if len(args.refs) != 1:
+                        raise ValueError("Name one setting: review or automatic")
+                    result = app.set_acceptance(args.refs[0], speaker, revision)
+                elif args.action == "still-holds":
+                    if len(args.refs) != 1:
+                        raise ValueError("Name one flagged record")
+                    result = app.still_holds(args.refs[0], speaker, revision)
+                else:
+                    result = getattr(app, args.action)(args.refs, speaker, revision, confirmed=args.confirm)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            return 0 if result["status"] == "saved" else 1
         else:
             parser.print_help()
         return 0

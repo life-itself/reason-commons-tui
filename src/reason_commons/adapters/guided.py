@@ -10,6 +10,8 @@ never infers measures, ownership, evidence or outcomes.
 from copy import deepcopy
 import re
 
+from reason_commons.domain.membership import Membership
+
 
 PREFIX = "guided:"
 SKIPPED = {"", "-", "skip", "n/a", "none", "unknown", "?"}
@@ -109,7 +111,10 @@ class GuidedConsultant:
         value = request["input"]
         case = request["case"]
         sources = request["sources"]
-        records = {r["ref"]: r for r in case["records"]}
+        # Follow what is in the model or still waiting for the operator; what they rejected or undid is gone.
+        membership = Membership(case)
+        records = {r["ref"]: r for r in case["records"] if r["kind"] == "intervention"
+                   or membership.status[r["ref"]] == "proposed" or membership.current(r["ref"])}
         current = records.get(case["current_intervention"])
         step, inferred = self._step(current, records)
         answer = _literal(value["text"])
@@ -148,10 +153,13 @@ class GuidedConsultant:
             else:
                 protections = [line.strip(" -*\t") for line in (answer or "").splitlines()
                                if _literal(line.strip(" -*\t"))]
-                updates.append({"operation": "record_goal", "temporary_id": "goal", "data": {
-                    "statement": statement[1], "measure": measure[1] if measure else None,
-                    "protections": protections},
-                    "source_refs": self._refs(statement, measure, request_id)})
+                data = {"statement": statement[1], "measure": measure[1] if measure else None,
+                        "protections": protections}
+                goals = membership.goals(proposing=True)
+                if goals:
+                    data["replaces"] = goals[-1]  # a case has one goal: a different one is its new version
+                updates.append({"operation": "record_goal", "temporary_id": "goal", "data": data,
+                                "source_refs": self._refs(statement, measure, request_id)})
                 context["goal"] = "goal"
                 next_step = "test_change"
         elif step == "test_change":
@@ -234,7 +242,7 @@ class GuidedConsultant:
     @staticmethod
     def _latest(records, kind):
         matches = [r for r in records.values() if r["kind"] == kind]
-        return max(matches, key=lambda r: int(r["ref"][1:].split("@")[0])) if matches else None
+        return max(matches, key=lambda r: tuple(int(n) for n in r["ref"][1:].split("@"))) if matches else None
 
     @staticmethod
     def _answer(case, sources, records, step):

@@ -70,10 +70,10 @@ connects to the next.
 
 The trees grow from the conversation. With Claude or a local model as consultant,
 tell it what causes a problem, which conflict keeps you stuck, what stands in the
-way or what you plan to do. It records each statement in its tree, in your words,
-linked to the others. Ask it to reword or drop something and the tree changes,
-while the earlier wording stays in the history. Every arrow shows the assumption
-it rests on, so you can see where to push back.
+way or what you plan to do. It proposes each statement for its tree, in your words,
+linked to the others, and you decide what goes in (see below). Ask it to reword or
+drop something and it proposes that too; the earlier wording stays in the history.
+Every arrow shows the assumption it rests on, so you can see where to push back.
 
 Press **Ctrl+T** to open the trees. The first time, they open on **All six**: every
 tree folded at what it is for, so you see the whole before going into one.
@@ -83,10 +83,10 @@ sentence ("because: the group lacks a cadence"), with the statement's role after
 and the assumption behind the link underneath; a chain runs down one spine, so a
 Prerequisite Tree reads as a ladder. A complete Evaporating Cloud is drawn as its
 five boxes, both sides at equal weight. **↑** and **↓** choose a statement and show
-the question worth asking of it, what it links to and where it came from. After
-each reply, the question says what changed in the trees. Trees you already have come
-in from an `.ltp.yaml` file and go out the same way (**Ctrl+P**, then **Import
-trees** or **Export trees**).
+the question worth asking of it, what it links to and where it came from. Trees you
+already have come in from an `.ltp.yaml` file and go out the same way (**Ctrl+P**,
+then **Import trees** or **Export trees**); what a file brings in waits for you like
+any proposal.
 
 Here is one tree from the real commons the app ships with: the **Second
 Renaissance**, a movement that wants to help bring about a wiser, more
@@ -129,6 +129,23 @@ works. The first is one time-boxed review of the whole model.
 [The six trees, explained](docs/the-trees.md) shows how to read each one, using
 the Second Renaissance's
 [tree-by-tree analysis](https://github.com/life-itself/reasoncommons/tree/main/ltp).
+
+### You decide what enters your model
+
+The consultant drafts what your words could mean; you decide what becomes part of
+your reasoning. After each reply, **Next step** draws what it proposes beside the words
+it came from, marked *proposed*. **Accept all** admits it; **Backlog** lists everything
+waiting, in the order it is best decided: a new goal first, since everything else is
+judged against it, then the trees in order, and whatever a proposal needs before it.
+Accepting puts a statement in your model; it does not make it true.
+
+When you accept a change to something, whatever cites it is flagged for review, with
+the change that raised the flag, so a consequence reaches one step further each time.
+Every acceptance can be undone from **History**, and an undo is final. If you trust the
+consultant, **Ctrl+P**, **Accept proposals automatically** lets replies' proposals in as
+they arrive, still marked and still undoable.
+
+![Backlog: a proposed new goal marked decide first, then a proposed cause and the link that waits for it, then a Transition Tree action; beside the list, the chosen entry in full with the words it came from](docs/images/backlog.png)
 
 ### From tree to test
 
@@ -173,9 +190,9 @@ More: [use Claude or a local model](docs/use-a-model.md) and
 - **One folder per goal.** Goals live in `~/ReasonCommons` (or `REASON_COMMONS_HOME`)
   as plain YAML. Settings and keys are kept elsewhere and never go into a goal.
 - **A history you can step through.** **History** lists every saved step on one
-  row: when, the question it answered and what changed (and who, once more than
-  one person has written). Open one to see the goal as it was then, and step with
-  ← and →.
+  row: when, the question it answered or the decision taken, and what entered the
+  model (and who, once more than one person has written). Open one to see the goal
+  as it was then, and step with ← and →; **u** undoes a step's acceptance.
 - **Move and share.** Export a goal as a portable `.reasoncase` file and import it
   elsewhere, with its whole history.
 
@@ -206,8 +223,8 @@ This is an early prototype for personal use.
 
 | | |
 | --- | --- |
-| **Works now** | The loop end to end, offline with the built-in guide or with an AI consultant; all six trees, grown in conversation by Claude or a local model, or imported; History for every goal; export and import; the real commons and the guided tour |
-| **Planned** | Joint causes (AND), rival explanations, flags on tests when a cause changes; group work, with several people's positions on one tree; an accessible plain-text mode |
+| **Works now** | The loop end to end, offline with the built-in guide or with an AI consultant; all six trees, grown in conversation by Claude or a local model, or imported; a backlog where you accept or reject what the consultant proposes, with review flags and undo; History for every goal; export and import; the real commons and the guided tour |
+| **Planned** | Joint causes (AND), rival explanations; review of consequences no reference records; automatic acceptance above a confidence you set; group work, with several people's positions on one tree; an accessible plain-text mode |
 
 The order follows the [delivery plan](reason-commons-spec/delivery-phases.md).
 

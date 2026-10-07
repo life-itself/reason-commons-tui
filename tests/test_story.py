@@ -76,7 +76,7 @@ def test_the_story_rewords_withdraws_and_ends_with_one_open_action(story_case):
 
 def test_change_summary_counts_in_plain_words():
     assert change_summary({"claim": 2, "link": 1, "withdrawn": 1}) == "2 statements added · 1 withdrawn · 1 link"
-    assert change_summary({}) == "no recorded change"
+    assert change_summary({}) == "no change to the model"
 
 
 def story_app(path):
@@ -107,7 +107,7 @@ def test_story_opens_read_only_on_the_next_action_and_steps_through_history(stor
             app.go_to(6)
             await pilot.pause()
             content = app.query_one("#content").source
-            assert "First, decide how the trees get updated" in content and "What changed" in content
+            assert "First, decide how the trees get updated" in content and "What entered the model" in content
             assert "Step 6 of" in str(app.query_one("#moment-text").render())
             app.show_tree("prerequisite")
             await pilot.pause()

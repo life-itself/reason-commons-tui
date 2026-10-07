@@ -398,6 +398,10 @@ def tree_lines(tree, width=80, fresh=(), spans=None, folded=(), title=True, colu
         parts.append((tag, _family(claim["role"])))
         if claim.get("basis"):
             parts.append((f"{GLUE}·{GLUE}{BASIS[claim['basis']]}", "dim"))
+        if claim.get("from_tree"):
+            # One statement, used here by a link of this tree; it belongs to another.
+            parts.append((f" {GLUE}·{GLUE}from{GLUE}the{GLUE}" + TREE_TITLES[claim["from_tree"]][0].replace(" ", GLUE),
+                          "dim"))
         meets = reach(tree, ref, above) if whole else None
         if meets:
             parts.append((f" {GLUE}·{GLUE}" + meets, "italic"))

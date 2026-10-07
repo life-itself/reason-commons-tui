@@ -192,6 +192,9 @@ VIEWS = {
     "control help": lambda c: screen_name(c) == "HelpScreen" and "Keys" in c.workspace.screen_text(),
     "adapter call count": lambda c: screen_name(c) == "CallsScreen" and "Consultant calls in this goal: 8"
     in c.workspace.screen_text(),
+    # Forge accepts proposals automatically, so nothing waits; the Backlog says so and how that works.
+    "proposals waiting for decision": lambda c: c.workspace.read(lambda app: app.view_name) == "backlog"
+    and "Nothing waits" in c.workspace.screen_text() and "automatic" in c.workspace.screen_text(),
 }
 
 
