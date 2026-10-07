@@ -434,3 +434,26 @@ realistic_twelve failures) and requiring all four fulfilment items (both
 guardrail_review c5 failures). Those four decisions may change under the revised
 guide; the other eleven failures follow the criterion text either way. The v1
 participant gate stays separate.
+
+## Semantic scenarios with Claude, prompt 7 (2026-10-07)
+
+After the review above, the consultant prompt (now version 7) asks for one thing
+per next move, takes up corrections and new information before earlier
+questions, asks who may decide before other gaps of an unowned test, and treats
+outcomes still pending at a review date as pending. The domain context records
+that a correction of a question's premise comes before framing success (S06
+over S01). Two rubric lines no longer suggest an answer or a pronoun, and four
+held-out fixtures test the same behaviour in other words.
+
+The same billed command, now 20 fixtures twice
+(`.evaluation-runs/2026-10-07-semantic-sonnet-prompt7/`, report SHA-256
+beginning `556517ca34f50a18`): 40 cases, 52 turns, each attempted once. Machine
+checks: 318 passed, 4 failed, all from one reply. In `goal_action_review-1`,
+Claude's first reply put the next move's fields at the top level of the
+proposal; the application rejected it before commit and the case stopped, so
+its seven criteria have nothing to judge. Every other reply was saved.
+
+A rough signal, not a judgement: under prompt 6, 16 of 45 next moves asked more
+than one question (counting question marks in the prompt); under prompt 7, none
+of 51 did, held-out cases included. The 138 rubric criteria wait for review on
+their own page; until then these scenarios are not passed.
