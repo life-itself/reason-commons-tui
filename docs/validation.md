@@ -382,3 +382,24 @@ default) then made nine calls, all `saved` on the first attempt.
 | Test versions (S150) | Asked to change the forecast before the start, Claude proposed `P1@2` replacing `P1@1`. After acceptance the Tests view showed one test (8 of 30), history kept 6 of 30, and the action was flagged (`new_version`). The reported result and its review cited `P1@2`. Asked to change the forecast after the result, Claude recorded only a note and said the forecast "has to stay as it was", offering a new test instead. | Pass (the domain refusal was not needed) |
 | Withdrawal (S148) | Claude proposed `X1@1` withdrawing the cause. `decide accept X1@1` returned `confirm` with `leaves: [L1@1]` and changed nothing; with `--confirm` the cause and its link left the tree. Under automatic acceptance, a new cause and its link entered automatically; the withdrawal of that cause (`X2@1`) waited in the backlog while its note was accepted. | Pass |
 | Citations (S149) | An answer was held, a different answer moved the case on, and the held answer came back `stale` with no call. The next request (asking for advice) was not sent the stale answer, no record cites it, and the advice did not use its wording. (In the run before the fix, the same sequence put the stale answer's words into the model.) | Pass |
+
+## Semantic scenarios with Claude (2026-10-07)
+
+A billed run of `scripts/evaluate_semantic.py --provider anthropic --model
+claude-sonnet-5-5 --repeat 2` (`.evaluation-runs/2026-10-07-semantic-sonnet/`,
+report SHA-256 beginning `cba484d0ddf398df`): 16 fixtures covering the twelve
+`@semantic` p2 scenarios, twice, 32 cases and 44 provider calls, each attempted
+once. No key, request body or provider response is recorded here.
+
+Machine checks: 285 passed, 5 failed. Two failures are a harness error: the
+guardrail case's pilot-review check was also applied to its second turn, which
+asks a question and needs no new review (turn 1's review passes in both
+repetitions); the check now applies only to the reporting turn. The other three
+come from one reply: in `attributed_correction-2`, Claude's third reply put a
+`decision` field at the top level of the proposal, and the application rejected
+it before commit, so that turn has nothing to judge. Every other reply was saved.
+
+The 108 rubric criteria wait for an attributed human review. A review page shows
+each case's turns, records and next move beside its criteria; its decisions are
+turned into `review.json` and checked with `scripts/review_evaluation.py`. Until
+then these scenarios are not passed, and the v1 participant gate stays separate.
