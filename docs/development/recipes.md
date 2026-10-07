@@ -63,8 +63,8 @@ with the code.
    application boundary.
 3. A confirmation or disabled control is a hint only. The use case must reject the
    same operation when called directly.
-4. Follow `TUI-DESIGN.md` and the specification's interface scenarios; the TUI is
-   specified for p1 and not built yet.
+4. Follow `TUI-DESIGN.md` and the specification's interface scenarios; the TUI
+   implements part of p1, and the gate lists which p1 scenarios are delivered.
 
 ## Change a skill procedure
 

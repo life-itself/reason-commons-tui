@@ -6,8 +6,8 @@ How we develop (method, workflow, testing, recipes) is in
 Read `ARCHITECTURE.md` and the owning `src/reason_commons/domain/CONTEXT.md`
 before changing case behavior. The existing specification and its scenario-local
 delivery tags define scope. P0 is implemented; a personal-use TUI slice exists. Of p1, 28 of 32
-scenarios are delivered (the gate lists which); of p2, only the trees-in-conversation scenarios
-(S128–S134).
+scenarios are delivered (the gate lists which); of p2, the trees-in-conversation scenarios
+(S128–S134) and deciding what enters the model (S135–S147).
 
 Keep domain knowledge in the context/model and acceptance behavior in `.feature`
 files. Skills consult those artifacts and call application capabilities. Domain

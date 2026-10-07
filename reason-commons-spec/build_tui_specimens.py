@@ -89,7 +89,9 @@ def joint_inference_diagram(compact=False):
 
 
 def prose(text, width=118):
-    return '\n'.join(fill(p, width=width) if p else '' for p in text.strip().split('\n')) + '\n\n'
+    # Ledger lines are records, not prose: wrapping one would hide it from the checker.
+    return '\n'.join(fill(p, width=width) if p and not p.startswith('EVENT ') else p
+                     for p in text.strip().split('\n')) + '\n\n'
 
 
 def frame(sid, rev, title, body, *, focus='Response', view='Next', draft='',
@@ -741,7 +743,7 @@ def build_mvp():
         return prose(text, width=78)
     out = [prose80('''REASON COMMONS / FIRST-RELEASE TUI JOURNEY
 Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
-Fictional Forge case; not implemented software. Frames are 80x24. V1 has no structured graph browser, participant stance registry or formal tree authoring. Its persistent workspace, literal response editor, visible local controls and forecast/result comparison ARE required from p1-p2. No typed commands are needed inside this session.
+Fictional Forge case; an authored specimen, not a recording of the application. Frames are 80x24. V1 has no structured graph browser, participant stance registry or formal tree authoring. Its persistent workspace, literal response editor, visible local controls, proposals that wait for the operator and forecast/result comparison ARE required from p1-p2. No typed commands are needed inside this session.
 $ reason-commons new forge --store ./forge-v1 --speaker Sam
 EVENT start r0000
 ''')]
@@ -764,18 +766,22 @@ EVENT start r0000
 EVENT semantic in001 r0001 question001
 '''))
     out.append(s('M02', 'r0001', 'question001 / Choose a test', '''
-        SUCCESS / >=90% October due orders on original dates; Oct 30 review
-        BASELINE / September 32/50 = 64%, reported by Sam
-        Protect overtime <=20h EACH week; defects <=2% inspected units/week.
-        Other people's agreement and authority remain unknown.
+        PROPOSED from your words / waiting for you; not yet in the model
+          Goal: >=90% October due orders on original dates; review Oct 30
+          Baseline: September 32/50 = 64%, reported by Sam
+          Protect: overtime <=20h EACH week; defects <=2% inspected units/week
+        [Accept all]  [Backlog]   Accepting admits it; it does not prove it.
 
         DECISION / What change can you authorize and observe?
         Choose a small trial with an original forecast we can review later.
+        Other people's agreement and authority remain unknown.
         [Goal]  [Reported sources]  [Explain this]  [Other moves]
-        ''', live='question001'))
-    out.append(prose80('''ACTION: Sam types a draft "5 requests?", then Tabs to Other moves and presses Enter. This menu keeps the question and draft. No consultant call has been made.
+        ''', live='question001', summary='Goal proposed, waiting | Safeguards proposed | No test'))
+    out.append(prose80('''ACTION: Sam Tabs to Accept all and presses Enter. The goal with its baseline and protections enters the model in one local revision; no consultant call. The band now shows the accepted goal.
+EVENT local r0002 target=G1@1 dimension=membership value=accepted actor=Sam
+ACTION: Sam types a draft "5 requests?", then Tabs to Other moves and presses Enter. This menu keeps the question and draft. No consultant call has been made.
 '''))
-    out.append(frame('M02A', 'r0001', 'Other moves', '''
+    out.append(frame('M02A', 'r0002', 'Other moves', '''
         Choose a route. Nothing is sent until you activate an item.
 
         > Understand why this question    LOCAL: saved explanation
@@ -793,25 +799,30 @@ EVENT semantic in001 r0001 question001
         buttons='[Return to question]  [Help]  [Views]  [Actions]'))
     out.append(prose80('''ACTION: Sam activates the selected Understand why this question item. The local Explain this view says: A bounded trial and prospective forecast let you compare results later, while protecting overtime and defects. The question asks for work you can authorize. Esc restores the same question, draft and cursor; no call. Sam replaces the draft and sends:
 I have authority to name a triage owner and backup before Oct 5. Rehearse two requests; both roles must explain response and escalation before start. Pilot daily triage Oct 5-16; review Oct 19. Predict delivery >=80%, urgent acknowledgement >=95% within 24h. Retain overtime/defect bounds. Record original dates, mix, suppliers and rule use. Stop expansion on any breach. If either role cannot explain escalation, resolve that before start. Urgent fulfillment is a separate unknown.
-EVENT semantic in002 r0002 question002
+EVENT semantic in002 r0003 question002
 '''))
-    out.append(s('M03', 'r0002', 'question002 / Prepare P1@1', '''
-        P1@1 ORIGINAL / saved before results / Oct 5-16; review Oct 19
+    out.append(s('M03', 'r0003', 'question002 / Prepare P1@1', '''
+        PROPOSED / waiting for you: test P1@1 and its preparation action
+        P1@1 forecast, saved before results / Oct 5-16; review Oct 19
         Forecast: delivery >=80%; urgent acknowledgement >=95% within 24h.
         Protect overtime <=20h EACH week; defects <=2% inspected units/week.
         Owner and stop authority: Sam declares both; no expansion on breach.
         ACTION: name owner/backup and rehearse two requests before Oct 5.
         EXPECTED STATE: both roles can explain response and escalation.
-        Execution: NOT STARTED | expected state: UNKNOWN
-        No reminder scheduled. Urgent-need fulfillment: UNKNOWN.
+        Execution: NOT STARTED | expected state: UNKNOWN | no reminder scheduled
+        Urgent-need fulfillment: UNKNOWN.
+        [Accept all]  [Backlog]  [Original forecast]  [Sources]
         DECISION / What happens when you perform this preparation?
-        [Original forecast]  [Action]  [Observation fields]  [Sources]
         ''', live='question002'))
-    out.append(prose80('''ACTION: Sam answers: I named owner and backup today. Rehearsal has not happened; I do not know whether they can explain the rule.
-EVENT semantic in003 r0003 question003
+    out.append(prose80('''ACTION: Sam activates Accept all. P1@1 and its action enter the model; one local revision, no call.
+EVENT local r0004 target=P1@1,A1@1 dimension=membership value=accepted actor=Sam
+ACTION: Sam opens Actions > Accept proposals automatically and confirms. From now on a reply's ready proposals enter the model with the reply, recorded as accepted under Sam's setting, and each can be undone from History. Proposals already waiting would keep waiting; none are. No call.
+EVENT local r0005 target=case dimension=acceptance value=automatic actor=Sam
+ACTION: Sam answers: I named owner and backup today. Rehearsal has not happened; I do not know whether they can explain the rule.
+EVENT semantic in003 r0006 question003
 '''))
-    out.append(s('M04', 'r0003', 'question003 / Observe the result', '''
-        PREPARATION / reported by Sam
+    out.append(s('M04', 'r0006', 'question003 / Observe the result', '''
+        PREPARATION / reported by Sam; added under Sam's setting, can be undone
         +-- ACTION ---------------------+ +-- EXPECTED STATE --------------------+
         | Roles named: COMPLETED        | | Rule understood: UNKNOWN             |
         +-------------------------------+ +--------------------------------------+
@@ -824,11 +835,11 @@ EVENT semantic in003 r0003 question003
         ''', live='question003'))
     out.append(prose80('''ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save and quit. Local export and cursor save, no call.
 $ reason-commons resume ./forge-v1
-M04 is restored at r0003 with Observe the result as the current question. Goal, safeguards and P1 remain pinned; preparation state still unobserved. No consultant call.
+M04 is restored at r0006 with Observe the result as the current question. Goal, safeguards and P1 remain pinned; preparation state still unobserved. No consultant call.
 ACTION: Sam submits: Both roles correctly explained response and escalation in the two rehearsals. Pilot then ran as planned. Fifty due orders, 40 on time. Overtime 18h then 19h; defects 1/50 then 0/50 inspected units. Urgent acknowledgements 18/20 within 24h. Original dates unchanged; similar mix but steadier suppliers. This does not isolate triage as cause.
-EVENT semantic in004 r0004 question004
+EVENT semantic in004 r0007 question004
 '''))
-    out.append(s('M05', 'r0004', 'question004 / Review P1', '''
+    out.append(s('M05', 'r0007', 'question004 / Review P1', '''
         ! Urgent acknowledgement BREACH: 18/20 = 90%, original bound >=95%
         MEASURE             ORIGINAL             REPORTED RESULT
         Delivery            >=80%                40/50 = 80% supported
@@ -841,9 +852,9 @@ EVENT semantic in004 r0004 question004
         [Original forecast]  [Source report]  [Other moves]
         ''', live='question004', summary='! Acknowledgement BREACH 90% <95% | Goal >=90% remains unmet'))
     out.append(prose80('''ACTION: Sam answers: They waited for supplier dates. The owner thought the first response must promise a final date. We can acknowledge receipt before that date is known.
-EVENT semantic in005 r0005 question005
+EVENT semantic in005 r0008 question005
 '''))
-    out.append(s('M06', 'r0005', 'question005 / Adapt the trial', '''
+    out.append(s('M06', 'r0008', 'question005 / Adapt the trial', '''
         RECOMMENDATION / separate receipt acknowledgement from date commitment
         Expected effect: supplier uncertainty no longer blocks acknowledgement.
         Need: respond promptly without inventing a delivery promise.
@@ -854,9 +865,9 @@ EVENT semantic in005 r0005 question005
         [Draft follow-up]  [Original P1]  [Ask a different question]
         ''', live='question005', summary='! P1 acknowledgement breach retained | Follow-up proposed'))
     out.append(prose80('''ACTION: Sam answers: I will run the follow-up Oct 20-30; review Oct 30. Acknowledge receipt within 24h without waiting for supplier dates. Predict delivery >=80% and acknowledgement >=95%/24h. Retain overtime <=20h each week and defects <=2% weekly; record mix, suppliers, rule use and whether urgent needs were served. Stop expansion and escalate an unserved need or safeguard breach to me.
-EVENT semantic in006 r0006 question006
+EVENT semantic in006 r0009 question006
 '''))
-    out.append(s('M07', 'r0006', 'question006 / Follow-up saved', '''
+    out.append(s('M07', 'r0009', 'question006 / Follow-up saved', '''
         P2@1 prospective / Sam's explicit bounded commitment / Oct 20-30
         Review Oct 30; no reminder scheduled.
         Predict delivery >=80%; acknowledgement >=95% within 24h.
@@ -870,7 +881,7 @@ EVENT semantic in006 r0006 question006
         ''', live='question006', summary='P1 breach retained | P2 committed | Goal >=90% remains unmet'))
     out.append(prose80('''ACTION: Actions > Export portable case > ./forge-v1-after-review.reasoncase; Actions > Save and quit. No call.
 CONSULTANT CALLS 6: in001 through in006.
-6 reasoning revisions = 6 semantic commits + 0 structured local decisions.
+9 reasoning revisions = 6 semantic commits + 3 structured local decisions.
 '''))
     return ''.join(out)
 

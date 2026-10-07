@@ -40,7 +40,9 @@ The destination folder must not exist yet. The copy carries the whole history.
 Trees can travel on their own as an `.ltp.yaml` file, the format the
 [Reason Commons guide](https://github.com/life-itself/reasoncommons/tree/main/ltp)
 uses. In the workspace, press **Ctrl+P** and choose **Import trees** or **Export
-trees**. Imported trees join the ones already in the goal; anything the trees
+trees**. What a file brings in waits in **Backlog** until you accept it, then joins
+the trees already in the goal; the file's goal is proposed as your goal, or as a new
+version of it. Anything the trees
 cannot draw yet, such as a joint cause, is kept as a note.
 
 From the command line:

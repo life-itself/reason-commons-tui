@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 import unittest
 
-from check_bundle import (parse_scenarios, select_scenarios, validate_scope,
-                          validate_tui_frames, validate_tui_ledger, validate_interface_language)
+from check_bundle import (parse_scenarios, select_scenarios, validate_scope, validate_tui_frames,
+                          validate_tui_ledger, validate_interface_language, validate_v1_decisions)
 
 VALID = '''@J01
 Feature: Fixture
@@ -123,6 +123,30 @@ class TuiSpecimenChecks(unittest.TestCase):
 
     def test_local_decision_requires_exact_version(self):
         modified = self.text.replace('target=L3@1 dimension=belief', 'target=L3 dimension=belief')
+        self.assertTrue(any('exact-version' in e for e in validate_tui_ledger(modified, self.config)))
+
+
+class V1SessionChecks(unittest.TestCase):
+    def setUp(self):
+        root = Path(__file__).parent
+        self.text = (root / 'example-mvp-session.txt').read_text()
+        self.config = json.loads((root / 'delivery-phases.json').read_text())['sessions']['example-mvp-session.txt']
+
+    def test_current_v1_session(self):
+        self.assertEqual(validate_tui_frames(self.text, 80), [])
+        self.assertEqual(validate_tui_ledger(self.text, self.config), [])
+        self.assertEqual(validate_v1_decisions(self.text), [])
+
+    def test_accepting_proposals_is_a_v1_decision_but_a_stance_is_not(self):
+        accept = 'dimension=membership value=accepted'
+        self.assertIn(accept, self.text)
+        stance = self.text.replace(accept, 'dimension=belief value=supported', 1)
+        self.assertTrue(validate_v1_decisions(stance))
+
+    def test_the_acceptance_setting_targets_the_case(self):
+        setting = 'target=case dimension=acceptance'
+        self.assertIn(setting, self.text)
+        modified = self.text.replace(setting, 'target=G1@1 dimension=acceptance', 1)
         self.assertTrue(any('exact-version' in e for e in validate_tui_ledger(modified, self.config)))
 
 

@@ -17,7 +17,7 @@ Feature: Preserve the case across sessions and failures
     When a valid semantic response is committed
     Then a complete revision 14 is available with parent 13 and source input references
     And revision 13 remains byte-for-byte unchanged
-    And the intervention and its supported goal, note, or test updates appear together
+    And the intervention and the goal, note, test or tree updates it proposes appear together
     And "saved" is shown only after the local commit succeeds
 
   @S41 @p3 @later @automated
@@ -47,7 +47,7 @@ Feature: Preserve the case across sessions and failures
     Then the current question and committed reasoning revision remain unchanged
     And "Input retained; consultant unavailable" is displayed with a visible Retry retained input control
     When Sam retries "in014" successfully
-    Then the accepted response creates exactly one committed intervention and one revision
+    Then the valid response creates exactly one committed intervention and one revision
     And the failed attempt is preserved separately from reasoning revisions
 
   @S44 @p0 @v1 @automated
@@ -70,7 +70,7 @@ Feature: Preserve the case across sessions and failures
   @S46 @p0 @v1 @automated
   Scenario: Detect stale work instead of silently overwriting another update
     Given an adapter request was based on revision 14
-    And the case has advanced to revision 15
+    And a reply to another input has advanced the case to revision 15 with a new question
     When that adapter response arrives
     Then it is not applied to revision 15
     And the receipt offers a re-evaluation against the current revision

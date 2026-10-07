@@ -1,7 +1,9 @@
 # Reason Commons: a consulting apparatus for collective reasoning
 
 The product is **Reason Commons**; its shell executable is `reason-commons`.
-This is a proposed specification, not implemented software.
+This is the product specification. The application in this repository delivers
+part of it: the delivery tags below say when each requirement is due, and
+[the delivery report](../docs/p0-delivery.md) says which scenarios run today.
 The terminal output later in this document is an illustrative session. Its
 organization, people, measurements, commitments, and dates are fictional.
 
@@ -41,10 +43,15 @@ The first release proves one useful loop: define success, choose a bounded
 change, record an immediate action and prospective prediction, return with
 observations, and decide what to do next. One operator uses a persistent TUI with
 attributed notes, visible local controls and a consultant. The six thinking-process
-trees grow in that conversation: the consultant records each stated cause, need,
+trees grow in that conversation: the consultant proposes each stated cause, need,
 conflict, obstacle or action as a claim in its tree, joined by single typed links,
-and the TUI draws them. Joint premise groups, rival routes, dependent review and
-group stance work are later capabilities. Unknown facts and authority remain explicit.
+and the TUI draws them. The consultant drafts; the operator decides what enters the
+model. Proposals wait in a backlog, in the order they are best decided, until the
+operator accepts them, unless the operator has set the case to accept them
+automatically. A change asks for review of whatever explicitly cites what it
+changed, and any acceptance can be undone (section 2F). Joint premise groups, rival
+routes, review of consequences that no reference records, and group stance work
+are later capabilities. Unknown facts and authority remain explicit.
 
 This section controls the release scope of every later requirement, action,
 state field, screen and example. Sections 1-4 and 6a describe the cumulative
@@ -57,15 +64,15 @@ artifact scope. Gherkin delivery tags are on scenarios, not whole features.
 |---|---|---|
 | `@p0` | Durable minimal case, atomic commits, recovery, export/import, profile validation | v1 foundation |
 | `@p1` | Persistent TUI, literal editor, local views, focus/draft recovery, accessible linear alternative | v1 interaction |
-| `@p2` | Goal, bounded test, immediate action, observations, original-forecast review; trees grown in conversation with LTP 1.0 import/export | v1 complete loop |
-| `@p3` | Joint premise groups and rival routes, WIP integration, comparisons, goal connections, dependency reviews | Later causal release |
+| `@p2` | Goal, bounded test, immediate action, observations, original-forecast review; trees grown in conversation with LTP 1.0 import/export; proposals decided in a backlog, review flags and undo | v1 complete loop |
+| `@p3` | Joint premise groups and rival routes, WIP integration, comparisons, goal connections, correction receipts and review records | Later causal release |
 | `@p4` | Structured participant stances, speaker switching, reliance, scoped Cloud | Later facilitated group release |
 | `@p5` | Full Goal/Future/Prerequisite/Transition views, negative branches, cross-tool reviews | Later full-tools release |
 
 V1 ships only p0-p2. Later phases build cumulatively and preserve earlier
 contracts. A development phase is not a sequence users must follow in a case.
 The consultant may discuss causes, conflicts, or obstacles in plain language
-in v1 and record what the participant states in the trees. Recording is never a
+in v1 and propose what the participant states for the trees. Recording is never a
 prerequisite: an empty or partial tree is normal, and no tree gates a test.
 
 ### V1 behavior and explicit exclusions
@@ -74,19 +81,28 @@ V1 records a versioned goal with scope, horizon, measure, baseline, and protecte
 conditions; attributed notes; interventions with decision purpose and rationale;
 bounded tests with forecasts; immediate actions; and observations/reviews.
 It also records tree claims (tree, role, statement, basis), single typed links
-between claims of one tree with an optional assumption, retractions, and
-replacements that reword a claim while keeping its links. A test may name the
-tree claim it carries out. The vocabulary is LTP 1.0 from the reasoncommons
-guide, so trees import from and export to `.ltp.yaml` files. Imports go through
-the ordinary retained-input and publication path; what the trees cannot hold
-(joint premises, cross-tree links, assessments) is kept as labelled notes.
-It stores unknowns rather than manufacturing completeness. It distinguishes
-completed work, observed effects, supported predictions, and goal attainment.
-An explicit goal-version reference lets a changed goal flag a test's relevance
-for review without building a general dependency engine.
+with an optional assumption, retractions, and new versions that reword a claim
+while keeping its links. A link belongs to one tree and may use a statement from
+another, such as a Future Reality link from the Cloud's injection. The case has
+one goal, and it is the Goal Tree's top statement: there is no second copy of it
+among the tree claims. A test may name the tree claim it carries out. The
+vocabulary is LTP 1.0 from the reasoncommons guide, so trees import from and
+export to `.ltp.yaml` files. Imports go through the ordinary retained-input path
+and wait in the backlog like any proposal; a file's Goal Tree goal is proposed as
+the case's goal, or as a new version of it. What the trees cannot hold (joint
+premises, assessments) is kept as labelled notes. It stores unknowns rather than
+manufacturing completeness. It distinguishes completed work, observed effects,
+supported predictions, and goal attainment. Every record the consultant proposes
+waits for the operator's decision (section 2F); the decisions, the acceptance
+setting, review flags and undo are recorded too. Explicit references let a change
+flag whatever cites it for review without a general dependency engine that
+guesses at consequences.
 
-V1 controls are Send, Explain this, Other moves, Goal, Trees, Tests, Actions and
-History, plus source and current-test inspection. The visible Views/Actions
+V1 controls are Send, Explain this, Other moves, Backlog, Goal, Trees, Tests,
+Actions and History, plus source and current-test inspection. Accept and Reject
+act on a selected proposal or on everything one reply proposed; Undo acts on an
+accepted change; Still holds closes a review flag; Actions changes whether the
+case accepts proposals automatically. The visible Views/Actions
 controls provide navigation, export, retry, Help and Save and quit. They are
 keyboard reachable without command syntax. Display only capabilities enabled
 by the case profile. V1 uses one declared operator; structured speaker switching,
@@ -135,12 +151,14 @@ particular organizational intervention will succeed.
 | J14 | We must stop, resume, inspect history, or transfer the case | Preserve a portable record independent of a provider conversation | Work survives interruption and can be inherited | A fresh offline process restores the case, cursor, draft, sources, dissent, and forecasts |
 | J15 | The provider, parser, or storage fails | Understand what was retained and recover without duplicate work | We can trust the apparatus | Failure receipts distinguish retained input, pending reasoning, and committed revisions |
 | J16 | We use a narrow terminal, a screen reader, multiline notes, or unfamiliar commands | Understand the interface and control what is submitted | The interaction supports our thinking rather than consuming it | Visible local actions, numeric answers, text equivalents, wrapping, and draft preservation |
+| J17 | The consultant interprets what we said | Decide what enters our model, in the order the decisions depend on each other, and undo what we later doubt | Our model holds only reasoning we admitted, and we see what a change puts in question | Proposals wait with their source unless we chose automatic acceptance; the backlog orders them; a change flags what cites it; every acceptance can be undone |
 
 There are two outcome families to evaluate. Organizational outcomes are the
 group's chosen goal measures and protected conditions. Capability outcomes are
 whether participants can make a similar reasoning move later with less help,
-including identifying a condition or counterexample on a new case. reply count,
-agreement with the consultant, and an empty WIP list are not success measures.
+including identifying a condition or counterexample on a new case. Reply count,
+agreement with the consultant, the number of accepted proposals, and an empty WIP
+list or backlog are not success measures.
 
 ## 2. The product contract
 
@@ -191,7 +209,8 @@ even if it was displayed earlier. A saved case with an unknown goal displays
 Unresolved breaches and storage/provider failures take precedence over routine
 focus in every affected view: name the breached condition and current value,
 or distinguish retained input from uncommitted reasoning. Case context also
-shows full model/WIP status, attribution, response target, and pending inputs.
+shows full model/WIP status, attribution, response target, pending inputs,
+waiting proposals and open review flags.
 Actions > Display > Expanded repeats this context; Compact is the default. Both are persisted cursor
 preferences, with no reasoning revision or consultant call. Display density cannot hide an active breach.
 
@@ -202,21 +221,29 @@ premises. Navigation restores draft, caret, selected object, semantic scroll
 anchor and live target. Incoming output cannot steal inspection focus. The
 accessible ordered presentation uses recoverable scrollback and ordered snapshots.
 Machine output and shell inspection omit interactive furniture. All displayed
-facts come from committed state, with draft/pending changes separated. An archived question's original goal never replaces the current one.
+facts come from committed state, with draft/pending changes separated. A proposal is labelled proposed wherever it appears and is never drawn as part of the model. An archived question's original goal never replaces the current one.
 
 ### C. Model membership is separate from epistemic status
 
 Use consistent visible terms: observation, claim, cause, assumption, conflict,
-proposed change, obstacle, WIP, supported, disputed, and unknown. Explain TOC
-terms where useful: an undesirable effect is an unwanted condition; an
-injection is a proposed change. Do not make users learn the vocabulary first.
+change we make, obstacle, WIP, proposal, supported, disputed, and unknown.
+Explain TOC terms where useful: an undesirable effect is an unwanted condition;
+an injection is a change we would make. *Proposal* and *proposed* keep one
+meaning: something the consultant drafted that is not yet in the model. Do not
+make users learn the vocabulary first.
 
 Each proposition has a stable ID, wording/version, source, source date or
-unknown, kind, membership, and support. A statement can be in the model and
-still be a hypothesis or disputed. WIP means not yet integrated into a coherent
-relationship, not false, unimportant, or forbidden to use as evidence.
-Promotion into a graph preserves the original contribution. Similar wording
-does not justify a silent merge. Retired links remain in history.
+unknown, kind, membership, and support. Membership says whether it is part of
+the working model. A consultant's proposal is *proposed*: it waits in the
+backlog and changes nothing in the model until it is *accepted*; it may instead
+be *rejected*, and an accepted one may later be *undone* (section 2F). Accepting
+admits a statement into the working model. It does not make it true, record
+anyone's belief, or authorize acting on it: a statement can be in the model and
+still be a hypothesis or disputed. WIP (shown as Unlinked, p3) is a different
+state inside the model: accepted material not yet integrated into a coherent
+relationship, not false, unimportant, or forbidden to use as evidence. Promotion
+into a graph preserves the original contribution. Similar wording does not
+justify a silent merge. Retired links remain in history.
 
 WIP entry IDs and proposition IDs have different roles. For example, W1 can
 point to proposition N2 before N2 is linked. Connecting N2 changes membership,
@@ -267,6 +294,90 @@ group; the application does not infer it from majority, seniority, or typing acc
 Simultaneous authenticated collaboration can be added later. It is not implied
 by this facilitated-group increment.
 
+### F. The consultant drafts; the operator decides what enters the model
+
+The case keeps three things apart: what the operator said, what the consultant
+proposes it means, and what the operator has admitted into their model. Raw input
+is retained first and stays available with its source. The consultant then drafts
+candidate reasoning from it: goal changes, notes, tests, actions, observations,
+reviews, tree statements, links, new wordings and withdrawals. Each proposal cites
+the words it came from and may carry the consultant's confidence that it represents
+them faithfully. Drafting is automatic; entry into the model is a decision.
+
+The goal, the six trees and the tests are one model, not separate concerns. The
+case has one goal; it is the Goal Tree's top statement, and every change to it is
+a new version of that goal. A test carries out a tree statement and serves the
+goal; a link may use a statement from another tree, which stays one statement in
+both. The backlog therefore holds every proposed change to the model, whatever
+part it touches, and one set of rules decides them.
+
+**Acceptance setting.** Each case says how proposals enter the model. *Hold
+proposals for review* is the default: proposals wait in the backlog while the
+conversation continues. *Accept proposals automatically* delegates acceptance to
+the application: a reply's proposals that are ready (below) enter the model in the
+same revision that publishes the next question, recorded as accepted under the
+operator's setting. Both use the same validation, sources and history. Only the
+operator changes the setting, as a recorded local decision; a consultant reply
+cannot, and a skill can only where its host was explicitly granted that
+capability. A change applies to later replies; proposals already waiting keep
+waiting. V1 records any confidence the consultant gives but neither shows it nor
+lets it decide. A later setting may accept automatically above a threshold, once
+recorded decisions show how well that confidence predicts the operator's own.
+
+**Accept and reject.** A proposal is *ready* when everything it cites is in the
+model. Accepting one also accepts the waiting proposals it needs, and rejecting one
+also rejects the waiting proposals that need it; in both cases the operator sees
+the full list before confirming. Everything one reply proposed can be accepted in
+one action, so admission never becomes a confirmation ritual; individual proposals
+can still be inspected, rejected or left waiting. Acceptance is atomic: one local
+revision, no consultant call, recording who decided, when, and whether explicitly
+or under the setting. A rejection is final for that proposal; the consultant may
+propose the same idea again as a new proposal. A proposal is checked again when it
+is accepted, against the model as it then stands.
+
+**Order.** The backlog lists entries in the order they are best decided. Logical
+dependence is a rule: a proposal comes after anything it cites that is still
+waiting, and says what it waits for. Methodological order is advice among the
+rest: a new version of the goal first, then the Goal Tree, Current Reality Tree,
+Evaporating Cloud, Future Reality Tree, Prerequisite Tree and Transition Tree,
+then tests, actions, observations, reviews and notes; older entries before newer.
+A proposed new goal is marked to be decided first, because the rest is judged
+against it, but it blocks nothing: an observation or an independently supported
+cause can be accepted while the goal is still open.
+
+**Review flags and cascades.** When an accepted change gives a record a new
+version, withdraws it, or undoes it, everything in the model that explicitly cites
+it is flagged for review: the links that join it (in any tree), a test that carries
+it out, a test that serves a changed goal. A flag names the change that raised it.
+It changes nothing and claims nothing is false; observations and unaffected
+branches stay usable. It closes when the flagged record gets a new version or
+leaves the model, or when the operator says it still holds. Each change flags only
+what cites it directly, so a consequence travels one explicit step at a time: if
+reviewing a flagged Cloud link leads the operator to accept a new wording of the
+injection it joins, the Future Reality links that use that injection are flagged
+in turn. The consultant sees open flags and may propose amendments; the operator
+can also ask it about them directly. Its amendments are proposals like any other:
+they wait, or are accepted automatically under that setting. A consequence the
+consultant only suspects stays a proposal or a question; it never gains blocking
+authority on its own.
+
+**Undo.** Every acceptance, explicit or automatic, can be undone. Undo appends a
+local revision that takes the accepted records out of the model, together with
+whatever cannot stand without them (the links of an undone statement), and closes
+waiting proposals that cite them; records that cite them in another way are
+flagged. The operator sees all of this before confirming. Later, unrelated changes
+stay. History keeps the original words, the proposal, its acceptance and the undo.
+An undo is final: it cannot itself be undone, and undone proposals do not return
+to the backlog. Undo reverses one change; Restore reasoning (p3, S41) brings back a
+whole earlier state.
+
+**Timing and earlier cases.** Accepting, rejecting, undoing or changing the setting
+while the consultant is working does not make its reply stale; the reply's
+proposals are checked against the model as it stands when they arrive. Only a
+newer consultant question makes a pending reply stale. Cases recorded before this
+contract open unchanged: everything already in them is in the model, and their
+history reads as it did.
+
 ## 3. Workspace interaction and the consultant boundary
 
 This section defines the only human interaction model. Every ordinary workflow
@@ -294,6 +405,12 @@ No walkthrough, assent, prescribed answer or TOC vocabulary lesson gates action.
 | Explain this | Opens stored rationale and a worked reading of the current fragment | Local; no call |
 | Other moves | Shows alternatives with their consequences before activation | Each item says local or asks consultant |
 | Goal / Tests / Actions / History | Opens saved records; selecting a row opens its detail | Local; no call |
+| Backlog | Lists proposals and review flags in the order they are best decided | Local; no call |
+| Selected proposal > Accept / Reject | Admits it with what it needs, or rejects it with what needs it; Accept all takes everything one reply proposed | Local reasoning update; no call |
+| Selected review flag > Still holds | Closes the flag and records the operator's decision | Local reasoning update; no call |
+| History > Undo this change | Takes an accepted change out of the model with what cannot stand without it | Local reasoning update; final; no call |
+| Actions > Accept proposals automatically / Hold proposals for review | Changes how later replies' proposals enter the model | Local; recorded; no call |
+| Backlog > Ask about open reviews | Asks the consultant to draft amendments for flagged records | Asks consultant; one request |
 | Reasoning / Unlinked (p3+) | Explores stored relationships or original reports | Local; no call |
 | Selected object > Evidence / Changes / Details | Inspects exact wording, version, sources and history | Local; no call |
 | Selected relation > Record position (p4+) | Opens independent attributed position fields | Local; saves only explicit choices |
@@ -336,7 +453,8 @@ Browsing History does not retarget Send or restore old reasoning. A historical
 question is read-only; Actions > Answer this earlier question explicitly selects
 it while interpreting the response against current case state. Restore reasoning
 is a separately labeled action that previews its source revision and appends a
-new revision; it cannot rewind allocation or audit history.
+new revision; it cannot rewind allocation or audit history. Undo reverses one
+accepted change (section 2F) and is a different action.
 
 Bind menu items and forms to their owning question, menu identity, base revision,
 exact object versions, actor and displayed action mapping. A changed target,
@@ -375,7 +493,7 @@ not invent replacement wording; offer Return to question to propose a correction
 ### Waiting, failure and recovery
 
 Retain raw input before a request. Show Input retained separately from Revision
-saved. Keep inspection usable while waiting; completion announces Answer ready
+saved. Keep inspection, and decisions about waiting proposals, usable while waiting; completion announces Answer ready
 without moving view, selection or focus. Return to question shows the committed
 response. A failed request keeps its draft, provenance and live target and offers
 Retry retained input, Inspect receipt, Copy response and Back as applicable.
@@ -442,8 +560,10 @@ the records listed in section 0; later fields arrive with their phases.
 Every successful reasoning transaction creates a complete YAML snapshot with
 schema version, case ID, revision ID, parent ID, timestamp and timezone, sources,
 goal, measurements, propositions, relationships, WIP, hypotheses, stances,
-interventions/options, tests/predictions/outcomes, and consequential events. A human
-structured decision can therefore create a revision without a new consultant
+interventions/options, tests/predictions/outcomes, proposals and the decisions on
+them, review flags, the acceptance setting, and consequential events. A human
+structured decision (accepting, rejecting, undoing, closing a flag, changing the
+setting) therefore creates a revision without a consultant call or a new
 intervention. A navigation operation does neither. A semantic response may create a
 intervention with no graph change. Revision and intervention numbers are independent.
 Snapshots also record applied request IDs and consultant-method/adapter
@@ -489,19 +609,26 @@ not part of a case. Import verifies schema, references, and hashes before use.
    use an explicit context index with local read access for referenced records;
    an omitted item is not evidence that it does not exist.
 3. Receive a structured proposal. Validate schema, references, object versions,
-   allowed update types, and unchanged base revision. Evidence/support cannot
+   allowed update types, and an unchanged response target (local decisions
+   recorded since the input do not make it stale). Evidence/support cannot
    be upgraded without cited input; the model cannot fabricate participant
    stances. Normalize IDs locally and validate the complete result.
-4. Write and flush a complete new snapshot; atomically publish the manifest
-   pointer after the snapshot is complete. Record a completed receipt keyed by
-   request ID. Treat a request as applied at most once. Display "saved" only
-   after this commit succeeds.
+4. Write and flush a complete new snapshot holding the next intervention and
+   the proposed updates as proposals; under automatic acceptance the same
+   snapshot records the acceptance of those that are ready. Atomically publish
+   the manifest pointer after the snapshot is complete. Record a completed
+   receipt keyed by request ID. Treat a request as applied at most once.
+   Display "saved" only after this commit succeeds.
 5. On restart, recover the last complete published revision. Incomplete or
    orphaned writes are not silently treated as applied. A response received
    but not committed can be retried as a commit after validation; no duplicate
    consultant call is needed just to recover a completed response.
+6. A local decision (accept, reject, undo, still holds, the acceptance setting)
+   is validated against the current revision, including the readiness of what
+   it accepts, and published the same way as a complete snapshot, with no
+   consultant call.
 
-A writer lock rejects a second editing process. Base-revision checks also
+A writer lock rejects a second editing process. Response-target checks also
 reject a stale response. A later collaboration backend would need an explicit
 concurrency/merge contract; filesystem synchronization alone does not provide it.
 
@@ -543,9 +670,10 @@ are resolved to stable IDs by the app. The app owns counters and timestamps.
 }
 ```
 
-The v1 adapter uses a smaller envelope and allowed-update registry. It needs
-no graph, relation, stance, or tree presentation fields. The following example
-assumes G1@1 and its protected conditions are already committed:
+The v1 adapter uses a smaller envelope and allowed-update registry. It needs no
+stance, comparison or diagram presentation fields; tree claims and links use the
+same `record_<kind>` updates as every other record. The following example assumes
+G1@1, its protected conditions and test P1@1 are already in the model:
 
 ```json
 {
@@ -567,26 +695,29 @@ assumes G1@1 and its protected conditions are already committed:
     ]
   },
   "proposed_updates": [
-    {"operation": "record_action_execution", "test_ref": "P1@1", "execution": "completed", "source_refs": ["in003"], "basis": "participant_report", "expected_state_attainment": "unknown"}
+    {"operation": "record_action", "data": {"statement": "Name the triage owner and backup", "test_ref": "P1@1", "execution": "completed", "expected_state_attainment": "unknown"}, "source_refs": ["in003"], "confidence": 0.9}
   ]
 }
 ```
 
-Schema/profile validation, explicit-input authority, unchanged base revision,
-and durable commit still apply. The v1 update registry permits goal/note/intervention,
-test/action, observation/review, and explicit goal-relevance review records.
-It does not permit an adapter to bypass the boundary by placing executable
+Schema/profile validation, explicit-input authority, an unchanged response
+target and durable commit still apply. The v1 update registry permits goal, note,
+test, action, observation, review, tree claim, link and retraction records, plus
+the intervention; each update may carry a `confidence` between 0 and 1. Every
+update becomes a proposal: the operator's decision, not the envelope, puts it in
+the model. It does not permit an adapter to bypass the boundary by placing executable
 later structures inside a generic note. Ordinary prose remains literal data.
 
-Automatically storing an interpretation as a draft or hypothesis is different
-from recording a human consequential commitment. Let people correct ordinary
-interpretations without approving every node. Only explicit input or a
-structured human action establishes assent, reliance, or ownership. Do not
-manufacture a confirmation loop after a commitment was already supplied.
+Drafting may be automatic; entry into the model is not. A proposal enters the
+model only by the operator's acceptance or under the automatic-acceptance setting
+the operator chose (section 2F). Acceptance is membership, not assent: only
+explicit input or a structured human action establishes assent, reliance, or
+ownership. Keep acceptance cheap: everything a reply proposed can be accepted in
+one action, and nothing asks again for a commitment already supplied.
 
 ## 5. Gherkin and traceability
 
-The twelve `.feature` files below are acceptance specifications, with examples
+The thirteen `.feature` files below are acceptance specifications, with examples
 expanding some outlines into multiple cases. Counts are in the bundle README.
 They are not implemented tests. Step definitions and provider adapters remain
 to be built. Deterministic scenarios should run against a fake consultant with
@@ -612,6 +743,7 @@ all failure branches. Every scenario still needs its own fixture and release gat
 | J01–J03, J06–J07, J09, J11–J16 | 10 goal progress and delivery | S91–S113 | M03–M07; R01–R04 | Goal connection, execution/attainment and dependent review |
 | J02–J03, J05–J07, J09, J12–J16 | 11 TUI workspace | S114–S127 | M01–M07; S01–S24; R01–R04 | Canonical interaction, async focus and complete diagrams |
 | J03, J07, J11–J12, J14 | 12 trees in conversation | S128–S134 | none yet | Claims and single links in six trees, rewording, LTP 1.0 import/export |
+| J07–J08, J14, J17 | 13 proposals and review | S135–S147 | M02–M03 | Backlog, acceptance setting, order, review flags, undo and one goal |
 
 ## 6. Build sequence
 
@@ -621,7 +753,8 @@ one semantic adapter and real first-time participants. A fake adapter isolates
 storage and interaction behavior but cannot establish consulting quality.
 
 Develop p3 only after v1 users show that the trees' explicit relationships help
-the next decision and need joint premises, rival routes or dependent review. Add p4 when facilitated use needs exact structured positions;
+the next decision and need joint premises, rival routes or review of consequences
+that no reference records. Add p4 when facilitated use needs exact structured positions;
 add p5 as particular cross-tool tasks justify it. Each later release passes
 its own new scenarios plus cumulative earlier regressions. A later feature
 cannot become a dependency of an earlier fixture or background.
@@ -977,8 +1110,9 @@ No complete tree or vocabulary lesson is required. (Paper sections 1, 4, 8–9.)
 ### Independent statuses from p2 through p5
 
 Basis identifies report, observation, hypothesis, or prediction. Review identifies
-proposed, supported in scope, disputed, or review needed. Model membership is
-separate and arrives in p3. State attainment identifies whether an expected
+unreviewed, supported in scope, disputed, or review needed. Model membership
+(proposed, in the model, rejected or undone) is separate and arrives in p2;
+unlinked material inside the model arrives in p3. State attainment identifies whether an expected
 state is unknown, unmet, or met according to cited evidence. Action execution
 identifies not started, in progress, completed, or interrupted. Participant
 representation, belief, and reliance arrive in p4 as separate dimensions.
@@ -1027,7 +1161,8 @@ unresolved unwanted effects, and threatened protections stay visible.
 
 ### Revision and review from p3
 
-A correction receipt shows earlier wording, new wording, supplied reason,
+P2 already flags whatever explicitly cites a changed record (section 2F). From
+p3, a correction receipt shows earlier wording, new wording, supplied reason,
 source, unchanged observations, and known dependent formulations requiring
 review. Explicit exact-version dependency references can generate local flags.
 Newly suspected semantic consequences require human or consultant judgment.
@@ -1053,12 +1188,14 @@ failure contingencies as well as action order. (Sections 5.1 and 5.5–5.6.)
 ### Wording and evaluation across delivered phases
 
 Titles name a task; prompts ask for one manageable contribution; receipts name
-what was saved; errors support recovery. No generic `Accept` control combines
-save, endorse, rely, execute, and observe. Use context-specific prompts such as
+what was saved; errors support recovery. No control combines save, endorse,
+rely, execute, and observe: Accept admits a proposal into the model and does
+nothing else. Use context-specific prompts such as
 `What else must be true?` and `Could the goal occur without this?`. Contribution
 routes are stored options with a visible local or consultant consequence; the
 route does not supply the contribution or infer a stance. Consequential wording
-is available for correction without making every update a confirmation ritual.
+is available for correction, and a reply's proposals are accepted together, so
+admission does not become a confirmation ritual.
 Learning probes are optional when learning is an explicit goal and required in
 appropriate evaluation; operational work can use external records.
 
@@ -1136,13 +1273,13 @@ Feature: Help a group make its next reasoning move
     Then the input is preserved with Sam's declared attribution
     And one prominent question asks what meaningful progress would look like and what must be protected
     And the visible context labels the goal as provisional
-    And the effects remain attributed notes with no invented relationships
+    And the effects are proposed as attributed notes with no invented relationships
 
   @S02 @p2 @v1 @semantic
   Scenario: Record a goal without inventing agreement or measures
     Given Sam proposes "At least 90% of orders on time by October 30"
     When the consultant creates the next useful response
-    Then the goal records Sam as its source
+    Then the goal it proposes records Sam as its source
     And absent baseline, scope, and protected conditions are shown as unknown
     And no other participant is recorded as agreeing
     And the next prompt addresses the most consequential missing item
@@ -1215,6 +1352,7 @@ Feature: Navigate without asking the consultant to think
       | History > Inspect the baseline   | archived Inspect the baseline  |
       | Help                             | control help                   |
       | Actions > Consultant calls       | adapter call count             |
+      | Backlog                          | proposals waiting for decision |
 
   @S08 @p1 @v1 @automated
   Scenario: Send a numeric answer from the literal editor
@@ -1547,7 +1685,7 @@ Feature: Preserve the case across sessions and failures
     When a valid semantic response is committed
     Then a complete revision 14 is available with parent 13 and source input references
     And revision 13 remains byte-for-byte unchanged
-    And the intervention and its supported goal, note, or test updates appear together
+    And the intervention and the goal, note, test or tree updates it proposes appear together
     And "saved" is shown only after the local commit succeeds
 
   @S41 @p3 @later @automated
@@ -1577,7 +1715,7 @@ Feature: Preserve the case across sessions and failures
     Then the current question and committed reasoning revision remain unchanged
     And "Input retained; consultant unavailable" is displayed with a visible Retry retained input control
     When Sam retries "in014" successfully
-    Then the accepted response creates exactly one committed intervention and one revision
+    Then the valid response creates exactly one committed intervention and one revision
     And the failed attempt is preserved separately from reasoning revisions
 
   @S44 @p0 @v1 @automated
@@ -1600,7 +1738,7 @@ Feature: Preserve the case across sessions and failures
   @S46 @p0 @v1 @automated
   Scenario: Detect stale work instead of silently overwriting another update
     Given an adapter request was based on revision 14
-    And the case has advanced to revision 15
+    And a reply to another input has advanced the case to revision 15 with a new question
     When that adapter response arrives
     Then it is not applied to revision 15
     And the receipt offers a re-evaluation against the current revision
@@ -1660,7 +1798,7 @@ Feature: Make the interface legible and the consultant evaluable
     Then all contributed information is accounted for in the receipt
     And no unsupported causal certainty, identity verification, or group assent is invented
     And exactly one next move or a justified stopping point is prominent
-    And any recorded update retains source references
+    And any proposed update retains source references
 
     Examples:
       | input                                             |
@@ -2188,7 +2326,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
 
   @S108 @p0 @v1 @automated
   Scenario: Reject an adapter update outside the delivered schema
-    Given the v1 schema allows only goal, note, intervention, test, action, observation, bounded review, and typed tree claim, link and retraction records
+    Given the v1 schema allows only goal, note, intervention, test, action, observation, bounded review, and typed tree claim, link and retraction records, and the operator's decisions about them
     When an adapter proposal includes an untyped relationship graph or structured stance update
     Then the entire proposal is rejected before commit
     And the raw input and failure receipt remain available
@@ -2369,15 +2507,18 @@ Feature: Work in a persistent terminal workspace from the first usable release
 @J03 @J07 @J11 @J12 @J14
 Feature: Grow the six thinking-process trees in conversation
   The trees use the LTP 1.0 vocabulary of the reasoncommons guide: a claim is one
-  sourced statement in one tree with a role; a link is one typed relation between
-  two claims of the same tree. Joint premise groups, rival routes and dependent
-  review stay with the later causal and full-tools releases.
+  sourced statement in one tree with a role; a link is one typed relation that
+  belongs to one tree and may reach a statement of another. The case's goal is the
+  Goal Tree's top statement. What the consultant proposes for the trees waits in
+  the backlog until the operator accepts it (feature 13). Joint premise groups and
+  rival routes stay with the later causal and full-tools releases.
 
   @S128 @p2 @v1 @automated
   Scenario: Record a reported cause and its effect in the Current Reality Tree
     Given a case whose goal is "A clear next step after open evenings"
     When the operator says "Newcomers do not know the next step, because we never offer one"
     And the consultant proposes a symptom, a cause and a causes link citing that input
+    And the operator accepts them
     Then the Current Reality Tree holds both statements and the link
     And the literal input remains the source of all three
     And the Trees view draws the symptom above its cause, labelled "because"
@@ -2392,7 +2533,8 @@ Feature: Grow the six thinking-process trees in conversation
     Examples:
       | record                                              |
       | a goal role in the Current Reality Tree             |
-      | a link between claims of two different trees        |
+      | a statement in the goal role, beside the case goal  |
+      | a link whose claims both belong to other trees      |
       | a link from a claim to itself                       |
       | a link to a claim proposed after the link           |
       | a link with a relation outside the LTP vocabulary   |
@@ -2400,16 +2542,18 @@ Feature: Grow the six thinking-process trees in conversation
   @S130 @p2 @v1 @automated
   Scenario: Reword and withdraw without rewriting history
     Given a Current Reality Tree with a symptom, a cause and a causes link
-    When the operator asks to word the cause more precisely and the consultant replaces it
+    When the operator asks to word the cause more precisely and accepts the consultant's new wording
     Then the tree shows the new wording, still linked to the symptom
+    And the link is flagged for review because it was stated for the earlier wording
     And the earlier wording stays in the case history
-    When the operator withdraws the cause and the consultant records the withdrawal with a reason
+    When the operator withdraws the cause and accepts the consultant's withdrawal with its reason
     Then the tree no longer shows the cause or its link
     And a later proposal linking the withdrawn cause is rejected before commit
 
   @S131 @p2 @v1 @automated
   Scenario: Connect a test to the tree action it carries out
-    Given a Transition Tree action "Prototype one next step after open evenings"
+    Given a case set to accept proposals automatically
+    And a Transition Tree action "Prototype one next step after open evenings"
     When the operator records a test with a forecast that carries out that action
     And reports an observation for the test
     Then the Trees view shows the test's original forecast and reported result under the action
@@ -2422,6 +2566,7 @@ Feature: Grow the six thinking-process trees in conversation
     When the operator brings in the file
     Then the file is retained as a source and every imported statement and link cites it
     And the joint-premise link and the assessment are kept as labelled notes
+    And everything the file brings in waits in the backlog until the operator accepts it
     And the current question carries on from the same step
     And the consultant is not called
 
@@ -2429,6 +2574,7 @@ Feature: Grow the six thinking-process trees in conversation
   Scenario: Export the trees and bring them back unchanged
     Given a case with imported trees
     When the operator exports the trees to a new LTP file and brings that file into a new case
+    And the operator accepts everything the file brings in
     Then both cases show the same statements, roles, links and assumptions
     And exporting to an existing file is refused
 
@@ -2439,16 +2585,151 @@ Feature: Grow the six thinking-process trees in conversation
     Then no consultant call and no revision occurs
 ```
 
+### 13_proposals_and_review.feature
+
+```gherkin
+@J07 @J08 @J14 @J17
+Feature: Decide what enters the model
+  The consultant drafts what the operator's words could mean; the operator decides
+  what enters the model. The goal, the six trees and the tests are one model, and
+  every change the consultant proposes to any part of it waits in the backlog with
+  its source until the operator accepts it, unless the operator has set the case to
+  accept proposals automatically. The backlog lists proposals in the order they are
+  best decided. A change asks for review of whatever explicitly cites what it
+  changed, and every acceptance can be undone. Accepting admits a statement into the
+  working model; it does not make it true or record anyone's belief.
+
+  @S135 @p2 @v1 @automated
+  Scenario: Hold a reply's proposals in the backlog by default
+    Given a case whose goal is "A clear next step after open evenings"
+    When the operator says "Newcomers do not know the next step, because we never offer one"
+    And the consultant proposes a symptom, a cause and a causes link citing that input
+    Then the consultant's next question becomes the live question
+    And the symptom, the cause and the link wait in the backlog, each citing the operator's words
+    And the Current Reality Tree is unchanged
+    And a confidence the consultant gave is kept with each proposal without deciding anything
+
+  @S136 @p2 @v1 @automated
+  Scenario: Accept a reply's proposals together
+    Given the backlog holds a symptom, a cause and a causes link proposed from one input
+    When the operator accepts all three
+    Then one new revision adds them to the Current Reality Tree without a consultant call
+    And the revision records who accepted them, when, and that they were accepted explicitly
+    And the cause keeps its basis, so an accepted hypothesis is still a hypothesis
+    And the backlog is empty and the live question and draft are unchanged
+
+  @S137 @p2 @v1 @automated
+  Scenario: Reject a proposal together with what needs it
+    Given the backlog holds a symptom, a cause and a causes link proposed from one input
+    When the operator rejects the cause
+    Then the operator is shown that the link, which needs the cause, is rejected with it
+    When the operator confirms
+    Then the cause and the link leave the backlog and the symptom still waits
+    And the case history keeps both rejected proposals with the operator's decision
+    And neither can be accepted later
+
+  @S138 @p2 @v1 @automated
+  Scenario: List the backlog in the order it is best decided
+    Given the backlog holds, from earlier replies, a Transition Tree action, a Current Reality cause, a causes link from that cause and a new version of the goal
+    When the operator opens the backlog
+    Then the new version of the goal comes first, marked to be decided first because the rest is judged against it
+    And the cause comes before its link, which says it waits for the cause
+    And the Current Reality proposals come before the Transition Tree action
+    When the operator accepts the link
+    Then the operator is shown that the cause is accepted with it
+    And after confirming, both are in the Current Reality Tree while the new goal still waits
+
+  @S139 @p2 @v1 @automated
+  Scenario: Accept proposals automatically when the operator has chosen to
+    Given a case set to accept proposals automatically
+    When the consultant proposes a symptom, a cause and a causes link citing the operator's words
+    Then the revision that publishes the next question also adds all three to the Current Reality Tree
+    And it records that they were accepted automatically under the operator's setting
+    And the operator can undo that acceptance like an explicit one
+
+  @S140 @p2 @v1 @automated
+  Scenario: Only the operator changes how proposals are accepted
+    Given a case that holds proposals for review, with two proposals waiting
+    When the operator sets the case to accept proposals automatically
+    Then a revision records the operator's choice without a consultant call
+    And the two proposals already waiting still wait
+    And a consultant reply that tries to change the setting is rejected before commit
+
+  @S141 @p2 @v1 @automated
+  Scenario: Undo an accepted change without rewriting history
+    Given the Current Reality Tree holds an accepted cause with its causes link and a later accepted symptom that cites neither
+    And a waiting proposal links another statement to the cause
+    When the operator undoes the acceptance of the cause
+    Then the operator is shown that the link leaves the tree with it and the waiting proposal is closed
+    When the operator confirms
+    Then a new revision removes the cause and its link from the tree and keeps the later symptom
+    And the case history keeps the operator's words, the proposals, their acceptance and the undo
+    And the undo is final: it cannot be undone and the cause does not return to the backlog
+
+  @S142 @p2 @v1 @automated
+  Scenario: Ask for review of what cites a changed statement
+    Given an accepted Conflict tree injection, a Future Reality link from that injection to a desired effect, and a test that carries out the injection
+    When the operator accepts a new wording of the injection
+    Then the link and the test are flagged for review, each naming the change that raised the flag
+    And neither is changed, withdrawn or marked false
+    And both flags wait in the backlog
+    When the operator marks the test as still holding
+    Then the test's flag closes with the operator's decision recorded and the link's flag stays open
+
+  @S143 @p2 @v1 @automated
+  Scenario: Let a change cascade one explicit step at a time
+    Given an accepted Conflict tree requirement, an injection linked to it, and a Future Reality link from that injection to a desired effect
+    When the operator accepts a new wording of the requirement
+    Then the Conflict tree link between the injection and the requirement is flagged for review
+    And the Future Reality link is not flagged, because nothing it cites has changed
+    When the consultant proposes a new wording of the injection and the operator accepts it
+    Then the Future Reality link is flagged for review in turn
+    And the backlog names, for each flag, the change that raised it
+
+  @S144 @p2 @v1 @automated
+  Scenario: Keep one goal at the top of the Goal Tree
+    Given a case whose goal is "At least 90% of orders on time by October 30"
+    When the consultant proposes a critical success factor that the goal requires and the operator accepts it
+    Then the Goal Tree shows the case's goal at its top with the factor beneath it
+    And the Goal view and the Goal Tree show the same goal
+    When the consultant proposes a second goal that is not a new version of the current one
+    Then the proposal is rejected before commit because a case has one goal
+
+  @S145 @p2 @v1 @automated
+  Scenario: Use a statement from another tree in a link
+    Given an accepted Conflict tree injection
+    When the consultant proposes a desired effect and a Future Reality link from that injection to it
+    And the operator accepts both
+    Then the Future Reality Tree draws the injection, marked as from the Conflict tree, leading to the desired effect
+    And the injection stays one statement, so its new wording shows in both trees
+    And a link whose two statements both belong to other trees than its own is rejected before commit
+
+  @S146 @p2 @v1 @automated
+  Scenario: Decide proposals while the consultant is working
+    Given the operator has sent an answer and the consultant has not replied
+    When the operator accepts a waiting proposal
+    Then the consultant's reply is published when it arrives rather than treated as stale
+    And its proposals are checked against the model as it stands after that acceptance
+
+  @S147 @p2 @v1 @automated
+  Scenario: Ask the consultant to draft amendments for open reviews
+    Given two accepted statements flagged for review
+    When the operator asks the consultant about the open reviews
+    Then one consultant request carries the flagged statements and the changes that raised the flags
+    And the amendments it proposes wait in the backlog like any other proposal
+```
+
 ## 8. V1 TUI goal action review session
 
 ```text
 REASON COMMONS / FIRST-RELEASE TUI JOURNEY
 Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
-Fictional Forge case; not implemented software. Frames are 80x24. V1 has no
-structured graph browser, participant stance registry or formal tree
-authoring. Its persistent workspace, literal response editor, visible local
-controls and forecast/result comparison ARE required from p1-p2. No typed
-commands are needed inside this session.
+Fictional Forge case; an authored specimen, not a recording of the
+application. Frames are 80x24. V1 has no structured graph browser, participant
+stance registry or formal tree authoring. Its persistent workspace, literal
+response editor, visible local controls, proposals that wait for the operator
+and forecast/result comparison ARE required from p1-p2. No typed commands are
+needed inside this session.
 $ reason-commons new forge --store ./forge-v1 --speaker Sam
 EVENT start r0000
 
@@ -2488,18 +2769,18 @@ SCREEN M02 80x24
 +------------------------------------------------------------------------------+
 | forge | Sam | r0001 saved | Choose a test | Focus: Response                  |
 +------------------------------------------------------------------------------+
-| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
+| Goal proposed, waiting | Safeguards proposed | No test                       |
 +------------------------------------------------------------------------------+
-| SUCCESS / >=90% October due orders on original dates; Oct 30 review          |
-| BASELINE / September 32/50 = 64%, reported by Sam                            |
-| Protect overtime <=20h EACH week; defects <=2% inspected units/week.         |
-| Other people's agreement and authority remain unknown.                       |
+| PROPOSED from your words / waiting for you; not yet in the model             |
+|   Goal: >=90% October due orders on original dates; review Oct 30            |
+|   Baseline: September 32/50 = 64%, reported by Sam                           |
+|   Protect: overtime <=20h EACH week; defects <=2% inspected units/week       |
+| [Accept all]  [Backlog]   Accepting admits it; it does not prove it.         |
 |                                                                              |
 | DECISION / What change can you authorize and observe?                        |
 | Choose a small trial with an original forecast we can review later.          |
+| Other people's agreement and authority remain unknown.                       |
 | [Goal]  [Reported sources]  [Explain this]  [Other moves]                    |
-|                                                                              |
-|                                                                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 | Response | Send asks consultant; Enter adds a line.                          |
@@ -2510,13 +2791,17 @@ SCREEN M02 80x24
 | Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
 +------------------------------------------------------------------------------+
 
+ACTION: Sam Tabs to Accept all and presses Enter. The goal with its baseline
+and protections enters the model in one local revision; no consultant call.
+The band now shows the accepted goal.
+EVENT local r0002 target=G1@1 dimension=membership value=accepted actor=Sam
 ACTION: Sam types a draft "5 requests?", then Tabs to Other moves and presses
 Enter. This menu keeps the question and draft. No consultant call has been
 made.
 
 SCREEN M02A 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0001 saved | Other moves | Focus: Other moves                 |
+| forge | Sam | r0002 saved | Other moves | Focus: Other moves                 |
 +------------------------------------------------------------------------------+
 | Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
 +------------------------------------------------------------------------------+
@@ -2552,25 +2837,25 @@ acknowledgement >=95% within 24h. Retain overtime/defect bounds. Record
 original dates, mix, suppliers and rule use. Stop expansion on any breach. If
 either role cannot explain escalation, resolve that before start. Urgent
 fulfillment is a separate unknown.
-EVENT semantic in002 r0002 question002
+EVENT semantic in002 r0003 question002
 
 SCREEN M03 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0002 saved | Prepare P1@1 | Focus: Response                   |
+| forge | Sam | r0003 saved | Prepare P1@1 | Focus: Response                   |
 +------------------------------------------------------------------------------+
 | Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
 +------------------------------------------------------------------------------+
-| P1@1 ORIGINAL / saved before results / Oct 5-16; review Oct 19               |
+| PROPOSED / waiting for you: test P1@1 and its preparation action             |
+| P1@1 forecast, saved before results / Oct 5-16; review Oct 19                |
 | Forecast: delivery >=80%; urgent acknowledgement >=95% within 24h.           |
 | Protect overtime <=20h EACH week; defects <=2% inspected units/week.         |
 | Owner and stop authority: Sam declares both; no expansion on breach.         |
 | ACTION: name owner/backup and rehearse two requests before Oct 5.            |
 | EXPECTED STATE: both roles can explain response and escalation.              |
-| Execution: NOT STARTED | expected state: UNKNOWN                             |
-| No reminder scheduled. Urgent-need fulfillment: UNKNOWN.                     |
+| Execution: NOT STARTED | expected state: UNKNOWN | no reminder scheduled     |
+| Urgent-need fulfillment: UNKNOWN.                                            |
+| [Accept all]  [Backlog]  [Original forecast]  [Sources]                      |
 | DECISION / What happens when you perform this preparation?                   |
-| [Original forecast]  [Action]  [Observation fields]  [Sources]               |
-|                                                                              |
 +------------------------------------------------------------------------------+
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
@@ -2580,17 +2865,25 @@ SCREEN M03 80x24
 | Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
 +------------------------------------------------------------------------------+
 
+ACTION: Sam activates Accept all. P1@1 and its action enter the model; one
+local revision, no call.
+EVENT local r0004 target=P1@1,A1@1 dimension=membership value=accepted actor=Sam
+ACTION: Sam opens Actions > Accept proposals automatically and confirms. From
+now on a reply's ready proposals enter the model with the reply, recorded as
+accepted under Sam's setting, and each can be undone from History. Proposals
+already waiting would keep waiting; none are. No call.
+EVENT local r0005 target=case dimension=acceptance value=automatic actor=Sam
 ACTION: Sam answers: I named owner and backup today. Rehearsal has not
 happened; I do not know whether they can explain the rule.
-EVENT semantic in003 r0003 question003
+EVENT semantic in003 r0006 question003
 
 SCREEN M04 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0003 saved | Observe the result | Focus: Response             |
+| forge | Sam | r0006 saved | Observe the result | Focus: Response             |
 +------------------------------------------------------------------------------+
 | Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
 +------------------------------------------------------------------------------+
-| PREPARATION / reported by Sam                                                |
+| PREPARATION / reported by Sam; added under Sam's setting, can be undone      |
 | +-- ACTION ---------------------+ +-- EXPECTED STATE --------------------+   |
 | | Roles named: COMPLETED        | | Rule understood: UNKNOWN             |   |
 | +-------------------------------+ +--------------------------------------+   |
@@ -2613,7 +2906,7 @@ SCREEN M04 80x24
 ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save
 and quit. Local export and cursor save, no call.
 $ reason-commons resume ./forge-v1
-M04 is restored at r0003 with Observe the result as the current question.
+M04 is restored at r0006 with Observe the result as the current question.
 Goal, safeguards and P1 remain pinned; preparation state still unobserved. No
 consultant call.
 ACTION: Sam submits: Both roles correctly explained response and escalation in
@@ -2621,11 +2914,11 @@ the two rehearsals. Pilot then ran as planned. Fifty due orders, 40 on time.
 Overtime 18h then 19h; defects 1/50 then 0/50 inspected units. Urgent
 acknowledgements 18/20 within 24h. Original dates unchanged; similar mix but
 steadier suppliers. This does not isolate triage as cause.
-EVENT semantic in004 r0004 question004
+EVENT semantic in004 r0007 question004
 
 SCREEN M05 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0004 saved | Review P1 | Focus: Response                      |
+| forge | Sam | r0007 saved | Review P1 | Focus: Response                      |
 +------------------------------------------------------------------------------+
 | ! Acknowledgement BREACH 90% <95% | Goal >=90% remains unmet                 |
 +------------------------------------------------------------------------------+
@@ -2652,11 +2945,11 @@ SCREEN M05 80x24
 ACTION: Sam answers: They waited for supplier dates. The owner thought the
 first response must promise a final date. We can acknowledge receipt before
 that date is known.
-EVENT semantic in005 r0005 question005
+EVENT semantic in005 r0008 question005
 
 SCREEN M06 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0005 saved | Adapt the trial | Focus: Response                |
+| forge | Sam | r0008 saved | Adapt the trial | Focus: Response                |
 +------------------------------------------------------------------------------+
 | ! P1 acknowledgement breach retained | Follow-up proposed                    |
 +------------------------------------------------------------------------------+
@@ -2686,11 +2979,11 @@ delivery >=80% and acknowledgement >=95%/24h. Retain overtime <=20h each week
 and defects <=2% weekly; record mix, suppliers, rule use and whether urgent
 needs were served. Stop expansion and escalate an unserved need or safeguard
 breach to me.
-EVENT semantic in006 r0006 question006
+EVENT semantic in006 r0009 question006
 
 SCREEN M07 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0006 saved | Follow-up saved | Focus: Response                |
+| forge | Sam | r0009 saved | Follow-up saved | Focus: Response                |
 +------------------------------------------------------------------------------+
 | P1 breach retained | P2 committed | Goal >=90% remains unmet                 |
 +------------------------------------------------------------------------------+
@@ -2717,7 +3010,7 @@ SCREEN M07 80x24
 ACTION: Actions > Export portable case > ./forge-v1-after-review.reasoncase;
 Actions > Save and quit. No call.
 CONSULTANT CALLS 6: in001 through in006.
-6 reasoning revisions = 6 semantic commits + 0 structured local decisions.
+9 reasoning revisions = 6 semantic commits + 3 structured local decisions.
 ```
 
 ## 9. Complete illustrative roadmap TUI session
@@ -4170,8 +4463,12 @@ the same workspace, with the same records, explicit submission, attribution,
 version validation and recovery. It has no command prompt or phrase parser.
 
 Use a stable reading order: case/save/actor/view/focus, urgent status, decision,
-complete question and relevant context, reasoning as relation sentences or an
-aligned table, local evidence/actions, Response, Send, other destinations.
+complete question and relevant context, what the last reply proposes (each
+record with its source, under "Proposed, not yet in the model"), reasoning as
+relation sentences or an aligned table, local evidence/actions, Response, Send,
+other destinations. The Backlog reads as an ordered list in which each entry says
+what it waits for, and its Accept, Reject, Still holds and Undo controls are the
+same labeled controls as in the spatial TUI.
 Describe each control by label, role, consequence and current focus. Announce
 focus changes and important new status once. Never announce each animation or
 reprint the entire case on every keystroke. Append an explicit replacement section
@@ -4211,6 +4508,6 @@ columns are unsuitable. Never reduce an adverse path to a success-only summary.
 At less than 40x24 retain state and offer resize or this ordered presentation.
 S49 covers narrow ordered context; S50 equivalent relation text; S51 drafts;
 S54-S71 focus/selection/target behavior; S115-S120 deliberate submission, restoration
-and recovery. The participant gates in delivery-phases.md include assistive
+and recovery; S135-S147 decisions about proposals. The participant gates in delivery-phases.md include assistive
 technology users. These requirements need implementation and actual reader tests;
 a text specimen or passing document check is not evidence of accessibility.

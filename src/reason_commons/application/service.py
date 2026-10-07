@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Optional
+from typing import List, Optional
 
 from reason_commons.domain.model import InvalidCase, StaleWork, validate_input
 from reason_commons.application.ports import (CaseStore, Clock, Consultant,
@@ -14,6 +14,17 @@ STORAGE_HELP = (
 
 
 FAILURE_CATEGORIES = {"configuration", "http_error", "timeout", "connection"}
+
+
+def consulting_view(snapshot):
+    """What the consultant needs to know about membership: what is in the model, what still
+    waits for the operator, and which records in the model are flagged for review."""
+    membership = snapshot.membership()
+    return {"acceptance": membership.acceptance,
+            "in_model": membership.model(),
+            "waiting": [e["ref"] for e in membership.backlog() if e["entry"] == "proposal"],
+            "not_admitted": [ref for ref, s in membership.status.items() if s in {"rejected", "undone", "closed"}],
+            "reviews": membership.flags()}
 
 
 def failure_detail(error):
@@ -90,8 +101,15 @@ class CaseApplication:
                 pending.append({"input": deepcopy(value), "attempt": latest,
                                 "status": receipts[-1]["status"] if receipts else
                                 "started" if latest else "input_retained"})
-        history = [{"revision": s.revision, "parent": s.value["parent"], "timestamp": s.value["timestamp"],
-                    "current_target": s.target} for s in snapshots if s.revision <= current.revision]
+        history, applied, decided = [], set(), 0
+        for s in (s for s in snapshots if s.revision <= current.revision):
+            requests = [r for r in s.value["applied_requests"] if r not in applied]
+            decisions = s.value.get("decisions", [])
+            history.append({"revision": s.revision, "parent": s.value["parent"], "timestamp": s.value["timestamp"],
+                            "current_target": s.target, "request_id": requests[0] if requests else None,
+                            "decisions": deepcopy(decisions[decided:])})
+            applied.update(requests)
+            decided = len(decisions)
         return project_workspace(snapshot, sources, view=view, selection=selection, live_revision=current.revision,
                                  cursor=self._store.cursor(), history=history, pending=pending)
 
@@ -107,8 +125,8 @@ class CaseApplication:
         require(isinstance(cursor["draft"], str) and type(cursor["caret"]) is int and
                 0 <= cursor["caret"] <= len(cursor["draft"]), "Invalid draft/caret")
         current = self._store.current()
-        require(cursor["response_target"] == current.target and cursor["base_revision"] == current.revision,
-                "Cursor target is stale")
+        require(cursor["response_target"] == current.target and type(cursor["base_revision"]) is int
+                and cursor["base_revision"] <= current.revision, "Cursor target is stale")
         for key in ("view", "focus", "speaker"):
             require(isinstance(cursor[key], str) and bool(cursor[key]), f"Invalid cursor {key}")
         try:
@@ -123,7 +141,8 @@ class CaseApplication:
                      response_target: Optional[str], intent: str = "answer",
                      declarations: Optional[dict] = None, request_id: Optional[str] = None) -> dict:
         current = self._store.current()
-        if current.revision != base_revision or current.target != response_target:
+        # Decisions about proposals since the draft was begun do not make it stale; a new question does.
+        if type(base_revision) is not int or base_revision > current.revision or current.target != response_target:
             return {"status": "stale", "message": "Re-evaluate against the current revision",
                     "draft": text, "recovery_actions": ["reevaluate_current_revision"]}
         request_id = request_id or self._store.next_request_id()
@@ -162,7 +181,7 @@ class CaseApplication:
                                      ["retry_retained_input"], persist=False)
             return {"status": "saved", "request_id": request_id, "revision": current.revision,
                     "already_applied": True}
-        if value["base_revision"] != current.revision or value["response_target"] != current.target:
+        if value["response_target"] != current.target:
             return self._failure(request_id, "stale", "Response is stale; re-evaluate against the current revision",
                                  ["reevaluate_current_revision"])
         response = self._store.pending_response(request_id)
@@ -178,7 +197,8 @@ class CaseApplication:
                                      ["retry_retained_input"], persist=False)
             try:
                 proposal = self._consultant.propose({"input": deepcopy(value), "case": current.to_dict(),
-                                                    "sources": deepcopy(self._store.sources())})
+                                                    "sources": deepcopy(self._store.sources()),
+                                                    "model": consulting_view(current)})
             except ConsultantResponseError:
                 return self._failure(request_id, "rejected", "Input retained; invalid structured response rejected",
                                      ["inspect_failure", "reevaluate_current_revision"], attempt)
@@ -213,6 +233,10 @@ class CaseApplication:
             return self._failure(request_id, "not_saved", "not saved; input and response retained",
                                  ["retry_retained_input", "choose_writable_export"], attempt)
         result = {"status": "saved", "request_id": request_id, "revision": snapshot.revision}
+        automatic = [d for d in snapshot.value["decisions"] if d.get("request_id") == request_id]
+        result["proposed"] = [r["ref"] for r in snapshot.value["records"][len(current.value["records"]):]
+                              if r["kind"] != "intervention"]
+        result["accepted_automatically"] = automatic[0]["refs"] if automatic else []
         try:
             self._store.receipt(request_id, attempt, result)
         except StoreError:
@@ -222,6 +246,56 @@ class CaseApplication:
 
     def retry(self, request_id: str) -> dict:
         return self.consult(request_id)
+
+    # The operator's decisions about proposals. Each is one local revision with no consultant
+    # call. When a decision would take more than the operator named (what a proposal needs,
+    # what needs it, what cannot stand without it), it returns "confirm" with the full list and
+    # changes nothing until it is called again with confirmed=True. An undo always confirms.
+
+    def accept(self, refs: List[str], speaker: str, base_revision: int, confirmed: bool = False) -> dict:
+        return self._decide("accept", refs, speaker, base_revision, confirmed)
+
+    def reject(self, refs: List[str], speaker: str, base_revision: int, confirmed: bool = False) -> dict:
+        return self._decide("reject", refs, speaker, base_revision, confirmed)
+
+    def undo(self, refs: List[str], speaker: str, base_revision: int, confirmed: bool = False) -> dict:
+        return self._decide("undo", refs, speaker, base_revision, confirmed)
+
+    def still_holds(self, ref: str, speaker: str, base_revision: int) -> dict:
+        return self._decide("still_holds", [ref], speaker, base_revision, True)
+
+    def set_acceptance(self, mode: str, speaker: str, base_revision: int) -> dict:
+        """Choose how later replies' proposals enter the model: "review" or "automatic"."""
+        return self._decide("acceptance", [], speaker, base_revision, True, mode)
+
+    def _decide(self, action, refs, speaker, base_revision, confirmed, value=None):
+        current = self._store.current()
+        if type(base_revision) is not int or base_revision != current.revision:
+            return {"status": "stale", "message": "The case has changed; look at the decision again",
+                    "recovery_actions": ["review_again"]}
+        if not isinstance(refs, list) or not all(isinstance(r, str) for r in refs):
+            return {"status": "rejected", "message": "Name the records as a list"}
+        try:
+            snapshot, decision = current.decide(action, refs, speaker, self._store.sources(),
+                                                self._store.next_revision(), self._clock.now(), self._timezone, value)
+        except InvalidCase as exc:
+            return {"status": "rejected", "message": str(exc)[:300]}
+        before = {(f["ref"], f["cites"]) for f in current.membership().flags()}
+        flags = [f for f in snapshot.membership().flags() if (f["ref"], f["cites"]) not in before]
+        outcome = {"action": action, "refs": decision["refs"], "closes": decision["closes"], "flags": flags}
+        takes_more = set(decision["refs"]) != set(refs) or decision["closes"]
+        if not confirmed and (action == "undo" or action in {"accept", "reject"} and takes_more):
+            return {"status": "confirm", **outcome,
+                    "message": "Final; it cannot be undone" if action == "undo" else "This takes more than you chose"}
+        try:
+            self._store.commit(snapshot, current.revision)
+        except StaleWork:
+            return {"status": "stale", "message": "The case has changed; look at the decision again",
+                    "recovery_actions": ["review_again"]}
+        except StoreError:
+            return {"status": "not_saved", "message": "not saved; nothing was changed",
+                    "recovery_actions": ["choose_writable_export"]}
+        return {"status": "saved", "revision": snapshot.revision, "decision": decision["id"], **outcome}
 
     def _failure(self, request_id, status, message, recovery, attempt=0, persist=True, detail=None):
         result = {"status": status, "request_id": request_id, "message": message,

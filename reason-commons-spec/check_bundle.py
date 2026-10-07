@@ -15,6 +15,10 @@ MARKER = '## 7. Full Gherkin acceptance specifications'
 PHASE_RE = re.compile(r'@p\d+$')
 MODES = {'@automated', '@semantic', '@usability'}
 SCOPING = MODES | {'@v1', '@later'}
+JOBS = {f'{i:02}' for i in range(1, 18)}
+# Local decisions a v1 session may record: admitting proposals into the model and
+# the case's acceptance setting. Stances (wording, belief, reliance) arrive in p4.
+V1_DECISIONS = {'membership', 'acceptance'}
 
 
 def parse_scenarios(text, source):
@@ -205,12 +209,19 @@ def validate_tui_ledger(text, config):
     commits = [int(x) for x in re.findall(r'^EVENT (?:start|local|semantic in\d{3}) r(\d{4})\b', text, re.M)]
     if commits != list(range(revisions+1)):
         errors.append(f'revision sequence differs: {commits}')
-    if len(local) != revisions-calls or any('@' not in x[1] for x in local):
+    # A decision names exact record versions; only the acceptance setting targets the case.
+    if len(local) != revisions-calls or any(
+            x[1] != 'case' if x[2] == 'acceptance' else '@' not in x[1] for x in local):
         errors.append('structured decision count or exact-version target differs')
     if f'CONSULTANT CALLS {calls}:' not in text or (
             f'{revisions} reasoning revisions = {calls} semantic commits + {revisions-calls} structured local decisions.' not in text):
         errors.append('final ledger missing')
     return errors
+
+
+def validate_v1_decisions(text):
+    dimensions = re.findall(r'^EVENT local r\d{4} target=\S+ dimension=(\S+) ', text, re.M)
+    return ['later structured decisions leak into v1'] if set(dimensions) - V1_DECISIONS else []
 
 
 def check_session(name, config, require):
@@ -221,8 +232,10 @@ def check_session(name, config, require):
     require(f"Delivery profile: {config['profile']} cumulative" in text,
             f'{name}: delivery profile differs')
     if config['profile'] == 'p2':
-        require('EVENT local' not in text, f'{name}: later structured decisions leak into v1')
-        for token in ['result awaiting observation', 'original', 'goal >=90% remains unmet', '90% BREACH']:
+        for issue in validate_v1_decisions(text):
+            require(False, f'{name}: {issue}')
+        for token in ['result awaiting observation', 'original', 'goal >=90% remains unmet', '90% BREACH',
+                      'Accept all']:
             require(token in text, f'{name}: missing v1 consequence: {token}')
     if name == 'example-tui-session.txt':
         for token in ['P1@1', 'P2@1', '18/24 = 75%', '9/10 = 90%', 'Leo still DISPUTES L3@1',
@@ -252,7 +265,7 @@ def check(selection='all', list_selected=False):
     errors.extend(validate_scope(scenarios, manifest))
     names = [s['name'] for s in scenarios]
     require(len(names) == len(set(names)), 'Duplicate scenario names')
-    require(jobs == {f'{i:02}' for i in range(1, 17)}, 'Job coverage must include J01-J16')
+    require(jobs == JOBS, 'Job coverage must include J01-J17')
     contract = spec.split(MARKER)[0]
     trace = contract.split('## 5. Gherkin and traceability')[1].split('## 6. Build sequence')[0]
     covered = set()

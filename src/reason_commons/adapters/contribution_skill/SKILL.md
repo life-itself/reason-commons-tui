@@ -31,8 +31,9 @@ Carry the exact `workspace.target` of the displayed live question into the next
 contribution. A historical question cannot be answered until the live workspace
 has been displayed.
 
-Local moves use `workspace` views: `explain` shows the stored rationale, `goal`
-shows goals and safeguards, `reasoning` shows saved reasoning and references,
+Local moves use `workspace` views: `explain` shows the stored rationale, `backlog`
+lists what waits for the participant's decision in the order it is best decided,
+`goal` shows goals and safeguards, `reasoning` shows saved reasoning and references,
 `tests` compares original forecasts with recorded observations and reviews,
 `actions` keeps work execution separate from expected state attainment,
 `history` lists published revisions, and `sources` shows literal attributed
@@ -73,6 +74,26 @@ paraphrasing passages. Supply ownership/evidence declarations only when explicit
    including the new question and appropriate saved diagram/table. Keep the
    active case, participant and displayed target for the next reply. Success is
    established by the application result, never agent prose.
+5. The reply's updates are proposals (`result.proposed`). Unless the case
+   accepts automatically (`result.accepted_automatically`), they wait in the
+   backlog and are not in the participant's model. Say so, show them as
+   proposed, and leave the decision to the participant.
+
+## Decisions belong to the participant
+
+Accepting, rejecting and undoing are the participant's decisions, not yours.
+Call `accept`, `reject`, `undo` or `still_holds` only with the exact references
+the participant chose in this conversation, with their declared name. When the
+result is `confirm`, show everything it lists (what else enters, leaves or
+closes, and what gets flagged for review) and call again with `confirmed: true`
+only after the participant agrees to that list. An undo always confirms first
+and is final. Never accept on the participant's behalf to make the trees look
+complete, and never call `set_acceptance`; the participant changes that setting
+in the workspace, and a host refuses it unless the operator granted it.
+`still_holds` records only the participant's own judgment that a flagged record
+stands. To ask the consultant about open reviews, use the `review_flags`
+consultant action from `workspace.available_actions` with the participant's
+words.
 
 For an explicitly chosen consultant alternative, use the matching
 `workspace.available_actions` entry: it supplies the capability, intent and
@@ -100,6 +121,10 @@ The CLI is another renderer over the same capabilities, without a shell REPL:
   a UTF-8 contribution and follows the fixed retain/consult sequence. Supply
   `--base-revision` and `--response-target` from the displayed target for replies
   (`none` for absent target). `--intent` selects an explicit consultant move.
+- `reason-commons decide CASE_PATH accept|reject|undo REF...` records the
+  participant's own decision; without `--confirm` it lists what a decision would
+  take and changes nothing. `reason-commons show CASE_PATH --view backlog` shows
+  what waits.
 - `reason-commons retry CASE_PATH REQUEST_ID` is explicit recovery. Default
   output is human text; `--format markdown` gives chat rendering; `--json`
   exposes diagnostics. `--runner agent` delegates execution to a bounded model

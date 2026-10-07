@@ -1,10 +1,11 @@
 REASON COMMONS / FIRST-RELEASE TUI JOURNEY
 Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
-Fictional Forge case; not implemented software. Frames are 80x24. V1 has no
-structured graph browser, participant stance registry or formal tree
-authoring. Its persistent workspace, literal response editor, visible local
-controls and forecast/result comparison ARE required from p1-p2. No typed
-commands are needed inside this session.
+Fictional Forge case; an authored specimen, not a recording of the
+application. Frames are 80x24. V1 has no structured graph browser, participant
+stance registry or formal tree authoring. Its persistent workspace, literal
+response editor, visible local controls, proposals that wait for the operator
+and forecast/result comparison ARE required from p1-p2. No typed commands are
+needed inside this session.
 $ reason-commons new forge --store ./forge-v1 --speaker Sam
 EVENT start r0000
 
@@ -44,18 +45,18 @@ SCREEN M02 80x24
 +------------------------------------------------------------------------------+
 | forge | Sam | r0001 saved | Choose a test | Focus: Response                  |
 +------------------------------------------------------------------------------+
-| Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
+| Goal proposed, waiting | Safeguards proposed | No test                       |
 +------------------------------------------------------------------------------+
-| SUCCESS / >=90% October due orders on original dates; Oct 30 review          |
-| BASELINE / September 32/50 = 64%, reported by Sam                            |
-| Protect overtime <=20h EACH week; defects <=2% inspected units/week.         |
-| Other people's agreement and authority remain unknown.                       |
+| PROPOSED from your words / waiting for you; not yet in the model             |
+|   Goal: >=90% October due orders on original dates; review Oct 30            |
+|   Baseline: September 32/50 = 64%, reported by Sam                           |
+|   Protect: overtime <=20h EACH week; defects <=2% inspected units/week       |
+| [Accept all]  [Backlog]   Accepting admits it; it does not prove it.         |
 |                                                                              |
 | DECISION / What change can you authorize and observe?                        |
 | Choose a small trial with an original forecast we can review later.          |
+| Other people's agreement and authority remain unknown.                       |
 | [Goal]  [Reported sources]  [Explain this]  [Other moves]                    |
-|                                                                              |
-|                                                                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
 | Response | Send asks consultant; Enter adds a line.                          |
@@ -66,13 +67,17 @@ SCREEN M02 80x24
 | Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
 +------------------------------------------------------------------------------+
 
+ACTION: Sam Tabs to Accept all and presses Enter. The goal with its baseline
+and protections enters the model in one local revision; no consultant call.
+The band now shows the accepted goal.
+EVENT local r0002 target=G1@1 dimension=membership value=accepted actor=Sam
 ACTION: Sam types a draft "5 requests?", then Tabs to Other moves and presses
 Enter. This menu keeps the question and draft. No consultant call has been
 made.
 
 SCREEN M02A 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0001 saved | Other moves | Focus: Other moves                 |
+| forge | Sam | r0002 saved | Other moves | Focus: Other moves                 |
 +------------------------------------------------------------------------------+
 | Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
 +------------------------------------------------------------------------------+
@@ -108,25 +113,25 @@ acknowledgement >=95% within 24h. Retain overtime/defect bounds. Record
 original dates, mix, suppliers and rule use. Stop expansion on any breach. If
 either role cannot explain escalation, resolve that before start. Urgent
 fulfillment is a separate unknown.
-EVENT semantic in002 r0002 question002
+EVENT semantic in002 r0003 question002
 
 SCREEN M03 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0002 saved | Prepare P1@1 | Focus: Response                   |
+| forge | Sam | r0003 saved | Prepare P1@1 | Focus: Response                   |
 +------------------------------------------------------------------------------+
 | Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
 +------------------------------------------------------------------------------+
-| P1@1 ORIGINAL / saved before results / Oct 5-16; review Oct 19               |
+| PROPOSED / waiting for you: test P1@1 and its preparation action             |
+| P1@1 forecast, saved before results / Oct 5-16; review Oct 19                |
 | Forecast: delivery >=80%; urgent acknowledgement >=95% within 24h.           |
 | Protect overtime <=20h EACH week; defects <=2% inspected units/week.         |
 | Owner and stop authority: Sam declares both; no expansion on breach.         |
 | ACTION: name owner/backup and rehearse two requests before Oct 5.            |
 | EXPECTED STATE: both roles can explain response and escalation.              |
-| Execution: NOT STARTED | expected state: UNKNOWN                             |
-| No reminder scheduled. Urgent-need fulfillment: UNKNOWN.                     |
+| Execution: NOT STARTED | expected state: UNKNOWN | no reminder scheduled     |
+| Urgent-need fulfillment: UNKNOWN.                                            |
+| [Accept all]  [Backlog]  [Original forecast]  [Sources]                      |
 | DECISION / What happens when you perform this preparation?                   |
-| [Original forecast]  [Action]  [Observation fields]  [Sources]               |
-|                                                                              |
 +------------------------------------------------------------------------------+
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
@@ -136,17 +141,25 @@ SCREEN M03 80x24
 | Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
 +------------------------------------------------------------------------------+
 
+ACTION: Sam activates Accept all. P1@1 and its action enter the model; one
+local revision, no call.
+EVENT local r0004 target=P1@1,A1@1 dimension=membership value=accepted actor=Sam
+ACTION: Sam opens Actions > Accept proposals automatically and confirms. From
+now on a reply's ready proposals enter the model with the reply, recorded as
+accepted under Sam's setting, and each can be undone from History. Proposals
+already waiting would keep waiting; none are. No call.
+EVENT local r0005 target=case dimension=acceptance value=automatic actor=Sam
 ACTION: Sam answers: I named owner and backup today. Rehearsal has not
 happened; I do not know whether they can explain the rule.
-EVENT semantic in003 r0003 question003
+EVENT semantic in003 r0006 question003
 
 SCREEN M04 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0003 saved | Observe the result | Focus: Response             |
+| forge | Sam | r0006 saved | Observe the result | Focus: Response             |
 +------------------------------------------------------------------------------+
 | Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%        |
 +------------------------------------------------------------------------------+
-| PREPARATION / reported by Sam                                                |
+| PREPARATION / reported by Sam; added under Sam's setting, can be undone      |
 | +-- ACTION ---------------------+ +-- EXPECTED STATE --------------------+   |
 | | Roles named: COMPLETED        | | Rule understood: UNKNOWN             |   |
 | +-------------------------------+ +--------------------------------------+   |
@@ -169,7 +182,7 @@ SCREEN M04 80x24
 ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save
 and quit. Local export and cursor save, no call.
 $ reason-commons resume ./forge-v1
-M04 is restored at r0003 with Observe the result as the current question.
+M04 is restored at r0006 with Observe the result as the current question.
 Goal, safeguards and P1 remain pinned; preparation state still unobserved. No
 consultant call.
 ACTION: Sam submits: Both roles correctly explained response and escalation in
@@ -177,11 +190,11 @@ the two rehearsals. Pilot then ran as planned. Fifty due orders, 40 on time.
 Overtime 18h then 19h; defects 1/50 then 0/50 inspected units. Urgent
 acknowledgements 18/20 within 24h. Original dates unchanged; similar mix but
 steadier suppliers. This does not isolate triage as cause.
-EVENT semantic in004 r0004 question004
+EVENT semantic in004 r0007 question004
 
 SCREEN M05 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0004 saved | Review P1 | Focus: Response                      |
+| forge | Sam | r0007 saved | Review P1 | Focus: Response                      |
 +------------------------------------------------------------------------------+
 | ! Acknowledgement BREACH 90% <95% | Goal >=90% remains unmet                 |
 +------------------------------------------------------------------------------+
@@ -208,11 +221,11 @@ SCREEN M05 80x24
 ACTION: Sam answers: They waited for supplier dates. The owner thought the
 first response must promise a final date. We can acknowledge receipt before
 that date is known.
-EVENT semantic in005 r0005 question005
+EVENT semantic in005 r0008 question005
 
 SCREEN M06 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0005 saved | Adapt the trial | Focus: Response                |
+| forge | Sam | r0008 saved | Adapt the trial | Focus: Response                |
 +------------------------------------------------------------------------------+
 | ! P1 acknowledgement breach retained | Follow-up proposed                    |
 +------------------------------------------------------------------------------+
@@ -242,11 +255,11 @@ delivery >=80% and acknowledgement >=95%/24h. Retain overtime <=20h each week
 and defects <=2% weekly; record mix, suppliers, rule use and whether urgent
 needs were served. Stop expansion and escalate an unserved need or safeguard
 breach to me.
-EVENT semantic in006 r0006 question006
+EVENT semantic in006 r0009 question006
 
 SCREEN M07 80x24
 +------------------------------------------------------------------------------+
-| forge | Sam | r0006 saved | Follow-up saved | Focus: Response                |
+| forge | Sam | r0009 saved | Follow-up saved | Focus: Response                |
 +------------------------------------------------------------------------------+
 | P1 breach retained | P2 committed | Goal >=90% remains unmet                 |
 +------------------------------------------------------------------------------+
@@ -273,5 +286,5 @@ SCREEN M07 80x24
 ACTION: Actions > Export portable case > ./forge-v1-after-review.reasoncase;
 Actions > Save and quit. No call.
 CONSULTANT CALLS 6: in001 through in006.
-6 reasoning revisions = 6 semantic commits + 0 structured local decisions.
+9 reasoning revisions = 6 semantic commits + 3 structured local decisions.
 

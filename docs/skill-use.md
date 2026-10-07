@@ -25,6 +25,16 @@ your earlier contribution. Answer the question in your own words. You can also a
 - “Show who said that.” or “Show the earlier version.” — reads sources or history.
 - “Ask me another question” or “Give me direct advice about this.” — deliberately
   consults with the chosen intent and participant-supplied text.
+- “What is waiting for me?” — shows the backlog: what replies proposed and what is
+  flagged for review, in the order it is best decided.
+- “Accept the cause and its link.” or “Reject that.” — records your own decision on
+  exactly the proposals you name. When it would take more (what they need, what needs
+  them), Codex shows the whole list and waits for you before confirming.
+
+A reply's updates are proposals: they wait for your decision and are not in your
+model until you accept them. The skill never accepts on your behalf and never turns
+on automatic acceptance; the MCP server refuses that unless you start it with
+`--allow-acceptance-setting`.
 
 The skill remembers the active case, declared participant and displayed question
 through the chat. A reply keeps that exact target; if another contribution
@@ -120,9 +130,10 @@ exports go into its reserved `exports` directory.
 Diagrams show **explicit saved record references**, such as a test's goal, an
 action's test or a review's observations. Edge labels preserve those meanings.
 Original wording and forecast/result details accompany them. The `trees` view
-draws the six thinking-process trees from recorded tree statements and links, and
-a consultant adds to them when a reply describes causes, conflicts, obstacles or
-plans; the renderer never manufactures them from notes. Joint causes and rival
+draws the six thinking-process trees from the accepted tree statements and links,
+and a consultant proposes additions when a reply describes causes, conflicts,
+obstacles or plans; the renderer never manufactures them from notes, and the
+`backlog` view lists what waits. Joint causes and rival
 explanations remain later work. The TUI is described in [tui.md](tui.md); the
 remaining p1/p2 release gates are separate work. This
 change delivers the conversation interface for the implemented case semantics.

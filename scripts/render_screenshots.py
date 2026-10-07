@@ -101,14 +101,15 @@ async def render(folder):
     await shoot(workspace(finished), "trees-statement-80x24", (80, 24), before=reality,
                 steps=lambda app, pilot: choose(app, pilot, "enter"))
     await heard(folder)
+    await backlog(folder)
     await more_workspace(folder, goals, finished)
     await more_home(folder, goals)
 
 
 class Recorder:
-    """Stands in for Claude in one picture: its reply records a symptom, a cause and the link between them in
+    """Stands in for Claude in one picture: its reply proposes a symptom, a cause and the link between them for
     the Current Reality Tree, from the answer's own words, and asks the next question. The built-in guide
-    never adds to the trees, so without it the picture could not be taken offline."""
+    never proposes tree statements, so without it the picture could not be taken offline."""
     version = "screenshot/recorder"
 
     def propose(self, request):
@@ -132,8 +133,66 @@ class Recorder:
                               "assumption": "Without an invitation, newcomers do not know a first practice exists"}}]}
 
 
+class Drafter:
+    """Stands in for Claude in the Backlog picture: each reply proposes what the next item of ``replies`` holds."""
+    version = "screenshot/drafter"
+
+    def __init__(self, replies):
+        self.replies = list(replies)
+
+    def propose(self, request):
+        source = [request["input"]["request_id"]]
+        updates = [dict(update, source_refs=source) for update in self.replies.pop(0)]
+        return {"schema_version": "1", "delivery_profile": "p2", "request_id": source[0],
+                "base_revision": request["input"]["base_revision"],
+                "intervention": {"kind": "question", "purpose": "choose_test", "decision": "Choose a test",
+                                 "primary_prompt": "What one small change could you try at the next open evening, "
+                                                   "and what do you expect it to do?",
+                                 "rationale": "A small change with a forecast tests the cause you named."},
+                "proposed_updates": updates}
+
+
+async def backlog(folder):
+    """The Backlog: a new version of the goal to decide first, a cause and the link that waits for it, an
+    action, and the chosen entry in full beside the list."""
+    path = folder / "backlog"
+    build_sample(path, answers=ANSWERS[:3], view="next", name=GOAL, clock=FixedClock("2026-10-14T20:00:00+00:00"))
+    with open_case(path) as case:
+        goal = next(g for g in case.workspace(view="goal")["goals"])
+
+    def claim(alias, tree, role, statement):
+        return {"operation": "record_claim", "temporary_id": alias,
+                "data": {"tree": tree, "role": role, "statement": statement, "basis": "participant_report"}}
+    drafter = Drafter([
+        [claim("ude", "current_reality", "undesirable_effect", "Newcomers do not come back after their first open evening"),
+         claim("cause", "current_reality", "root_cause", "We never offer a next step at the end of an open evening"),
+         {"operation": "record_link", "temporary_id": "because",
+          "data": {"tree": "current_reality", "relation": "causes", "from_ref": "cause", "to_ref": "ude",
+                   "assumption": "Without an invitation, newcomers do not know a first practice exists"}}],
+        [claim("act", "transition", "transition_action", "End each open evening with one clear invitation")],
+        [{"operation": "record_goal", "temporary_id": "goal",
+          "data": {"statement": "Newcomers at our open evenings find a clear, no-pressure next step, and most "
+                                "come back for a second practice", "replaces": goal["ref"],
+                   "measure": goal["data"].get("measure"), "protections": goal["data"].get("protections") or []}}]])
+    with open_case(path, consultant=drafter, clock=FixedClock("2026-10-15T19:00:00+00:00")) as case:
+        for words in ("People come once and we never see them again: we never offer a next step.",
+                      "I could end each evening with one clear invitation.",
+                      "Really, the goal is that they come back for a second practice."):
+            target = case.workspace()["target"]
+            assert case.submit(words, SPEAKER, target["base_revision"], target["response_target"])["status"] == "saved"
+    app = ReasonCommonsApp(path, SPEAKER, "anthropic", lambda consultant: open_case(path, consultant=drafter),
+                           lambda provider: drafter)
+
+    async def open_backlog(app, pilot):
+        app.show_view("backlog")
+        await pilot.pause()
+        app.query_one("#backlog-list").focus()
+        await pilot.pause(0.3)
+    await shoot(app, "backlog", (130, 36), steps=open_backlog)
+
+
 async def heard(folder):
-    """Under the next question: what a reply recorded in the trees, beside the words it came from."""
+    """Under the next question: what a reply proposes, beside the words it came from."""
     path = folder / "heard"
     build_sample(path, answers=ANSWERS[:3], view="next", name=GOAL, clock=FixedClock("2026-10-14T20:00:00+00:00"))
     app = ReasonCommonsApp(path, SPEAKER, "anthropic", lambda consultant: open_case(path, consultant=Recorder()),

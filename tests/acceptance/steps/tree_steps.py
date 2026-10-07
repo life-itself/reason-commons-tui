@@ -1,7 +1,8 @@
 """Executable definitions for the trees-in-conversation scenarios (S128-S134).
 
 Setup and behavior go through application use cases and the LTP adapter's
-public functions; no step writes case files directly.
+public functions; no step writes case files directly. What the consultant
+proposes waits until the operator accepts it, so steps accept explicitly.
 """
 
 from behave import given, when, then
@@ -10,7 +11,7 @@ import yaml
 from reason_commons.adapters.ltp_trees import export_trees, import_trees
 from reason_commons.adapters.trees import plain, trees_lines
 from reason_commons.bootstrap import create_case, open_case
-from tests.support import ScriptedConsultant, fixture_app, proposal, retain, submit
+from tests.support import ScriptedConsultant, accept_all, automatic, fixture_app, proposal, retain, submit
 from tests.test_ltp_trees import DOCUMENT
 
 
@@ -18,6 +19,13 @@ def new_app(context):
     context.provider = ScriptedConsultant()
     context.app, context.faults = fixture_app(context.path, context.provider)
     context.apps.append(context.app)
+    if getattr(context, "automatic", False):
+        automatic(context.app)
+
+
+@given("a case set to accept proposals automatically")
+def automatic_case(context):
+    context.automatic = True
 
 
 def recording(*updates):
@@ -26,6 +34,16 @@ def recording(*updates):
         value = proposal(request)
         rid = request["input"]["request_id"]
         value["proposed_updates"] += [{**u, "source_refs": [rid]} for u in updates]
+        return value
+    return build
+
+
+def exactly(*updates):
+    """A consultant reply proposing exactly these updates, citing the input it answers."""
+    def build(request):
+        value = proposal(request)
+        rid = request["input"]["request_id"]
+        value["proposed_updates"] = [{**u, "source_refs": [rid]} for u in updates]
         return value
     return build
 
@@ -50,6 +68,7 @@ def case_with_goal(context, goal):
     context.provider.responses.append(recording({"operation": "record_goal", "temporary_id": "goal",
                                                  "data": {"statement": goal, "protections": []}}))
     assert submit(context.app, goal)["status"] == "saved"
+    accept_all(context.app)
 
 
 @when('the operator says "{text}"')
@@ -59,12 +78,18 @@ def operator_says(context, text):
 
 @when("the consultant proposes a symptom, a cause and a causes link citing that input")
 def propose_cause(context):
-    context.provider.responses.append(recording(
-        claim("temp_ude", "Newcomers do not know the next step"),
-        claim("temp_cause", "We never offer a next step", role="root_cause", basis="participant_report"),
+    context.provider.responses.append(exactly(
+        {**claim("temp_ude", "Newcomers do not know the next step"), "confidence": 0.8},
+        {**claim("temp_cause", "We never offer a next step", role="root_cause", basis="participant_report"),
+         "confidence": 0.6},
         link("temp_link", "temp_cause", "temp_ude")))
     context.result = submit(context.app, context.said)
     assert context.result["status"] == "saved"
+
+
+@when("the operator accepts them")
+def accept_them(context):
+    accept_all(context.app)
 
 
 @then("the Current Reality Tree holds both statements and the link")
@@ -92,9 +117,10 @@ def drawn(context, label):
 
 INVALID = {
     "a goal role in the Current Reality Tree": [claim("temp_a", "A goal", role="goal")],
-    "a link between claims of two different trees": [
+    "a statement in the goal role, beside the case goal": [claim("temp_a", "A second goal", tree="goal", role="goal")],
+    "a link whose claims both belong to other trees": [
         claim("temp_a", "Effect"), claim("temp_b", "Need", tree="conflict", role="cloud_requirement"),
-        link("temp_l", "temp_a", "temp_b")],
+        link("temp_l", "temp_a", "temp_b", tree="future_reality")],
     "a link from a claim to itself": [claim("temp_a", "Effect"), link("temp_l", "temp_a", "temp_a")],
     "a link to a claim proposed after the link": [
         claim("temp_a", "Effect"), link("temp_l", "temp_b", "temp_a"), claim("temp_b", "Cause", role="root_cause")],
@@ -117,13 +143,15 @@ def crt(context):
     case_with_goal(context, "A clear next step after open evenings")
     operator_says(context, "Newcomers do not know the next step, because we never offer one")
     propose_cause(context)
+    accept_all(context.app)
 
 
-@when("the operator asks to word the cause more precisely and the consultant replaces it")
+@when("the operator asks to word the cause more precisely and accepts the consultant's new wording")
 def reword(context):
     context.provider.responses.append(recording(
         claim("temp_new", "Open evenings end without any invitation to practise", role="root_cause", replaces="C2@1")))
     assert submit(context.app, "Say the cause more precisely")["status"] == "saved"
+    accept_all(context.app)
 
 
 @then("the tree shows the new wording, still linked to the symptom")
@@ -133,6 +161,14 @@ def reworded(context):
     assert cause["statement"] == "Open evenings end without any invitation to practise"
     assert cause["earlier_wording"] == ["We never offer a next step"]
     assert [(l["from"], l["to"]) for l in crt["links"]] == [(cause["ref"], "C1@1")]
+    assert cause["ref"] == "C2@2"  # a new version of the same statement
+
+
+@then("the link is flagged for review because it was stated for the earlier wording")
+def link_flagged(context):
+    reviews = [e for e in context.app.workspace(view="backlog")["backlog"] if e["entry"] == "review"]
+    assert [(e["ref"], [(f["cites"], f["change"], f["now"]) for f in e["flags"]]) for e in reviews] == [
+        ("L1@1", [("C2@1", "new_version", "C2@2")])]
 
 
 @then("the earlier wording stays in the case history")
@@ -141,11 +177,12 @@ def earlier_kept(context):
     assert records["C2@1"]["data"]["statement"] == "We never offer a next step"
 
 
-@when("the operator withdraws the cause and the consultant records the withdrawal with a reason")
+@when("the operator withdraws the cause and accepts the consultant's withdrawal with its reason")
 def withdraw(context):
     context.provider.responses.append(recording({"operation": "record_retraction", "temporary_id": "temp_x",
-                                                 "data": {"target_ref": "C3@1", "reason": "Not what we think now"}}))
+                                                 "data": {"target_ref": "C2@2", "reason": "Not what we think now"}}))
     assert submit(context.app, "Drop that cause")["status"] == "saved"
+    accept_all(context.app)
 
 
 @then("the tree no longer shows the cause or its link")
@@ -157,7 +194,7 @@ def withdrawn(context):
 @then("a later proposal linking the withdrawn cause is rejected before commit")
 def relink_rejected(context):
     before = context.app.inspect()
-    context.provider.responses.append(recording(link("temp_l", "C3@1", "C1@1")))
+    context.provider.responses.append(recording(link("temp_l", "C2@2", "C1@1")))
     assert submit(context.app, "Link it again")["status"] == "rejected"
     assert context.app.inspect()["case"] == before["case"]
 
@@ -229,8 +266,19 @@ def cites_file(context):
     with open_case(context.path, writable=False) as app:
         sources, records = app.sources()["sources"], app.inspect()["case"]["records"]
     file_ref = next(k for k, v in sources.items() if v.get("name") == "delivery.ltp.yaml")
-    imported = [r for r in records if r["kind"] in {"claim", "link"}]
+    # Six statements (the file's goal is proposed as the case's goal) and two links.
+    imported = [r for r in records if r["kind"] in {"claim", "link"} or file_ref in r["source_refs"]
+                and r["kind"] == "goal"]
     assert len(imported) == 6 + 2 and all(r["source_refs"] == [file_ref] for r in imported)
+
+
+@then("everything the file brings in waits in the backlog until the operator accepts it")
+def file_waits(context):
+    with open_case(context.path, writable=False) as app:
+        workspace = app.workspace(view="backlog")
+    waiting = {e["ref"] for e in workspace["backlog"] if e["entry"] == "proposal"}
+    assert set(context.summary["proposed"]) <= waiting and not context.summary["accepted"]
+    assert all(not t["claims"] for t in workspace["trees"] if t["tree"] != "goal")
 
 
 @then("the joint-premise link and the assessment are kept as labelled notes")
@@ -261,6 +309,8 @@ def imported_case(context):
     create_case(context.path, "Delivery").close()
     ltp_file(context)
     bring_in(context)
+    with open_case(context.path) as app:
+        accept_all(app)
 
 
 @when("the operator exports the trees to a new LTP file and brings that file into a new case")
@@ -269,10 +319,15 @@ def round_trip(context):
         context.first = app.workspace(view="trees")
     context.exported = context.path.parent / "out.ltp.yaml"
     export_trees(context.first, context.exported)
-    again = context.path.parent / "again"
-    create_case(again, "Again").close()
-    import_trees(again, context.exported, "Sam")
-    with open_case(again, writable=False) as app:
+    context.again = context.path.parent / "again"
+    create_case(context.again, "Again").close()
+    import_trees(context.again, context.exported, "Sam")
+
+
+@when("the operator accepts everything the file brings in")
+def accept_import(context):
+    with open_case(context.again) as app:
+        accept_all(app)
         context.second = app.workspace(view="trees")
 
 

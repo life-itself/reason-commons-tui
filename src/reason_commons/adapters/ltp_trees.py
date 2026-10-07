@@ -2,10 +2,12 @@
 
 Import goes through the ordinary use cases: the file is attached as a source,
 a literal request is retained, and a deterministic, one-use proposal adapter
-records one claim per entity and one link per relationship, citing the file.
+proposes one claim per entity and one link per relationship, citing the file.
+Like any proposal they wait in the backlog until the operator accepts them. The
+file's Goal Tree goal is proposed as the case's goal, or as a new version of it.
 The current question carries on unchanged. Anything the native trees cannot
-hold (a joint premise group, a cross-tree link, an assessment) is kept as a
-labelled note, so nothing in the file is silently dropped.
+hold (a joint premise group, an assessment) is kept as a labelled note, so
+nothing in the file is silently dropped.
 
 Export writes the trees as they stand now, in the same interchange format.
 """
@@ -18,6 +20,7 @@ import re
 import yaml
 
 from reason_commons.adapters.ltp_conversion import UniqueLoader
+from reason_commons.domain.membership import Membership
 from reason_commons.domain.model import RELATIONS, ROLES, TREES, require, shape, string_list, text
 
 
@@ -90,11 +93,28 @@ class TreeImport:
                             "data": {"text": content, "basis": "participant_report"}, "source_refs": refs[:]})
             kept.append(content)
 
+        case = request["case"]
+        records = {r["ref"]: r for r in case["records"]}
+        alive = Membership(case).goals(proposing=True)
+        current_goal = records[alive[-1]] if alive else None
+        goal_entities = [e for e in value["entities"] if e["tree"] == "goal" and "goal" in self.roles.get(e["id"], [])]
         for index, entity in enumerate(value["entities"]):
             alias = f"temp_claim_{index}"
             entity_alias[entity["id"]] = alias
             given = self.roles.get(entity["id"], [])
-            role = next((r for r in given if entity["tree"] in ROLES.get(r, ())), "observation")
+            if goal_entities and entity is goal_entities[0]:
+                # The case has one goal, at the top of its Goal Tree: the file's goal is that goal.
+                if current_goal and current_goal["data"]["statement"] == entity["statement"]:
+                    entity_alias[entity["id"]] = current_goal["ref"]
+                    continue
+                data = {"statement": entity["statement"], "scope": None, "horizon": None, "measure": None,
+                        "baseline": None, "protections": []}
+                if current_goal:
+                    data["replaces"] = current_goal["ref"]
+                updates.append({"operation": "record_goal", "temporary_id": alias, "source_refs": refs[:],
+                                "data": data})
+                continue
+            role = next((r for r in given if entity["tree"] in ROLES.get(r, ()) and r != "goal"), "observation")
             if given and given != [role]:
                 note(f"From {self.name}: {entity['id']} was designated {', '.join(map(str, given))}; "
                      f"it is drawn as {role} in the {entity['tree']} tree.")
@@ -112,8 +132,8 @@ class TreeImport:
                 reason = f"its kind {relation['kind']!r} is not one the trees can draw"
             elif len(relation["from_entity_ids"]) > 1:
                 reason = "it joins several premises, and joint premises arrive with the full causal tools"
-            elif any(entities[e]["tree"] != relation["tree"] for e in ends):
-                reason = "it crosses from one tree to another"
+            elif relation["tree"] not in {entities[e]["tree"] for e in ends}:
+                reason = "it belongs to a tree neither of its statements is in"
             elif relation["from_entity_ids"][0] == relation["to_entity_id"]:
                 reason = "it links a statement to itself"
             if reason:
@@ -134,33 +154,29 @@ class TreeImport:
         for assessment in value["assessments"]:
             note(f"From {self.name}: assessment {assessment.get('id')} ({assessment.get('kind')}): "
                  f"{assessment.get('statement')}. It is the file's own conclusion, not one reached here.")
-        case = request["case"]
-        records = {r["ref"]: r for r in case["records"]}
         current = records.get(case["current_intervention"])
-        goals = [e for e in value["entities"] if "goal" in self.roles.get(e["id"], []) and e["tree"] == "goal"]
-        if current is None and not records and len(goals) == 1:
-            # A fresh case takes the tree's goal as its goal, so the loop can start from it.
-            # Mid-conversation, the goal stays whatever the conversation makes it.
-            updates.append({"operation": "record_goal", "temporary_id": "goal", "source_refs": refs[:],
-                            "data": {"statement": goals[0]["statement"], "scope": None, "horizon": None,
-                                     "measure": None, "baseline": None, "protections": []}})
+        for extra in goal_entities[1:]:
+            note(f"From {self.name}: {extra['id']} is a second goal, \"{extra['statement']}\"; a case has one "
+                 "goal, so it is kept here as a note.")
+        waiting = (f"The trees from {self.name} wait in the backlog until you accept them"
+                   if (request.get("model") or {}).get("acceptance") != "automatic"
+                   else f"The trees from {self.name} are in the Trees view")
         if current:
             intervention = deepcopy(current["data"])
-            intervention["primary_prompt"] = (f"The trees from {self.name} are in the Trees view. "
-                                              + intervention["primary_prompt"])
+            intervention["primary_prompt"] = f"{waiting}. " + intervention["primary_prompt"]
         else:
             intervention = {"kind": "question", "purpose": "Choose a first test from the imported trees",
                             "decision": "Choose a test",
-                            "primary_prompt": f"The trees from {self.name} are in the Trees view. Which change "
-                                              "or action from them do you want to test first, and what do you "
-                                              "expect to happen?",
+                            "primary_prompt": f"{waiting}. Which change or action from them do you want to "
+                                              "test first, and what do you expect to happen?",
                             "rationale": "The trees say what might work. A small test with a forecast written "
                                          "first shows whether it does.",
                             "required_context_refs": [],
                             "options": [{"id": "trees", "label": "Look at the trees",
                                          "action": {"type": "view", "target": "trees"}}]}
-            if any(u["operation"] == "record_goal" for u in updates):
-                intervention.update(goal_ref="goal", required_context_refs=["goal"])
+            goal_alias = entity_alias.get(goal_entities[0]["id"]) if goal_entities else None
+            if goal_alias:
+                intervention.update(goal_ref=goal_alias, required_context_refs=[goal_alias])
         self.summary = {"claims": len(value["entities"]), "links": links, "notes": len(kept)}
         return {"schema_version": "1", "delivery_profile": "p2", "request_id": request["input"]["request_id"],
                 "base_revision": request["input"]["base_revision"], "intervention": intervention,
@@ -181,7 +197,8 @@ def import_trees(store, source, speaker, open_case=None):
     with open_case(store, consultant=importer) as app:
         result = app.submit(IMPORT_REQUEST.format(name=source.name), speaker, **app.workspace()["target"])
     require(result["status"] == "saved", result.get("message") or "The trees were not saved")
-    return {**importer.summary, "revision": result["revision"]}
+    return {**importer.summary, "revision": result["revision"], "proposed": result["proposed"],
+            "accepted": result["accepted_automatically"]}
 
 
 def _slug(ref):
@@ -193,6 +210,8 @@ def ltp_document(workspace, project_id=None):
     entities, designations, relationships, assumptions = [], [], [], []
     for tree in workspace["trees"]:
         for claim in tree["claims"]:
+            if claim.get("from_tree"):
+                continue  # a statement another tree's link uses is written once, in its own tree
             entity = "e-" + _slug(claim["ref"])
             entities.append({"id": entity, "tree": tree["tree"], "statement": claim["statement"],
                              "provenance": {"path": f"reason-commons case {workspace['case_id']}#{claim['ref']}"}})

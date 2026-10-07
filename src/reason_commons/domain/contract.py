@@ -34,8 +34,11 @@ def proposal_schema():
                 properties[field] = {"type": "array", "items": forecast, "minItems": 1}
             else:
                 properties[field] = text if field in REQUIRED_TEXT[kind] else nullable_text
+        # confidence: how faithfully the update represents what was said. It is kept with the
+        # proposal and decides nothing; the operator's decision puts a proposal into the model.
         updates.append(object_schema({"operation": {"const": "record_" + kind}, "temporary_id": text,
-                                      "data": object_schema(properties, REQUIRED[kind]), "source_refs": text_list()},
+                                      "data": object_schema(properties, REQUIRED[kind]), "source_refs": text_list(),
+                                      "confidence": {"type": "number", "minimum": 0, "maximum": 1}},
                                      {"operation", "data", "source_refs"}))
     # Temporary test references are resolved by the aggregate after allocation.
     actions = {"anyOf": [object_schema({"type": {"const": "view"}, "target": {"anyOf": [

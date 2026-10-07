@@ -229,8 +229,10 @@ FORGE_TREES = {
 
 def build_forge(path, consultant, replies=FORGE_REPLIES, trees=FORGE_TREES):
     """The Forge case at revision 10: after the given number of consultant replies, a tree import
-    follows the replies named in ``trees``. Every step goes through a use case."""
-    create_case(path, "Forge").close()
+    follows the replies named in ``trees``. Every step goes through a use case. Sam created the case to
+    accept proposals automatically, so each reply's records are in the model in the reply's own revision
+    and the case's history keeps the numbers the navigation scenarios name."""
+    create_case(path, "Forge", acceptance="automatic", actor=SPEAKER).close()
     consultant.responses.extend(build for _, build in replies)
     for index, (words, _) in enumerate(replies, start=1):
         with open_case(path, consultant=consultant) as app:

@@ -4,9 +4,11 @@ V1 proves a useful goal–action–review loop. Its user does not need graph con
 formal participant stances, or TOC vocabulary. V1 already provides
 a persistent full-screen workspace, literal response
 editor, visible local controls and readable forecast/outcome review, and it draws
-the six trees as they grow in conversation (scope change approved 2026-10-03).
-The trees' joint premises, rival routes, dependent review and other formal
-checks arrive later; the TUI itself is not deferred.
+the six trees as they grow in conversation (scope change approved 2026-10-03),
+and the operator decides what enters the model: proposals wait in a backlog unless
+the operator chose automatic acceptance (scope change approved 2026-10-07).
+The trees' joint premises, rival routes, review of consequences that no reference
+records and other formal checks arrive later; the TUI itself is not deferred.
 
 Section 0 of the main specification defines the v1 boundary. The JSON manifest
 locks the selected scenario IDs and artifact profiles. Changing that scope is
@@ -41,7 +43,7 @@ boolean filters follow the [official Cucumber reference](https://cucumber.io/doc
 |---|---|---|
 | p0 Durable minimal case | Goal/note/intervention/test/action/observation schema; immutable ancestry; preserved inputs; atomic publication; idempotent retry; stale response rejection; one writer; portable export/import; profile validation | Restart and round-trip reproduce the supported records and original forecast offline. Failed writes and invalid/out-of-profile proposals commit nothing. No provider call follows failed input retention. |
 | p1 Persistent TUI | Event loop; pinned case/goal/task/footer; literal multiline editor; keyboard controls; local inspection; async completion notices; focus/draft restoration; 80×24; linear alternative; profile-aware Actions | Default launch opens the workspace. Tab/arrows/Enter/Esc complete ordinary work without commands. Input is literal; navigation makes zero calls; pending output does not steal focus. Resize, resume and failure preserve draft and target. |
-| p2 Complete v1 loop | Goal/baseline/protections; public decision purpose; attributed corrections; bounded forecast; immediate action and authority; effect observation; prospective review; next decision; tree claims, single links, rewording and retraction drawn in a Trees view; LTP 1.0 import/export | The v1 session is reproducible with a fake adapter; a real adapter preserves semantic invariants; first-time users complete and explain the goal–action–review loop. |
+| p2 Complete v1 loop | Goal/baseline/protections; public decision purpose; attributed corrections; bounded forecast; immediate action and authority; effect observation; prospective review; next decision; tree claims, single links (which may reach another tree), new versions and retraction drawn in a Trees view, with the case's one goal at the Goal Tree's top; LTP 1.0 import/export; proposals decided in an ordered backlog, the acceptance setting, review flags on explicit references, and undo | The v1 session is reproducible with a fake adapter; a real adapter preserves semantic invariants; no proposal enters the model without the operator's acceptance or their automatic-acceptance setting, and every acceptance can be undone; first-time users complete and explain the goal–action–review loop. |
 | p3 Causal release | Joint premise (ALL) groups and rival routes in the CRT, WIP integration, assumptions, evidence detail, comparisons, feedback episodes, goal-connection and revision-review views; optional coaching/density settings and structured authoring forms | New causal scenarios and p0-p2 regressions pass. Users preserve joint premises, challenge a mechanism, distinguish alternatives, and notice changed-premise reviews. |
 | p4 Facilitated group release | Exact-version representation/belief/reliance; declared speaker switching; scoped Cloud; reported versus direct attribution | New group scenarios and p0-p3 regressions pass. No silence, reported opinion, or willingness to test becomes invented belief or consensus. |
 | p5 Full-tools release | Goal hierarchy, FRT and negative branches, PRT criteria/dependencies, TT rationale/contingencies, shared requirements, cross-tool traceability and review | New full-tool scenarios and p0-p4 regressions pass. Users trace the goal connection, review adverse paths, distinguish necessary states from sufficient action plans, and choose a changed-case action. |
@@ -74,8 +76,10 @@ wrong test/version, lost draft, focus theft, clipped premise or concealed breach
 
 Separately give them the complete loop: state success and protections, identify
 the next action and authority, specify an observation and stop condition, resume,
-and review an unchanged forecast. They must distinguish completed action,
-observed effect, pilot target, and system goal. Record individual performance,
+and review an unchanged forecast. They accept and reject what a reply proposes,
+find a proposal in the backlog, and undo an acceptance. They must distinguish
+completed action, observed effect, pilot target, and system goal, and say that
+accepting a proposal admits it to the model without making it true. Record individual performance,
 repairs, missing conditions, and reasoning. These are proposed gates and small
 formative samples, not claims of measured usability or population effectiveness.
 Test consequential fixes with new participants.
@@ -114,7 +118,8 @@ usability protocols separately for the same cumulative release. Undefined or
 pending steps are incomplete acceptance work; filtering them out does not meet
 a release gate. Do not use an exclusion such as `not @later` as an alternative
 to explicit scope, or use `@wip` to hide required failing scenarios. WIP in the
-product means unconnected contributions and is unrelated to delivery status.
+product means accepted but unconnected material (shown as Unlinked); it is
+unrelated to delivery status and to the backlog of proposals.
 
 ## Change discipline
 
@@ -141,3 +146,26 @@ The accessible ordered presentation shares the same actions, never a separate
 command language. Product/executable/archive names are Reason Commons,
 `reason-commons` and `.reasoncase`. Internal consultant contributions do not
 become user-facing stationery objects. No graph/group requirement moves into v1.
+
+## Specification decision of 7 October 2026
+
+The consultant drafts; the operator decides what enters the model. Before this
+decision a valid consultant reply was published straight into the trees. Now
+every update a reply proposes, to any part of the model, waits in a backlog with
+its source until the operator accepts it, unless the operator has set the case to
+accept proposals automatically; holding them for review is the default. The
+backlog orders proposals by what they cite and then by method, with a new goal
+marked to be decided first. An accepted change flags whatever explicitly cites
+what it changed, so a consequence cascades one reviewed step at a time, and every
+acceptance can be undone, finally, by an appended revision. Section 2F of the
+specification states the contract; feature 13 (S135–S147) specifies it.
+
+Three related changes make one model rather than parallel records: the case's
+goal is the Goal Tree's top statement and changes by new versions; a link may use
+a statement from another tree; and LTP imports wait in the backlog like any other
+proposal. These move bounded parts of p3 (membership, review on explicit
+references) and p5 (links across trees) into v1. S01, S02, S07, S40, S43, S46,
+S52, S108 and S128–S133 were amended to match; no scenario was removed. Review
+of consequences that no reference records, correction receipts and Restore
+reasoning stay in p3. A confidence threshold for automatic acceptance is a later
+setting; v1 records the consultant's confidence without using it.

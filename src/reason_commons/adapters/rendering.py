@@ -146,10 +146,44 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
     for goal in workspace["goals"]:
         for field in ("statement", "scope", "measure", "horizon", "baseline", "protections"):
             paragraph(field.capitalize() + ": " + literal(goal["data"].get(field)))
+    backlog = workspace.get("backlog") or []
+    if backlog and not workspace["historical"]:
+        proposals = [e for e in backlog if e["entry"] == "proposal"]
+        reviews = [e for e in backlog if e["entry"] == "review"]
+        heading("Waiting for you · not yet in the model" if proposals else "Open reviews")
+        shown = backlog if workspace["view"] == "backlog" else backlog[:8]
+        for entry in shown:
+            if entry["entry"] == "review":
+                changes = "; ".join(
+                    f"{f['cites']} {'has a new version' if f['change'] == 'new_version' else 'was ' + f['change']}"
+                    for f in entry["flags"])
+                paragraph(f"Review {entry['ref']}: " + literal(entry["summary"]) + " · stated before " + changes)
+                continue
+            line = (f"Proposed {TITLES[entry['kind']].lower()} {entry['ref']}: " + literal(entry["summary"])
+                    + (" · decide first" if entry["decide_first"] else "")
+                    + (" · waits for " + ", ".join(entry["waits_for"]) if entry["waits_for"] else ""))
+            paragraph(line)
+            if entry["kind"] == "goal" or workspace["view"] == "backlog":
+                for field, value in entry["record"]["data"].items():
+                    if field not in {"statement", "text"} and value not in (None, []):
+                        paragraph("  " + LABELS.get(field, field.replace("_", " ").capitalize()) + ": " + literal(value))
+        if len(shown) < len(backlog):
+            paragraph(f"And {len(backlog) - len(shown)} more in the backlog.")
+        paragraph(f"{len(proposals)} proposals wait and {len(reviews)} records are flagged for review. "
+                  + ("Proposals are accepted automatically under this case's setting. "
+                     if workspace.get("acceptance") == "automatic" else "")
+                  + "Accepting admits a statement to the model; it does not make it true.")
     if workspace["view"] == "history":
         heading("Published history · local")
         for revision in workspace["history"]:
             paragraph(f"Revision {revision['revision']} · {literal(revision['timestamp'])} · parent {revision['parent']}")
+            for decision in revision.get("decisions", []):
+                verb = {"accept": "accepted", "reject": "rejected", "undo": "undid", "still_holds":
+                        "said still holds:", "acceptance": "set acceptance to"}[decision["action"]]
+                what = decision.get("value") or ", ".join(decision["refs"])
+                paragraph("  " + literal(decision["actor"]) + f" {verb} {what}"
+                          + (" (automatically, under the case's setting)" if decision["mode"] == "automatic" else "")
+                          + (" · closed " + ", ".join(decision["closes"]) if decision["closes"] else ""))
     elif workspace["view"] == "sources":
         for source in workspace["sources"].values():
             source_details(source)

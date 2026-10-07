@@ -19,12 +19,12 @@ verify the actual TUI action bindings.
 | Existing scenario | Implemented behavior |
 |---|---|
 | S39 | Fresh-process resume preserves complete reasoning, current target and draft/cursor without consulting. |
-| S40 | Whole-snapshot publication appends ancestry, source references and an intervention atomically; prior revision bytes do not change. |
+| S40 | Whole-snapshot publication appends ancestry, source references, the next intervention and the reply's proposals atomically; prior revision bytes do not change. |
 | S42 | A validated `.reasoncase` round trip retains stable IDs, ancestry, supplied sources and original forecasts offline. |
 | S43 | Timeout receipts are separate from reasoning; explicit retry preserves the request and applies at most once. |
 | S44 | Unknown references and unsupported ownership reject the complete proposal while retaining input and failure receipt. |
 | S45 | Failed retention makes zero calls, reports not saved, preserves literal text and allows draft recovery to another export destination. |
-| S46 | Both pre-call and post-call base checks reject stale work with explicit re-evaluation; no implicit merge. |
+| S46 | Both pre-call and post-call response-target checks reject a reply once another reply has published a new question, with explicit re-evaluation; no implicit merge. Decisions recorded meanwhile do not make a reply stale (S146). |
 | S48 | Storage help describes immutable application policy and the limits of ordinary files/content hashes. |
 | S108 | The closed v1 registry rejects graph/stance records and out-of-profile fields/options before publication. |
 
@@ -214,6 +214,12 @@ Renaissance analysis, mapped by `scripts/build_sample_trees.py`.
 pass. Joint premise groups, rival routes, dependent review and boxed canvases
 remain p3–p5 work. The remaining p1/p2 scenarios are not yet delivered.
 
+Since 7 October 2026 (below) the trees work differently in three ways this section
+predates: a link may use a statement from another tree, the case's goal is the Goal
+Tree's top statement instead of a second copy among the claims, and rewording records
+a new version of the same statement (`C3@2`). S128–S133 were amended to say that what
+the consultant proposes waits for the operator.
+
 The user docs now cover the trees: the tutorial ends in the example's Transition
 Tree (`tutorial-trees.png`), `use-a-model.md` explains growing trees in
 conversation, `back-up-and-share.md` covers `.ltp.yaml` import/export and the
@@ -391,3 +397,58 @@ or leave Commands and Help out of the Tab order).
 
 Not built: renaming and deleting a goal, shown in the mock-up's home footer. They need new
 application use cases and scenarios first; see the UX plan.
+
+## Deciding what enters the model (p2 scenarios S135–S147, 7 October 2026)
+
+David set a contract change: the consultant drafts, and the operator decides what
+enters the model. The specification change came first and was reviewed (main
+specification section 2F, `13_proposals_and_review.feature`, amendments to S01, S02,
+S07, S40, S43, S46, S52, S108 and S128–S133, and the dated decision in
+`reason-commons-spec/delivery-phases.md`). Then:
+
+- **Domain.** A reply's updates become records whose membership is *proposed*;
+  snapshots carry `membership` (where proposals begin, and the acceptance setting) and
+  an append-only `decisions` list. `domain/membership.py` derives what is in the
+  model, readiness, the backlog's order, what a decision takes with it and review
+  flags. `Snapshot.decide` records accept, reject, undo, still holds and the setting as
+  revisions of their own; ancestry validation accepts exactly one explicit decision in
+  such a revision, and a reply may carry only its own automatic acceptance. A case has
+  one goal (a new one is `G1@2`), a claim may not take the goal role, a link belongs to
+  the tree of at least one of its statements, and a new wording keeps the statement's
+  identity. Only a newer question makes a pending reply stale.
+- **Application.** New use cases on `CaseApplication` and `CaseCapabilities`:
+  `accept`, `reject`, `undo`, `still_holds`, `set_acceptance`. A decision that takes
+  more than was named (and every undo) returns `confirm` with the full list and changes
+  nothing until it is repeated with `confirmed=True`. `workspace` returns the backlog,
+  each record's membership, the last reply's records and the setting; trees, goals
+  and comparisons show the model only. Consultants receive a `model` summary with
+  open reviews, and a `review_flags` consult intent asks about them.
+- **Adapters.** The built-in guide, the LTP importer (the file's goal is proposed as
+  the case's goal or its new version; links across trees are kept), the story builder
+  (created with automatic acceptance by its editor, so each chapter is still one
+  revision) and the finished example (its organiser accepts each reply, and rejects
+  the trees file's goal to keep her own) were brought under the new rules. The
+  provider schema accepts a per-update `confidence`, recorded and not used. The MCP
+  bridge has the decision tools and refuses `set_acceptance` unless started with
+  `--allow-acceptance-setting`; the CLI has `decide`. The contribution skill reports
+  proposals and leaves decisions to the participant.
+- **TUI.** Next step draws what the last reply proposes with **Accept all**; a
+  **Backlog** view lists entries in decision order (Enter for choices, `a`, `r`, `h`);
+  History rows name decisions and `u` undoes a step's acceptance; Commands switch the
+  setting and ask about open reviews; the band shows a goal that is only proposed.
+
+`scripts/check_p0.py` runs every scenario of `13_proposals_and_review.feature`
+(S135–S147) and fails unless all pass. `tests/test_membership.py` covers the domain's
+negative cases, forged decisions, ancestry and a case recorded by the previous release
+(`tests/fixtures/recorded-before-proposals.reasoncase`), which opens with everything
+in the model. Three deliberate breaks (no prerequisites on accept, flags never
+closing, no automatic acceptance) each failed feature 13. Tests that are about
+drawing or reading rather than deciding create their cases with automatic acceptance,
+which is a recorded choice; the Forge fixture of the p1 navigation scenarios does the
+same, so its Background still holds.
+
+Not delivered: a confidence threshold for automatic acceptance, editing a proposal's
+wording in the workspace before accepting, review of consequences that no reference
+records, and Restore reasoning (S41, p3). Live-model behaviour with proposals (does a
+real consultant use `replaces`, cite waiting proposals and answer `review_flags`
+well?) is not yet evaluated.

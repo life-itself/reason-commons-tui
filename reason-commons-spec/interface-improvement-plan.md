@@ -27,6 +27,7 @@ establish measured usability or authorize organizational actions.
 | Treat selection as attention | Evidence and status independent from focus/selection | No inferred endorsement, belief or consensus |
 | Distinguish doing from achieving | Performed action, observed intermediate state, test target and system goal separate | Review catches an unobserved effect or unmet goal |
 | Make corrections consequential | Before/after wording and exact dependent review needs | Participants know which next decision changes and why |
+| Let the operator decide what enters the model | Proposals wait in an ordered backlog with their source; automatic acceptance only by the operator's setting; review flags on what cites a change; Undo | Participants accept, reject and undo, and say that acceptance does not make a statement true |
 | Share one interaction model | All scenarios use labeled controls; ordered accessibility shares actions | No workflow needs colon syntax or a separate REPL |
 
 Build p0 storage/commit/recovery, p1 workspace and p2 complete goal/action/review

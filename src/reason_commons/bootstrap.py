@@ -56,9 +56,10 @@ def configured_consultant(provider=None, model=None, base_url=None):
     return LMStudioConsultant.from_env(model=model, base_url=base_url)
 
 
-def create_case(path, name="Untitled case", consultant=None, timezone="Europe/Berlin", clock=None):
+def create_case(path, name="Untitled case", consultant=None, timezone="Europe/Berlin", clock=None,
+                acceptance="review", actor=None):
     clock = clock or UTCClock()
-    initial = Snapshot.initial(str(uuid.uuid4()), name, clock.now(), timezone)
+    initial = Snapshot.initial(str(uuid.uuid4()), name, clock.now(), timezone, acceptance, actor)
     return CaseApplication(FileCaseStore.create(path, initial), clock, consultant, timezone)
 
 

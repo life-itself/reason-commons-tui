@@ -74,9 +74,12 @@ cannot silently remain outside the skill surface. TUI actions call these use
 cases; domain effects and local-versus-consultant routing are tested at that
 boundary, while focus/layout behavior belongs in adapter tests. The first TUI
 slice (`adapters/tui.py`) reads `workspace`/`inspect`/`history`/`sources` and writes only through
-`retain_input`, `consult`, `retry`, `export` and `checkpoint`; importing trees
+`retain_input`, `consult`, `retry`, the decision use cases (`accept`, `reject`, `undo`,
+`still_holds`, `set_acceptance`), `export` and `checkpoint`; importing trees
 goes through `add_source` and `submit` with a deterministic proposal adapter
-(`adapters/ltp_trees.py`), the same path the `trees --import` command uses. Its bindings are
+(`adapters/ltp_trees.py`), the same path the `trees --import` command uses. The
+confirmation the TUI shows before a decision that takes more than was chosen comes
+from the use case itself, which refuses to act without `confirmed=True`. Its bindings are
 covered by adapter tests, and 28 of the 32 p1 scenarios run through the real workspace as
 interface acceptance steps (`tests/acceptance/steps/workspace_steps.py`); the gate lists the rest.
 
@@ -92,6 +95,16 @@ Callers get copies of state, not mutable aggregate/repository handles.
 - `consult`: invokes an injected provider only for durably retained input.
 - `submit`: combines retention and consultation for a deliberate submission.
 - `retry`: uses the retained identity; an applied request never calls again.
+- `accept`, `reject`, `undo`: the operator's decisions about proposals, each one local
+  revision with no consultant call. Accept takes the waiting proposals the chosen ones
+  need, reject the waiting proposals that need them, undo whatever cannot stand without
+  the undone records. When that is more than was named (and for every undo) the result
+  is `confirm`, listing everything, and nothing changes until the call is repeated with
+  `confirmed=True`. A stale `base_revision` is refused.
+- `still_holds`: closes a record's open review flags, recording the operator's judgment.
+- `set_acceptance`: `review` (the default) or `automatic`, recorded as a decision. The
+  MCP bridge refuses it unless the operator started the server with
+  `--allow-acceptance-setting`; the contribution skill never calls it.
 - `add_source`, `export`: local attachment and portable handoff operations.
 
 The `CaseCapabilities` protocol is the shared semantic surface for skills and
@@ -102,9 +115,35 @@ cases; p1 can invoke them in a worker while retaining UI focus. No event bus,
 generic command dispatcher, service container or framework is necessary yet.
 
 Result statuses distinguish `input_retained`, `saved`, `not_saved`, `unavailable`,
-`rejected` and `stale`. Recovery actions are machine-readable control identities
-for a future interface, rather than a prose parser. `saved` means manifest
-publication completed, not that an LLM said the work succeeded.
+`rejected`, `stale` and, for decisions, `confirm`. Recovery actions are machine-readable control identities
+for interfaces to act on, rather than a prose parser. `saved` means manifest
+publication completed, not that an LLM said the work succeeded. A saved reply
+reports what it `proposed` and what was `accepted_automatically`; a reply's updates
+are proposals, and they enter the model only by a decision.
+
+## Proposals and the model
+
+The consultant drafts; the operator decides what enters the model. `Snapshot.apply`
+publishes a reply's next question at once and appends its updates as records whose
+membership is *proposed*. `Snapshot.decide` appends one decision (accept, reject,
+undo, still holds, the acceptance setting) as a revision of its own. Snapshots carry
+`membership` (where proposals begin, and the setting) and an append-only `decisions`
+list; `domain/membership.py` derives everything else from them: what is in the model,
+readiness, what a decision takes with it, the backlog's order and review flags. Flags
+are derived from explicit references rather than stored. Under automatic acceptance
+the ready proposals of a reply are accepted in the reply's own revision, recorded as
+automatic with that request.
+
+Only a newer consultant question makes a pending reply stale: decisions recorded while
+the consultant works leave the response target unchanged, and the reply's proposals are
+validated against the model as it then stands. Ancestry validation allows two kinds of
+revision: one that applies exactly one request (and at most its own automatic
+acceptance), and one that records exactly one explicit decision and nothing else.
+
+Cases recorded before proposals needed acceptance have neither field. Every record in
+them is in the model, and the first revision written under this contract sets
+`proposals_from` to the number of records already there. `tests/fixtures/` holds such
+a case, built by the previous release, and `tests/test_membership.py` opens it.
 
 ## Shared conversation projection
 
@@ -137,13 +176,23 @@ screen over the case folders in `~/ReasonCommons`; it only lists (read-only
 composition (`--provider`, `REASON_COMMONS_PROVIDER`, default `guided`) and can
 be switched in the app by reopening the case with another adapter.
 
+What a reply proposes is drawn under the next question, marked proposed, with an
+**Accept all** button; the **Backlog** view lists waiting proposals and review flags
+in decision order and decides them (Enter for choices, `a` accept, `r` reject, `h`
+still holds); **History** undoes a step's acceptance with `u`; Commands switch the
+acceptance setting and ask the consultant about open reviews. Each of these calls a
+decision use case, and a decision that takes more than was chosen is shown in a
+dialog from the use case's own `confirm` result before it is repeated with
+`confirmed=True`.
+
 `GuidedConsultant` is a deterministic implementation of the consultant port. It
-asks the v1 loop's questions in order, records literal participant wording as
+asks the v1 loop's questions in order, proposes literal participant wording as
 goal, test, action, observation and review records, and infers no measures,
 ownership, evidence or outcomes. Its proposals go through the same validation
-as a model's. When another consultant asked the last question, it continues
-from the recorded state, keeping the answer as a note when it starts a new goal
-or test.
+and wait for the operator as a model's do; it follows what is in the model or
+still waiting, and a goal it proposes when the case has one is a new version of
+it. When another consultant asked the last question, it continues from the
+recorded state, keeping the answer as a note when it starts a new goal or test.
 
 ## Durability and recovery
 
@@ -156,8 +205,9 @@ can coexist with a writer because published snapshots never change.
 Inputs, supplied sources and attempt receipts are independently hashed,
 append-only YAML records. Provider exceptions retain a category rather than
 potentially secret exception text. Provider credentials are not stored.
-The entire case and sources are explicitly supplied to the provider; no hidden
-conversation is needed. The received proposal and provider version are retained
+The entire case and sources are explicitly supplied to the provider, with a `model`
+summary (what is in the model, what waits, what was rejected or undone, and open
+review flags); no hidden conversation is needed. The received proposal and provider version are retained
 before validation/publication, so interrupted commits retry without another call.
 The snapshot's applied-request ledger remains authoritative if receipt writing
 fails after publication. Retry of an invalid proposal starts a fresh attempt;
@@ -188,10 +238,13 @@ flush failures remain `not_saved` and never trigger another consultant call.
 ## Testing and increment boundary
 
 `python3 scripts/check_p0.py` runs document consistency, the pre-existing checker
-regressions, domain/storage/application/skill tests and **the original nine p0
-Gherkin scenarios** through Behave. The runner locates external step definitions;
-it does not copy, rewrite or weaken the feature files. It also verifies the exact
-selected scenario identities and rejects undefined, skipped or pending p0 cases.
+regressions, domain/storage/application/skill tests and, through Behave, **the
+nine p0 scenarios**, every scenario of the two p2 features delivered so far (trees
+in conversation, S128–S134, and deciding what enters the model, S135–S147), the
+delivered p1 workspace scenarios and the conversation features. The runner locates
+external step definitions; it does not copy, rewrite or weaken the feature files.
+It also verifies the exact selected scenario identities and rejects undefined,
+skipped or pending cases.
 Fixture setup uses application use cases. Byte-level persistence checks inspect
 archives returned by the public export capability.
 
@@ -255,9 +308,10 @@ context resources are frozen/hashed for each consultant session. The provider
 grammar distinguishes source identities, existing formulation refs and named
 temporary updates; domain validation still decides publication.
 
-P0 is complete. A first personal-use TUI slice ships; the remaining p1 contract,
-p2 consulting quality and the useful human review loop, complete semantic
-acceptance and participant studies remain later work. The p2 envelope
+P0 is complete. A first personal-use TUI slice ships, with the trees and the
+backlog of proposals of p2; the remaining p1 contract, the rest of p2 (consulting
+quality and the useful human review loop), complete semantic acceptance and
+participant studies remain later work. The p2 envelope
 name denotes the v1 **data profile**, not completion of p2 delivery behavior.
 The conversational skill projects current saved record links; later typed graph/group semantics remain unavailable. No shell REPL is advertised. The
 existing TUI design remains the p1 contract that the TUI slice works toward.
@@ -265,7 +319,8 @@ existing TUI design remains the p1 contract that the TUI slice works toward.
 
 The offline legacy LTP continuation converter is a source-bound deterministic
 proposal adapter. It uses existing public application operations, retains the
-exact source and literal importing request, and publishes one imported baseline.
+exact source and literal importing request, and proposes one imported baseline,
+which waits for the operator's acceptance like any other proposal.
 Unsupported structures are clearly labeled archival prose, rather than new
 executable fields or invented domain types. Explicit legacy supersession does
 not supply enough history to reconstruct original application revisions; future

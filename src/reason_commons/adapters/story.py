@@ -4,9 +4,11 @@ A story file (``stories/*.yaml``) lists chapters in order: when, who, the words
 they actually wrote, and what those words changed in the trees and the loop.
 Each chapter goes through the ordinary use cases: the words are retained as the
 speaker's literal input, the chapter's source is attached, and a one-use,
-deterministic proposal records the chapter's changes citing both. So the
-History, Your words and Trees views read exactly as they would for a goal that
-grew this way, and the engine validates every step.
+deterministic proposal records the chapter's changes citing both. The story's
+editor creates the goal to accept proposals automatically, so each chapter's
+changes enter the model in the chapter's own revision. So the History, Your
+words and Trees views read exactly as they would for a goal that grew this way,
+and the engine validates every step.
 
 The adapter adds no reasoning of its own; the story file is the authority on
 what each chapter changed, and it says which parts are an editor's reading.
@@ -22,6 +24,7 @@ from reason_commons.adapters.ltp_trees import read_trees
 from reason_commons.domain.model import RELATIONS, ROLES, require
 
 STORY_VERSION = "story/1"
+EDITOR = "Story editor"
 
 
 def load_story(name="second-renaissance"):
@@ -98,6 +101,12 @@ class Chapter:
         trees = {}
 
         def claim(key, tree, role, statement, basis=None, replaces=None):
+            if role == "goal":
+                # The goal is the case's goal record, at the top of the Goal Tree.
+                known[key] = known.get("__goal__") or state.goal
+                trees[key] = "goal"
+                goal_aliases.append(key)
+                return
             data = {"tree": tree, "role": role, "statement": statement}
             if basis:
                 data["basis"] = basis
@@ -120,6 +129,7 @@ class Chapter:
             update("link", data, ("link", key))
 
         made = set()
+        goal_aliases = []
 
         def canon(key):
             """Links are compared by the identity a claim had before this chapter reworded it."""
@@ -129,9 +139,11 @@ class Chapter:
 
         if chapter.get("goal"):
             goal = chapter["goal"]
-            temp = update("goal", {"statement": goal["statement"], "scope": None, "horizon": None,
-                                   "measure": goal.get("measure"), "baseline": None, "protections": []},
-                          ("goal", None, None))
+            data = {"statement": goal["statement"], "scope": None, "horizon": None,
+                    "measure": goal.get("measure"), "baseline": None, "protections": []}
+            if state.goal:
+                data["replaces"] = state.goal  # a case has one goal; a changed one is its new version
+            temp = update("goal", data, ("goal", None, None))
             known["__goal__"] = temp
         for item in chapter.get("reword", []):
             old = state.resolve(item["id"])
@@ -187,7 +199,7 @@ class Chapter:
                         "required_context_refs": [], "options": []}
         if goal_ref:
             intervention["goal_ref"] = goal_ref
-        self.keys = keys
+        self.keys, self.goal_aliases = keys, goal_aliases
         return {"schema_version": "1", "delivery_profile": "p2", "request_id": request["input"]["request_id"],
                 "base_revision": request["input"]["base_revision"], "intervention": intervention,
                 "proposed_updates": updates}
@@ -224,6 +236,9 @@ class Chapter:
                 state.links.add(key[1])
             elif kind == "withdraw":
                 state.drop(key[1])
+        for story_id in self.goal_aliases:
+            state.refs[story_id] = state.goal
+            state.trees[story_id], state.roles[story_id] = "goal", "goal"
 
 
 class Narrator:
@@ -247,7 +262,8 @@ def build_story(path, story=None):
     chapters = story["chapters"]
     clock, narrator, state = FixedClock(chapters[0]["date"]), Narrator(), StoryState()
     state.trees, state.roles = {}, {}
-    with create_case(path, story["name"], consultant=narrator, clock=clock) as app:
+    with create_case(path, story["name"], consultant=narrator, clock=clock, acceptance="automatic",
+                     actor=EDITOR) as app:
         for chapter in chapters:
             clock.value = chapter["date"]
             model = None

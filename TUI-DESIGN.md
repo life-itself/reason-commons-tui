@@ -97,11 +97,19 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   ("no assumption stated yet"), not raised in a prompt.
 - **A forecast in a tree is sealed.** A test under a statement reads as the test, then its *original
   forecast, saved before any result*, then the result. No verdict mark appears that no one recorded.
-- **Show the reading while the speaker still knows what they meant.** After a reply that changed the
-  trees by a few statements, Next step draws them under the new question, as the trees draw them, beside
-  the words they came from, with how to correct a wrong reading (say so in the answer). It records no
-  agreement: silence is not assent, and a stance waits for the position records of p4. A larger change
-  is summed up in a line.
+- **Show the proposal while the speaker still knows what they meant.** After a reply, Next step draws
+  what it proposes under the new question, as the trees draw them, beside the words they came from,
+  marked *proposed*, with **Accept all** and **Backlog**; a larger change is summed up in a line. To
+  correct a wrong reading, reject it or say so in the answer. Accepting admits the reading into the
+  model; it is not agreement, and a stance still waits for the position records of p4. Under automatic
+  acceptance the same place says what entered the model with the reply and that History can undo it.
+- **The model and the backlog never mix.** Trees, Goal and Tests show what has been accepted; a
+  proposal appears only in Next step, the Backlog and its own details, always marked *proposed*. The
+  Backlog lists proposals and review flags in decision order: what an entry cites first, then a new
+  goal (marked *decide first*), the Goal Tree, Current Reality, Cloud, Future Reality, Prerequisite and
+  Transition Trees, tests, actions, observations, reviews and notes. A row says what it waits for, and
+  a flag names the change that raised it. An action that takes other records with it lists them
+  before anything changes; Undo, in History, says it is final.
 - **Pointing goes into the words.** *Answer about this* (a) puts the chosen statement's words, role and
   tree at the end of the draft as ordinary editable text, so the kept input says which statement "that
   one" was. It changes neither the live question nor the target; an exact subject reference waits for
@@ -155,6 +163,7 @@ single links (S128–S134), with a chosen statement's links, wording and origin
 beside them (Master-Detail) or full screen (Expand-to-Focus). A complete Evaporating
 Cloud, whose five places are fixed and need no routing, is drawn as its five boxes
 now, so both sides are visible; joint premises, rival routes and the other boxed
-canvases arrive in p3–p5; the TUI is not deferred. Use S114–S134 alongside earlier integrity and
-reasoning gates. Authored snapshots
+canvases arrive in p3–p5; the TUI is not deferred. P2 also adds the Backlog, where the
+operator accepts or rejects what replies propose and closes review flags, with Undo in
+History (S135–S147). Use S114–S147 alongside earlier integrity and reasoning gates. Authored snapshots
 and document checks do not prove a running TUI or measured usability.

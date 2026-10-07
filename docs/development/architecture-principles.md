@@ -30,7 +30,7 @@ the domain.
 
 | Role | Analogy | In this repository |
 |---|---|---|
-| Interface (CLI, TUI) | Controller / view | `adapters/cli.py`, the future TUI |
+| Interface (CLI, TUI) | Controller / view | `adapters/cli.py`, `adapters/tui.py` |
 | Skill | Use-case orchestrator for an agent | `adapters/contribution_skill/SKILL.md`, `adapters/skills.py` |
 | Agent | Executor / interpreter | An external agent, or the experimental `adapters/skill_agent.py` |
 | Application use case | Application service | `application/service.py`, published in `application/ports.py` |

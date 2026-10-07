@@ -7,8 +7,12 @@ the same workspace, with the same records, explicit submission, attribution,
 version validation and recovery. It has no command prompt or phrase parser.
 
 Use a stable reading order: case/save/actor/view/focus, urgent status, decision,
-complete question and relevant context, reasoning as relation sentences or an
-aligned table, local evidence/actions, Response, Send, other destinations.
+complete question and relevant context, what the last reply proposes (each
+record with its source, under "Proposed, not yet in the model"), reasoning as
+relation sentences or an aligned table, local evidence/actions, Response, Send,
+other destinations. The Backlog reads as an ordered list in which each entry says
+what it waits for, and its Accept, Reject, Still holds and Undo controls are the
+same labeled controls as in the spatial TUI.
 Describe each control by label, role, consequence and current focus. Announce
 focus changes and important new status once. Never announce each animation or
 reprint the entire case on every keystroke. Append an explicit replacement section
@@ -48,6 +52,6 @@ columns are unsuitable. Never reduce an adverse path to a success-only summary.
 At less than 40x24 retain state and offer resize or this ordered presentation.
 S49 covers narrow ordered context; S50 equivalent relation text; S51 drafts;
 S54-S71 focus/selection/target behavior; S115-S120 deliberate submission, restoration
-and recovery. The participant gates in delivery-phases.md include assistive
+and recovery; S135-S147 decisions about proposals. The participant gates in delivery-phases.md include assistive
 technology users. These requirements need implementation and actual reader tests;
 a text specimen or passing document check is not evidence of accessibility.

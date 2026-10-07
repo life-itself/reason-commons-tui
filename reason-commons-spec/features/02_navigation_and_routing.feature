@@ -26,6 +26,7 @@ Feature: Navigate without asking the consultant to think
       | History > Inspect the baseline   | archived Inspect the baseline  |
       | Help                             | control help                   |
       | Actions > Consultant calls       | adapter call count             |
+      | Backlog                          | proposals waiting for decision |
 
   @S08 @p1 @v1 @automated
   Scenario: Send a numeric answer from the literal editor

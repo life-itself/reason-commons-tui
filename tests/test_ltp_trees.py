@@ -1,5 +1,7 @@
 """LTP 1.0 trees come in through the ordinary use cases and go back out unchanged."""
 
+import json
+
 import pytest
 import yaml
 
@@ -8,6 +10,7 @@ from reason_commons.adapters.ltp_trees import export_trees, import_trees, ltp_do
 from reason_commons.adapters.sample import build_sample
 from reason_commons.adapters.trees import plain, trees_lines
 from reason_commons.bootstrap import create_case, open_case
+from tests.support import accept_all
 
 
 DOCUMENT = {"ltp": {
@@ -51,7 +54,13 @@ def test_import_into_a_fresh_case_draws_the_trees_and_keeps_what_they_cannot_hol
     case = tmp_path / "case"
     create_case(case, "Delivery").close()
     summary = import_trees(case, source, "David")
-    assert summary == {"claims": 6, "links": 2, "notes": 2, "revision": 1}
+    assert {k: summary[k] for k in ("claims", "links", "notes", "revision")} == {
+        "claims": 6, "links": 2, "notes": 2, "revision": 1}
+    assert summary["accepted"] == [] and len(summary["proposed"]) == 10
+    with open_case(case) as app:
+        # Everything the file brings in waits for the operator.
+        assert all(not t["claims"] for t in app.workspace(view="trees")["trees"])
+        accept_all(app, "David")
     with open_case(case, writable=False) as app:
         workspace = app.workspace(view="trees")
         records = app.inspect()["case"]["records"]
@@ -63,8 +72,11 @@ def test_import_into_a_fresh_case_draws_the_trees_and_keeps_what_they_cannot_hol
     notes = [r["data"]["text"] for r in records if r["kind"] == "note"]
     assert any("r3" in n and "several premises" in n for n in notes)
     assert any("as1" in n and "not one reached here" in n for n in notes)
-    # A fresh case takes the tree's goal as its own; every claim cites the attached file.
+    # The file's goal is the case's goal, at the top of its Goal Tree, recorded once; every claim cites the file.
     assert [r["data"]["statement"] for r in records if r["kind"] == "goal"] == ["Committed work is delivered within two weeks."]
+    assert not any(r["kind"] == "claim" and r["data"]["role"] == "goal" for r in records)
+    goal_tree = trees["goal"]
+    assert goal_tree["claims"][0]["ref"] == "G1@1" and goal_tree["links"][0]["to"] == "G1@1"
     file_ref = next(k for k, v in sources.items() if v.get("name") == "delivery.ltp.yaml")
     assert all(r["source_refs"] == [file_ref] for r in records if r["kind"] in {"claim", "link", "note"})
     drawing = plain(trees_lines(workspace["trees"], 80, only="current_reality"))
@@ -86,14 +98,17 @@ def test_import_mid_loop_keeps_the_current_question(tmp_path, source):
         # The guide carries on from the same step.
         app.submit("Days from commitment to delivery", "David", **app.workspace()["target"])
         assert app.workspace()["question"]["data"]["purpose"] == "guided:goal_protect"
-        assert len([r for r in app.inspect()["case"]["records"] if r["kind"] == "goal"]) == 0
+        # The file's goal is proposed as the case's goal; the guide has recorded none of its own yet.
+        goals = [r for r in app.inspect()["case"]["records"] if r["kind"] == "goal"]
+        assert [g["data"]["statement"] for g in goals] == ["Committed work is delivered within two weeks."]
 
 
 def test_export_round_trips(tmp_path, source):
     case, again = tmp_path / "case", tmp_path / "again"
     create_case(case, "Delivery").close()
     import_trees(case, source, "David")
-    with open_case(case, writable=False) as app:
+    with open_case(case) as app:
+        accept_all(app, "David")
         first = app.workspace(view="trees")
     exported = tmp_path / "out.ltp.yaml"
     assert export_trees(first, exported) == {"claims": 6, "links": 2}
@@ -101,7 +116,8 @@ def test_export_round_trips(tmp_path, source):
         export_trees(first, exported)
     create_case(again, "Again").close()
     import_trees(again, exported, "David")
-    with open_case(again, writable=False) as app:
+    with open_case(again) as app:
+        accept_all(app, "David")
         second = app.workspace(view="trees")
     shape = lambda w: [(t["tree"], [(c["role"], c["statement"]) for c in t["claims"]],
                         [(l["relation"], l["assumption"]) for l in t["links"]]) for t in w["trees"]]
@@ -134,6 +150,12 @@ def test_command_line_draws_imports_and_exports(tmp_path, source):
     create_case(case, "Delivery").close()
     result = cli("trees", case, "--import", source, "--speaker", "David")
     assert result.returncode == 0 and "6 statements and 2 links; 2 items kept as notes" in result.stdout
+    assert "10 proposals wait in the backlog" in result.stdout
+    backlog = json.loads(cli("show", case, "--view", "backlog", "--format", "json").stdout)["workspace"]["backlog"]
+    refs = [e["ref"] for e in backlog]
+    assert backlog[0]["decide_first"] and backlog[0]["kind"] == "goal"
+    decided = cli("decide", case, "accept", *refs, "--speaker", "David")
+    assert decided.returncode == 0 and json.loads(decided.stdout)["status"] == "saved"
     drawing = cli("trees", case, "--width", "80").stdout
     assert "Goal Tree" in drawing and "└─ needs: " in drawing and "· critical success factor" in drawing
     assert "Current Reality Tree" in cli("show", case, "--view", "trees").stdout

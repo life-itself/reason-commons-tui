@@ -42,7 +42,9 @@ def request_schema(request):
     # Temporary aliases are a provider convention, not a new domain rule.
     aliases = ["goal", "test", "action", "review", "note", "delivery", "acknowledgement"]
     temporary = {"anyOf": [{"enum": aliases}, {"type": "string", "pattern": "^temp_[A-Za-z][A-Za-z0-9_]*$"}]}
-    records = request["case"].get("records", [])
+    # Records the operator rejected or undid, or that were closed, can no longer be cited.
+    gone = set((request.get("model") or {}).get("not_admitted", []))
+    records = [r for r in request["case"].get("records", []) if r["ref"] not in gone]
 
     def refs(kinds=None):
         allowed = [r["ref"] for r in records if kinds is None or r["kind"] in kinds]

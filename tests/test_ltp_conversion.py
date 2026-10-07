@@ -14,7 +14,7 @@ import yaml
 from reason_commons.adapters.ltp_conversion import convert_ltp, read_ltp
 from reason_commons.bootstrap import import_case, open_case
 from reason_commons.domain.model import InvalidCase
-from tests.support import ScriptedConsultant, cli, submit
+from tests.support import accept_all, ScriptedConsultant, cli, submit
 
 
 def legacy():
@@ -104,6 +104,11 @@ def test_continuation_view_is_focused_and_full_reasoning_remains_inspectable(tmp
     source = source_file(tmp_path)
     store = tmp_path / "case"
     report = convert(source, store, tmp_path / "case.reasoncase")
+    with open_case(store) as app:
+        # The converted baseline waits for the operator like any import.
+        assert len(app.workspace(view="backlog")["backlog"]) == 11 and app.workspace()["records"] == [
+            r for r in app.workspace()["records"] if r["kind"] == "intervention"]
+        accept_all(app)
     with open_case(store, writable=False) as app:
         next_view = app.workspace()
         reasoning = app.workspace(view="reasoning")

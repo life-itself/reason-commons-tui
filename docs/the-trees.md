@@ -136,8 +136,11 @@ first practice, is the test the [tutorial](tutorial.md) runs.
 ## Seeing the trees in the app
 
 The pictures above are drawn for this page. In the app, the **Trees** view draws
-the same six trees as indented outlines, from what you and the consultant record as
-you talk, or from an `.ltp.yaml` file you bring in. The real commons on the
+the same six trees as indented outlines, from what you accept of what the consultant
+proposes as you talk, or of an `.ltp.yaml` file you bring in. Your goal is the Goal
+Tree's top statement, and a link may use a statement from another tree (a Future
+Reality link from the Cloud's change, say), which is drawn there too, marked with its
+own tree. The real commons on the
 home screen (**Explore a real commons**) carries this whole analysis and how it grew,
 so it is the easiest place to start.
 
@@ -166,10 +169,11 @@ it serves and the ones beneath it stand out; its details give the question worth
 asking of it, every link read from its side, the tests that carry it out, its earlier
 wordings and who said it, in their own words. On a wide terminal they sit beside the
 tree; **Enter** shows them full screen. **a** begins an answer about the chosen
-statement, so "that one is not a root cause" says which one. After a reply that changed
-the trees, the next question draws what was recorded beside the words it came from,
-so you can catch a wrong reading while you still know what you meant, and the tree
-marks those statements NEW or REWORDED. **Ctrl+T** again returns to the question. **Ctrl+P**, then **Import trees** or **Export trees**, moves trees in or
+statement, so "that one is not a root cause" says which one. After a reply, the next
+question draws what it proposes beside the words it came from, so you can catch a wrong
+reading while you still know what you meant; once you accept it, the tree marks those
+statements NEW or REWORDED, and anything that cited an earlier wording is flagged for
+review in **Backlog**. **Ctrl+T** again returns to the question. **Ctrl+P**, then **Import trees** or **Export trees**, moves trees in or
 out as `.ltp.yaml`.
 
 ![The Trees view opening on All six: each tree's name and question with the statement it starts from, folded, and how many statements lie below](images/trees-view.png)
