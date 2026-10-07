@@ -13,7 +13,18 @@ python3 scripts/check_p0.py
 python3 scripts/evaluate_lm_studio.py \
   --model google/gemma-4-e4b --suite all --repeat 2 \
   --output .evaluation-runs/my-model-check
+# The semantic fixtures with any configured consultant, Claude included (billed):
+python3 scripts/evaluate_semantic.py --provider anthropic --repeat 2 \
+  --output .evaluation-runs/my-claude-check
 ```
+
+`evaluate_semantic.py` runs every fixture in `evaluations/fixtures.py` (or `--case
+NAME`, repeatable) once per repetition, each generation attempted once. The
+fixtures cover the twelve `@semantic` p2 scenarios (S01, S02, S06, S30, S34, S35,
+S36 with one case per outline row, S52, S102, S104, S105, S122); authored setups
+are seeded through the application. Each case is created with automatic acceptance,
+recorded as Sam's setting, so a turn builds on the last; every proposal and its
+membership stays in the evidence.
 
 Use a new output path. The live harness uses synthetic contributions, creates
 disposable durable cases, and leaves the server running. It makes no downloads

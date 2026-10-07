@@ -70,3 +70,18 @@ def test_review_cannot_omit_required_criteria_or_decide_without_evidence(tmp_pat
     write_json(tmp_path / "review.json", review)
     with pytest.raises(ValueError, match="every criterion"):
         apply_review(path, tmp_path / "review.json", tmp_path / "reviewed.json")
+
+
+def test_every_fixture_sets_up_through_the_application_and_runs(tmp_path):
+    from evaluations.fixtures import SEEDS
+    report = Report(tmp_path / "evidence", {"model": "authored-fixture"})
+    for scenario in SCENARIOS:
+        run_scenario(report, scenario, NoteConsultant(), 1)
+    report.finish()
+    runs = {run["id"]: run for run in report.value["runs"]}
+    assert len(runs) == len(SCENARIOS) and all(run["status"] == "completed" for run in runs.values())
+    # Every authored setup is valid, and every evaluated turn was published and retained exactly.
+    assert {s.seed_kind for s in SCENARIOS if s.seed} >= set(SEEDS) | {"pilot"}
+    assert all(t["result"]["status"] == "saved" for run in runs.values() for t in run["turns"])
+    covered = {sid for s in SCENARIOS for sid in s.scenarios}
+    assert {"S01", "S02", "S06", "S30", "S34", "S35", "S36", "S52", "S102", "S104", "S105", "S122"} <= covered

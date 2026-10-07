@@ -54,7 +54,7 @@ class Report:
 
     def save(self):
         write_json(self.directory / "report.json", self.value)
-        lines = ["# Local model evaluation", "", "This report is developer evidence, not a v1 release approval.", "",
+        lines = ["# Consultant evaluation", "", "This report is developer evidence, not a v1 release approval.", "",
                  "Configuration: `" + json.dumps(self.value["configuration"], ensure_ascii=False) + "`", ""]
         for run in self.value["runs"]:
             lines += ["## " + run["id"], "", "Case: " + str(run.get("case", "none")), ""]
