@@ -1,6 +1,7 @@
 """Terminal workspace adapter: layout state and routing over the application boundary."""
 
 import asyncio
+import os
 import html
 import re
 
@@ -1416,3 +1417,329 @@ def test_commands_switch_how_proposals_are_accepted(tmp_path):
         decisions = case.inspect()["case"]["decisions"]
     assert [(d["action"], d.get("value"), d["actor"]) for d in decisions if d["action"] == "acceptance"] == [
         ("acceptance", "automatic", "David"), ("acceptance", "review", "David")]
+
+
+# ----- what paid replies cost: the footer meter, the reply's notice, the cost screen and the soft budget ------
+@pytest.fixture
+def claude():
+    from tests.servers import anthropic_server_instance
+    yield from anthropic_server_instance()
+
+
+def counted(tmp_path, now=None):
+    from reason_commons.adapters.usage import UsageLog, UsageSession
+    return UsageSession(UsageLog(tmp_path / "usage.jsonl", now), "workspace")
+
+
+def earlier_reply(tmp_path, model="claude-haiku-5-5", times=1):
+    """A reply some other run already paid for this month, in the same log."""
+    from reason_commons.adapters.usage import UsageLog, UsageSession
+    other = UsageSession(UsageLog(tmp_path / "usage.jsonl"), "cli")
+    for _ in range(times):
+        other.record({"model": model, "outcome": "proposal", "tokens": {"input": 12_000, "output": 900}})
+
+
+def paid_workspace(path, server, usage, settings=None):
+    from reason_commons.adapters.anthropic import AnthropicConsultant
+    consultant = AnthropicConsultant(base_url=server.url, api_key="fixture-secret", usage=usage.record)
+    return ReasonCommonsApp(path, "David", "anthropic", lambda c: open_case(path, consultant=c),
+                            lambda provider: consultant if provider == "anthropic" else GuidedConsultant(),
+                            usage=usage, settings=settings)
+
+
+def noted(app):
+    """Every notice the workspace shows, as text."""
+    notes, original = [], app.notify
+
+    def notify(message, *args, **options):
+        notes.append(str(message))
+        return original(message, *args, **options)
+    app.notify = notify
+    return notes
+
+
+def meter(app):
+    return str(app.query_one("#summary").render())
+
+
+def posts(server):
+    return [path for method, path, _, _ in server.requests if method == "POST" and path == "/v1/messages"]
+
+
+def test_the_footer_says_what_claude_costs_where_there_is_room(tmp_path, claude):
+    path = tmp_path / "case"
+    create_case(path, "Paid").close()
+    usage = counted(tmp_path)
+
+    async def run(size):
+        app = paid_workspace(path, claude, usage)
+        async with app.run_test(size=size) as pilot:
+            await footer_settled(app, pilot)
+            before = meter(app)
+            await send(app, pilot, "Fewer missed deliveries")
+            await footer_settled(app, pilot)
+            hints = footer_fits(app)
+            return before, meter(app), hints
+    before, after, hints = asyncio.run(run((120, 40)))
+    assert before == "Haiku 5.5 · month ≈ $0"
+    assert after == "Haiku 5.5 · session ≈ $0.0017 · month ≈ $0.0017"
+    assert "^p Commands" in hints and hints[-1] == "f1 Help"
+    for size in ((80, 24), (40, 24)):  # the meter goes before any hint does
+        _, narrow, hints = asyncio.run(run(size))
+        assert narrow == "" and "^p Commands" in hints and hints[-1] == "f1 Help"
+
+
+def test_the_guide_shows_no_meter_until_something_was_spent_and_then_says_it_is_free(tmp_path, monkeypatch):
+    path = tmp_path / "case"
+    create_case(path, "Free").close()
+    monkeypatch.setenv("REASON_COMMONS_MONTHLY_BUDGET_USD", "5")
+
+    async def run():
+        app = ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
+                               lambda provider: GuidedConsultant(), usage=counted(tmp_path))
+        async with app.run_test(size=(140, 40)) as pilot:
+            await footer_settled(app, pilot)
+            quiet = meter(app)
+            earlier_reply(tmp_path)
+            app.refresh_meter()
+            await footer_settled(app, pilot)
+            return quiet, meter(app)
+    assert asyncio.run(run()) == ("", "offline guide · no charge · month ≈ $0.0017 of $5")
+
+
+def test_a_replys_notice_says_what_it_cost_and_the_budget_is_told_at_80_and_100_percent(tmp_path, claude,
+                                                                                        monkeypatch):
+    path = tmp_path / "case"
+    create_case(path, "Paid").close()
+    earlier_reply(tmp_path)  # $0.00165 of a $0.004 budget
+    monkeypatch.setenv("REASON_COMMONS_MONTHLY_BUDGET_USD", "0.004")
+
+    async def run():
+        app = paid_workspace(path, claude, counted(tmp_path))
+        notes = noted(app)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await send(app, pilot, "Fewer missed deliveries")
+            first = list(notes)
+            await send(app, pilot, "Measured weekly")
+            return first, notes[len(first):]
+    first, second = asyncio.run(run())
+    assert any(note.endswith("Reply ≈ $0.0017 (Haiku 5.5).") for note in first)
+    assert any("80% of your $0.004 budget (estimate)" in note and "Nothing is blocked" in note for note in first)
+    assert any("past your $0.004 budget" in note and "Each send will ask first; nothing is blocked." in note
+               for note in second)
+
+
+def test_past_the_budget_a_send_asks_once_and_not_now_changes_nothing(tmp_path, claude, monkeypatch):
+    path = tmp_path / "case"
+    create_case(path, "Paid").close()
+    earlier_reply(tmp_path)
+    monkeypatch.setenv("REASON_COMMONS_MONTHLY_BUDGET_USD", "0.001")
+
+    async def run():
+        app = paid_workspace(path, claude, counted(tmp_path))
+        notes = noted(app)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            assert any("past your $0.001 budget" in note for note in notes)  # said once on opening
+            app.query_one("#editor").load_text("Keep these words")
+            await pilot.press("ctrl+s")
+            await pilot.pause()
+            assert type(app.screen).__name__ == "ChoiceScreen"
+            body = screen_text(app)
+            assert "This month ≈ $0.0017 of your $0.001 budget (estimate)." in body
+            assert "This reply ≈ $0.0042." in body  # a typical Haiku reply, until the log has three of its own
+            await pilot.press("down", "enter")  # Not now
+            await pilot.pause()
+            assert type(app.screen).__name__ == "Screen"
+            assert app.query_one("#editor").text == "Keep these words" and not app.busy
+            assert app.workspace_value["revision"] == 0 and app.workspace_value["pending_requests"] == []
+            assert posts(claude) == []
+            await pilot.press("ctrl+s")
+            await pilot.pause()
+            await pilot.press("enter")  # Send this one
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            return app.workspace_value["revision"], notes
+    revision, notes = asyncio.run(run())
+    assert revision == 1 and len(posts(claude)) == 1
+    assert any("Nothing was sent. Your answer is still in the box." in note for note in notes)
+    with open_case(path, writable=False) as case:
+        assert case.workspace()["draft"] is None or case.workspace()["draft"]["draft"] == ""
+
+
+def test_the_guide_never_asks_about_the_budget_and_retry_does(tmp_path, claude, monkeypatch):
+    path = tmp_path / "case"
+    create_case(path, "Mixed").close()
+    earlier_reply(tmp_path)
+    monkeypatch.setenv("REASON_COMMONS_MONTHLY_BUDGET_USD", "0.001")
+
+    async def run():
+        app = paid_workspace(path, claude, counted(tmp_path))
+        async with app.run_test(size=(120, 40)) as pilot:
+            claude.get_status = 500  # the model check fails: the answer is kept for Retry
+            app.query_one("#editor").load_text("Kept for retry")
+            await pilot.press("ctrl+s")
+            await pilot.pause()
+            await pilot.press("enter")  # Send this one
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            assert app.retryable()
+            claude.get_status = 200
+            app.action_retry()
+            await pilot.pause()
+            asked = type(app.screen).__name__
+            await pilot.press("escape")  # Esc is Not now too
+            await pilot.pause()
+            assert app.retryable() and posts(claude) == []
+            app.switch_provider("guided")
+            app.action_retry()
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            return asked, type(app.screen).__name__, app.workspace_value["revision"]
+    assert asyncio.run(run()) == ("ChoiceScreen", "Screen", 1)
+
+
+def test_retry_asks_again_only_when_no_received_reply_waits_to_be_applied():
+    from types import SimpleNamespace
+    def asks(*attempts):
+        case = SimpleNamespace(receipts=lambda request_id: {"attempts": list(attempts)})
+        return ReasonCommonsApp.retry_asks_again(SimpleNamespace(case=case), "in000001")
+    started = {"attempt": 1, "status": "started"}
+    received = {"attempt": 1, "proposal": {}, "version": "v"}
+    assert asks(started, {"attempt": 1, "status": "unavailable"})
+    assert not asks(started, received, {"attempt": 1, "status": "not_saved"})  # applied again, no new call
+    assert asks(started, received, {"attempt": 1, "status": "rejected"})
+    assert asks()
+
+
+def test_consultant_calls_and_cost_says_it_in_words_from_the_log(tmp_path, claude, monkeypatch):
+    path = tmp_path / "case"
+    create_case(path, "Paid").close()
+    earlier_reply(tmp_path, "claude-sonnet-5-5")
+    monkeypatch.setenv("REASON_COMMONS_MONTHLY_BUDGET_USD", "5")
+
+    async def run():
+        app = paid_workspace(path, claude, counted(tmp_path))
+        async with app.run_test(size=(120, 50)) as pilot:
+            await send(app, pilot, "Fewer missed deliveries")
+            app.open_menu("actions")
+            await pilot.pause()
+            await pilot.press(*"Consultant calls", "enter")
+            await pilot.pause()
+            return type(app.screen).__name__, screen_text(app)
+    name, text = asyncio.run(run())
+    assert name == "CallsScreen" and "Consultant calls and cost" in text
+    assert "Consultant calls in this goal: 1" in text
+    words = " ".join(text.split())
+    for wanted in ("This goal Claude: 1 reply, ≈ $0.0017", "Last reply Haiku 5.5 · 12,000 tokens in, 900 out · ≈ $0.0017",
+                   "This session 1 reply, ≈ $0.0017", "This month 2 replies, ≈ $0.03",
+                   "of your $5 budget (0%)", "Sonnet 5.5: 1 reply, ≈ $0.03", "Haiku 5.5: 1 reply",
+                   "Claude now Haiku 5.5, the default", "LM Studio and the built-in guide",
+                   "Estimates at Anthropic's list prices of 8 Oct 2026", "Anthropic Console",
+                   "readable only by you"):
+        assert wanted in words, wanted
+    assert "claude-haiku" not in words and not re.search(r"\d{4}-\d\d-\d\dT", words)
+
+
+def test_the_cost_screen_names_a_saved_sonnet_choice_and_the_new_default(tmp_path, claude, monkeypatch):
+    from reason_commons.adapters.anthropic import AnthropicConsultant
+    from reason_commons.adapters.settings import Settings
+    path = tmp_path / "case"
+    create_case(path, "Saved").close()
+    claude.metadata = {"id": "claude-sonnet-5-5"}
+    monkeypatch.setenv("REASON_COMMONS_ANTHROPIC_MODEL", "claude-sonnet-5-5")
+    settings = Settings(tmp_path / "settings.yaml", {"anthropic": {"model": "claude-sonnet-5-5"}}, exists=True)
+    usage = counted(tmp_path)
+    consultant = AnthropicConsultant.from_env(base_url=claude.url, usage=usage.record)
+
+    async def run():
+        app = ReasonCommonsApp(path, "David", "anthropic", lambda c: open_case(path, consultant=c),
+                               lambda provider: consultant, usage=usage, settings=settings)
+        async with app.run_test(size=(120, 50)) as pilot:
+            app.action_consultant_calls()
+            await pilot.pause()
+            return " ".join(screen_text(app).split())
+    words = asyncio.run(run())
+    assert "Claude now Sonnet 5.5, your saved choice" in words
+    assert "Haiku 5.5 is now the default and costs least. Your saved choice, Sonnet 5.5, stays" in words
+
+
+def test_without_a_usage_log_the_screen_is_the_count_alone_and_the_guide_says_no_charge(tmp_path):
+    path = tmp_path / "case"
+    create_case(path, "Plain").close()
+
+    async def run(usage):
+        app = ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
+                               lambda provider: GuidedConsultant(), usage=usage)
+        async with app.run_test(size=(120, 50)) as pilot:
+            app.action_consultant_calls()
+            await pilot.pause()
+            return " ".join(screen_text(app).split())
+    plain = asyncio.run(run(None))
+    assert "Consultant calls in this goal: 0" in plain and "CLAUDE REPLIES" not in plain
+    words = asyncio.run(run(counted(tmp_path)))
+    assert "Consultant now the built-in guide: no charge" in words and "Consultant calls in this goal: 0" in words
+
+
+def test_the_budget_row_sets_and_clears_the_monthly_budget_and_keeps_it(tmp_path, monkeypatch):
+    from reason_commons.adapters.settings import Settings
+    monkeypatch.setenv("REASON_COMMONS_MONTHLY_BUDGET_USD", "")  # set first, so teardown puts back what is written
+    monkeypatch.delenv("REASON_COMMONS_MONTHLY_BUDGET_USD")
+    path = tmp_path / "case"
+    create_case(path, "Budget").close()
+    settings = Settings(tmp_path / "settings.yaml", {"name": "David"}, exists=True)
+    settings.save()
+    earlier_reply(tmp_path)
+
+    async def run():
+        app = ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
+                               lambda provider: GuidedConsultant(), usage=counted(tmp_path), settings=settings)
+        async with app.run_test(size=(100, 30)) as pilot:
+            await pilot.press("f2")
+            await pilot.pause()
+            rows = app.screen.query_one("#settings-rows")
+            ids = [option.id for option in rows.options]
+            assert "none set" in str(rows.get_option("budget").prompt)
+            await pilot.press("down", "down", "enter")
+            await pilot.pause()
+            await type_into(app, pilot, "$5.50")
+            row = str(app.screen.query_one("#settings-rows").get_option("budget").prompt)
+            saved = os.environ["REASON_COMMONS_MONTHLY_BUDGET_USD"], Settings.load(settings.path).get(
+                "usage", "monthly_budget_usd")
+            await pilot.press("enter")
+            await pilot.pause()
+            await type_into(app, pilot, "lots")  # not an amount: nothing changes
+            unreadable = os.environ["REASON_COMMONS_MONTHLY_BUDGET_USD"]
+            await pilot.press("enter")
+            await pilot.pause()
+            await type_into(app, pilot, "none")
+            cleared = str(app.screen.query_one("#settings-rows").get_option("budget").prompt)
+            return ids, row, saved, unreadable, cleared, Settings.load(settings.path).get("usage", "monthly_budget_usd")
+    ids, row, saved, unreadable, cleared, after = asyncio.run(run())
+    assert ids == ["voice", "mode", "budget"]
+    assert "$5.50 a month · ≈ $0.0017 so far" in row and saved == ("5.5", "5.5") and unreadable == "5.5"
+    assert "none set" in cleared and after is None
+
+
+async def type_into(app, pilot, text):
+    await pilot.pause()
+    app.screen.query_one("Input").value = text
+    await pilot.press("enter")
+    await pilot.pause()
+
+
+def test_every_command_with_claude_still_says_local_or_asks_the_consultant(tmp_path, claude):
+    """S119 with a paid consultant: the cost screen is local, and every other command names its consequence."""
+    path = tmp_path / "case"
+    create_case(path, "Paid").close()
+
+    async def run():
+        app = paid_workspace(path, claude, counted(tmp_path))
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            return [(name, detail) for _, name, detail, _ in app.action_list()]
+    commands = asyncio.run(run())
+    assert ("Consultant calls and cost", "Local: how often the consultant was asked, and what Claude's replies "
+            "cost, as estimated") in commands
+    for name, detail in commands:
+        assert detail.startswith("Local") or "asks the consultant" in detail.lower(), (name, detail)

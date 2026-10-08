@@ -115,3 +115,65 @@ def test_the_draft_is_kept_when_the_session_ends(tmp_path):
 def test_terminal_keys_map_to_the_names_the_presentation_takes():
     assert KEYS["\t"] == "tab" and KEYS["\x1b[Z"] == "shift+tab" and KEYS["\r"] == "enter"
     assert KEYS["\x1b[6~"] == "pagedown" and KEYS["\x1b[5~"] == "pageup" and KEYS["\x1b"] == "escape"
+
+
+def paid_session(tmp_path, monkeypatch, budget=None):
+    """The ordered presentation consulting Claude (a loopback fake), its replies counted in a usage log."""
+    from reason_commons.adapters.anthropic import AnthropicConsultant
+    from reason_commons.adapters.usage import UsageLog, UsageSession
+    from tests.servers import anthropic_server_instance
+    if budget is not None:
+        monkeypatch.setenv("REASON_COMMONS_MONTHLY_BUDGET_USD", budget)
+    generator = anthropic_server_instance()
+    server = next(generator)
+    usage = UsageSession(UsageLog(tmp_path / "usage.jsonl"), "accessible")
+    consultant = AnthropicConsultant(base_url=server.url, api_key="fixture-secret", usage=usage.record)
+    create_case(tmp_path / "case", "Paid").close()
+    case = open_case(tmp_path / "case", consultant=consultant)
+    out = []
+    workspace = AccessibleWorkspace(case, "Sam", 80, 24, write=out.append, usage=usage, model=consultant.model)
+    return case, workspace, out, server, lambda: next(generator, None)
+
+
+def test_a_replys_cost_and_a_budget_crossing_are_said_once(tmp_path, monkeypatch):
+    case, workspace, out, server, stop = paid_session(tmp_path, monkeypatch, budget="0.002")
+    try:
+        workspace.start()
+        for key in "Fewer missed deliveries":
+            workspace.handle("space" if key == " " else key)
+        focus_on(workspace, "Send")
+        mark = len(out)
+        workspace.handle("enter")
+        said = text(out, mark)
+        assert said.count("Cost: about $0.0017, Haiku 5.5, estimated.") == 1
+        assert said.count("80% of your $0.002 budget, estimated. Nothing is blocked.") == 1
+        assert "≈" not in said  # spoken as "about"
+    finally:
+        case.close()
+        stop()
+
+
+def test_past_the_budget_send_asks_to_be_activated_again_and_tab_keeps_the_response(tmp_path, monkeypatch):
+    case, workspace, out, server, stop = paid_session(tmp_path, monkeypatch, budget="0.001")
+    workspace.usage.record({"model": "claude-haiku-5-5", "outcome": "proposal", "tokens": {"input": 12_000,
+                                                                                           "output": 900}})
+    try:
+        workspace.start()
+        assert "past your $0.001 budget, estimated. Each send will ask first; nothing is blocked." in text(out)
+        for key in "five":
+            workspace.handle(key)
+        focus_on(workspace, "Send")
+        mark = len(out)
+        workspace.handle("enter")
+        said = text(out, mark)
+        assert "Activate the same control again to send it" in said and "This reply about $0.0042" in said
+        assert workspace.draft == "five" and case.inspect()["case"]["revision"] == 0
+        workspace.handle("tab")  # moving on forgets the question; nothing was sent
+        workspace.handle("shift+tab")
+        workspace.handle("enter")
+        assert case.inspect()["case"]["revision"] == 0 and workspace.draft == "five"
+        workspace.handle("enter")  # the same control, activated again
+        assert case.inspect()["case"]["revision"] == 1 and workspace.draft == ""
+    finally:
+        case.close()
+        stop()

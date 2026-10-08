@@ -1,4 +1,4 @@
-"""Personal settings chosen on first start: your name, consultant and model, and the theme.
+"""Personal settings chosen on first start: your name, consultant and model, the theme and a monthly budget.
 
 They live outside every goal folder (never in a case or an export), in
 ``$REASON_COMMONS_CONFIG`` or ``$XDG_CONFIG_HOME/reason-commons/settings.yaml``
@@ -25,6 +25,7 @@ ENVIRONMENT = {
     ("lm_studio", "url"): "REASON_COMMONS_LM_STUDIO_URL",
     ("lm_studio", "model"): "REASON_COMMONS_LM_STUDIO_MODEL",
     ("theme",): "REASON_COMMONS_THEME",
+    ("usage", "monthly_budget_usd"): "REASON_COMMONS_MONTHLY_BUDGET_USD",
 }
 
 
@@ -41,6 +42,8 @@ def _get(data, keys):
         if not isinstance(data, dict):
             return None
         data = data.get(key)
+    if isinstance(data, (int, float)) and not isinstance(data, bool):
+        return str(data)  # a number written by hand, such as a budget of 5
     return data if isinstance(data, str) and data.strip() else None
 
 

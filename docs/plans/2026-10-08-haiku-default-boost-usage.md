@@ -1,6 +1,6 @@
 # Plan: Haiku 5.5 by default, a one-reply Sonnet boost, and a usage/cost meter with a soft budget
 
-> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–3 done; 4–7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
+> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–4 done; 5–7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
 > evaluation recorded in `docs/validation.md` ("Claude Haiku 5.5 as the consultant"). Line numbers are as of that
 > branch and will drift; search for the named functions.
 
@@ -112,7 +112,7 @@ The blind AI pre-screen of `semantic-haiku55-adapter4` (150 pass, 8 fail, 4 can'
 - `tests/test_anthropic.py`: sink calls for each outcome; nothing logged for 4xx/5xx; a raising sink still returns the proposal.
 - New `providers.feature` scenario: "Count what a Claude reply cost outside the case". The case and its export have no tokens or cost, and the log has no words or key.
 
-### 4. Workspace meter, usage screen, soft budget
+### 4. Workspace meter, usage screen, soft budget — done (2026-10-08)
 **Wiring**
 - `ReasonCommonsApp(..., usage=None)`; `run()` passes `usage_session("workspace")`. Tests, the story and the tour pass none, so the meter is hidden there.
 - The summary is cached in `self._meter`, refreshed on mount, in `_submitted` and on opening the screen. It is never read inside `refresh_hints`.

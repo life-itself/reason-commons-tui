@@ -52,7 +52,7 @@ def parse_budget(value):
     """Dollars a month from "5", "$5", "5.50" or a number; None for blank, none, 0 or anything unreadable."""
     if value is None or (isinstance(value, str) and value.strip().lower() in ("", "none", "off")):
         return None
-    amount = pricing._amount(value)
+    amount = pricing.parse_amount(value)
     return amount if amount else None
 
 

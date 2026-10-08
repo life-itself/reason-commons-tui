@@ -58,7 +58,14 @@ def test_names_and_amounts_read_as_people_say_them():
                                            "$0.00004", "unknown"]
 
 
-def test_sonnet_costs_twenty_times_haiku_at_list_price_and_the_table_is_dated():
-    assert ratio("claude-haiku-5-5", "claude-sonnet-5-5") == 20
-    assert ratio("claude-haiku-5-5", "local-model") is None
+def test_sonnet_costs_twenty_times_haiku_per_token_and_about_twelve_times_per_typical_reply():
+    assert ratio("claude-haiku-5-5", "claude-sonnet-5-5", {"input": 12_000, "output": 900}) == 20
+    # Haiku thinks at greater length, so a typical reply's ratio is lower (docs/validation.md: $0.0042 and $0.050).
+    assert pricing.typical("claude-haiku-5-5") == Decimal("0.0042")
+    assert pricing.typical("claude-sonnet-5-5") == Decimal("0.05")
+    assert round(ratio("claude-haiku-5-5", "claude-sonnet-5-5")) == 12
+    assert ratio("claude-haiku-5-5", "local-model") is None and pricing.typical("local-model") is None
+
+
+def test_the_table_is_dated_and_sourced():
     assert pricing.AS_OF == "2026-10-08" and pricing.SOURCE.startswith("https://")

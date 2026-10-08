@@ -34,7 +34,7 @@ PRICES = {
 CACHE_MULTIPLIERS = {"cache_write": Decimal("1.25"), "cache_write_1h": Decimal(2), "cache_read": Decimal("0.1")}
 
 
-def _amount(value):
+def parse_amount(value):
     """A non-negative Decimal from a number or a string such as "5", "$5" or "5.50"; None otherwise."""
     if isinstance(value, bool) or not isinstance(value, (int, float, str, Decimal)):
         return None
@@ -49,7 +49,7 @@ def _override(prices):
     """One rate card from a ``usage.prices.<model>`` setting; it needs at least the input and output prices."""
     if not isinstance(prices, dict):
         return None
-    card = {kind: _amount(prices[kind]) for kind in TOKEN_KINDS if kind in prices}
+    card = {kind: parse_amount(prices[kind]) for kind in TOKEN_KINDS if kind in prices}
     if card.get("input") is None or card.get("output") is None or None in card.values():
         return None
     for kind, multiplier in CACHE_MULTIPLIERS.items():
@@ -113,11 +113,26 @@ def money(value):
     return f"${value.quantize(places, ROUND_HALF_UP).normalize():f}"
 
 
+# A typical consultation's tokens, as measured in the billed runs of 2026-10-08 (docs/validation.md): about
+# 17,000 in, and out about 5,000 for Haiku 5.5, which thinks at length, and 1,600 for Sonnet 5.5. Used to
+# estimate a reply before the usage log has enough of a model's own replies.
+TYPICAL_REPLY = {"claude-haiku-5-5": {"input": 17_000, "output": 5_000},
+                 "claude-sonnet-5-5": {"input": 17_000, "output": 1_600}}
+OTHER_REPLY = {"input": 17_000, "output": 2_000}
+
+
+def typical(model, overrides=None):
+    """A typical consultation's estimated cost on this model at list price; None when its price is unknown."""
+    return cost(model, TYPICAL_REPLY.get(known(model), OTHER_REPLY), overrides)
+
+
 def ratio(cheaper, dearer, tokens=None, overrides=None):
-    """How many times the dearer model costs the cheaper one for the same request: by default, the
-    list prices of a typical consultation (12,000 tokens in, 900 out). None when either price is unknown."""
-    tokens = tokens or {"input": 12_000, "output": 900}
-    low, high = cost(cheaper, tokens, overrides), cost(dearer, tokens, overrides)
+    """How many times the dearer model costs the cheaper one: for these tokens on both, or by default for a
+    typical consultation on each. None when either price is unknown."""
+    if tokens is None:
+        low, high = typical(cheaper, overrides), typical(dearer, overrides)
+    else:
+        low, high = cost(cheaper, tokens, overrides), cost(dearer, tokens, overrides)
     if not low or high is None:
         return None
     return high / low
