@@ -7,13 +7,13 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 
 | Part | What it shows |
 | --- | --- |
-| Top line | The goal's name on the left; on the right, your name and whether everything is saved (or *Asking …* while the consultant works, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
+| Top line | The goal's name on the left; on the right, your name and whether everything is saved (or *Asking …* while the consultant works, *Asking Claude (Sonnet 5.5)…* for a reply with deeper reasoning, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
 | Pinned lines | Your goal and safeguards, and the open **Action**, once a goal is in your model; a goal still waiting in **Backlog** shows as *proposed, not yet accepted*, and one with no measure yet as *provisional*. A long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result. A **Breach** (a reported result outside a bound recorded with its forecast) stays pinned here in every view. Commands, **Display: Expanded** repeats the goal's measure, baseline, horizon and scope, each safeguard and each test's boundaries here; **Display: Compact** (the default) turns it back. The choice is saved with your draft and changes nothing else |
 | Loop line | The spine of the screen: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
 | Views list | **VIEWS**, with ▸ beside the open one; **Backlog** says how many entries wait ("Backlog · 3"). While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
 | The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what the last reply proposes, marked *proposed* (see [deciding what enters your model](#deciding-what-enters-your-model)), then what the question builds on (at review: the original forecast beside the result) |
-| Answer box | Right under the page, so you answer next to the question. All typing is literal, including `?`, `q` and numbers. Its tag says who you answer as, with the built-in guide an example of the answer shows faintly while it is empty, and the line beside the buttons says what **Send** will bring back. It grows as you write, and when the page is long the page scrolls above it, so the box never leaves the screen. On any view other than **Next step** its tag also names the question it answers ("Answer as Mira · Choose a test"), and while it is empty it folds to one line so the view has the room; Tab or a click opens it, and a draft keeps it open |
-| Footer | The keys that work where the keyboard is, then **Commands**, then **Help** on the right. On a narrow terminal the hints say less, then the last ones go; **Commands** and **Help** always stay |
+| Answer box | Right under the page, so you answer next to the question. All typing is literal, including `?`, `q` and numbers. Its tag says who you answer as, with the built-in guide an example of the answer shows faintly while it is empty, and the line beside the buttons says what **Send** will bring back (with Claude, from which model: "Send: get Claude's reply (Haiku 5.5)"). It grows as you write, and when the page is long the page scrolls above it, so the box never leaves the screen. On any view other than **Next step** its tag also names the question it answers ("Answer as Mira · Choose a test"), and while it is empty it folds to one line so the view has the room; Tab or a click opens it, and a draft keeps it open |
+| Footer | The keys that work where the keyboard is, then **Commands**, then **Help** on the right. On a narrow terminal the hints say less, then the last ones go; **Commands** and **Help** always stay. With Claude, the space before **Help** estimates what this session and this month cost ("Haiku 5.5 · session ≈ $0.02 · month ≈ $1.40 of $5", or "…, over $5" past a budget); it says less as room runs out and is the first thing to go. With LM Studio it says *no charge*; with the built-in guide it says nothing until something was spent this month |
 
 You can always see where the keyboard is: a heavy frame in the accent colour round the answer
 box or the Views list, a bar down the left edge of the page or the trees, or a highlighted
@@ -48,7 +48,7 @@ the forecast and the result stack one above the other:
 | **Explain this** | Why the current question matters (saved, no consultant call) |
 | **Other moves** | Local explanations and evidence, or ask the consultant for advice or a different question; each item says which. Type to filter; **Back** or Esc leaves without choosing |
 | **Views** | Switch view, when the list on the left does not fit |
-| Ctrl+P, or **Commands** in the footer | Every command, one to a line: accept all the last reply proposed, accept proposals automatically (or hold them for review), ask about the open reviews, export, import or export trees, retry, consultant calls, change consultant, views, trees, help, quit; each says whether it is local or asks the consultant |
+| Ctrl+P, or **Commands** in the footer | Every command, one to a line: send with deeper reasoning (with Claude), accept all the last reply proposed, accept proposals automatically (or hold them for review), ask about the open reviews, export, import or export trees, retry (and retry with Sonnet), consultant calls and cost, change consultant, views, trees, help, quit; each says whether it is local or asks the consultant |
 | F1, or **Help** in the footer | Keys and controls |
 | Ctrl+Q | Save your draft and quit |
 
@@ -94,7 +94,7 @@ what is set now: your name, who asks the questions and the theme. Settings are b
 
 | | |
 | --- | --- |
-| ![The Settings dialog: theme, light or dark, and You](images/home-settings.png) | F2 Settings: the voice and light or dark change as you press ← and →; **You** asks your name and consultant again |
+| ![The Settings dialog: theme, light or dark, You and Budget](images/home-settings.png) | F2 Settings: the voice and light or dark change as you press ← and →; **You** asks your name and consultant again; **Budget** sets a monthly budget for Claude's replies |
 | ![Naming a new goal](images/new-goal.png) | Naming a new goal |
 | ![Help on the goals list](images/home-help.png) | F1: how the loop works |
 
@@ -118,9 +118,11 @@ A menu belongs to the question it was opened for. If a reply moves the goal on w
 
 ![Other moves](images/other-moves.png)
 
-If the consultant cannot be reached, your words are kept and **Retry** appears.
+If the consultant cannot be reached, your words are kept and **Retry** appears. With Claude, on a
+terminal 100 columns or wider, **Retry with Sonnet** sits beside it: the same retry, answered once
+by Claude Sonnet (see below). Narrower, it is in Commands, and the notice says so.
 
-![The consultant could not be reached; Retry is offered](images/consultant-unavailable.png)
+![The consultant could not be reached; Retry and Retry with Sonnet are offered](images/consultant-unavailable.png)
 
 **Help** (in the footer, or F1) shows the keys and controls; **Explain this** is for the reasoning.
 
@@ -195,9 +197,35 @@ proposed, beside the words they came from, with **Accept all** beside **Send**:
 
 Each command takes one line and says whether it stays local or asks the consultant. Ctrl+P and **Commands** in the footer
 open the same menu as Other moves, with the same filter, **Clear filter** and **Back**.
-**Consultant calls** shows how often
-the consultant has been asked in this goal, counted from the saved attempt receipts (imports, which
-ask no consultant, are counted apart). Type to filter the list.
+Type to filter the list.
+
+**Send with deeper reasoning (Sonnet 5.5)**, offered with Claude Haiku, sends your answer
+to Claude Sonnet 5.5 for this one reply: it reasons more deeply and costs more (the command
+says about how much, "≈ $0.05, about 12× a Haiku reply"). The status says *Asking Claude
+(Sonnet 5.5)…*, the reply's notice says what it cost, and the next Send goes to Haiku again.
+**Retry with Sonnet 5.5** does the same for a retry, and appears only when Retry would ask
+the consultant again rather than apply a reply already received. Nothing switches model on
+its own: you ask, one reply at a time.
+
+**Consultant calls and cost** shows how often the consultant has been asked in this goal,
+counted from the saved attempt receipts (imports, which ask no consultant, are counted
+apart), and, with a usage log, what Claude's replies cost: this goal, the last reply's tokens
+and cost, this session, today and this month by model against your budget, requests that
+got no reply (they may still have been billed), the model in use and where it was chosen.
+The amounts are estimates at Anthropic's list prices; your bill is in the Anthropic Console.
+They come from the usage log kept outside every goal, never from the goal itself (see
+[what it costs](providers.md#what-it-costs)).
+
+![Consultant calls and cost: the calls in this goal; Claude's replies this goal, the last reply's tokens and cost, this session, today and this month by model against a $5 budget, the model in use, and where the estimates come from](images/usage-and-cost.png)
+
+A reply's notice ends with what it cost ("Reply ≈ $0.0042 (Haiku 5.5)."), and the footer keeps the running total:
+
+![After a reply from Claude Haiku: the footer's right end estimates this session, ≈ $0.0042, and this month, ≈ $0.31 of a $5 budget](images/footer-meter.png)
+
+With a **monthly budget** (F2 Settings, **Budget**), you are told once when this month's
+replies reach 80% of it and once when they reach it. Past it, each Send, and each Retry
+that would ask again, first asks: **Send this one** or **Not now**. Nothing is blocked, and
+**Not now** sends nothing and leaves your answer in the box. Local actions never ask.
 
 ![Filtering the Commands palette](images/actions-palette-search.png)
 
@@ -403,6 +431,7 @@ only where you started its server with `--allow-acceptance-setting`.
 | `reason-commons import FILE --store FOLDER` | Continue from a copy in a new folder |
 | `reason-commons show FOLDER_OR_FILE` | Print a goal without opening the workspace |
 | `reason-commons trees FOLDER` | Draw the goal's trees; `--import FILE` brings trees in from an `.ltp.yaml` file (they wait in the backlog), `--export FILE` writes them out; `--tree current_reality` draws just one |
+| `reason-commons usage` | What Claude's replies cost this month, estimated from the usage log, by model and against your budget; `--month 2026-09`, `--all`, `--goal FOLDER`, `--json`. Sends nothing |
 | `reason-commons decide FOLDER accept REF...` | Accept, reject or undo proposals by their refs (`show FOLDER --view backlog` lists them), `still-holds REF`, or `acceptance review\|automatic`; without `--confirm` a decision that takes more than you named lists it and changes nothing |
 | `reason-commons --version` | Show the version |
 
@@ -427,11 +456,15 @@ consultant. Page Down and Page Up page a long view ("Page 1 of 3"); Esc returns 
 your draft kept. **Case context**, **Explain this**, **Views**, **Backlog** (Accept,
 Reject and Still holds, with a decision that takes more listed first) and **Help**
 are local. A new view is announced as replacing the one above, so scrollback is not
-mistaken for what is current. Nothing depends on colour.
+mistaken for what is current. Nothing depends on colour. With Claude, each reply's cost
+is said once after it ("Cost: about $0.0042, Haiku 5.5, estimated."), and so is reaching
+80% or all of a monthly budget; past the budget, Send says what the month and the reply
+cost and asks to be activated again, and Tab leaves it with nothing sent.
 
 ## Settings
 
-Setup saves your name, consultant, model, Claude key and LM Studio address in
+Setup saves your name, consultant, model, Claude key and LM Studio address, and Settings
+your theme and monthly budget, in
 `~/.config/reason-commons/settings.yaml` (or `$XDG_CONFIG_HOME/reason-commons/`;
 `REASON_COMMONS_CONFIG` names another file), readable only by you. Command-line
 options win over environment variables, which win over that file. To set them in
@@ -445,6 +478,9 @@ your shell instead, for example in `~/.zshrc` on a Mac:
 | `REASON_COMMONS_SPEAKER` | Name recorded with your answers | the name from setup, else your login name |
 | `ANTHROPIC_API_KEY` | Key for Claude | none |
 | `REASON_COMMONS_ANTHROPIC_MODEL` | Claude model ID | `claude-haiku-5-5` |
+| `REASON_COMMONS_ANTHROPIC_BOOST_MODEL` | The model for one reply with deeper reasoning; `none` turns the offer off | `claude-sonnet-5-5` |
+| `REASON_COMMONS_MONTHLY_BUDGET_USD` | A soft monthly budget for Claude's replies, in dollars; `none` or `0` for none | none |
+| `REASON_COMMONS_USAGE_LOG` | Where the usage log is kept, or `off` | `~/.local/state/reason-commons/usage.jsonl` |
 | `REASON_COMMONS_ANTHROPIC_MAX_TOKENS` | Claude's output budget, thinking included | `16000` |
 | `REASON_COMMONS_ANTHROPIC_EFFORT` | Claude's effort: `low` to `max`, or `default` to send none | `high` where the model supports it |
 | `REASON_COMMONS_LM_STUDIO_URL` | LM Studio server address | `http://127.0.0.1:1234/v1` |

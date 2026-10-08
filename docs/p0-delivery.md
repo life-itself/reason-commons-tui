@@ -581,3 +581,30 @@ wrapped output and the draft kept across sessions. Five deliberate breaks (no
 wrapping, no paging, focus not named, the revision missing from Case context, colour
 codes) each failed S49. Not done: assistive-technology users have not tried it; the
 participant gate in `reason-commons-spec/delivery-phases.md` asks for that.
+
+## Haiku by default, one reply with deeper reasoning, and what it costs (8 October 2026)
+
+Outside the specification's scenarios, following the
+[plan](plans/2026-10-08-haiku-default-boost-usage.md): no feature file of the
+specification changed, nor the application layer or `CaseCapabilities`.
+
+- **Haiku 5.5 is the default Claude model.** Setup recommends it; a saved or chosen
+  model stays. Conversation scenario: "Claude Haiku 5.5 consults when no Claude model is
+  chosen".
+- **What it costs.** A local usage log outside every goal, fed by a sink the composition
+  root injects into the Anthropic adapter, counts each billed request from every entry
+  point; costs are list-price estimates, and the Anthropic Console is the authority.
+  The workspace says it in the footer, in each reply's notice and in Commands ›
+  Consultant calls and cost; `reason-commons usage` prints it. A soft monthly budget is
+  said at 80% and 100%, and past it each workspace send asks once; nothing is blocked.
+  Conversation scenario: "Count what a Claude reply cost outside the case" (no tokens
+  or cost in the case or its export, no words or key in the log).
+- **One reply with deeper reasoning.** On request only, one answer goes to Sonnet 5.5
+  and the next Send to Haiku again; never automatically, and not through MCP.
+
+That makes 23 conversation scenarios. Adapter tests cover the prices, the log (modes,
+torn lines, four writers at once, local days and months), the adapter's reports, the
+workspace meter, budget and boost, the accessible presentation, the command and the
+notices. They establish the integration with fake servers; the live smoke in
+[validation](validation.md) checks it once against Anthropic. Whether the meter helps
+people spend as they intend is not established.

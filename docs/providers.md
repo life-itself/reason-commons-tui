@@ -8,7 +8,7 @@ replaceable choice, made outside the case. Three are supported:
 |---|---|---|---|
 | Where it runs | Inside Reason Commons | A server on your machine or network | Anthropic's hosted API |
 | What you need | Nothing | LM Studio with a chat model loaded | An Anthropic API key |
-| Cost | None | None beyond your hardware | Billed to your API key |
+| Cost | None | None beyond your hardware | Billed to your API key; estimated as you go ([what it costs](#what-it-costs)) |
 | Case content leaves your machine | No | No (unless you point it at a remote server) | Yes, to Anthropic |
 | Provider name | `guided` | `lm-studio` | `anthropic` |
 
@@ -86,6 +86,7 @@ Neither is ever written into a case or an export.
 | Server URL | `REASON_COMMONS_ANTHROPIC_URL`, default `https://api.anthropic.com/v1` (HTTPS only; plain HTTP just for loopback testing) | `REASON_COMMONS_LM_STUDIO_URL`, default `http://127.0.0.1:1234/v1` |
 | Timeout (seconds) | `REASON_COMMONS_ANTHROPIC_TIMEOUT`, default 120 | `REASON_COMMONS_LM_STUDIO_TIMEOUT`, default 120 |
 | Output budget (tokens) | `REASON_COMMONS_ANTHROPIC_MAX_TOKENS`, default 16000; the model's thinking counts against it too | Fixed at 4096 |
+| Deeper reasoning for one reply (workspace) | `REASON_COMMONS_ANTHROPIC_BOOST_MODEL`, default `claude-sonnet-5-5`; `none` turns it off | Not used |
 | Effort | `REASON_COMMONS_ANTHROPIC_EFFORT`: `low`, `medium`, `high`, `xhigh`, `max`, or `default` to send none. Unset, it is `high` where the model reports support for effort, and otherwise the model's own default | Not used |
 
 The default is `claude-haiku-5-5`: it costs least and suits most replies, though
@@ -97,6 +98,29 @@ works. The adapter asks the
 model what it supports before the first consultation: a model without effort
 levels, such as Claude Haiku 4.5, gets none, and an effort you chose that the
 model lacks is refused before anything is sent.
+
+### Deeper reasoning for one reply
+
+In the workspace, with Claude Haiku, **Send with deeper reasoning (Sonnet 5.5)** in
+Commands sends one answer to `claude-sonnet-5-5`, and the next Send goes to Haiku again.
+**Retry with Sonnet 5.5** does the same for a retry that would ask again. Only you ask
+for it: no reply is sent to another model on its own, and Sonnet is not a fallback when
+Haiku fails. The command says about what the reply costs, from your own replies once
+the usage log has three of each model's in 90 days, and otherwise from a typical reply
+of each (about $0.05 against $0.004). Each reply records the model that produced it, as
+any other does. `REASON_COMMONS_ANTHROPIC_BOOST_MODEL` names another model (the
+providers check shows it as "Deeper reasoning on request"), and `none` turns the offer
+off. It is offered only when that model costs more per reply than yours, so not with
+Sonnet or Opus, and never with LM Studio or the guide.
+
+From the command line, name the model for one call:
+
+```sh
+reason-commons retry /path/to/my-case REQUEST_ID --provider anthropic --model claude-sonnet-5-5
+reason-commons contribute /path/to/my-case --speaker David --text '...' --provider anthropic --model claude-sonnet-5-5
+```
+
+The MCP tools take no model, so an agent cannot choose a dearer one.
 
 Use a model ID the server actually serves. Both adapters check the model first,
 and require each answer to come from that same model, so a server cannot quietly
@@ -117,6 +141,7 @@ Model: claude-haiku-5-5 (default)
 Endpoint: https://api.anthropic.com/v1
 Credential: ANTHROPIC_API_KEY not set (required)
 Output: up to 16000 tokens; effort high where the model supports it
+Deeper reasoning on request: claude-sonnet-5-5
 Status: not ready
   - ANTHROPIC_API_KEY is not set; export it in the environment that starts reason-commons
 Other providers: lm-studio, guided
@@ -143,6 +168,53 @@ consultant produced it, so `inspect` shows, for example, `in000001` answered by
 but not yet committed is recovered from the case and keeps its original
 consultant; to get a different consultant's view, submit a new contribution
 against the current question rather than overwriting an earlier forecast.
+
+## What it costs
+
+Claude is billed per token by Anthropic; LM Studio and the guide cost nothing. Reason
+Commons estimates what each Claude request cost from the token counts in its reply, at
+Anthropic's list prices of 8 October 2026 (Haiku 5.5: $0.10 in and $0.50 out per
+million tokens for a prompt up to 100,000 tokens, $0.50 and $2.50 above; Sonnet 5.5:
+$2 and $10). **These are estimates: your bill is in the Anthropic Console.** A typical
+consultation has cost about $0.004 with Haiku 5.5 and $0.05 with Sonnet 5.5 (see
+[validation](validation.md)); Haiku's replies take longer, about 22 seconds against 11.
+
+Each request is one line in a local **usage log**, kept outside every goal and never
+in a case, its history or an export:
+
+- **Where:** `REASON_COMMONS_USAGE_LOG`, else `$XDG_STATE_HOME/reason-commons/usage.jsonl`,
+  else `~/.local/state/reason-commons/usage.jsonl`, readable only by you. The workspace,
+  the accessible presentation, `contribute`, `retry` and the MCP server all add to it.
+- **What:** the time, where it was used, the model, what became of the request (a
+  proposal, stopped at the output budget, declined, no proposal, another model, or no
+  reply), its token counts, the estimate and the prices used, and the goal's and the
+  request's identifiers. Never your words, the goal's name, a path or a key.
+- **Off:** `REASON_COMMONS_USAGE_LOG=off` keeps nothing; the workspace then counts only
+  the current session.
+- **Requests with no reply:** a request that was sent and got no reply back (a timeout,
+  say) is counted apart, as it may still have been billed. An error status is not
+  billed and is not counted.
+- **Your own prices:** `usage.prices.<model>` in your settings file, such as
+  `claude-haiku-5-5: {input: 0.10, output: 0.50}` (dollars per million tokens), replaces
+  the list price.
+
+A **monthly budget** is a soft limit: set it in the workspace (F2 Settings, **Budget**),
+as `usage.monthly_budget_usd` in your settings, or with `REASON_COMMONS_MONTHLY_BUDGET_USD`.
+You are told when this month's replies reach 80% and 100% of it; past it, each send in
+the workspace asks once first. Nothing is ever blocked, and your words are always kept.
+`contribute` and `retry` say it in one line on stderr, and MCP results carry a
+`usage_notice`; their output and exit codes do not change.
+
+To see it all, read only the log; nothing is sent:
+
+```sh
+reason-commons usage                      # this month: by model, against the budget, today, where
+reason-commons usage --month 2026-09      # another month on your own clock
+reason-commons usage --all --goal ~/ReasonCommons/running --json
+```
+
+In the workspace, the footer, each reply's notice and Commands › **Consultant calls and
+cost** say the same (see the [workspace reference](tui.md#commands-ctrlp)).
 
 ## When a consultation fails
 

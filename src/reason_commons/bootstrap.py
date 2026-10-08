@@ -43,17 +43,33 @@ def provider_settings(provider=None, model=None, base_url=None, environ=os.envir
             **settings, "ready": not settings["problems"]}
 
 
-def configured_consultant(provider=None, model=None, base_url=None):
-    """Explicit provider selection at composition, with no hosted fallback."""
+def configured_consultant(provider=None, model=None, base_url=None, usage=None):
+    """Explicit provider selection at composition, with no hosted fallback.
+
+    ``usage`` is a sink told what each paid request cost (``usage_session(...).record``); only a
+    billed provider gets it, and it never reaches the case."""
     name, _ = _choose_provider(provider)
     if name == "guided":
         from reason_commons.adapters.guided import GuidedConsultant
         return GuidedConsultant()
     if name == "anthropic":
         from reason_commons.adapters.anthropic import AnthropicConsultant
-        return AnthropicConsultant.from_env(model=model, base_url=base_url)
+        return AnthropicConsultant.from_env(model=model, base_url=base_url, usage=usage)
     from reason_commons.adapters.lm_studio import LMStudioConsultant
     return LMStudioConsultant.from_env(model=model, base_url=base_url)
+
+
+def usage_session(entry, environ=os.environ, settings=None):
+    """The usage log session for one entry point ("workspace", "accessible", "cli", "mcp" or "check").
+
+    It reads the environment and the saved ``usage`` settings (budget, price overrides) only: it does
+    not apply the saved consultant or model, so the command line keeps ignoring them."""
+    from reason_commons.adapters.settings import Settings
+    from reason_commons.adapters.usage import UsageLog, UsageSession
+    settings = Settings.load() if settings is None else settings
+    saved = settings.data.get("usage") if isinstance(settings.data.get("usage"), dict) else {}
+    return UsageSession(UsageLog.from_env(environ), entry, overrides=saved.get("prices"),
+                        saved_budget=saved.get("monthly_budget_usd"), environ=environ)
 
 
 def create_case(path, name="Untitled case", consultant=None, timezone="Europe/Berlin", clock=None,
