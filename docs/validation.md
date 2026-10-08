@@ -629,9 +629,18 @@ and the agent that wrote the prompt changes chose the reviewers' instructions.
 |---|---|---|---|
 | Sonnet, adapter 3 | 77 | 4 | 0 |
 | Sonnet, adapter 4 | 70 | 2 | 9 |
-| Haiku, adapter 4 | pending | pending | pending |
+| Haiku, adapter 4 | 150 | 8 | 4 |
 
-The Haiku pre-screen is still running; its results replace this line.
+Haiku's failures: classifying a review's outcome, its weakest area (a 60%
+result against an 80% forecast left without a verdict; a never-started pilot
+called inconclusive rather than an implementation failure; an unknown denominator
+called pending; 9 of 31 left "pending" twice), and the Evaporating Cloud (needs
+merged with their actions, the injection placed in another tree, the unstated
+objective neither recorded nor asked about). Its 4 can't-judge criteria are its
+2 rejected replies. In both `evenings_loop` runs Haiku held back the review
+because each input is dated today, 8 October, while the test starts on
+16 October: a fixture artefact, since the inputs carry the real date, which
+three of the four immature-cohort runs also noticed.
 
 Sonnet's failures across both runs: after Sam's "I don't know" the move returns
 to framing success instead of a feasible observation (`attributed_correction`,
