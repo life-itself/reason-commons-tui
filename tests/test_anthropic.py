@@ -55,6 +55,15 @@ def test_native_consultation_sends_complete_context_and_persists_without_secret(
     assert not any(b"fixture-secret" in path.read_bytes() for path in store.rglob("*.yaml"))
 
 
+def test_the_default_model_is_haiku_5_5_and_a_chosen_one_wins():
+    assert DEFAULT_MODEL == "claude-haiku-5-5"
+    assert AnthropicConsultant().model == "claude-haiku-5-5"
+    assert AnthropicConsultant.describe_settings(environ={})["model"] == "claude-haiku-5-5"
+    chosen = {"REASON_COMMONS_ANTHROPIC_MODEL": "claude-sonnet-5-5"}
+    assert AnthropicConsultant.describe_settings(environ=chosen)["model"] == "claude-sonnet-5-5"
+    assert AnthropicConsultant.describe_settings(model="claude-opus-5-5", environ=chosen)["model"] == "claude-opus-5-5"
+
+
 def test_count_tokens_is_read_only_and_uses_the_full_generation_prompt(anthropic_server):
     consultant = adapter(anthropic_server)
     request = {"input": {"request_id": "in001", "base_revision": 0, "text": "literal"}, "case": {}, "sources": {}}

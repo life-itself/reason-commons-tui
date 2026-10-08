@@ -24,7 +24,9 @@ from reason_commons.domain.model import FIELDS, PROFILE, SCHEMA
 
 MAX_REQUEST_BYTES = 4 * 1024 * 1024
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
-DEFAULT_MODEL = "claude-sonnet-5-5"
+# The lowest-cost model the consulting procedure is validated with (docs/validation.md); a saved or chosen
+# model always wins over it.
+DEFAULT_MODEL = "claude-haiku-5-5"
 # Thinking shares the output budget with the proposal, so leave room for both.
 DEFAULT_MAX_TOKENS = 16000
 EFFORTS = ("low", "medium", "high", "xhigh", "max")

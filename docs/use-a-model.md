@@ -12,11 +12,12 @@ On the first start, choose **Choose who asks the questions first**; later, choos
 
 - **Claude**: paste your API key from the
   [Anthropic Console](https://console.anthropic.com/). Reason Commons checks it and
-  lists the models your key can use; Sonnet is marked as recommended.
+  lists the models your key can use. Haiku 5.5 is marked as recommended: it costs
+  least and suits most replies. Sonnet reasons more deeply and costs more per reply.
 - **LM Studio**: the usual address is filled in. Reason Commons finds the server
   and lists the loaded models. If nothing answers, it says what to do in LM Studio.
 
-![Choosing a Claude model: Opus, Sonnet (recommended) and Haiku, each with its trade-off](images/setup-model.png)
+![Choosing a Claude model: Opus, Sonnet, Haiku 5.5 (recommended) and Haiku 4.5, each with its trade-off](images/setup-model.png)
 
 Your choices are saved in `~/.config/reason-commons/settings.yaml`, readable only
 by you, and never in a goal or an export. Environment variables, described below,
@@ -36,7 +37,8 @@ still take precedence, so an existing shell setup keeps working.
    **Consultant: Anthropic Claude**.
 
 To make Claude the default, also add `export REASON_COMMONS_PROVIDER=anthropic`.
-To use a different Claude model, set `REASON_COMMONS_ANTHROPIC_MODEL`.
+Claude Haiku 5.5 answers unless you chose another model; to use a different one,
+set `REASON_COMMONS_ANTHROPIC_MODEL`.
 
 When Claude is selected and you press **Send** (or choose a move marked "asks
 consultant"), your answer and the goal's saved records are sent to Anthropic.

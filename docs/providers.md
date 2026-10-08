@@ -82,14 +82,18 @@ Neither is ever written into a case or an export.
 | Setting | Anthropic | LM Studio |
 |---|---|---|
 | Credential | `ANTHROPIC_API_KEY` (required) | `LM_STUDIO_API_TOKEN` (optional, only if your server requires one) |
-| Model | `REASON_COMMONS_ANTHROPIC_MODEL`, default `claude-sonnet-5-5` | `REASON_COMMONS_LM_STUDIO_MODEL`; if unset, used automatically only when the server advertises exactly one model |
+| Model | `REASON_COMMONS_ANTHROPIC_MODEL`, default `claude-haiku-5-5` | `REASON_COMMONS_LM_STUDIO_MODEL`; if unset, used automatically only when the server advertises exactly one model |
 | Server URL | `REASON_COMMONS_ANTHROPIC_URL`, default `https://api.anthropic.com/v1` (HTTPS only; plain HTTP just for loopback testing) | `REASON_COMMONS_LM_STUDIO_URL`, default `http://127.0.0.1:1234/v1` |
 | Timeout (seconds) | `REASON_COMMONS_ANTHROPIC_TIMEOUT`, default 120 | `REASON_COMMONS_LM_STUDIO_TIMEOUT`, default 120 |
 | Output budget (tokens) | `REASON_COMMONS_ANTHROPIC_MAX_TOKENS`, default 16000; the model's thinking counts against it too | Fixed at 4096 |
 | Effort | `REASON_COMMONS_ANTHROPIC_EFFORT`: `low`, `medium`, `high`, `xhigh`, `max`, or `default` to send none. Unset, it is `high` where the model reports support for effort, and otherwise the model's own default | Not used |
 
-Any current Anthropic model works, including `claude-haiku-5-5` for lower cost
-(see [validation](validation.md) for how it has measured). The adapter asks the
+The default is `claude-haiku-5-5`: it costs least and suits most replies, though
+each reply takes longer than Sonnet's (see [validation](validation.md) for how it
+has measured). `claude-sonnet-5-5` reasons more deeply and costs more per reply;
+choose it in setup or set `REASON_COMMONS_ANTHROPIC_MODEL`. A model you saved in
+setup, or set in the environment, stays your choice. Any current Anthropic model
+works. The adapter asks the
 model what it supports before the first consultation: a model without effort
 levels, such as Claude Haiku 4.5, gets none, and an effort you chose that the
 model lacks is refused before anything is sent.
@@ -109,7 +113,7 @@ reason-commons providers --json
 
 ```
 Provider: anthropic (chosen by REASON_COMMONS_PROVIDER)
-Model: claude-sonnet-5-5 (default)
+Model: claude-haiku-5-5 (default)
 Endpoint: https://api.anthropic.com/v1
 Credential: ANTHROPIC_API_KEY not set (required)
 Output: up to 16000 tokens; effort high where the model supports it
