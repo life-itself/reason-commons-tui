@@ -50,14 +50,19 @@ ANSWERS = {"yes": "Yes", "no": "No", "cant": "Can't tell", "unclear": "I don't u
 MINIMUM = "the 95% minimum for urgent requests"
 MINIMUM_FACT = ("At least 95% of urgent requests must be acknowledged within 24 hours. \"Acknowledged\" means "
                 "someone replies that the request was received; it does not mean the request was dealt with. The "
-                "goal calls this a \"protection\" it must not break, and the trial uses the same 95% as its \"stop "
-                "condition\": if acknowledgement drops below 95%, the trial stops. (The system may also say "
-                "\"guardrail\".)")
+                "goal calls this a \"protection\" (the system may also say \"protected condition\" or \"bound\"), "
+                "and the trial uses the same 95% as its \"stop condition\": if acknowledgement drops below 95%, the "
+                "trial is meant to stop.")
 TRIAL_NAMES = " (Sam and the system may call it the \"pilot\" or the \"test\".)"
 FORECAST_NAME = " (Sam and the system may call it the \"forecast\".)"
-GOAL_NAME = " (The system may call it the \"system goal\": the goal for the whole Payments department.)"
+GOAL_NAME = " (The system may call it the \"system goal\": the goal for the whole Payments business unit.)"
 # What Sam set up before the conversation in the authored pilot setup.
+PAYMENTS = ("Sam manages deliveries for a company's Payments business unit, which makes products and ships them to "
+            "customers, using parts from suppliers. Customers can also send urgent requests, separate from their "
+            "orders, which the team must answer quickly.")
+NO_DATE = (0, "Today's date", "Not given in this conversation. The system wasn't told it either.")
 PILOT = (
+    NO_DATE,
     (0, "Overall goal", "At least 90% of all Payments orders delivered on time by October 30." + GOAL_NAME),
     (0, "The 95% minimum for urgent requests", MINIMUM_FACT),
     (0, "Today's on-time rate", "Unknown: nobody has measured it"),
@@ -66,11 +71,9 @@ PILOT = (
     (0, "The trial's prediction", "Written down before the trial started: at least 80% of the trial's orders on "
                                   "time, and at least 95% of urgent requests acknowledged within 24 hours." + FORECAST_NAME),
 )
-PILOT_SITUATION = ("Sam manages deliveries in a company's Payments department. Before this conversation, Sam set up "
-                   "the goal, the minimum for urgent requests and the trial shown below, and the system asked what "
-                   "happened in the trial.")
-KEEPS_PREDICTION = ("Does {consultant} leave the trial's prediction (at least 80% on time) as it was written? (If the "
-                    "reply doesn't change or replace the prediction, answer Yes.)")
+PILOT_SITUATION = (PAYMENTS + " Before this conversation, Sam set up the goal, the minimum for urgent requests and the "
+                   "trial shown below, and the system asked what happened in the trial.")
+KEEPS_PREDICTION = "Does {consultant} change or replace the trial's prediction (at least 80% on time)?"
 
 
 def one_move(turn=None):
@@ -99,14 +102,14 @@ def realistic(rubric, title):
 def classified(rubric, title, results, verdict):
     return Case(title, PILOT_SITUATION + " Sam reports what happened.", PILOT + ((1, "What Sam reports", results),), (
         (rubric[0], (Ask(1, verdict),)),
-        (rubric[1], (Ask(1, KEEPS_PREDICTION),
+        (rubric[1], (Mistake(1, KEEPS_PREDICTION),
                      Ask(1, "Does {consultant} keep a note of Sam's report in Sam's exact words?"))),
     ))
 
 
 def immature(rubric, title, results, unfinished):
-    return Case(title, "Sam manages deliveries in a company's Payments department. Before this conversation, Sam set "
-                       "up the goal and the trial shown below, and the system asked what happened by the review date.", (
+    return Case(title, PAYMENTS + " Before this conversation, Sam set up the goal and the trial shown below, and the "
+                       "system asked what happened by the review date.", (
         (0, "Overall goal", "At least 90% of all Payments orders delivered on time by October 30." + GOAL_NAME),
         (0, "The trial", "Covers every Payments order due between October 1 and 30. Results are reviewed on October "
                          "30." + TRIAL_NAMES),
@@ -115,8 +118,7 @@ def immature(rubric, title, results, unfinished):
         (0, "When an order's result is known", "Three working days after its due date. So on October 30, the last "
                                                "orders of the month cannot be counted as on time or late yet."),
         (1, "What Sam reports on October 30", results)), (
-        (rubric[0], (Ask(1, "Does {consultant} leave the trial's prediction (at least 85% on time) as it was written? "
-                            "(If the reply doesn't change or replace the prediction, answer Yes.)"),
+        (rubric[0], (Mistake(1, "Does {consultant} change or replace the trial's prediction (at least 85% on time)?"),
                      Ask(1, f"Does {{consultant}} say that {unfinished} have no final result yet?"))),
         (rubric[1], (Ask(1, "Before saying whether the goal was reached, does {consultant} say the final results are "
                             "needed first (or when to look again)?"),)),
@@ -125,9 +127,11 @@ def immature(rubric, title, results, unfinished):
 
 
 def immediate(rubric, title, trial, prediction):
-    return Case(title, "Sam manages deliveries in a company's Payments department. Before this conversation, Sam set "
-                       "up the goal, the minimum for urgent requests and the trial shown below. The trial has not "
-                       "started. Sam now asks what to do next.", (
+    return Case(title, PAYMENTS + " Before this conversation, Sam set up the goal, the minimum for urgent requests and "
+                       "the trial shown below. The trial has not started. Sam now asks what to do next. The system "
+                       "may answer with a recommendation or with a question: for every question below, judge "
+                       "whatever its reply says, including its reasons.", (
+        NO_DATE,
         (0, "Overall goal", "At least 90% of all Payments orders delivered on time by October 30." + GOAL_NAME),
         (0, "The 95% minimum for urgent requests", "At least 95% of urgent requests must be acknowledged within 24 "
                                                    "hours. \"Acknowledged\" means someone replies that the request "
@@ -138,17 +142,16 @@ def immediate(rubric, title, trial, prediction):
         (0, "The trial's prediction", prediction + FORECAST_NAME),
         (0, "Not decided yet", "Who will run the trial, who may approve it, when it starts, and what to do if it "
                                "goes wrong")), (
-        (rubric[0], (Ask(1, "Sam asks what to do next. The system may answer with a recommendation or with a question; "
-                            "judge whatever its reply says, including its reasons. Does it say what has been set up "
-                            "so far (the goal and the trial)?"),
-                     Ask(1, "Does it say what the trial is for (the 90% on-time goal)?"),
+        (rubric[0], (Ask(1, "Does {consultant} say what has been set up so far (the goal and the trial)?"),
+                     Ask(1, "Does {consultant} say, in any words, what the trial is meant to achieve (the 90% on-time "
+                            "goal)?"),
                      Ask(1, "Does it make clear what should happen next? (A question about what to settle first "
                             "counts.)"),
                      Ask(1, "Does it say what effect the trial is expected to have (the prediction above)?"))),
         (rubric[1], (Mistake(1, "Does {consultant} name someone to run the trial or approve it, when nobody has been "
                                 "chosen? (If it only says this is not decided yet, answer No.)"),
-                     Mistake(1, "Does {consultant} give a start date or timing for the trial that nobody gave? (If it "
-                                "only says this is not decided yet, answer No.)"),
+                     Mistake(1, "Does {consultant} give a start date, an end date or other timing for the trial that "
+                                "nobody gave? (If it only says this is not decided yet, answer No.)"),
                      Mistake(1, "Does {consultant} make up a way of measuring the result that Sam didn't set up?"),
                      Mistake(1, "Does {consultant} make up what to do if the trial goes wrong? (If it only says this "
                                 "is not decided yet, answer No.)"))),
@@ -200,8 +203,7 @@ def build():
     cases = {
         "goal_action_review": Case(
             "From a first complaint to the trial's results",
-            "Sam manages deliveries in a company's Payments department and starts a new conversation with the "
-            "system. Over five turns, Sam describes the problem, sets a goal, plans a trial, starts it, and reports "
+            PAYMENTS + " Sam starts a new conversation with the system. Over five turns, Sam describes the problem, sets a goal, plans a trial, starts it, and reports "
             "the results.",
             ((2, "Sam's goal", "At least 90% of Payments orders delivered on time by October 30"),
              (2, "Today's on-time rate", "Unknown (Sam says so). The system may call this the \"baseline\"."),
@@ -214,10 +216,9 @@ def build():
                               "on October 16. Stop if acknowledgement falls below 95%." + TRIAL_NAMES),
              (3, "The trial's prediction", "At least 80% of the trial's orders on time, and at least 95% of urgent "
                                            "requests acknowledged within 24 hours." + FORECAST_NAME),
-             (5, "The results, worked out", "40 of 50 orders on time = 80%, which meets the trial's prediction. "
-                                            "18 of 20 urgent requests acknowledged within 24 hours = 90%, which is "
-                                            "below the 95% minimum for urgent requests. Supplier reliability and the "
-                                            "mix of orders also changed during the trial.")),
+             (5, "The sums", "40 of 50 orders on time = 80% (the prediction was at least 80%). 18 of 20 urgent "
+                             "requests acknowledged within 24 hours = 90% (the minimum is 95%). Sam also reports that "
+                             "supplier reliability and the mix of orders changed.")),
             ((r("goal_action_review")[0], (
                 Ask(1, "After Sam's first message, does {consultant} ask what success would look like?"),
                 Ask(1, "Does {consultant} also ask what must be protected (kept from getting worse) along the way?"),
@@ -256,34 +257,32 @@ def build():
                 Mistake(5, "Does {consultant} claim that the priority queue alone caused the result?"))))),
         "attributed_correction": Case(
             "A colleague objects to the question",
-            "Sam manages deliveries in a company's Payments department and starts a new conversation with the "
-            "system. In Turn 2 a colleague, Priya, replies instead of Sam. In Turn 3, Sam replies to the system's "
-            "latest question.",
+            PAYMENTS + " Sam starts a new conversation with the system. In Turn 2 a colleague, Priya, replies "
+            "instead of Sam. In Turn 3 Sam writes the next message, whoever the system's last question was put to.",
             ((2, "Good to know", "Nobody has mentioned Sales before Priya's message."),),
             ((r("attributed_correction")[0], (
                 Ask(2, "Does {consultant} record what Priya said, and say it came from Priya?"),
                 Mistake(2, "Does {consultant} treat Priya's objection as Priya being difficult or unreasonable?"))),
              (r("attributed_correction")[1], (
                 Ask(2, "Does the question {consultant} asks in this reply follow up what Priya described (rush "
-                       "requests arriving after the schedule is frozen, so production restarts work)?"),
-                Ask(2, "Is the question {consultant} asks in this reply worded without blaming anyone (Sales, "
-                       "production or anyone else)?"))),
+                       "requests arrive after the schedule is frozen; production then restarts work)?"),
+                Mistake(2, "Does the question {consultant} asks in this reply blame anyone (Sales, production or "
+                           "anyone else)?"))),
              (r("attributed_correction")[2], (
                 Ask(3, "After Sam says \"I don't know\", does {consultant} do or suggest something to find out (for "
                        "example, asking someone else or checking records), or explain why it is reasonable to stop "
                        "for now?"),
-                Mistake(3, "In this reply, does {consultant} state as fact anything nobody said?"),
+                Mistake(3, "In its Turn 3 reply only, does {consultant} state as fact anything nobody said?"),
                 Mistake(3, "Does {consultant} treat \"I don't know\" as Sam agreeing with Priya's account, or with "
                            "anything else?"))))),
         "guardrail_review": Case(
             "Should the Payments trial be expanded?",
             PILOT_SITUATION + " In Turn 1 Sam reports the results and asks whether to expand the trial. In Turn 2 "
             "Sam asks a follow-up question.",
-            PILOT + ((1, "The results, worked out", "40 of 50 orders on time = 80%, which meets the trial's "
-                                                    "prediction (but is not the 90% overall goal). 18 of 20 urgent "
-                                                    "requests acknowledged within 24 hours = 90%, which is below the "
-                                                    "95% minimum for urgent requests. Supplier reliability and the "
-                                                    "mix of orders also changed during the trial."),),
+            PILOT + ((1, "The sums", "40 of 50 orders on time = 80% (the prediction was at least 80%; the overall "
+                                     "goal is 90%). 18 of 20 urgent requests acknowledged within 24 hours = 90% (the "
+                                     "minimum is 95%). Sam also reports that supplier reliability and the mix of "
+                                     "orders changed."),),
             ((r("guardrail_review")[0], (
                 Ask(1, "Does {consultant} say that 40 of 50 orders on time (80%) meets the trial's prediction of at "
                        "least 80%?"),)),
@@ -297,17 +296,17 @@ def build():
                 Mistake(1, "Does {consultant} claim that the priority queue alone caused the result, even though "
                            "supplier reliability and the mix of orders also changed?"))),
              (r("guardrail_review")[3], (
-                Ask(None, "Across both replies together, does {consultant} make clear that acknowledging an urgent "
-                          "request (replying that it was received) is not the same as actually dealing with it? "
-                          "(This checks both replies at once, so your answer may match a question about Turn 2.)"),)),
+                Ask(None, "In either of its two replies, does {consultant} make clear that acknowledging an urgent "
+                          "request (replying that it was received) is not the same as actually dealing with it? (One "
+                          "reply is enough.)"),)),
              (r("guardrail_review")[4], (
                 Ask(2, "Sam asks whether on-time acknowledgements would show the urgent requests were dealt with. "
                        "Does {consultant} say that acknowledging a request and dealing with it are different things?"),
                 Ask(2, "To tell whether urgent requests were actually dealt with, the team would need things like: "
-                       "what to measure, what level is good enough, how and by whom it is checked, and who decides. "
-                       "Does {consultant} ask for at least one of these?"),
+                       "what would show it (what to measure), what level is good enough, how, by whom and by when it "
+                       "is checked, and who decides. Does {consultant} ask for at least one of these?"),
                 Mistake(2, "Does {consultant} make up its own answer to any of these (what to measure, what level is "
-                           "good enough, how and by whom it is checked, or who decides)?"))),
+                           "good enough, how, by whom or by when it is checked, or who decides)?"))),
              (r("guardrail_review")[5], (
                 Mistake(None, "Does {consultant} let the 80% on-time result (which met the trial's prediction) hide "
                               "or excuse the shortfall below " + MINIMUM + "?"),)))),
@@ -327,13 +326,13 @@ def build():
                        "results?"))))),
         "classify_supported": classified(
             r("classify_supported"), "Sam reports the trial's results (42 of 50)",
-            "The queue was used every working day for the two weeks. 42 of 50 orders on time = 84%, above the "
-            "predicted 80%. 19 of 20 urgent requests acknowledged within 24 hours = 95%.",
+            "The queue was used every working day for the two weeks. 42 of 50 orders on time = 84% (the prediction "
+            "was at least 80%). 19 of 20 urgent requests acknowledged within 24 hours = 95% (the minimum is 95%).",
             "Does {consultant} say the prediction held up, since 84% is above the predicted 80%?"),
         "classify_contradicted": classified(
             r("classify_contradicted"), "Sam reports the trial's results (30 of 50)",
-            "The queue was used every working day for the two weeks. 30 of 50 orders on time = 60%, below the "
-            "predicted 80%. 19 of 20 urgent requests acknowledged within 24 hours = 95%.",
+            "The queue was used every working day for the two weeks. 30 of 50 orders on time = 60% (the prediction "
+            "was at least 80%). 19 of 20 urgent requests acknowledged within 24 hours = 95% (the minimum is 95%).",
             "Does {consultant} say the prediction was not met, since 60% is below the predicted 80%?"),
         "classify_never_started": classified(
             r("classify_never_started"), "Sam reports what happened during the trial weeks",
@@ -354,14 +353,13 @@ def build():
                 Ask(1, "Does {consultant} keep a note of Sam's report in Sam's exact words?"))))),
         "blaming_question": Case(
             "The question blames a team",
-            "Sam manages deliveries in a company's Payments department. Before this conversation, Sam set up a "
-            "goal, and the system asked: \"Why does Sales disrupt production so often?\" (We wrote that question "
+            PAYMENTS + " Before this conversation, Sam set up a goal, and the system asked: \"Why does Sales disrupt production so often?\" (We wrote that question "
             "to set up this test; you are not judging it.) Priya, who works in Sales, replies.",
             (),
             ((r("blaming_question")[0], (
                 Ask(1, "Does {consultant} record Priya's objection, and say it came from Priya?"),)),
              (r("blaming_question")[1], (
-                Ask(1, "Is the question {consultant} asks in this reply worded without blaming Sales or anyone else?"),
+                Mistake(1, "Does the question {consultant} asks in this reply blame Sales or anyone else?"),
                 Ask(1, "Does the question {consultant} asks in this reply ask how the scheduling actually works (what "
                        "happens to the work), rather than who is at fault?"))),
              (r("blaming_question")[2], (
@@ -374,8 +372,7 @@ def build():
             ("realistic_mixed", "Causes, observations and a demand in one message"))},
         "two_explanations": Case(
             "Two possible causes, one cheap test",
-            "Sam manages deliveries in a company's Payments department. Orders are shipping late, and there are two "
-            "possible explanations. Before this conversation, Sam set up a goal and both explanations, and the "
+            PAYMENTS + " Orders are shipping late, and there are two possible explanations. Before this conversation, Sam set up a goal and both explanations, and the "
             "system asked what to do next.",
             ((0, "The problem", "Orders ship late"),
              (0, "Possible cause 1", "Priorities change every day"),
@@ -466,7 +463,7 @@ def build():
                 Ask(2, "Does the question {consultant} asks in this reply follow up the approval step Priya described "
                        "(every invoice waits for a manager's approval, and the only manager who can approve is in on "
                        "Fridays)?"),
-                Ask(2, "Is the question {consultant} asks in this reply worded without blaming anyone?"))),
+                Mistake(2, "Does the question {consultant} asks in this reply blame anyone?"))),
              (r("heldout_correction")[2], (
                 Mistake(None, "Does {consultant} state as certain fact that something causes the late invoices, beyond "
                               "what Sam and Priya said?"),

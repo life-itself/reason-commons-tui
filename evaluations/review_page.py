@@ -209,6 +209,9 @@ def review_from_answers(questions, stored):
         decision["evidence"] = " | ".join(evidence(q, g, questions["answers"]) for q, g in zip(asked, given)
                                           if g and g.get("answer") in ANSWERS)
     review["answers"] = answers  # kept so the page can reopen the file
+    review["comments"] = {case["id"]: (answers.get(f"{case['id']}__comment") or {}).get("why", "").strip()
+                          for case in questions["cases"]
+                          if (answers.get(f"{case['id']}__comment") or {}).get("why", "").strip()}
     return review
 
 
@@ -308,6 +311,8 @@ button.primary { background: var(--accent); color: var(--on-accent); border-colo
 .rejected { color: var(--no); font-weight: 600; }
 .words-here { font-size: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
 .words-here ul { margin: 4px 0 0; padding-left: 18px; }
+fieldset.background { border: 0; padding: 0; margin: 0; display: grid; gap: 4px; }
+fieldset.background label { font-size: 15px; }
 .finish { background: var(--panel); border: 2px solid var(--accent); border-radius: 8px; padding: 12px 16px; display: grid; gap: 6px; }
 .words summary { cursor: pointer; color: var(--accent); }
 .words ul { margin-top: 8px; }
@@ -349,8 +354,8 @@ textarea.missing { border-color: var(--no); }
       <p><b>What we'd like from you.</b> You'll read a few short conversations between a person and the system, one
       at a time. Under the system's replies are some questions about those replies. You are judging the system's
       replies only: not the person, and not whether their plan is a good idea.</p>
-      <p>The conversations are separate, made-up situations. Some reuse the same people, or the same trial with
-      different results, and they are not in time order. Read each one on its own.</p>
+      <p>The conversations are separate, made-up situations. Some reuse the same people, or a similar trial set up a
+      little differently, and they are not in time order. Read each one on its own.</p>
       <div>
         <p class="label">The parts of a reply</p>
         <p>Each of the system's replies can have up to four parts: its question or recommendation; its reasons, in its
@@ -387,8 +392,11 @@ textarea.missing { border-color: var(--no); }
           <li><b>scope</b>: what something covers</li>
           <li><b>denominator</b>: the number something is counted out of (in "40 of 50", it is 50)</li>
           <li><b>system goal</b>: the goal for the whole department (not a goal of the AI)</li>
-          <li><b>protection</b>, <b>guardrail</b>, <b>stop condition</b>: a line that must not be crossed while
-          trying something</li>
+          <li><b>protection</b>, <b>protected condition</b>, <b>guardrail</b>, <b>bound</b>: something that must be
+          kept up while trying a change, such as a minimum that must not be missed</li>
+          <li><b>stop condition</b>: the point at which a trial is meant to stop</li>
+          <li><b>sourced</b>: linked to the message it came from</li>
+          <li><b>domain</b>: the system's built-in knowledge of this kind of work</li>
           <li><b>decision authority</b>: who is allowed to decide</li>
         </ul>
       </details>
@@ -423,8 +431,11 @@ textarea.missing { border-color: var(--no); }
           <li>There are {count} conversations, about {total} minutes in all. Each shows roughly how long it takes.</li>
           <li>Where a message contains numbers, we've done the sums for you, next to that message.</li>
           <li id="finish-note">Your answers are kept in this browser as you go. To hand them in when you've finished,
-          click “Save my answers to a file” (at the top of the list of conversations) and send that file to the person
-          who sent you this page.</li>
+          click “Save my answers to a file” (just below the list of conversations) and send that file to the person
+          who sent you this page. If you saved a file earlier, “Open a file of saved answers” brings those answers
+          back.</li>
+          <li>At the end of each conversation there's a box for anything else you noticed that the questions didn't
+          ask about.</li>
         </ul>
       </div>
     </div>
@@ -433,13 +444,11 @@ textarea.missing { border-color: var(--no); }
     <p class="label">Before you start</p>
     <div class="who">
       <label><span class="label">Your name</span><input id="reviewer" autocomplete="name" placeholder="So we know whose answers these are"></label>
-      <label><span class="label">Your background</span>
-        <select id="reviewer_role">
-          <option value="">Choose one</option>
-          <option>I haven't run teams or projects at work</option>
-          <option>I've run teams or projects at work</option>
-          <option>I know the Theory of Constraints (a management method; not needed for this review)</option>
-        </select></label>
+      <fieldset class="background"><legend class="label">Your background (tick any that apply)</legend>
+        <label><input type="checkbox" id="bg-teams"> I've run teams or projects at work</label>
+        <label><input type="checkbox" id="bg-toc"> I know the Theory of Constraints (a management method; not needed
+        for this review)</label>
+      </fieldset>
       <span class="status" id="saved" role="status"></span>
     </div>
   </div>
@@ -449,7 +458,7 @@ textarea.missing { border-color: var(--no); }
   <select id="case" aria-label="Conversation"></select>
   <span class="status num" id="progress"></span>
   <button id="save" type="button">Save my answers to a file</button>
-  <button id="load" type="button">Open saved answers</button>
+  <button id="load" type="button">Open a file of saved answers</button>
   <input id="file" type="file" accept="application/json,.json" hidden>
 </div>
 <main class="case" id="case-body"></main>
@@ -505,6 +514,7 @@ function reviewFile() {
     }).filter(Boolean).join(" | ");
   }
   out.answers = answers;
+  out.comments = Object.fromEntries(data.cases.map(c => [c.id, ((answers[c.id + "__comment"] || {}).why || "").trim()]).filter(([, t]) => t));
   return JSON.stringify(out, null, 2) + "\\n";
 }
 function stored() {
@@ -528,7 +538,8 @@ function merge(into, patch) {
 }
 function changed(patch) {
   me.reviewed_at = new Date().toISOString().slice(0, 10);
-  patch = Object.assign({reviewed_at: me.reviewed_at}, patch);
+  me.reviewer_role = me.reviewer_role || role();
+  patch = Object.assign({reviewed_at: me.reviewed_at, reviewer_role: me.reviewer_role}, patch);
   if (!state.hosted) { try { localStorage.setItem(local, JSON.stringify(stored())); status("Saved in this browser"); } catch (e) { /* storage unavailable */ } return; }
   if (state.readOnly) return;
   merge(pending, patch);
@@ -568,7 +579,7 @@ async function connect() {
   if (!state.readOnly) status("Your answers save as you go. Other reviewers can't see them.");
   document.getElementById("finish-note").textContent = "Your answers are saved for the person who sent you this "
     + "link as you go, and other reviewers can't see them. When you've answered everything, you've finished: just close the page.";
-  for (const f of ["reviewer", "reviewer_role"]) document.getElementById(f).value = me[f];
+  showMe();
   show(shown); progress();
   if (await user.isOwner()) watchReviewers(db);
 }
@@ -660,7 +671,7 @@ function reply(turn, explainCodes) {
   const recorded = turn.reply.filter(p => p.kind === "recorded");
   const colon = move ? move.headline.indexOf(": ") : -1;
   return el("div", {class: "reply"}, el("p", {class: "label", text: "The system replied"}),
-    explainCodes ? el("p", {class: "note", text: `Codes like ${turn.codes} below are the system's own labels for things it recorded earlier. We've added in [square brackets] what each one refers to. The person saw only the code.`}) : null,
+    explainCodes ? el("p", {class: "note", text: `Codes like ${turn.codes} below are the system's own labels for things it recorded earlier. We've added in [square brackets] what each one refers to. The person saw only the code. Codes start afresh in each conversation.`}) : null,
     move ? el("p", {class: "move"}, el("b", {text: move.headline.slice(0, colon + 1) + " "}), move.headline.slice(colon + 2)) : null,
     ...(move ? move.lines.map(line => el("p", {class: "why", text: line})) : []),
     recorded.length ? el("p", {class: "small", text: `The system recorded ${recorded.length === 1 ? "this" : "these " + recorded.length + " things"}:`}) : el("p", {class: "small muted", text: "The system recorded nothing else."}),
@@ -758,6 +769,13 @@ function show(index) {
   if (whole.length) parts.push(el("section", {class: "turn"}, el("h3", {text: "The conversation as a whole"}),
     el("p", {class: "small muted", text: "These questions are about all of the system's replies above."}),
     el("div", {class: "questions"}, ...whole.map(q => question(c, q)))));
+  const noteKey = c.id + "__comment";
+  const note = el("textarea", {id: "comment-" + c.id, "aria-label": "Anything else you noticed",
+    placeholder: "Optional: anything else you noticed about the system's replies that the questions didn't ask about."});
+  note.value = (answers[noteKey] || {}).why || "";
+  note.disabled = state.readOnly;
+  note.addEventListener("input", () => { answers[noteKey] = {answer: null, why: note.value}; changed({answers: {[noteKey]: answers[noteKey]}}); });
+  parts.push(el("section", {class: "stack"}, el("p", {class: "label", text: "Anything else? (optional)"}), note));
   const left = c.questions.filter(q => !q.given && !isDone(c, q)).length;
   parts.push(el("div", {class: "end"},
     el("p", {class: "muted", text: left ? `${left} question${left === 1 ? "" : "s"} left in this conversation.`
@@ -770,15 +788,23 @@ function show(index) {
     el("p", {class: "label", text: "How to finish"}),
     el("p", {text: (remaining ? `You have ${remaining} question${remaining === 1 ? "" : "s"} left across all the conversations; the list at the top shows which conversations aren't done. ` : "You've answered every question. ")
       + (state.hosted ? "Your answers are already saved for the person who sent you this link, so when everything is done you can simply close this page. Thank you."
-                      : "When everything is done, click “Save my answers to a file” at the top of the page and send that file to the person who sent you this page. Thank you.")})));
+                      : "When everything is done, click “Save my answers to a file” (just below the list of conversations) and send that file to the person who sent you this page. Thank you.")})));
   body.replaceChildren(...parts.filter(Boolean));
   progress();
   try { sessionStorage.setItem(local + "-case", index); } catch (e) { /* storage unavailable */ }
 }
-for (const f of ["reviewer", "reviewer_role"]) {
-  const input = document.getElementById(f);
-  input.addEventListener(f === "reviewer" ? "input" : "change", () => { me[f] = input.value; changed({[f]: input.value}); });
+// The background is two tick boxes, recorded as one sentence so an unticked box still says something.
+function role() {
+  return [document.getElementById("bg-teams").checked ? "Has run teams or projects at work" : "Has not run teams or projects at work",
+          document.getElementById("bg-toc").checked ? "knows the Theory of Constraints" : "does not know the Theory of Constraints"].join("; ");
 }
+function showMe() {
+  document.getElementById("reviewer").value = me.reviewer;
+  document.getElementById("bg-teams").checked = /^Has run/.test(me.reviewer_role || "");
+  document.getElementById("bg-toc").checked = /; knows/.test(me.reviewer_role || "");
+}
+document.getElementById("reviewer").addEventListener("input", e => { me.reviewer = e.target.value; me.reviewer_role = role(); changed({reviewer: me.reviewer, reviewer_role: me.reviewer_role}); });
+for (const id of ["bg-teams", "bg-toc"]) document.getElementById(id).addEventListener("change", () => { me.reviewer_role = role(); changed({reviewer_role: me.reviewer_role}); });
 const brief = document.getElementById("brief");
 try { if (localStorage.getItem(local + "-brief") === "closed") brief.open = false; } catch (e) { /* none */ }
 brief.addEventListener("toggle", () => { try { localStorage.setItem(local + "-brief", brief.open ? "open" : "closed"); } catch (e) { /* none */ } });
@@ -791,12 +817,12 @@ document.getElementById("file").addEventListener("change", async event => {
   try { value = JSON.parse(await file.text()); } catch (e) { /* reported below */ }
   if (!restore(value)) { status("That file isn't a saved review of these cases.", true); return; }
   changed({});
-  for (const f of ["reviewer", "reviewer_role"]) document.getElementById(f).value = me[f];
+  showMe();
   show(shown);
   status("Opened " + file.name);
 });
 try { restore(JSON.parse(localStorage.getItem(local) || "null")); } catch (e) { /* storage unavailable */ }
-for (const f of ["reviewer", "reviewer_role"]) document.getElementById(f).value = me[f];
+showMe();
 let start = 0;
 try { start = Math.min(+(sessionStorage.getItem(local + "-case") || 0), data.cases.length - 1); } catch (e) { /* none */ }
 show(start);

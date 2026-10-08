@@ -246,7 +246,8 @@ GLOSSARY = (
     (r"\bbaseline\b", "baseline", "where things stood before a change"),
     (r"\bscope\b", "scope", "what something covers"),
     (r"\bdenominators?\b", "denominator", "the number something is counted out of (in “40 of 50”, it is 50)"),
-    (r"\bprotect(ion|ed)", "protection", "something that must not get worse while trying a change"),
+    (r"\bprotect(ion|ed)", "protection", "something that must be kept up while trying a change, such as a minimum "
+                                          "that must not be missed"),
     (r"\bguardrail", "guardrail", "something that must not get worse while trying a change"),
     (r"\bstop condition\b", "stop condition", "the point at which the trial must stop"),
     (r"\bsystem goal\b", "system goal", "the goal for the whole department (not a goal of the AI)"),
@@ -256,6 +257,9 @@ GLOSSARY = (
     (r"\bparticipants?\b", "participant", "a person in the conversation"),
     (r"\bconstraint\b", "constraint", "the one thing that limits progress most"),
     (r"\bproxy\b", "proxy", "something measured in place of what really matters"),
+    (r"\bbound\b", "bound", "a limit that must not be crossed"),
+    (r"\bsourced\b", "sourced", "linked to the message it came from"),
+    (r"\bdomain\b", "domain", "the system's built-in knowledge of this kind of work"),
 )
 
 
