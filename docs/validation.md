@@ -549,3 +549,99 @@ The rejected replies did not fall: one in 44 under prompt 6, one in 52 under
 prompt 7, two here. Each attempt is made once by design, so a rejected reply
 costs its case; in use, the operator retries the retained input. The 138
 rubric criteria wait for review on their own page.
+
+## Claude Haiku 5.5 as the consultant (2026-10-08)
+
+The question was whether `claude-haiku-5-5`, at $0.10 / $0.50 per million input and
+output tokens for prompts up to 100K tokens (Sonnet 5.5: $2 / $10), can consult well
+enough. Billed runs with the key read from the environment; no key, request body or
+provider response is recorded here. All data is synthetic.
+
+**Starting point.** An agent following `evaluations/live-claude-test-prompt.md` with
+Haiku and adapter 1 (4096 output tokens, no effort sent, so Haiku's default
+`medium`) saved 8 of 12 replies. Two rejections named an invented intervention
+field (`kind_note`, `intervention_goal_placeholder`); two said only "invalid
+structured response", because a reply the adapter refused carried no reason.
+
+**What changed.** Adapter 2 allows 16000 output tokens, which the model's thinking
+shares (`REASON_COMMONS_ANTHROPIC_MAX_TOKENS`), sends effort `high` where the
+model reports support for it (`REASON_COMMONS_ANTHROPIC_EFFORT`), gives every
+adapter rejection a reason (`max_tokens`, a refusal and its category, no proposal
+call) and names the intervention's only fields. Adapter 3 lists each record kind's
+fields from the domain registry, stops asking for "the string \"1\"", and undoes
+lossless slips in how the call's arguments are passed; prompt 9 tells the model
+when basis `observed` is allowed (a rule the domain enforced but never explained)
+and which records take `replaces`. Adapter 4 fills an envelope field left out
+(each has one valid value per consultation; a wrong one is still refused), unwraps
+a lone wrapper of any name, and drops literal refs from the example shape. The
+semantic harness gained two fixtures from the live procedure's open-evenings
+conversation (`evenings_trees`, `evenings_loop`), and `scripts/evaluate_procedure.py`
+replays that procedure's fourteen consultant steps in review mode.
+
+| Run (`.evaluation-runs/2026-10-08-…`) | Model, adapter, settings | Replies saved first time | Cost per reply |
+|---|---|---|---|
+| `semantic-haiku55-4096-default` (`842caca2…`) | Haiku, 2, 4096 tokens, effort default | 45 of 64 | $0.0030 |
+| `semantic-haiku55-high` (`45a6c883…`), repetition 1 | Haiku, 2, 16000, high | 26 of 33 | $0.0042 |
+| `semantic-haiku55-adapter3` (`cf608d58…`) | Haiku, 3, 16000, high | 64 of 68 | $0.0042 |
+| `semantic-haiku55-adapter4` (`c0b6dfb6…`) | Haiku, 4, 16000, high | **70 of 72** | $0.0042 |
+| `semantic-sonnet55-adapter3` (`f276de5b…`) | Sonnet, 3, 16000, high | 36 of 36 | $0.051 |
+| `semantic-sonnet55-adapter4` (`f5075876…`) | Sonnet, 4, 16000, high | 31 of 33 | $0.050 |
+| `procedure-haiku55-adapter3` (`d0bfb3e6…`) | Haiku, 3 | 24 of 28 | $0.0056 |
+| `procedure-haiku55-adapter4` (`f9446019…`), 3 repetitions | Haiku, 4 | **42 of 42** | $0.0058 |
+| `procedure-sonnet55-adapter3` / `adapter4` (`5c01c759…`, `fa8216f2…`) | Sonnet, 3 and 4 | 14 of 14, 14 of 14 | $0.073 |
+
+Each reply is attempted once, so the share saved is first-attempt validity. Costs are
+from each run's recorded token usage at list prices, with no prompt caching (the
+tool schema is rebuilt for each request, and tools come first in the cached
+prefix). A partial Sonnet run on adapter 2 (13 of 13) was stopped to spend on the
+final adapter.
+
+- **The 4096-token cap explained the unexplained rejections.** Under it, 7 of 19
+  rejections were `stopped at max_tokens (4096)`, among them the open-evenings
+  conflict reply, the live procedure's step 5. At effort `high` Haiku's replies
+  averaged about 5,000 output tokens and reached 9,500; Sonnet's averaged 1,600.
+- **What Haiku still gets wrong is the record shape, not the reasoning.** On adapter 4
+  both rejections added a field a review does not have (`review_date`, and
+  `source_refs` inside the review's data). Earlier runs showed the same class
+  (`scope`, `stop_condition` on reviews; `replaces` on a note), a reference to a
+  record listed later in the same reply, and once updates sent as a string of JSON
+  that was itself broken. All were refused before commit with the input kept.
+  Sonnet's two rejections on adapter 4 are of the same class (`temp_orary_id`,
+  `proposed_updates_note`). No transport repair was needed in any adapter 4 run;
+  the wording changes stopped those slips, and the repairs remain a safety net.
+- **Machine checks.** On adapter 4, Haiku passed 423 of 432 and Sonnet 194 of 201.
+  Every failure but one follows from a rejected reply. The exception is Haiku's
+  `classify_never_started-1`: the reply recorded the pilot's action as `blocked`
+  but no review, so the pilot was not classified as untested. The procedure replays
+  passed every check on both models, the prompt-injection guard included.
+- **Time.** At effort `high` Haiku took about 22 seconds a reply in the semantic
+  fixtures and 28 in the procedure replay; Sonnet took 11 and 15.
+
+### AI pre-screen (2026-10-08)
+
+The rubric criteria of the adapter 3 and 4 Sonnet runs and the adapter 4 Haiku run
+were pre-screened blind by separate Claude subagents under the same written
+instructions, recorded as "AI semantic pre-screen" in each run's `review.json` and
+validated into `reviewed.json`. This is not the human review the gate requires,
+and the agent that wrote the prompt changes chose the reviewers' instructions.
+
+| Run | Pass | Fail | Can't judge (rejected reply) |
+|---|---|---|---|
+| Sonnet, adapter 3 | 77 | 4 | 0 |
+| Sonnet, adapter 4 | 70 | 2 | 9 |
+| Haiku, adapter 4 | pending | pending | pending |
+
+The Haiku pre-screen is still running; its results replace this line.
+
+Sonnet's failures across both runs: after Sam's "I don't know" the move returns
+to framing success instead of a feasible observation (`attributed_correction`,
+both runs); the Cloud's unstated objective is neither recorded nor asked about,
+and once the injection was placed in the Future Reality Tree only; one review did
+not classify its result as supported; one direct-advice turn offered no options.
+Both Sonnet reviewers noted a formulaic fall-back to "who may decide" as the next
+move.
+
+The prompt changes above were made while watching these fixtures; the four
+held-out fixtures and the procedure replay check them elsewhere, but these numbers
+are not independent of the tuning. Samples are small, the semantic status of every
+run is `fail` or `incomplete`, and the participant gate is separate.
