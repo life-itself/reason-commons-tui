@@ -8,7 +8,8 @@ from pathlib import Path
 
 from reason_commons import __version__
 from reason_commons.application.ports import StoreError
-from reason_commons.bootstrap import PROVIDERS, configured_consultant, create_case, import_case, open_case, provider_settings
+from reason_commons.bootstrap import (PROVIDERS, configured_consultant, create_case, import_case, open_case,
+                                      provider_settings, usage_session)
 from reason_commons.domain.model import InvalidCase
 from reason_commons.domain.model import CONSULT_INTENTS
 from reason_commons.application.presentation import VIEWS
@@ -231,7 +232,9 @@ def main(argv=None):
                 print(json.dumps(app.receipts(args.request_id), ensure_ascii=False, indent=2))
         elif args.command in {"contribute", "retry"}:
             from reason_commons.adapters.invocation import run_contribution
-            consultant = configured_consultant(provider=args.provider, model=args.model, base_url=args.base_url)
+            usage = usage_session("cli")
+            consultant = configured_consultant(provider=args.provider, model=args.model, base_url=args.base_url,
+                                               usage=usage.record)
             if args.runner == "agent":
                 from reason_commons.adapters.lm_studio import LMStudioConsultant
                 if not isinstance(consultant, LMStudioConsultant):

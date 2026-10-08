@@ -394,6 +394,8 @@ def to_png(browser, svg):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    # The pictures never read or write the real usage log.
+    os.environ["REASON_COMMONS_USAGE_LOG"] = "off"
     os.environ[themes.ENVIRONMENT] = themes.DEFAULT_THEME  # the docs show the default, not your own theme
     # Times are shown on the person's own clock and a date omits the year when it is this year, so the pictures
     # fix both: UTC, and a day shortly after the dates the pictures use.

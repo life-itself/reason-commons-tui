@@ -3710,14 +3710,16 @@ def run_tour(speaker=None):
 
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False, story=None):
     """Create the case if the folder does not exist yet, then open the workspace."""
-    from reason_commons.bootstrap import configured_consultant, create_case, open_case
+    from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
     settings = Settings.load()
     settings.apply()  # fills in only what flags and the environment leave unset
     store = Path(os.path.expanduser(store)).resolve()
     provider = provider or os.environ.get("REASON_COMMONS_PROVIDER") or "guided"
     speaker = speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
+    usage = usage_session("workspace", settings=settings)
     factory = lambda chosen: configured_consultant(provider=chosen, model=model if chosen == provider else None,
-                                                   base_url=base_url if chosen == provider else None)
+                                                   base_url=base_url if chosen == provider else None,
+                                                   usage=usage.record)
     if not store.exists():
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()

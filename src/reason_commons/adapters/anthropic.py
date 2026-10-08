@@ -34,6 +34,18 @@ EFFORTS = ("low", "medium", "high", "xhigh", "max")
 # default; "default" never sends one. The consulting rules reward careful instruction following.
 DEFAULT_EFFORT = "high"
 USAGE_FIELDS = ("input_tokens", "output_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
+MODEL_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
+
+
+def usage_tokens(usage):
+    """A reply's token counts as the usage log keeps them; anything missing or malformed counts as none."""
+    usage = usage if isinstance(usage, dict) else {}
+    count = lambda value: value if type(value) is int and value >= 0 else 0
+    written = count(usage.get("cache_creation_input_tokens"))
+    detail = usage.get("cache_creation") if isinstance(usage.get("cache_creation"), dict) else {}
+    hour = min(written, count(detail.get("ephemeral_1h_input_tokens")))
+    return {"input": count(usage.get("input_tokens")), "output": count(usage.get("output_tokens")),
+            "cache_write": written - hour, "cache_write_1h": hour, "cache_read": count(usage.get("cache_read_input_tokens"))}
 
 
 def _label(value):
@@ -88,14 +100,15 @@ def undo_transport_slips(arguments, envelope):
 class AnthropicError(RuntimeError):
     """Safe provider diagnostics; never expose credentials or response bodies."""
 
-    def __init__(self, message, category="configuration", http_status=None):
+    def __init__(self, message, category="configuration", http_status=None, sent=False):
         super().__init__(message)
-        self.category, self.http_status = category, http_status
+        # sent: the request went out in full and no reply came back, so it may still have been billed.
+        self.category, self.http_status, self.sent = category, http_status, sent
 
 
 class AnthropicConsultant:
     def __init__(self, model=DEFAULT_MODEL, base_url="https://api.anthropic.com/v1",
-                 api_key=None, timeout=120.0, max_tokens=DEFAULT_MAX_TOKENS, effort=None):
+                 api_key=None, timeout=120.0, max_tokens=DEFAULT_MAX_TOKENS, effort=None, usage=None):
         parts = urlsplit(base_url)
         local_http = parts.scheme == "http" and parts.hostname in {"127.0.0.1", "localhost", "::1"}
         if (not (parts.scheme == "https" or local_http) or not parts.hostname
@@ -118,6 +131,9 @@ class AnthropicConsultant:
         self._api_key, self._resolved_model, self._sent_effort = api_key, None, None
         # Token counts and transport repairs of the last reply, for evaluation evidence; never part of the case.
         self.last_usage, self.last_repairs = None, []
+        # Told what each request cost, as it happens (the composition root's usage sink); never part of the case.
+        # Calls can run in parallel on one consultant, so each is reported with its own values.
+        self.usage = usage
         self._opener = build_opener(ProxyHandler({}), NoRedirect())
         self._context = files("reason_commons.domain").joinpath("CONTEXT.md").read_text(encoding="utf-8")
         self._procedure = files("reason_commons.adapters").joinpath("prompts/consultant.md").read_text(encoding="utf-8")
@@ -164,7 +180,7 @@ class AnthropicConsultant:
         return max_tokens, effort, problems
 
     @classmethod
-    def from_env(cls, model=None, base_url=None):
+    def from_env(cls, model=None, base_url=None, usage=None):
         max_tokens, effort, problems = cls._output_settings(os.environ)
         if problems:
             raise ValueError(problems[0])
@@ -172,7 +188,7 @@ class AnthropicConsultant:
                    base_url=base_url or os.environ.get("REASON_COMMONS_ANTHROPIC_URL", "https://api.anthropic.com/v1"),
                    api_key=os.environ.get("ANTHROPIC_API_KEY") or None,
                    timeout=float(os.environ.get("REASON_COMMONS_ANTHROPIC_TIMEOUT", "120")),
-                   max_tokens=max_tokens, effort=effort)
+                   max_tokens=max_tokens, effort=effort, usage=usage)
 
     @staticmethod
     def describe_settings(model=None, base_url=None, environ=os.environ):
@@ -220,7 +236,9 @@ class AnthropicConsultant:
                                  category="http_error", http_status=exc.code) from None
         except (URLError, OSError, TimeoutError, HTTPException) as exc:
             category = "timeout" if isinstance(exc, TimeoutError) or isinstance(getattr(exc, "reason", None), TimeoutError) else "connection"
-            raise AnthropicError("Anthropic unavailable or request timed out", category=category) from None
+            # urllib wraps a failure to connect or send in URLError; anything else came while waiting for the reply.
+            raise AnthropicError("Anthropic unavailable or request timed out", category=category,
+                                 sent=not isinstance(exc, URLError)) from None
         except (ValueError, UnicodeError, RecursionError):
             raise ConsultantResponseError("Anthropic returned invalid JSON") from None
 
@@ -290,36 +308,70 @@ class AnthropicConsultant:
             raise AnthropicError("Anthropic returned an invalid token count")
         return value["input_tokens"]
 
+    def _report(self, request, outcome, usage=None, model=None):
+        """Tell the usage sink what one request cost. A sink that fails never costs the reply."""
+        if self.usage is None:
+            return
+        try:
+            self.usage({"provider": "anthropic", "model": model or self._resolved_model or self.model,
+                        "outcome": outcome, "tokens": usage_tokens(usage),
+                        "case_id": (request.get("case") or {}).get("case_id"),
+                        "request_id": (request.get("input") or {}).get("request_id")})
+        except Exception:
+            pass
+
     def propose(self, request):
         payload = self._payload(request)
         self.last_usage, self.last_repairs = None, []
-        response = self._request("/messages", payload)
-        if not isinstance(response, dict) or response.get("model") != self._resolved_model:
+        try:
+            response = self._request("/messages", payload)
+        except AnthropicError as exc:
+            if exc.sent:  # no reply, but the request was made: it may still be billed
+                self._report(request, "no_reply")
+            raise
+        except ConsultantResponseError:  # a reply that cannot be read, so its tokens are not known
+            self._report(request, "no_reply")
+            raise
+        if not isinstance(response, dict):
+            self._report(request, "no_reply")
             raise ConsultantResponseError("Anthropic returned a different or unidentified response model")
         usage = response.get("usage")
+        if response.get("model") != self._resolved_model:
+            served = response.get("model")
+            # Billed all the same, at the price of the model that answered.
+            self._report(request, "other_model", usage,
+                         served if isinstance(served, str) and MODEL_ID.fullmatch(served) else "unknown")
+            raise ConsultantResponseError("Anthropic returned a different or unidentified response model")
         if isinstance(usage, dict):
             self.last_usage = {key: usage[key] for key in USAGE_FIELDS
                                if type(usage.get(key)) is int and usage[key] >= 0}
         # Each reason names only the adapter's own words and provider enum values, never response text.
         stop, blocks = response.get("stop_reason"), response.get("content")
         if stop == "max_tokens":
+            self._report(request, "max_tokens", usage)
             raise ConsultantResponseError(f"Anthropic stopped at max_tokens ({self.max_tokens}) before finishing "
                                           "the proposal")
         if stop == "refusal":
+            self._report(request, "refusal", usage)
             details = response.get("stop_details")
             category = _label(details.get("category")) if isinstance(details, dict) else "unknown"
             raise ConsultantResponseError(f"Anthropic declined the request (refusal, category {category})")
-        if stop != "tool_use":
-            raise ConsultantResponseError(f"Anthropic replied without a proposal (stop_reason {_label(stop)})")
         calls = [block for block in blocks if isinstance(block, dict)
                  and block.get("type") == "tool_use"] if isinstance(blocks, list) else []
-        if len(calls) != 1:
-            raise ConsultantResponseError(f"Anthropic returned {len(calls)} tool calls instead of one proposal")
-        if calls[0].get("name") != "submit_proposal":
-            raise ConsultantResponseError("Anthropic called a tool other than submit_proposal")
-        if not isinstance(calls[0].get("input"), dict):
-            raise ConsultantResponseError("Anthropic's proposal call carried no proposal object")
+        problem = None
+        if stop != "tool_use":
+            problem = f"Anthropic replied without a proposal (stop_reason {_label(stop)})"
+        elif len(calls) != 1:
+            problem = f"Anthropic returned {len(calls)} tool calls instead of one proposal"
+        elif calls[0].get("name") != "submit_proposal":
+            problem = "Anthropic called a tool other than submit_proposal"
+        elif not isinstance(calls[0].get("input"), dict):
+            problem = "Anthropic's proposal call carried no proposal object"
+        if problem:
+            self._report(request, "no_proposal", usage)
+            raise ConsultantResponseError(problem)
         envelope = {"schema_version": SCHEMA, "delivery_profile": PROFILE,
                     "request_id": request["input"]["request_id"], "base_revision": request["input"]["base_revision"]}
         proposal, self.last_repairs = undo_transport_slips(calls[0]["input"], envelope)
+        self._report(request, "proposal", usage)
         return proposal

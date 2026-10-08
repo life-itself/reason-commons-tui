@@ -466,7 +466,7 @@ def _ready(descriptor):
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None):
     """Open (creating if needed) a case in the ordered presentation, in this terminal, without redrawing it."""
     from pathlib import Path
-    from reason_commons.bootstrap import configured_consultant, create_case, open_case
+    from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
     store = Path(os.path.expanduser(store)).resolve()
     provider = provider or os.environ.get("REASON_COMMONS_PROVIDER") or "guided"
     speaker = speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
@@ -474,7 +474,9 @@ def run(store, name=None, speaker=None, provider=None, model=None, base_url=None
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()
     size = os.get_terminal_size(sys.stdout.fileno()) if sys.stdout.isatty() else os.terminal_size((80, 24))
-    with open_case(store, consultant=configured_consultant(provider=provider, model=model, base_url=base_url)) as case:
+    usage = usage_session("accessible")
+    consultant = configured_consultant(provider=provider, model=model, base_url=base_url, usage=usage.record)
+    with open_case(store, consultant=consultant) as case:
         workspace = AccessibleWorkspace(case, speaker, size.columns, size.lines,
                                         consultant={"guided": "the built-in guide"}.get(provider, provider))
         workspace.start()

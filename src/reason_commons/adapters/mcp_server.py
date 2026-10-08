@@ -16,7 +16,7 @@ import re
 from reason_commons.adapters.invocation import procedure_text
 from reason_commons.adapters.skill_agent import TOOLS as CONTRIBUTION_TOOLS
 from reason_commons.adapters.rendering import workspace_output
-from reason_commons.bootstrap import configured_consultant, create_case, open_case
+from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
 from reason_commons.domain.model import CONSULT_INTENTS
 
 
@@ -176,8 +176,9 @@ def build_server(bridge):
 
 
 def serve(case_root, model=None, base_url=None, provider=None, allow_acceptance_setting=False):
-    bridge = CaseToolBridge(case_root, configured_consultant(provider=provider, model=model, base_url=base_url),
-                            allow_acceptance_setting)
+    usage = usage_session("mcp")
+    consultant = configured_consultant(provider=provider, model=model, base_url=base_url, usage=usage.record)
+    bridge = CaseToolBridge(case_root, consultant, allow_acceptance_setting)
     server = build_server(bridge)
     from mcp.server.stdio import stdio_server
 

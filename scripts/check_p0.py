@@ -58,6 +58,13 @@ def delivered_phase(phase, delivered, where, directory, parse_file):
 
 
 def main():
+    # A gate run never writes to the real usage log; the suites give each test its own as well.
+    with tempfile.TemporaryDirectory(prefix="reason-commons-gate-") as usage:
+        os.environ["REASON_COMMONS_USAGE_LOG"] = str(Path(usage) / "usage.jsonl")
+        gate()
+
+
+def gate():
     run("reason-commons-spec/check_bundle.py", "--select", "p0", "--list")
     run("-m", "unittest", "discover", "-s", "reason-commons-spec", "-p", "test_*.py")
     run("-m", "pytest", "-q")

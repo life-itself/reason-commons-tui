@@ -283,3 +283,102 @@ def test_anything_but_those_slips_reaches_validation_unchanged(anthropic_server,
         result = submit(app)
         assert result["status"] == "rejected" and app.inspect()["case"]["revision"] == 0
     assert consultant.last_repairs == []
+
+
+# ----- the usage sink: each request that reached Anthropic is reported with its own counts --------------
+def counted(server, **options):
+    events = []
+    return AnthropicConsultant(base_url=server.url, api_key="fixture-secret", usage=events.append, **options), events
+
+
+@pytest.mark.parametrize("change,outcome", [
+    (None, "proposal"),
+    (lambda r: r.update(stop_reason="max_tokens"), "max_tokens"),
+    (lambda r: r.update(stop_reason="refusal"), "refusal"),
+    (lambda r: r.update(stop_reason="end_turn"), "no_proposal"),
+    (lambda r: r.update(content=[]), "no_proposal"),
+    (lambda r: r["content"][0].update(name="execute_command"), "no_proposal"),
+    (lambda r: r["content"][0].update(input="invalid"), "no_proposal"),
+])
+def test_every_reply_is_reported_to_the_usage_sink_with_what_became_of_it(anthropic_server, tmp_path, change, outcome):
+    anthropic_server.transform = change
+    consultant, events = counted(anthropic_server)
+    with create_case(tmp_path / "case", consultant=consultant) as app:
+        submit(app)
+        case_id = app.inspect()["case"]["case_id"]
+    assert events == [{"provider": "anthropic", "model": DEFAULT_MODEL, "outcome": outcome, "case_id": case_id,
+                       "request_id": "in000001", "tokens": {"input": 12000, "output": 900, "cache_write": 0,
+                                                            "cache_write_1h": 0, "cache_read": 0}}]
+
+
+def test_a_reply_from_another_model_is_still_reported_at_that_models_price(anthropic_server, tmp_path):
+    anthropic_server.transform = lambda r: r.update(model="claude-sonnet-5-5", usage={
+        "input_tokens": 100, "output_tokens": 10, "cache_creation_input_tokens": 30, "cache_read_input_tokens": 5,
+        "cache_creation": {"ephemeral_5m_input_tokens": 10, "ephemeral_1h_input_tokens": 20}})
+    consultant, events = counted(anthropic_server)
+    with create_case(tmp_path / "case", consultant=consultant) as app:
+        assert submit(app)["status"] == "rejected"
+    assert [(e["model"], e["outcome"], e["tokens"]) for e in events] == [("claude-sonnet-5-5", "other_model", {
+        "input": 100, "output": 10, "cache_write": 10, "cache_write_1h": 20, "cache_read": 5})]
+    anthropic_server.transform = lambda r: r.update(model="Not a model: fixture-secret")
+    with create_case(tmp_path / "second", consultant=consultant) as app:
+        submit(app)
+    assert events[-1]["model"] == "unknown" and "fixture-secret" not in json.dumps(events)
+
+
+def test_a_request_sent_and_never_answered_is_reported_as_possibly_billed(anthropic_server, tmp_path):
+    anthropic_server.delay = 1.0
+    consultant, events = counted(anthropic_server, timeout=0.3)
+    with create_case(tmp_path / "case", consultant=consultant) as app:
+        result = submit(app)
+    assert result["status"] == "unavailable" and result["failure_category"] == "timeout"
+    assert [(e["outcome"], e["tokens"]["input"]) for e in events] == [("no_reply", 0)]
+    anthropic_server.delay, anthropic_server.custom = 0, (b"not-json",)
+    with create_case(tmp_path / "second", consultant=consultant) as app:
+        assert submit(app)["status"] == "rejected"
+    assert [e["outcome"] for e in events] == ["no_reply", "no_reply"]
+
+
+@pytest.mark.parametrize("status", [400, 401, 404, 429, 500, 529])
+def test_an_error_status_is_not_billed_so_nothing_is_reported(anthropic_server, tmp_path, status):
+    anthropic_server.custom = ({"error": "fixture"}, status)
+    consultant, events = counted(anthropic_server)
+    with create_case(tmp_path / "case", consultant=consultant) as app:
+        assert submit(app)["status"] == "unavailable"
+        # Counting tokens and reading the model are free, so they are never reported either.
+        consultant.count_tokens({"input": {"request_id": "in1", "base_revision": 0}, "case": {}, "sources": {}})
+        consultant.model_metadata()
+    assert events == []
+
+
+def test_a_request_that_never_left_is_not_reported(tmp_path):
+    generator = anthropic_server_instance()
+    server = next(generator)
+    consultant, events = counted(server)
+    consultant.model_metadata()
+    next(generator, None)  # the server goes away before the consultation is sent
+    with create_case(tmp_path / "case", consultant=consultant) as app:
+        assert submit(app)["failure_category"] == "connection"
+    assert events == []
+
+
+def test_a_broken_sink_never_costs_the_reply(anthropic_server, tmp_path):
+    def broken(event):
+        raise OSError("disk full")
+    consultant = AnthropicConsultant(base_url=anthropic_server.url, api_key="fixture-secret", usage=broken)
+    with create_case(tmp_path / "case", consultant=consultant) as app:
+        assert submit(app)["status"] == "saved"
+
+
+def test_parallel_consultations_each_report_their_own_counts(anthropic_server):
+    from concurrent.futures import ThreadPoolExecutor
+    anthropic_server.transform = lambda r: r["usage"].update(
+        output_tokens=int(r["content"][0]["input"]["request_id"][2:]))
+    consultant, events = counted(anthropic_server)
+    consultant.model_metadata()
+    requests = [{"input": {"request_id": f"in{n:06d}", "base_revision": 0, "text": "literal"},
+                 "case": {"revision": 0, "case_id": "c"}, "sources": {}} for n in range(1, 9)]
+    with ThreadPoolExecutor(8) as pool:
+        list(pool.map(consultant.propose, requests))
+    assert sorted((e["request_id"], e["tokens"]["output"]) for e in events) == [
+        (f"in{n:06d}", n) for n in range(1, 9)]

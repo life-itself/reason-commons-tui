@@ -1,6 +1,6 @@
 # Plan: Haiku 5.5 by default, a one-reply Sonnet boost, and a usage/cost meter with a soft budget
 
-> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–2 done; 3–7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
+> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–3 done; 4–7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
 > evaluation recorded in `docs/validation.md` ("Claude Haiku 5.5 as the consultant"). Line numbers are as of that
 > branch and will drift; search for the named functions.
 
@@ -53,7 +53,7 @@ The blind AI pre-screen of `semantic-haiku55-adapter4` (150 pass, 8 fail, 4 can'
   - `test_anthropic.py`: the default is pinned by literal.
   - New `providers.feature` scenario: "Claude Haiku 5.5 consults when no Claude model is chosen".
 
-### 3. Pricing, usage log, adapter sink, wiring (no UI)
+### 3. Pricing, usage log, adapter sink, wiring (no UI) — done (2026-10-08)
 **`adapters/pricing.py`** (new, pure, `Decimal`)
 - An as-of date and source URL.
 - Prices per MTok, as (input, output, 5-min cache write, 1-h cache write, cache read):
@@ -62,7 +62,11 @@ The blind AI pre-screen of `semantic-haiku55-adapter4` (150 pass, 8 fail, 4 can'
   |---|---|---|
   | `claude-haiku-5-5` | up to 100K tokens | 0.10, 0.50, 0.125, 0.20, 0.01 |
   | `claude-haiku-5-5` | over 100K tokens | 0.50, 2.50, 0.625, 1.00, 0.05 |
-  | `claude-sonnet-5-5` | any | 2, 10, 2.50, 4, 0.20 |
+  | `claude-sonnet-5-5` | any | 2, 10, 2.50, 4, 0.10 |
+
+  Checked against the live pricing page on 2026-10-08: it gives Sonnet 5.5's cache reads as $0.10 (0.05× input),
+  not the $0.20 first written here; every other figure matched. The table also prices Opus 5.5 and Haiku 4.5,
+  which setup lists.
 
 - The rate card is chosen by prompt size: input plus cache tokens. It prices the whole request.
 - Functions: `cost(model, tokens, overrides) -> Decimal|None` (None for an unknown model), `label()` ("Haiku 5.5"), `money()`, and `ratio()` for the boost's cost wording.

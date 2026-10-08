@@ -7,6 +7,7 @@ Each is a generator: advance once to start the server and receive it; exhaust it
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from threading import Thread
+import time
 
 import jsonschema
 
@@ -41,6 +42,7 @@ def anthropic_server_instance():
             if self.path == "/v1/messages/count_tokens":
                 self.respond({"input_tokens": 12345})
                 return
+            time.sleep(self.server.delay)  # longer than the client waits: a request sent and never answered
             if self.server.custom is not None:
                 self.respond(*self.server.custom)
                 return
@@ -57,7 +59,7 @@ def anthropic_server_instance():
             self.respond(response)
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
-    server.requests, server.custom, server.transform, server.get_status = [], None, None, 200
+    server.requests, server.custom, server.transform, server.get_status, server.delay = [], None, None, 200, 0
     server.metadata = {"id": DEFAULT_MODEL, "max_input_tokens": 1000000}
     server.url = f"http://127.0.0.1:{server.server_port}/v1"
     thread = Thread(target=server.serve_forever, daemon=True)
