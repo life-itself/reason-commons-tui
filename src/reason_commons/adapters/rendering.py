@@ -7,6 +7,7 @@ The Markdown diagram contains explicit record references with labeled meanings.
 import base64
 import html
 import re
+from pathlib import Path
 
 
 TITLES = {"goal": "Goal", "note": "Reported note", "test": "Original test", "action": "Action",
@@ -301,4 +302,53 @@ def render_provider_settings(settings):
     lines.append("Status: " + ("ready (no request was sent to check)" if settings["ready"] else "not ready"))
     lines += [f"  - {problem}" for problem in settings["problems"]]
     lines.append(f"Other providers: {others}")
+    return "\n".join(lines) + "\n"
+
+
+def render_usage_report(report):
+    """The usage command's text: estimates in words, by model, against the budget, with where they come from."""
+    from datetime import date
+    from reason_commons.adapters.pricing import money
+    from reason_commons.adapters.usage import ENTRY_WORDS, skipped_words
+
+    def replies(value):
+        count = value["replies"]
+        return f"{count} {'reply' if count == 1 else 'replies'}, ≈ {money(value['estimated_usd'])}"
+
+    if report["period"] == "all":
+        period = "everything in the log"
+    else:
+        year, number = map(int, report["period"].split("-"))
+        period = f"{date(year, number, 1):%B %Y}"
+    lines = [f"Claude usage, {period}" + (", this goal" if report["goal"] else "") + " (estimates)"]
+    if report["log"] is None:
+        lines.append("The usage log is off (REASON_COMMONS_USAGE_LOG=off), so nothing is counted.")
+        return "\n".join(lines) + "\n"
+    width = max([len(m["label"]) for m in report["models"]] + [len("Total")])
+    for model in report["models"]:
+        lines.append(f"  {model['label']:<{width}}  {replies(model)} · {model['input_tokens']:,} tokens in, "
+                     f"{model['output_tokens']:,} out" + (f" · {model['unpriced']} at a price not known"
+                                                          if model["unpriced"] else ""))
+    total = f"  {'Total':<{width}}  {replies(report['total'])}"
+    if report["budget_usd"] is not None:
+        limit, spent = float(report["budget_usd"]), float(report["total"]["estimated_usd"])
+        total += (f", over your {money(report['budget_usd'])} monthly budget" if spent > limit else
+                  f", {int(spent * 100 / limit)}% of your {money(report['budget_usd'])} monthly budget")
+    lines.append(total)
+    lines.append(f"Today: {replies(report['today'])}")
+    if report["entry_points"]:
+        lines.append("Where: " + " · ".join(f"{ENTRY_WORDS.get(name, name)} {replies(value)}"
+                                            for name, value in report["entry_points"].items()))
+    no_reply = report["total"]["no_reply"]
+    if no_reply:
+        lines.append(f"No reply: {no_reply} {'request was' if no_reply == 1 else 'requests were'} sent and got no "
+                     "reply; they may still have been billed.")
+    if report["skipped_lines"]:
+        lines.append(skipped_words(report["skipped_lines"]))
+    year, month, day = map(int, report["prices_as_of"].split("-"))
+    lines.append(f"Estimates at Anthropic's list prices of {day} {date(year, month, day):%b %Y}, from each reply's "
+                 f"token counts; your bill is in {report['authority']}.")
+    home = str(Path.home())
+    shown = "~" + report["log"][len(home):] if report["log"].startswith(home + "/") else report["log"]
+    lines.append(f"Log: {shown}, readable only by you; counts and estimates, never your words.")
     return "\n".join(lines) + "\n"

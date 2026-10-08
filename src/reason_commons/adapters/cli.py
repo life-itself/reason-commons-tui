@@ -25,6 +25,7 @@ everyday use:
   reason-commons export FOLDER FILE   Save a portable copy (.reasoncase)
   reason-commons trees FOLDER         Draw the goal's six trees; --import or --export an .ltp.yaml
   reason-commons decide FOLDER ...    Accept, reject or undo proposals, or choose automatic acceptance
+  reason-commons usage                What Claude's replies cost this month, estimated; sends nothing
   reason-commons --version            Show the version
 
 The workspace works offline with a built-in guide. Inside it, F1 shows help and
@@ -141,6 +142,14 @@ def main(argv=None):
                         help="Record refs such as C3@1; for acceptance, review or automatic")
     decide.add_argument("--speaker", help="Your name as recorded with the decision (default: $USER)")
     decide.add_argument("--confirm", action="store_true", help="Confirm a decision that takes more, or an undo")
+    usage = commands.add_parser("usage", help="What Claude's replies cost, estimated from the local usage log",
+                                description="Reads only the usage log kept outside every goal; sends nothing. "
+                                            "Estimates at list prices; your bill is in the Anthropic Console.")
+    period = usage.add_mutually_exclusive_group()
+    period.add_argument("--month", metavar="YYYY-MM", help="A month on your own clock (default: this month)")
+    period.add_argument("--all", action="store_true", help="Everything in the log")
+    usage.add_argument("--goal", metavar="FOLDER", help="Only this goal's replies")
+    usage.add_argument("--json", action="store_true")
     receipts = commands.add_parser("receipts", help="Inspect attempts for a retained request offline")
     receipts.add_argument("store")
     receipts.add_argument("request_id")
@@ -227,6 +236,16 @@ def main(argv=None):
             settings = provider_settings(provider=args.provider, model=args.model, base_url=args.base_url)
             print(json.dumps(settings, ensure_ascii=False, indent=2) if args.json else render_provider_settings(settings), end="\n" if args.json else "")
             return 0 if settings["ready"] else 1
+        elif args.command == "usage":
+            from reason_commons.adapters.rendering import render_usage_report
+            from reason_commons.adapters.usage import report
+            case_id = None
+            if args.goal:
+                with open_case(args.goal, writable=False) as app:
+                    case_id = app.inspect()["case"]["case_id"]
+            value = report(usage_session("cli"), month=args.month, everything=args.all, case_id=case_id)
+            print(json.dumps(value, ensure_ascii=False, indent=2) if args.json else render_usage_report(value),
+                  end="\n" if args.json else "")
         elif args.command == "receipts":
             with open_case(args.store, writable=False) as app:
                 print(json.dumps(app.receipts(args.request_id), ensure_ascii=False, indent=2))
@@ -254,6 +273,11 @@ def main(argv=None):
                 result = run_contribution(app, consultant, runner=args.runner, **options)
             print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else result["rendered"][args.format],
                   end="\n" if args.json else "")
+            if usage.since(0):  # a paid request was made: past 80% of the budget, say so on stderr only
+                from reason_commons.adapters.usage import session_notice
+                notice = session_notice(usage)
+                if notice:
+                    print(notice, file=sys.stderr)
             return 0 if result["procedure_completed"] and result["result"]["status"] == "saved" else 1
         elif args.command == "mcp":
             from reason_commons.adapters.mcp_server import serve

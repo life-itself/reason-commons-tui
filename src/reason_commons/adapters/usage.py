@@ -283,3 +283,70 @@ class UsageSession:
         found = [e["usd"] for e in logged + unwritten
                  if e["model"] == model and e["outcome"] == "proposal" and e["usd"] is not None and e["at"] >= since]
         return sum(found, Decimal(0)) / len(found) if len(found) >= at_least else None
+
+
+def skipped_words(count):
+    """'1 line of the log could not be read and is not counted.'"""
+    return (f"{count} line of the log could not be read and is not counted." if count == 1 else
+            f"{count} lines of the log could not be read and are not counted.")
+
+
+ENTRY_WORDS = {"workspace": "workspace", "accessible": "accessible workspace", "cli": "command line",
+               "mcp": "MCP server", "check": "provider check"}
+
+
+def notice(spent, limit):
+    """One line for a command or a tool once this month's spending reaches 80% of the budget; else None.
+    It says; it never stops anything."""
+    if not limit or spent < limit * Decimal("0.8"):
+        return None
+    if spent >= limit:
+        return (f"Claude this month ≈ {pricing.money(spent)} has reached your {pricing.money(limit)} monthly budget "
+                "(estimate); nothing was blocked.")
+    return (f"Claude this month ≈ {pricing.money(spent)}, {int(spent * 100 / limit)}% of your "
+            f"{pricing.money(limit)} monthly budget (estimate); nothing was blocked.")
+
+
+def session_notice(session):
+    summary = session.summary()
+    return notice(summary["month"]["usd"], summary["budget"])
+
+
+def _money_fields(total):
+    return {"replies": total["replies"], "no_reply": total["no_reply"], "unpriced": total["unpriced"],
+            "estimated_usd": str(total["usd"])}
+
+
+def report(session, month=None, everything=False, case_id=None):
+    """What the log says for a month on your own clock ("2026-10"; this month by default) or for all of it,
+    for one goal or all: by model, in total against the budget, today, by entry point, with requests that got
+    no reply and lines that could not be read. Plain values, dollars as strings; it sends nothing."""
+    now = session.log.now().astimezone()
+    if month is not None:
+        found = re.fullmatch(r"(\d{4})-(\d{2})", month)
+        if not found or not 1 <= int(found.group(2)) <= 12:
+            raise ValueError("Give the month as YYYY-MM, for example 2026-10")
+        year, number = int(found.group(1)), int(found.group(2))
+    else:
+        year, number = now.year, now.month
+    logged, skipped = session.log.read()
+    entries = [e for e in logged + session.unwritten if case_id is None or e["case_id"] == case_id]
+    local = [(e, e["at"].astimezone()) for e in entries]
+    chosen = entries if everything else [e for e, at in local if (at.year, at.month) == (year, number)]
+    total = totals(chosen)
+    limit, source = session.budget()
+    current = not everything and (year, number) == (now.year, now.month)
+    points = {}
+    for entry in chosen:
+        points.setdefault(entry["entry"] or "unknown", []).append(entry)
+    return {"period": "all" if everything else f"{year:04d}-{number:02d}", "goal": case_id,
+            "models": [{"model": model, "label": pricing.label(model), **_money_fields(value),
+                        "input_tokens": value["input"], "output_tokens": value["output"]}
+                       for model, value in sorted(total["by_model"].items(), key=lambda item: -item[1]["usd"])],
+            "total": _money_fields(total),
+            "budget_usd": str(limit) if limit is not None and current else None,
+            "budget_set_in": source if current else None,
+            "today": _money_fields(totals([e for e, at in local if at.date() == now.date()])),
+            "entry_points": {name: _money_fields(totals(found)) for name, found in sorted(points.items())},
+            "skipped_lines": skipped, "log": None if session.log.path is None else str(session.log.path),
+            "prices_as_of": pricing.AS_OF, "authority": "the Anthropic Console"}

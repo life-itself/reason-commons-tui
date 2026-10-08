@@ -36,7 +36,7 @@ from reason_commons.adapters import pricing, themes
 from reason_commons.adapters.guided import STEPS, placeholder, split_hint
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
 from reason_commons.adapters.settings import Settings, summary
-from reason_commons.adapters.usage import BUDGET_VARIABLE, crossed, parse_budget
+from reason_commons.adapters.usage import BUDGET_VARIABLE, crossed, parse_budget, skipped_words
 from reason_commons.adapters.rendering import _literal
 from reason_commons.adapters.timeline import (change_summary, day, decision_words, moment, next_action,
                                               revision_changes, short_day, tree_summary)
@@ -3663,7 +3663,7 @@ class ReasonCommonsApp(ThemedApp):
             shown = "~" + str(path)[len(home):] if str(path).startswith(home + os.sep) else str(path)
             notes.append(f"Kept in {shown}, readable only by you: counts and estimates, never your words.")
         if summary["skipped"]:
-            notes.append(f"{summary['skipped']} lines of the log could not be read and are not counted.")
+            notes.append(skipped_words(summary["skipped"]))
         if summary["error"]:
             notes.append(f"The log could not be written ({summary['error']}); this session's replies are counted "
                          "here only.")

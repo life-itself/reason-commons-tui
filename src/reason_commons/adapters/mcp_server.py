@@ -16,6 +16,7 @@ import re
 from reason_commons.adapters.invocation import procedure_text
 from reason_commons.adapters.skill_agent import TOOLS as CONTRIBUTION_TOOLS
 from reason_commons.adapters.rendering import workspace_output
+from reason_commons.adapters.usage import session_notice
 from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
 from reason_commons.domain.model import CONSULT_INTENTS
 
@@ -81,8 +82,11 @@ TOOLS += [
 
 
 class CaseToolBridge:
-    def __init__(self, case_root, consultant, allow_acceptance_setting=False):
+    def __init__(self, case_root, consultant, allow_acceptance_setting=False, usage=None):
         self.root = Path(case_root).resolve(strict=True)
+        # The usage log session of a paid consultant: from 80% of the monthly budget, consulting results carry a
+        # usage_notice for the person. It says; it never blocks, and nothing is written to stdout, the transport.
+        self.usage = usage
         if not self.root.is_dir():
             raise ValueError("Case root must be an existing directory")
         self.consultant = consultant
@@ -133,7 +137,9 @@ class CaseToolBridge:
             if name == "workspace":
                 return workspace_output(result)
             if name in {"consult", "submit", "retry"}:
-                return {**result, **workspace_output(app.workspace(), result=result)}
+                notice = session_notice(self.usage) if self.usage is not None else None
+                return {**result, **workspace_output(app.workspace(), result=result),
+                        **({"usage_notice": notice} if notice else {})}
             return result
 
 
@@ -176,9 +182,11 @@ def build_server(bridge):
 
 
 def serve(case_root, model=None, base_url=None, provider=None, allow_acceptance_setting=False):
+    from reason_commons.adapters.anthropic import AnthropicConsultant
     usage = usage_session("mcp")
     consultant = configured_consultant(provider=provider, model=model, base_url=base_url, usage=usage.record)
-    bridge = CaseToolBridge(case_root, consultant, allow_acceptance_setting)
+    bridge = CaseToolBridge(case_root, consultant, allow_acceptance_setting,
+                            usage=usage if isinstance(consultant, AnthropicConsultant) else None)
     server = build_server(bridge)
     from mcp.server.stdio import stdio_server
 

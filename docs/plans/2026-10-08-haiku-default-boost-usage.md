@@ -1,6 +1,6 @@
 # Plan: Haiku 5.5 by default, a one-reply Sonnet boost, and a usage/cost meter with a soft budget
 
-> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–5 done; 6–7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
+> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–6 done; 7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
 > evaluation recorded in `docs/validation.md` ("Claude Haiku 5.5 as the consultant"). Line numbers are as of that
 > branch and will drift; search for the named functions.
 
@@ -230,7 +230,7 @@ class ChosenConsultant:   # adapters/tui.py
   - The log has both models.
 - `test_tui.py:115-131` still passes.
 
-### 6. `reason-commons usage`; CLI and MCP notices
+### 6. `reason-commons usage`; CLI and MCP notices — done (2026-10-08)
 - **`cli.py` `usage [--month YYYY-MM | --all] [--goal FOLDER] [--json]`.** Reads only the log, sends nothing, exits 0. It shows:
   - each model's replies, tokens and estimated cost;
   - the total against the budget;
