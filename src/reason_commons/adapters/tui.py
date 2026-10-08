@@ -37,6 +37,7 @@ from reason_commons.adapters.guided import STEPS, placeholder, split_hint
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
 from reason_commons.adapters.settings import Settings, summary
 from reason_commons.adapters.usage import BUDGET_VARIABLE, crossed, parse_budget, skipped_words
+from reason_commons.adapters.welcome import HowItWorksScreen, WelcomePanel
 from reason_commons.adapters.rendering import _literal
 from reason_commons.adapters.timeline import (change_summary, day, decision_words, moment, next_action,
                                               revision_changes, short_day, tree_summary)
@@ -95,7 +96,7 @@ WIDE = 90
 # Controls a person passes through on the way to something else. Esc does not return focus to them:
 # it returns to the answer they were writing.
 NAVIGATION_CONTROLS = {"send", "fill", "retry", "retry-deeper", "accept-all", "explain", "moves", "views-button", "commands", "help",
-                       "finish", "views"}
+                       "finish", "views", "how-it-works", "hide-welcome"}
 # What each kind of proposal is called in the Backlog and in decisions.
 KIND_NAMES = {"goal": "Goal", "note": "Note", "test": "Test", "action": "Action", "observation": "Result",
               "review": "Review", "claim": "Statement", "link": "Link", "retraction": "Withdrawal"}
@@ -132,6 +133,7 @@ The loop line under the title shows where you are: ✓ done, ● now, ○ still 
 on its right. The current question is below it, and the answer box sits right under the question.
 **Views** on the left lists everything else you can read; Enter opens one. The footer shows the keys that
 work where the keyboard is now; Tab reaches **Commands** and **Help** there like any other control.
+**How this works**, in Commands, draws the screen with each part labelled.
 
 ## Keys and controls
 
@@ -1157,6 +1159,22 @@ class ThemedApp(App):
     def action_change_theme(self):
         self.push_screen(ThemeScreen(self.theme), self.keep_theme)
 
+    def remember(self, value, *keys):
+        """Keep a setting: for this run, and in the settings file once there is one (before first start finishes,
+        setup saves it with the rest, so a choice made earlier never ends first start). False when the file
+        could not be written."""
+        if self.settings is None:
+            return True
+        self.settings.set(value, *keys)
+        if self.settings.exists:
+            try:
+                saved = Settings.load(self.settings.path)
+                saved.set(value, *keys)
+                saved.save()
+            except OSError:
+                return False
+        return True
+
     def budget_state(self):
         """The monthly budget (dollars or None), and whether your shell sets it, so this app cannot keep it."""
         saved = parse_budget(self.settings.get("usage", "monthly_budget_usd")) if self.settings is not None else None
@@ -1301,6 +1319,17 @@ class ReasonCommonsApp(ThemedApp):
     #hint.hidden, #hint-below.hidden { display: none; }
     #coach { height: auto; max-height: 5; border: $frame $border-blurred; padding: 0 1; }
     #coach.hidden { display: none; }
+    #welcome { height: auto; margin: 1 1 0 1; padding: 0 1; color: $text-muted; }
+    #welcome.hidden { display: none; }
+    #welcome-title { text-style: bold; }
+    #welcome-controls { height: 1; }
+    #welcome-lead { width: auto; margin-right: 1; display: none; }
+    #welcome.line #welcome-title, #welcome.line #welcome-lines { display: none; }
+    #welcome.line #welcome-lead { display: block; }
+    #welcome-controls Button { min-width: 8; height: 1; border: none; margin-right: 1; background: transparent;
+                               color: $text-muted; text-style: none; }
+    #welcome-controls Button:hover { color: $text; }
+    #welcome-controls Button:focus { background: $hand-tint; color: $foreground; text-style: bold; }
     #moment { height: auto; border: $frame $border-blurred; padding: 0 1; }
     #moment:focus-within { border: $frame $accent; }
     #moment-text { height: auto; color: $text-muted; }
@@ -1335,11 +1364,12 @@ class ReasonCommonsApp(ThemedApp):
                                        background: transparent; color: $text-muted; text-style: none; }
     MenuScreen #menu-controls Button:focus { background: $hand-tint; color: $foreground; text-style: bold; }
     MenuScreen, PathScreen, HelpScreen, ThemeScreen, SettingsScreen, StatementScreen, CallsScreen, TextScreen, Step, Checking,
-    ChoiceScreen, BudgetScreen {
+    ChoiceScreen, BudgetScreen, HowItWorksScreen {
         align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
-    HelpScreen #dialog, ThemeScreen #dialog { height: 90%; }
+    HelpScreen #dialog, ThemeScreen #dialog, HowItWorksScreen #dialog { height: 90%; }
+    #how-sketch { margin: 1 0; }
     StatementScreen #dialog { max-width: 100; }
     #themes { height: 1fr; margin-top: 1; }
     .dialog-title { text-style: bold; margin-bottom: 1; }
@@ -1393,6 +1423,8 @@ class ReasonCommonsApp(ThemedApp):
         self._origin = None
         # The open menu's name, and its state as kept in the cursor (filter, choice, binding).
         self._menu_name, self._menu_state = None, None
+        # The first-use note's form on screen ("full", "line" or "hidden"), and whether Hide this was pressed.
+        self._welcome_form, self._welcome_hidden = "hidden", False
 
     # ----- layout -------------------------------------------------------
     def compose(self) -> ComposeResult:
@@ -1426,6 +1458,8 @@ class ReasonCommonsApp(ThemedApp):
                                      classes="" if self.tour else "hidden")
                         yield Static(id="hint")
                     yield Static(id="hint-below", classes="hidden")
+                # A new goal's first screen: a note on how the screen works, under the box (it gates nothing).
+                yield WelcomePanel(id="welcome", classes="hidden")
             with VerticalScroll(id="inspector", classes="hidden"):
                 yield Static(id="inspector-text")
         yield Static(id="coach", classes="" if self.tour else "hidden")
@@ -1545,6 +1579,7 @@ class ReasonCommonsApp(ThemedApp):
         margin = response.styles.margin
         taken = 0 if response.has_class("hidden") else (response.outer_size.height + grows
                                                          + margin.top + margin.bottom)
+        taken += self.fit_welcome(column, main, taken)
         room = max(3, column.size.height - taken)
         main.styles.max_height = room
         # The History list scrolls on its own, so it gets exactly what the heading above it leaves.
@@ -1705,9 +1740,39 @@ class ReasonCommonsApp(ThemedApp):
             self.query_one("#fill").set_class(state not in EXAMPLE_ANSWERS, "hidden")
         for name in ("#hint", "#hint-below"):
             self.query_one(name, Static).update(escape_markup(self.hint_text()))
+        # The note's form is decided where the reading pane is fitted; here it only goes, or says who asks.
+        welcome = self.query_one("#welcome", WelcomePanel)
+        if self.welcome_wanted():
+            welcome.say(self.provider)
+        elif self._welcome_form != "hidden":
+            self._welcome_form = "hidden"
+            welcome.show_form("hidden")
         self.fit_answer_box()
         self.refresh_hints()
         self.call_after_refresh(self.fit_reading)
+
+    def welcome_wanted(self):
+        """Whether a new goal's first-use note belongs on screen: the live goal's first question on Next step,
+        before anything was asked, unless it was hidden. Never in the tour or a story, which say how the
+        screen works in their own way."""
+        w = self.workspace_value
+        hidden = self._welcome_hidden or (self.settings is not None and self.settings.get("welcome") == "hidden")
+        return (w is not None and not w["question"] and self.view_name == "next" and self.revision is None
+                and not self.tour and not self.story and not hidden)
+
+    def fit_welcome(self, column, main, taken):
+        """The note in full where the page and the answer box leave room for it, as one line where they leave a
+        little, and not at all otherwise; it never pushes the box off the screen. Returns the rows it takes."""
+        welcome = self.query_one("#welcome", WelcomePanel)
+        form, rows = "hidden", 0
+        if self.welcome_wanted():
+            spare = column.size.height - taken - main.virtual_size.height
+            full = welcome.full_rows(column.size.width)
+            form, rows = ("full", full) if spare >= full else ("line", 2) if spare >= 2 else ("hidden", 0)
+        if form != self._welcome_form:
+            self._welcome_form = form
+            welcome.show_form(form)
+        return rows
 
     def render_stepper(self):
         """The loop line, which is the spine of the screen, and the goal's measure on its right.
@@ -2956,6 +3021,26 @@ class ReasonCommonsApp(ThemedApp):
     def finish_pressed(self):
         self.exit(TOUR_FINISHED)
 
+    @on(Button.Pressed, "#how-it-works")
+    def how_it_works_pressed(self):
+        self.action_how_it_works()
+
+    def action_how_it_works(self):
+        self.push_screen(HowItWorksScreen(self.provider))
+
+    @on(Button.Pressed, "#hide-welcome")
+    def hide_welcome_pressed(self):
+        """Hide the note, on this goal and on new ones; How this works stays in Commands."""
+        self._welcome_hidden = True
+        saved = self.remember("hidden", "welcome")
+        self.render_all()
+        self.query_one("#editor").focus()
+        if saved:
+            self.notify("Hidden. How this works stays in Commands (Ctrl+P).")
+        else:
+            self.notify("Hidden for now, but your settings could not be saved, so it may come back.",
+                        severity="warning", timeout=8)
+
     @on(Button.Pressed, "#retry")
     def retry_pressed(self):
         self.action_retry()
@@ -3565,6 +3650,7 @@ class ReasonCommonsApp(ThemedApp):
         items += [("Settings", "Local: change the theme and light or dark (F2)", self.action_settings),
                   ("Theme", f"Local: how Reason Commons looks; now {themes.title(self.theme)}", self.action_change_theme),
                   ("Help", "Local: keys and controls (F1); Explain this covers the reasoning", self.action_help),
+                  ("How this works", "Local: this screen drawn with each part labelled", self.action_how_it_works),
                   ("Save and quit", "Local: keep your draft and close (Ctrl+Q)", self.action_quit)]
         return [(re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-"), name, detail, run) for name, detail, run in items]
 
@@ -3905,8 +3991,9 @@ class GoalsApp(ThemedApp):
         goals = self.query_one("#goals", OptionList)
         goals.clear_options()
         if self.first_run:
-            intro = ("[b]Welcome.[/b] Reason Commons helps you make progress on something that matters, one small "
-                     f"loop at a time: {loop}.\n\nHow would you like to start? Everything stays on this computer.")
+            intro = ("[b]Welcome.[/b] Reason Commons helps you make progress on something that matters: you say what "
+                     "would count as better, try one small change, and check what actually happened against what "
+                     "you expected.\n\nHow would you like to start? Everything stays on this computer.")
             options = [Option(option_label("Start my first goal",
                                            f"The offline guide asks the questions; your answers are saved as "
                                            f"{login_name() or 'Me'}. Change either later with F2 Settings."), id="start"),

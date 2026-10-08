@@ -18,6 +18,7 @@ from pathlib import Path
 
 from textual.widgets import TextArea
 
+from reason_commons.adapters.settings import Settings
 from reason_commons.adapters.tui import ReasonCommonsApp
 from reason_commons.bootstrap import create_case, open_case
 
@@ -182,8 +183,10 @@ async def drive(path, provider, clock, consultant, turns, directory):
     index = 0
     while index < len(turns):
         speaker = turns[index]["speaker"]
+        # Reviewers judge the replies, so a new goal's first-use note stays out of their screens.
         app = ReasonCommonsApp(str(path), speaker, provider,
-                               lambda c: open_case(str(path), consultant=c, clock=clock), lambda _: consultant)
+                               lambda c: open_case(str(path), consultant=c, clock=clock), lambda _: consultant,
+                               settings=Settings(data={"welcome": "hidden"}))
         async with app.run_test(size=SIZES["wide"]) as pilot:
             await pilot.pause()
             while index < len(turns) and turns[index]["speaker"] == speaker:

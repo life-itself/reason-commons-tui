@@ -19,10 +19,11 @@ import textwrap
 
 from reason_commons.adapters.pricing import label, money, typical
 from reason_commons.adapters.usage import crossed
+from reason_commons.adapters.welcome import HowItWorksScreen, explanations, welcome_lines
 
 TITLES = {"next": "Next step", "context": "Case context", "explain": "Explain this", "moves": "Other moves",
           "views": "Views", "backlog": "Backlog", "goal": "Goal", "tests": "Tests", "sources": "Your words",
-          "history": "History", "help": "Help"}
+          "history": "History", "help": "Help", "how": "How this works"}
 LISTED_VIEWS = ("next", "backlog", "goal", "tests", "sources", "history", "context")
 EXECUTION = {"unknown": "not known yet", "planned": "planned", "completed": "done, as reported", "blocked": "blocked"}
 ATTAINMENT = {"unknown": "not known yet", "pending": "pending", "met": "met", "not_met": "not met"}
@@ -168,6 +169,8 @@ class AccessibleWorkspace:
                 lines.append(f"Purpose: {purpose}")
         else:
             lines += ["NEXT: Clarify the goal", "Question: What is happening, and what would count as better?"]
+            # A new goal: the same four lines the workspace shows under the answer box, and How this works.
+            lines += ["", "New here:"] + [f"{n}. {line}" for n, line in enumerate(welcome_lines(self.consultant), 1)]
         lines += self.goal_lines(w)
         unknown = {}
         for item in w.get("uncertainty") or []:
@@ -235,6 +238,10 @@ class AccessibleWorkspace:
 
     def lines_views(self):
         return ["Views. Each is local and makes no consultant call."]
+
+    def lines_how(self):
+        parts = [f"({n}) {line}" for n, line in enumerate(explanations(self.consultant), 1)]
+        return [HowItWorksScreen.LEAD, "The screen has five parts, in this order:"] + parts + [HowItWorksScreen.CLOSING]
 
     def lines_help(self):
         return ["Tab and Shift+Tab move between controls; each is announced with what it does.",
@@ -317,8 +324,11 @@ class AccessibleWorkspace:
             controls.append(Control("Accept all", "local decision", "admit what your last answer proposed; no "
                                     "consultant call", self.accept_reply))
         controls += [Control("Views", "local list", "every view; no consultant call", lambda: self.open("views")),
-                     Control("Help", "local", "keys and controls", lambda: self.open("help")),
-                     Control("Save and quit", "local", "keep your draft and close", self.quit)]
+                     Control("Help", "local", "keys and controls", lambda: self.open("help"))]
+        if not w["question"]:
+            controls.append(Control("How this works", "local", "what each part of the screen is for",
+                                    lambda: self.open("how")))
+        controls.append(Control("Save and quit", "local", "keep your draft and close", self.quit))
         return controls
 
     # ----- actions ---------------------------------------------------------
