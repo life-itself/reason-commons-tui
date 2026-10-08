@@ -181,6 +181,11 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     assert first["reply"][0]["headline"] == "Claude asks: What should we observe next?"
     assert first["reply"][1]["source"] == "From Sam's message in Turn 1"
     assert not re.search(r"\b[A-Z]\d+@\d+\b", json.dumps([t["reply"] for t in case["turns"]]))
+    # A code in the assistant's own words stays, with what it names beside it.
+    from evaluations.plain_reply import Names
+    names = Names([{"ref": "P1@1", "kind": "test", "data": {"statement": "Daily queue"}}])
+    assert names.explain("matches the forecast in P1@1") == "matches the forecast in P1@1 [the trial “Daily queue”]"
+    assert names.explain("Z9@1 is unknown") == "Z9@1 is unknown"
     # A question about the rejected reply, or the turn never sent, is answered for the reviewer.
     given = {q["id"]: q.get("given", {}).get("answer") for q in case["questions"]}
     assert given == {"1.1": "cant", "1.2": "cant", "2.1": "cant", "2.2": "cant", "3.1": "cant", "3.2": "cant",

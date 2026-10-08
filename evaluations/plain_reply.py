@@ -2,16 +2,24 @@
 
 A reply is the records it added: one intervention (the next question, recommendation or stop) and the notes, goal,
 test, action, result, review and diagram statements it saved. Each saved item says where it came from (whose words in
-which turn), and a reference to an earlier item is given as that item's words, so no record ID reaches the reviewer.
+which turn), and a reference to an earlier item is given as that item's words. Where the assistant's own wording cites
+an item by its code (as in "the forecast in P1@1"), the words stay as written and what the code names follows in
+brackets, so the reviewer reads what the person saw and can still follow it.
 """
 
-from reason_commons.adapters.trees import FROM_SIDE, ROLE_LABELS, TREE_TITLES
+import re
+
+from reason_commons.adapters.trees import FROM_SIDE, ROLE_LABELS
 
 BASIS = {"participant_report": "as reported", "hypothesis": "as a possibility, not a fact",
          "observed": "as an observed fact"}
 EXECUTION = {"unknown": "not known", "planned": "planned", "completed": "done", "blocked": "blocked"}
 ATTAINMENT = {"unknown": "not known yet", "pending": "not known yet", "met": "reached", "not_met": "not reached"}
 ASKS = {"question": "asks", "recommendation": "recommends", "stop": "suggests stopping"}
+CODE = re.compile(r"\b[A-Z]\d+@\d+\b")
+KIND_NAMES = {"goal": "the goal", "note": "the note", "test": "the trial", "action": "the action",
+              "observation": "the result", "review": "the review", "intervention": "the earlier question",
+              "claim": "the diagram statement", "link": "the link", "retraction": "the withdrawal"}
 TREE_NAMES = {"goal": "the goal diagram", "current_reality": "the diagram of what is going wrong now",
               "conflict": "the conflict diagram", "future_reality": "the diagram of what should happen if they act",
               "prerequisite": "the diagram of obstacles and first steps", "transition": "the action-plan diagram"}
@@ -40,6 +48,15 @@ class Names:
         data = record["data"]
         text = data.get("statement") or data.get("text") or data.get("primary_prompt") or data.get("measure")
         return f"“{text}”" if text else "an earlier item"
+
+    def explain(self, text):
+        """The text as written, with what each record code in it names added in brackets."""
+        def name(match):
+            record = self.records.get(base(match.group(0)))
+            if not record:
+                return match.group(0)
+            return f"{match.group(0)} [{KIND_NAMES.get(record['kind'], 'an item')} {self(match.group(0))}]"
+        return CODE.sub(name, text) if isinstance(text, str) else text
 
     def tree(self, ref):
         record = self.records.get(base(ref))
@@ -140,9 +157,11 @@ def plain_reply(records, names, source_of, consultant):
             lines += [f"Another option: {option.get('label') or option}" if isinstance(option, dict)
                       else f"Another option: {option}" for option in data.get("options") or []]
             parts.insert(0, {"kind": "move", "headline": f"{consultant} {ASKS.get(data['kind'], 'says')}: "
-                                                         f"{data['primary_prompt']}", "lines": lines, "source": ""})
+                                                         f"{names.explain(data['primary_prompt'])}",
+                             "lines": [names.explain(line) for line in lines], "source": ""})
         else:
             headline, lines = saved_item(record, names)
-            parts.append({"kind": "saved", "headline": headline, "lines": lines,
+            parts.append({"kind": "saved", "headline": names.explain(headline),
+                          "lines": [names.explain(line) for line in lines],
                           "source": source_of(record.get("source_refs") or [])})
     return parts

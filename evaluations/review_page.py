@@ -284,7 +284,8 @@ button.primary { background: var(--accent); color: var(--on-accent); border-colo
 .said { background: var(--sam); border-radius: 8px; padding: 10px 14px; display: grid; gap: 4px; }
 .said blockquote { margin: 0; white-space: pre-wrap; font-size: 17px; }
 .reply { background: var(--reply); border-radius: 8px; padding: 10px 14px; display: grid; gap: 10px; }
-.reply .move { font-size: 17px; font-weight: 600; }
+.reply .move { font-size: 17px; }
+.reply .why { font-size: 15px; }
 .reply ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
 .reply li .lines { color: var(--muted); font-size: 14px; }
 .reply li .src { font-size: 13px; color: var(--muted); font-style: italic; }
@@ -357,6 +358,8 @@ textarea.missing { border-color: var(--no); }
         <p><b>Question:</b> Does {consultant} work out what share of the tickets was sold?</p>
         <p><b>Answer:</b> Yes. <b>Why:</b> “It says 75%, and 30 of 40 is 75%.”</p>
       </div>
+      <p>Where {consultant} refers to a saved item by a code (like P1@1), we add what that item is in square
+      brackets. Sam's screen showed the code alone.</p>
       <p>Under each reply you can also open <b>Sam's actual screen</b>, exactly as the app showed it. You don't need
       it to answer, and the answer box on that screen is Sam's, not yours. Each case takes about five minutes. Your
       answers save as you go, so you can stop and come back.</p>
@@ -563,8 +566,9 @@ function reply(turn) {
   const move = turn.reply.find(p => p.kind === "move");
   const saved = turn.reply.filter(p => p.kind === "saved");
   return el("div", {class: "reply"}, el("p", {class: "label", text: `${Cap} replied`}),
-    move ? el("p", {class: "move", text: move.headline}) : null,
-    move && move.lines.length ? el("p", {class: "small muted", text: move.lines.join(" · ")}) : null,
+    move ? el("p", {class: "move"}, el("b", {text: move.headline.slice(0, move.headline.indexOf(": ") + 1) + " "}),
+      move.headline.slice(move.headline.indexOf(": ") + 2)) : null,
+    ...(move ? move.lines.map(line => el("p", {class: "why", text: line})) : []),
     saved.length ? el("p", {class: "small", text: `${Cap} saved ${saved.length === 1 ? "this" : "these " + saved.length + " items"}:`}) : el("p", {class: "small muted", text: `${Cap} saved nothing else.`}),
     saved.length ? el("ul", {}, ...saved.map(p => el("li", {}, el("div", {text: p.headline}),
       p.lines.length ? el("div", {class: "lines", text: p.lines.join(" · ")}) : null,
