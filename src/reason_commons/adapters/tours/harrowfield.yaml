@@ -9,7 +9,7 @@
 #
 # Beats: `say` is at most three lines at 80 columns. A `button` moves the view only when pressed: `view` opens
 # a view, `tree` a tree, `select` chooses a statement by its words. `until` says what the beat waits for:
-# a `view`, a `tree`, a `selected` statement (or `any`), or a pending proposal `decided`; while it waits,
+# a `view`, a `tree`, a `selected` statement in the part's tree, or a pending proposal `decided`; while it waits,
 # Next still works. A beat whose `until` is met moves on to the next beat by itself, unless it has `done`
 # words to say; it never opens a page by itself. Every word on screen is checked by tests/test_tour.py.
 
@@ -49,7 +49,7 @@ parts:
 - id: prologue
   title: The hospital
   pages:
-  - kicker: A guided tour of Reason Commons
+  - kicker: A story in nine parts
     heading: A winter at Harrowfield
     text: |-
       For about fifteen minutes you'll be Ruth Okonjo, asked to fix a hospital that is always full. On the way you'll meet the six questions Reason Commons is built on, make two decisions, and run one small loop yourself: a forecast, what really happened, and what you learn from the difference.
@@ -171,8 +171,8 @@ parts:
   - say: Open the Current Reality Tree. Ctrl+N steps from one tree to the next; or press the button.
     button: {label: Open it, tree: current_reality}
     until: {tree: current_reality}
-  - say: "As you read it aloud, Joy Mensah stopped you: \"You've missed pharmacy.\" Her correction waits in
-      Backlog. Choose it and accept it (a), with its link: she knows this ward."
+  - say: "As you read it aloud, Joy Mensah stopped you: \"You've missed pharmacy.\" Her correction and the
+      link that joins it to the tree wait in Backlog. Accept them (a): she knows this ward."
     button: {label: Open Backlog, view: backlog}
     until: {decided: pharmacy}
     done:
@@ -270,9 +270,10 @@ parts:
   - say: Open the Prerequisite Tree.
     button: {label: Open it, tree: prerequisite}
     until: {tree: prerequisite}
-  - say: "Read the ladder from the bottom: what is lowest comes first. Under each step, the objection it
-      overcomes. Choose any objection and see whose words it is."
-    until: {selected: any}
+  - say: "Read the ladder from the bottom: what is lowest comes first. Under each step is the objection it
+      overcomes. Find the county's, or press Show me; its details say whose words they are."
+    button: {label: Show me, select: "County rules: no referral until the patient is medically fit"}
+    until: {selected: "County rules: no referral until the patient is medically fit"}
   - say: "Here an objection isn't resistance to manage. It's raw material: each one became a step. The order
       comes from what leans on what: the board's decision and two volunteer wards first."
   closing:

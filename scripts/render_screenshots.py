@@ -75,8 +75,10 @@ async def render(folder):
     settings.save()
     await shoot(GoalsApp(goals, settings=settings), "home", (100, 22))
     await first_start(folder)
+    await guided_tour(folder)
     create_case(folder / "new", "my-first-goal").close()
     await shoot(workspace(folder / "new"), "welcome", (120, 36))
+    await shoot(workspace(folder / "new"), "how-this-works", (120, 40), steps=press("how-it-works"))
     await shoot(workspace(goals / "first-practice"), "in-progress", (120, 36))
     for name, count in (("tutorial-measure", 1), ("tutorial-forecast", 4), ("tutorial-review", 9)):
         step = build_sample(folder / name, answers=ANSWERS[:count], view="next", name=GOAL,
@@ -389,7 +391,7 @@ async def real_commons(folder):
 
 
 async def first_start(folder):
-    """The first-start choices, two setup steps and the tour's coaching."""
+    """The first-start choices and two setup steps."""
     from reason_commons.adapters.settings import Settings
     models = [("claude-opus-5-5", "Claude Opus 5.5"), ("claude-sonnet-5-5", "Claude Sonnet 5.5"),
               ("claude-haiku-5-5", "Claude Haiku 5.5"), ("claude-haiku-4-5-20251001", "Claude Haiku 4.5")]
@@ -422,14 +424,54 @@ async def first_start(folder):
     await shoot(fresh(), "first-start", (100, 30))
     await shoot(fresh(), "setup-consultant", (100, 30), steps=to_consultant)
     await shoot(fresh(), "setup-model", (100, 30), steps=to_model)
-    create_case(folder / "tour", "Practice: your first loop").close()
-    tour = ReasonCommonsApp(folder / "tour", SPEAKER, "guided",
-                            lambda consultant: open_case(folder / "tour", consultant=consultant),
-                            lambda provider: configured_consultant(provider=provider), tour=True)
 
-    async def fill(app, pilot):
-        app.query_one("#fill").press()
-    await shoot(tour, "tour", (120, 36), steps=fill)
+
+async def guided_tour(folder):
+    """The guided tour: its first page, a story page, the strip in the workspace, a closing koan and day three's
+    review, each on its own fresh copy of the Harrowfield goal as the tour opens one."""
+    from importlib.resources import files
+    from reason_commons.adapters.tour import Tour, TourClock, load_tour, prepare
+    from reason_commons.adapters.tui import TOUR_ARCHIVE
+    from reason_commons.bootstrap import import_case
+    script = load_tour()
+
+    def tour_at(name, part=None, ready=()):
+        """The workspace at a part; ``ready`` names the loop's records to put in first, with Ruth's answers."""
+        path, clock = folder / f"tour-{name}", TourClock(script)
+        tour = Tour(script, part, clock=clock)
+        with import_case(str(files("reason_commons.adapters").joinpath(TOUR_ARCHIVE)), str(path),
+                         consultant=configured_consultant(provider="guided"), clock=clock) as case:
+            for kind in ready:
+                with clock.during(Tour(script, "monday").part) if kind == "action" else clock.during(tour.part):
+                    prepare(case, script, kind, script["player"])
+        return ReasonCommonsApp(path, script["player"], "guided",
+                                lambda consultant: open_case(path, consultant=consultant, clock=clock),
+                                lambda provider: configured_consultant(provider=provider), tour=tour)
+
+    def pages(count):
+        async def turn(app, pilot):
+            for _ in range(count):
+                await pilot.press("enter")
+                await pilot.pause(0.1)
+        return turn
+
+    async def show_me(app, pilot):
+        await pilot.press("enter")  # from the part's page to the workspace
+        await pilot.pause(0.2)
+        for _ in range(2):  # Open it, then Show me
+            app.query_one("#tour-do").press()
+            await pilot.pause(0.3)
+
+    def closing(app):
+        app.tour.at = len(app.tour.steps()) - 1
+        app.tour_show()
+
+    await shoot(tour_at("start"), "tour-start", (100, 30))
+    await shoot(tour_at("story"), "tour-story", (100, 30), steps=pages(1))
+    await shoot(tour_at("strip", "goal-tree"), "tour-strip", (120, 36), steps=show_me)
+    await shoot(tour_at("koan", "current-reality"), "tour-koan", (100, 30), before=closing)
+    await shoot(tour_at("review", "day-three", ready=("action", "observation")), "tour-day-three", (120, 40),
+                steps=pages(1))
 
 
 def can_make_png():
@@ -475,6 +517,7 @@ def main():
     time.tzset()
     timeline.today = lambda: date(2026, 11, 10)
     with tempfile.TemporaryDirectory() as folder:
+        os.environ["XDG_STATE_HOME"] = str(Path(folder) / "state")  # nor where the tour was left
         asyncio.run(render(Path(folder)))
     browser = chromium() if can_make_png() else None
     for svg in sorted(OUT.glob("*.svg")):

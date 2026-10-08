@@ -1,4 +1,4 @@
-"""First start, personal settings and the guided tour, driven headlessly."""
+"""First start and personal settings, driven headlessly. The guided tour itself is in tests/test_tour_view.py."""
 
 import asyncio
 import os
@@ -9,10 +9,11 @@ import pytest
 pytest.importorskip("textual")
 
 from reason_commons.adapters.guided import GuidedConsultant  # noqa: E402
-from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, tour_state  # noqa: E402
 from reason_commons.adapters.settings import Settings, model_hint  # noqa: E402
-from reason_commons.adapters.tui import TOUR, TOUR_FINISHED, GoalsApp, ReasonCommonsApp  # noqa: E402
+from reason_commons.adapters.tour import Progress  # noqa: E402
+from reason_commons.adapters.tui import TOUR, GoalsApp, ReasonCommonsApp  # noqa: E402
 from reason_commons.bootstrap import create_case, open_case  # noqa: E402
+from tests.test_tui import screen_text  # noqa: E402
 
 VARIABLES = ["REASON_COMMONS_SPEAKER", "REASON_COMMONS_PROVIDER", "REASON_COMMONS_ANTHROPIC_MODEL",
              "ANTHROPIC_API_KEY", "REASON_COMMONS_LM_STUDIO_URL", "REASON_COMMONS_LM_STUDIO_MODEL"]
@@ -108,21 +109,39 @@ async def type_in(app, pilot, text):
     await pilot.pause()
 
 
-def test_first_start_offers_the_ways_to_begin(tmp_path):
+def test_first_start_offers_the_tour_first_until_it_is_finished(tmp_path):
     settings = Settings.load(tmp_path / "settings.yaml")
+    progress = Progress(tmp_path / "state" / "tour.yaml")
 
-    async def run():
-        app = GoalsApp(tmp_path / "goals", settings=settings)
+    async def first_start(check):
+        app = GoalsApp(tmp_path / "goals", settings=settings, tour_progress=progress)
         async with app.run_test(size=(80, 24)) as pilot:
             await pilot.pause()
-            ids = [option.id for option in app.query_one("#goals").options]
-            assert ids == ["start", "setup", "tour", "sample"]
-            assert app.query_one("#goals").highlighted == 0
-            app.query_one("#goals").highlighted = 2
-            await pilot.press("enter")
+            goals = app.query_one("#goals")
+            check([option.id for option in goals.options], goals.highlighted_option.id, screen_text(app))
+            await pilot.press("enter")  # the highlighted way to begin
             await pilot.pause()
-        return app.return_value
-    assert asyncio.run(run()) == TOUR
+            return app.return_value
+
+    def new(ids, highlighted, text):
+        assert ids == ["tour", "start", "setup", "sample"] and highlighted == "tour"
+        assert "Take the tour" in text and "A short story at a hospital that is always full" in text
+    assert asyncio.run(first_start(new)) == TOUR
+
+    progress.save("harrowfield", "cloud")
+
+    def started(ids, highlighted, text):
+        assert ids == ["tour", "start", "setup", "sample"] and highlighted == "tour"
+        assert "Continue the tour" in text and "Part 4 of 9: What conflict keeps us stuck?" in text
+    assert asyncio.run(first_start(started)) == TOUR
+
+    progress.save("harrowfield", "epilogue", finished=True)
+
+    def finished(ids, highlighted, text):
+        # Once the story is told, starting a goal comes first; the tour can still be taken again.
+        assert ids == ["start", "setup", "tour", "sample"] and highlighted == "start"
+        assert "Take the tour again" in text
+    asyncio.run(first_start(finished))
 
 
 def test_start_saves_defaults_and_goes_straight_to_naming_the_goal(tmp_path):
@@ -131,9 +150,7 @@ def test_start_saves_defaults_and_goes_straight_to_naming_the_goal(tmp_path):
     async def run():
         app = GoalsApp(tmp_path / "goals", settings=settings)
         async with app.run_test(size=(80, 24)) as pilot:
-            await pilot.pause()
-            await pilot.press("enter")  # the first option, highlighted
-            await pilot.pause()
+            await pick(app, pilot, "start")
             await type_in(app, pilot, "Sleep better")
         return app.return_value
     assert asyncio.run(run()) == tmp_path / "goals" / "sleep-better"
@@ -237,80 +254,8 @@ def test_escape_leaves_setup_without_saving(tmp_path):
             await pilot.press("escape")
             await pilot.pause()
             return [option.id for option in app.query_one("#goals").options]
-    assert asyncio.run(run())[0] == "start"  # still the first-start choices
+    assert asyncio.run(run()) == ["tour", "start", "setup", "sample"]  # still the first-start choices
     assert not (tmp_path / "settings.yaml").exists()
-
-
-def test_tour_coaches_each_step_fills_examples_and_finishes(tmp_path):
-    path = tmp_path / "practice"
-    create_case(path, "Practice").close()
-
-    async def run():
-        app = ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
-                               lambda provider: GuidedConsultant(), tour=True)
-        async with app.run_test(size=(80, 24)) as pilot:
-            await pilot.pause()
-            states = []
-            while app.tour_state() != "done":
-                states.append(app.tour_state())
-                assert "Tour · step" in str(app.query_one("#coach").render())
-                app.query_one("#fill").press()
-                await pilot.pause()
-                assert app.query_one("#editor").text == EXAMPLE_ANSWERS[states[-1]]
-                await pilot.press("ctrl+s")
-                await app.workers.wait_for_complete()
-                await pilot.pause()
-            assert states == list(EXAMPLE_ANSWERS)
-            assert "Loop complete" in str(app.query_one("#coach").render())
-            assert app.query_one("#fill").has_class("hidden")
-            app.query_one("#finish").press()
-            await pilot.pause()
-        return app.return_value
-    assert asyncio.run(run()) == TOUR_FINISHED
-
-
-def test_ordinary_workspace_shows_no_tour_controls(tmp_path):
-    path = tmp_path / "case"
-    create_case(path, "Plain").close()
-
-    async def run():
-        app = ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
-                               lambda provider: GuidedConsultant())
-        async with app.run_test(size=(80, 24)) as pilot:
-            await pilot.pause()
-            return [app.query_one(name).has_class("hidden") for name in ("#coach", "#fill", "#finish")]
-    assert asyncio.run(run()) == [True, True, True]
-
-
-def test_tour_state_reads_the_guided_purpose():
-    assert tour_state(None, []) == "goal"
-    assert tour_state({"data": {"purpose": "guided:test_forecast"}}, []) == "test_forecast"
-    assert tour_state({"data": {"purpose": "guided:test_change"}}, [{"kind": "review"}]) == "done"
-
-
-def test_finishing_the_tour_returns_to_the_home_screen(tmp_path, monkeypatch):
-    from reason_commons.adapters import tui
-    shown = iter([TOUR, None])
-    calls = []
-    monkeypatch.setattr(tui.GoalsApp, "run", lambda self: (calls.append("home"), next(shown))[1])
-    monkeypatch.setattr(tui, "run_tour", lambda speaker=None: (calls.append("tour"), TOUR_FINISHED)[1])
-    monkeypatch.setenv("REASON_COMMONS_HOME", str(tmp_path / "goals"))
-    tui.run_home(settings=Settings.load(tmp_path / "settings.yaml"))
-    assert calls == ["home", "tour", "home"]
-
-
-def test_run_tour_opens_a_throwaway_practice_goal(monkeypatch):
-    from reason_commons.adapters import tui
-    seen = {}
-
-    def fake_run(self):
-        seen.update(store=self.store, tour=self.tour, provider=self.provider)
-        return TOUR_FINISHED
-    monkeypatch.setattr(tui.ReasonCommonsApp, "run", fake_run)
-    monkeypatch.setenv("REASON_COMMONS_CONFIG", "/nonexistent/settings.yaml")
-    assert tui.run_tour("David") == TOUR_FINISHED
-    assert seen["tour"] and seen["provider"] == "guided"
-    assert not os.path.exists(seen["store"])
 
 
 def test_settings_offers_you_on_the_home_screen_and_it_runs_the_setup_questions(tmp_path, monkeypatch):

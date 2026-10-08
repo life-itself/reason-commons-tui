@@ -3,11 +3,14 @@
 The TUI is a projection over ``CaseApplication``: it reads ``workspace`` and
 ``inspect``, and changes the case only through ``retain_input``, ``consult``,
 ``retry``, the operator's decisions (``accept``, ``reject``, ``undo``,
-``still_holds``, ``set_acceptance``), ``export`` and ``checkpoint``. It owns
-layout, focus, the editor and which view is shown; it defines no reasoning or
-persistence rules, and the application decides what a decision takes with it.
+``still_holds``, ``set_acceptance``), ``export`` and ``checkpoint``; getting a
+part of the guided tour ready, it submits and accepts the story's own answers
+through the same calls (``tour.prepare``). It owns layout, focus, the editor and
+which view is shown; it defines no reasoning or persistence rules, and the
+application decides what a decision takes with it.
 """
 
+from contextlib import nullcontext
 from datetime import date
 import os
 import re
@@ -34,9 +37,12 @@ from textual.widgets.option_list import Option
 
 from reason_commons.adapters import pricing, themes
 from reason_commons.adapters.guided import STEPS, placeholder, split_hint
-from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
+from reason_commons.adapters.onboarding import login_name, run_setup
 from reason_commons.adapters.settings import Settings, summary
 from reason_commons.adapters.usage import BUDGET_VARIABLE, crossed, parse_budget, skipped_words
+from reason_commons.adapters.tour import (Progress, Tour, TourClock, decided, guided_step, kinds_in_model, load_tour,
+                                          prepare, producer)
+from reason_commons.adapters.tour_view import ContentsPage, StoryPage, TourPage, TourStrip
 from reason_commons.adapters.welcome import HowItWorksScreen, WelcomePanel
 from reason_commons.adapters.rendering import _literal
 from reason_commons.adapters.timeline import (change_summary, day, decision_words, moment, next_action,
@@ -46,7 +52,8 @@ from reason_commons.adapters.trees import (READING, ROLE_LABELS, TREE_TITLES, br
                                            roots, statement_details, tally_line, tree_lines, trees_lines)
 
 
-TOUR_FINISHED = "tour-finished"
+# Where the tour leaves to: the start screen, a goal of one's own, the real commons, or a part started fresh.
+TOUR_HOME, TOUR_OWN_GOAL, TOUR_COMMONS, TOUR_PART = "tour-home", "tour-own-goal", "tour-commons", "tour-part"
 STORY_OWN_GOAL, STORY_HOME = "story-own-goal", "story-home"
 PROVIDERS = {"guided": "Built-in guide (offline)", "anthropic": "Anthropic Claude", "lm-studio": "LM Studio (local)"}
 # Who receives what you send, named where you send it.
@@ -96,7 +103,8 @@ WIDE = 90
 # Controls a person passes through on the way to something else. Esc does not return focus to them:
 # it returns to the answer they were writing.
 NAVIGATION_CONTROLS = {"send", "fill", "retry", "retry-deeper", "accept-all", "explain", "moves", "views-button", "commands", "help",
-                       "finish", "views", "how-it-works", "hide-welcome"}
+                       "views", "how-it-works", "hide-welcome", "tour-back", "tour-do", "tour-next", "tour-contents",
+                       "tour-leave"}
 # What each kind of proposal is called in the Backlog and in decisions.
 KIND_NAMES = {"goal": "Goal", "note": "Note", "test": "Test", "action": "Action", "observation": "Result",
               "review": "Review", "claim": "Statement", "link": "Link", "retraction": "Withdrawal"}
@@ -234,9 +242,10 @@ choose a voice, left and right choose light or dark, Enter keeps it. The choice 
 saved as `theme:` in your settings file; `--theme` or `REASON_COMMONS_THEME`
 overrides it for one run.
 
-New to it? **Take the guided tour** from the home screen: a practice goal with
-coaching at each step and example answers. **Explore a real commons** shows how a
-movement's shared reasoning grew, step by step. Nothing from either is kept.
+New to it? **Take the tour** from the start screen: a short story at a hospital
+that is always full, in which you play the person asked to fix it and run one loop
+yourself. **Explore a real commons** shows how a movement's shared reasoning grew,
+step by step. Nothing from either is kept.
 
 ## Deciding what enters your model
 
@@ -1311,14 +1320,11 @@ class ReasonCommonsApp(ThemedApp):
     #controls Button:hover { color: $text; }
     #controls #send { background: $primary; color: $background; text-style: bold; }
     #controls #retry { color: $warning; }
-    #controls #finish { color: $success; }
     #controls Button:focus, #controls #send:focus { background: $hand-tint; color: $foreground; text-style: bold; }
-    #retry.hidden, #retry-deeper.hidden, #fill.hidden, #finish.hidden { display: none; }
+    #retry.hidden, #retry-deeper.hidden, #fill.hidden { display: none; }
     #hint { width: 1fr; height: 1; text-align: right; color: $text-muted; }
     #hint-below { height: 1; color: $text-muted; }
     #hint.hidden, #hint-below.hidden { display: none; }
-    #coach { height: auto; max-height: 5; border: $frame $border-blurred; padding: 0 1; }
-    #coach.hidden { display: none; }
     #welcome { height: auto; margin: 1 1 0 1; padding: 0 1; color: $text-muted; }
     #welcome.hidden { display: none; }
     #welcome-title { text-style: bold; }
@@ -1383,18 +1389,22 @@ class ReasonCommonsApp(ThemedApp):
         Binding("f1", "help", "Help"),
         Binding("f2", "settings", "Settings"),
         Binding("ctrl+q", "quit", "Save & quit", priority=True),
+        Binding("f3", "tour_next", "Next", show=False),  # the tour's Next ▶, in the tour only
         Binding("left", "earlier", "Earlier"),  # shown and active only when stepping through history
         Binding("right", "later", "Later"),
     ]
 
-    def __init__(self, store, speaker, provider, open_application, consultant_factory, tour=False, story=None,
+    def __init__(self, store, speaker, provider, open_application, consultant_factory, tour=None, story=None,
                  settings=None, usage=None):
         super().__init__(settings)
         # The usage log session this workspace's paid replies are counted in, or None (tests, the story and the
         # tour), which hides the meter. What it says is cached in _meter: read on mount, after each reply and
         # when the cost screen opens, never while the footer is drawn.
         self.usage, self._meter, self._usage_mark = usage, None, None
-        self.store, self.speaker, self.provider, self.tour = str(store), speaker, provider, tour
+        self.store, self.speaker, self.provider = str(store), speaker, provider
+        # The guided tour (a Tour) when this is the tour's goal: its strip narrates, its pages tell the story.
+        # The goal's records by revision, for what the tour waits on, and whether a part is being got ready.
+        self.tour, self._tour_records, self._preparing = tour, (None, []), False
         # A story is read, not answered: its goal opens read-only with its chapters for narration.
         self.story = story
         self.chapters = {n: c for n, c in enumerate(story["chapters"], start=1)} if story else {}
@@ -1447,22 +1457,20 @@ class ReasonCommonsApp(ThemedApp):
                     yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
                     with Horizontal(id="controls"):
                         yield Button("Send ^s", id="send", variant="primary")
-                        yield Button("Example answer", id="fill", classes="" if self.tour else "hidden")
+                        yield Button("Example answer", id="fill", classes="hidden")
                         yield Button("Retry", id="retry", variant="warning", classes="hidden")
                         yield Button("Retry with Sonnet", id="retry-deeper", classes="hidden")
                         yield Button("Accept all", id="accept-all", classes="hidden")
                         yield Button("Explain this", id="explain")
                         yield Button("Other moves", id="moves")
                         yield Button("Views", id="views-button")
-                        yield Button("Finish tour", id="finish", variant="success",
-                                     classes="" if self.tour else "hidden")
                         yield Static(id="hint")
                     yield Static(id="hint-below", classes="hidden")
                 # A new goal's first screen: a note on how the screen works, under the box (it gates nothing).
                 yield WelcomePanel(id="welcome", classes="hidden")
             with VerticalScroll(id="inspector", classes="hidden"):
                 yield Static(id="inspector-text")
-        yield Static(id="coach", classes="" if self.tour else "hidden")
+        yield TourStrip(id="tour-strip", classes="" if self.tour else "hidden")
         story_only = "story-only" + ("" if self.story else " hidden")
         with Vertical(id="moment", classes="" if self.story else "hidden"):
             yield Static(id="moment-text")
@@ -1533,6 +1541,8 @@ class ReasonCommonsApp(ThemedApp):
             self.call_after_refresh(self.restore_menu, cursor["menu"])
         self.query_one("#earlier" if self.story else "#editor").focus()
         self.watch(self.screen, "focused", lambda _: (self.refresh_hints(), self.fit_answer_box(), self.refit_dimming()))
+        if self.tour:  # the story's first page, over the workspace it opens onto
+            self.call_after_refresh(self.tour_show)
         self.on_resize()
         self.refresh_meter()
         if self._meter and self.provider == "anthropic" and self._meter["budget"] and \
@@ -1617,6 +1627,8 @@ class ReasonCommonsApp(ThemedApp):
     def check_action(self, action, parameters):
         if action == "next_tree":
             return self.view_name == "trees"
+        if action == "tour_next":
+            return self.tour is not None
         looking_back = getattr(self, "revision", None) is not None
         if action == "send" and (self.story or looking_back):
             return False
@@ -1663,7 +1675,8 @@ class ReasonCommonsApp(ThemedApp):
         if w is None:
             return
         asking = self.send_to() + (f" ({self._asking})" if self._asking else "")
-        state = (f"Asking {asking}…" if self.busy else "Answer ready" if self.answer_ready else "Saved")
+        state = (f"Asking {asking}…" if self.busy else "Answer ready" if self.answer_ready
+                 else "Tour" if self.tour else "Saved")
         who = None if self.story else self.speaker  # a story is read, not answered as anyone
         if self.story or self.revision is not None:
             state = "Read-only"
@@ -1735,9 +1748,7 @@ class ReasonCommonsApp(ThemedApp):
         if offered:
             self.query_one("#retry-deeper", Button).label = f"Retry with {pricing.label(deeper).split()[0]}"
         if self.tour:
-            state = self.tour_state()
-            self.query_one("#coach", Static).update(coach_text(state))
-            self.query_one("#fill").set_class(state not in EXAMPLE_ANSWERS, "hidden")
+            self.render_tour()
         for name in ("#hint", "#hint-below"):
             self.query_one(name, Static).update(escape_markup(self.hint_text()))
         # The note's form is decided where the reading pane is fitted; here it only goes, or says who asks.
@@ -1796,9 +1807,6 @@ class ReasonCommonsApp(ThemedApp):
         elif not looking_back and value and room >= len(label) + 20:
             shown = Content.assemble((label, "$text-muted"), clip(value, room - len(label), 1))
         self.query_one("#measure", Static).update(shown)
-
-    def tour_state(self):
-        return tour_state(self.workspace_value["question"], self.case.inspect()["case"]["records"])
 
     def pinned_goal(self):
         return latest(self.workspace_value["goals"], "goal")
@@ -2424,6 +2432,9 @@ class ReasonCommonsApp(ThemedApp):
         self._history = None
         self.refresh_workspace()
         self.refresh_views()
+        focused = self.focused
+        if focused is None or focused.has_class("hidden"):  # the list emptied: the keys stay on the page
+            self.query_one("#main").focus()
         self.notify(self.decided_words(action, result))
         self.schedule_checkpoint()
 
@@ -2618,7 +2629,7 @@ class ReasonCommonsApp(ThemedApp):
         self.schedule_checkpoint()
         self.call_after_refresh(self.keep_statement_in_view)
 
-    def keep_statement_in_view(self):
+    def keep_statement_in_view(self, center=False):
         from textual.geometry import Region
         span = next(((start, end) for ref, start, end in self._tree_spans if ref == self.drawn_selection()), None)
         if span is None:
@@ -2626,7 +2637,7 @@ class ReasonCommonsApp(ThemedApp):
         canvas = self.query_one("#canvas")
         top = canvas.virtual_region.y + span[0]
         self.query_one("#main").scroll_to_region(Region(0, top, 1, max(1, span[1] - span[0])),
-                                                 animate=False, immediate=True)
+                                                 animate=False, immediate=True, center=center)
 
     def statement_origins(self, ref, words=300):
         """Where a statement came from: each cited input as who, when and their own words
@@ -3009,17 +3020,14 @@ class ReasonCommonsApp(ThemedApp):
 
     @on(Button.Pressed, "#fill")
     def fill_pressed(self):
-        """Tour only: put the tutorial's example answer for this question into the editor."""
-        answer = EXAMPLE_ANSWERS.get(self.tour_state())
-        if answer is not None:
+        """Tour only: put the story's answer to this question in the box, as the person's own to change."""
+        answer = self.tour and self.tour.script["examples"].get(guided_step(self.workspace_value["question"]))
+        if answer:
+            answer = " ".join(answer.split())
             editor = self.query_one("#editor", TextArea)
             editor.load_text(answer)
             editor.cursor_location = caret_location(answer, len(answer))
             editor.focus()
-
-    @on(Button.Pressed, "#finish")
-    def finish_pressed(self):
-        self.exit(TOUR_FINISHED)
 
     @on(Button.Pressed, "#how-it-works")
     def how_it_works_pressed(self):
@@ -3185,14 +3193,16 @@ class ReasonCommonsApp(ThemedApp):
         hints of (key as drawn, what it does, the key to press, or None when it is not one key), with a
         shorter label for when the terminal is narrow."""
         focus = getattr(self.focused, "id", None)
-        leave = ("^q", "Save & quit", "ctrl+q", "Quit")
+        leave = ("^q", "Leave tour", "ctrl+q", "Leave") if self.tour else ("^q", "Save & quit", "ctrl+q", "Quit")
         trees = (("^t", "Back to question", "ctrl+t", "Back") if self.view_name == "trees"
                  else ("^t", "Trees", "ctrl+t"))
         tab = ("tab", "Next control", "tab", "Next")
         back = ("tab", "Back to answer", "tab", "Answer") if self.tab_target() is self.query_one("#editor") else tab
         choose = ("↑↓", "Choose statement", None, "Choose")
+        # The tour's way on: first where the answer is written, last (the first to go) on lists and drawings.
+        onward = [("f3", "Next ▶", "f3", "Next")] if self.tour and self.revision is None else []
         if focus == "views":
-            return [("↑↓", "Choose view", None, "Choose"), ("⏎", "Open", "enter"), back], []
+            return [("↑↓", "Choose view", None, "Choose"), ("⏎", "Open", "enter"), back, *onward], []
         if focus == "canvas":
             can, folded = self.chosen_folds()
             fold = [("space", "Unfold" if folded else "Fold", "space")] if can else []
@@ -3201,23 +3211,23 @@ class ReasonCommonsApp(ThemedApp):
             # the whole, where Enter opens a tree, so it is not offered there (the key still works).
             about = ([] if self.story or self.revision is not None or self.shown_tree() == "all"
                      else [("a", "Answer about this", "a", "About")])
-            return [choose, *fold, enter, ("^n", "Next tree", "ctrl+n"), trees, *about], []
+            return [choose, *fold, enter, ("^n", "Next tree", "ctrl+n"), trees, *about, *onward], []
         if focus == "timeline":
             undo = [("u", "Undo this change", "u", "Undo")] if self.undoable(self.query_one("#timeline").highlighted) else []
-            return [("↑↓", "Choose step", None, "Choose"), ("⏎", "Open that step", "enter", "Open"), *undo], [tab]
+            return [("↑↓", "Choose step", None, "Choose"), ("⏎", "Open that step", "enter", "Open"), *undo, *onward], [tab]
         if focus == "backlog-list":
             entry = self.chosen_entry()
             keys = ([("h", "Still holds", "h", "Holds")] if entry and entry["entry"] == "review" else
                     [("a", "Accept", "a"), ("r", "Reject", "r")])
-            return [("↑↓", "Choose", None), ("⏎", "Choices", "enter"), *keys], [tab]
+            return [("↑↓", "Choose", None), ("⏎", "Choices", "enter"), *keys, *onward], [tab]
         if focus in ("main", "inspector"):
-            return [("↑↓", "Scroll", None), trees], [back]
+            return [("↑↓", "Scroll", None), trees, *onward], [back]
         if focus in ("commands", "help"):
             # The hints before Commands stay as they were, so it does not move when a click gives it focus.
             return [leave, trees], [("⏎", "Open", "enter"), tab]
         if focus in NAVIGATION_CONTROLS or focus in self.MOMENT_LABELS:
-            return [leave, trees], [("⏎", "Press", "enter"), tab]
-        return [leave, trees], [tab]  # the answer box
+            return [*onward, leave, trees], [("⏎", "Press", "enter"), tab]
+        return [*onward, leave, trees], [tab]  # the answer box
 
     @on(TextArea.Changed, "#editor")
     def draft_changed(self):
@@ -3578,9 +3588,158 @@ class ReasonCommonsApp(ThemedApp):
             self.notify("Draft not saved to disk. Copy your text somewhere safe.", severity="error")
 
     async def action_quit(self):
+        if self.tour:  # the tour's goal is thrown away; the part reached is remembered
+            self.exit(TOUR_HOME)
+            return
         if not self.busy:
             self.checkpoint()
         self.exit()
+
+    # ----- the tour --------------------------------------------------------------
+    def tour_facts(self):
+        """What the tour may wait on, read from what is on screen: the view and tree, the statement chosen,
+        the guide's question, a reply waiting, the two decisions, and what the model holds."""
+        w = self.workspace_value
+        if self._tour_records[0] != w["live_revision"]:
+            self._tour_records = (w["live_revision"], self.case.inspect()["case"]["records"])
+        records, membership = self._tour_records[1], w.get("membership") or {}
+        chosen = self.drawn_selection() if self.view_name == "trees" else None
+        statement = next((c["statement"] for t in w["trees"] for c in t["claims"] if c["ref"] == chosen), None)
+        return {"view": self.view_name, "tree": self.shown_tree() if self.view_name == "trees" else None,
+                "selected": statement, "asked": guided_step(w["question"]), "waiting": bool(self.reply_waiting()),
+                "decided": decided(self.tour.script, records, membership),
+                "accepted": kinds_in_model(records, membership)}
+
+    def render_tour(self):
+        """The strip says what the tour's step says, after the tour has seen what just happened. Looking back
+        at a past step, the history's own strip is enough: two bands never stack."""
+        strip = self.query_one("#tour-strip", TourStrip)
+        looking_back = self.revision is not None
+        strip.set_class(looking_back, "hidden")
+        step = guided_step(self.workspace_value["question"])
+        self.query_one("#fill").set_class(looking_back or step not in self.tour.script["examples"], "hidden")
+        if looking_back:
+            return
+        self.tour.observe(self.tour_facts())
+        strip.show(self.tour)
+        self.query_one("#tour-back").disabled = self.tour.first()
+
+    def tour_show(self):
+        """The tour's step on screen: a story page over the workspace, or the workspace and its strip."""
+        self.tour_ready()
+        page = self.screen if isinstance(self.screen, TourPage) else None
+        if self.tour.on_page:
+            if isinstance(page, StoryPage):
+                page.show()
+            else:
+                if page is not None:
+                    self.pop_screen()
+                self.push_screen(StoryPage(self.tour, self.tour_chosen))
+            return
+        if page is not None:
+            self.pop_screen()
+        self.render_all()
+
+    def tour_chosen(self, choice):
+        """A choice on a story page, or the strip's buttons."""
+        if choice == "next":
+            if self._preparing and not self.tour.next_is_page():
+                self.notify("A moment: Ruth's Monday answers are going in, so that Thursday can begin.")
+                return
+            self.tour.next()
+            self.tour_show()
+        elif choice == "back":
+            self.tour.back()
+            self.tour_show()
+        elif choice == "contents":
+            self.push_screen(ContentsPage(self.tour, self.contents_chosen))
+        elif choice in ("leave", "home"):
+            self.exit(TOUR_HOME)
+        elif choice == "own":
+            self.exit(TOUR_OWN_GOAL)
+        elif choice == "commons":
+            self.exit(TOUR_COMMONS)
+
+    def contents_chosen(self, choice):
+        """A part from the contents starts fresh, with Ruth's answers for everything before it; nothing changed
+        yet, it simply opens."""
+        if choice == "back":
+            self.pop_screen()
+            return
+        part = choice.removeprefix("part:")
+        untouched = self.workspace_value["live_revision"] == self._opened_revision
+        if untouched and not self.tour.parts[self.tour.part_index(part)].get("requires"):
+            self.pop_screen()
+            self.tour.goto(part)
+            self.tour_show()
+        else:
+            self.exit((TOUR_PART, part))
+
+    def tour_ready(self):
+        """A part that begins after earlier steps of the loop gets them, with Ruth's answers dated when she
+        gave them, while its opening page is read. Nothing the tour asks the person to decide is decided."""
+        requirement = self.tour.part.get("requires")
+        if not requirement or self._preparing:
+            return
+        w = self.case.workspace()
+        if requirement in kinds_in_model(self.case.inspect()["case"]["records"], w["membership"]):
+            return
+        self._preparing = True
+        self.set_busy(True)
+        tour, case, speaker = self.tour, self.case, self.speaker
+
+        def work():
+            error = None
+            try:
+                with tour.clock.during(producer(tour.script, requirement)) if tour.clock else nullcontext():
+                    prepare(case, tour.script, requirement, speaker)
+            except Exception as exc:  # said, not raised: the tour carries on, and Contents starts the part fresh
+                error = exc
+            self.call_from_thread(self.tour_prepared, error)
+        self.run_worker(work, thread=True, exclusive=True)
+
+    def tour_prepared(self, error):
+        self._preparing = False
+        self.set_busy(False, refresh=False)
+        self._history = None
+        self.refresh_workspace()
+        if error is not None:
+            self.notify(f"This part could not be got ready ({type(error).__name__}). Contents starts it fresh.",
+                        severity="error", timeout=10)
+
+    def tour_do(self):
+        """The beat's own button: open the view or tree it names, or choose the statement, as the person would."""
+        button = self.tour.button()
+        if not button:
+            return
+        if "select" in button:
+            tree = button.get("tree") or self.tour.part.get("tree")
+            self.selected_claim = next((c["ref"] for t in self.workspace_value["trees"] if t["tree"] == tree
+                                        for c in t["claims"] if c["statement"] == button["select"]), None)
+            self.tree_choice = tree
+            self.show_view("trees")
+        elif "tree" in button:
+            self.show_tree(button["tree"])
+        else:
+            self.show_view(button["view"])
+        target = {"trees": "#canvas", "history": "#timeline", "backlog": "#backlog-list",
+                  "next": "#editor"}.get(self.view_name, "#main")
+        widget = self.query_one(target)
+        if widget.focusable and widget.display:
+            widget.focus()
+        if self.view_name == "trees":  # once the new drawing is laid out, not before
+            self.call_after_refresh(lambda: self.call_after_refresh(self.keep_statement_in_view, True))
+
+    def action_tour_next(self):
+        self.tour_chosen("next")
+
+    @on(Button.Pressed, "#tour-strip Button")
+    def tour_pressed(self, event):
+        key = event.button.id.removeprefix("tour-")
+        if key == "do":
+            self.tour_do()
+        else:
+            self.tour_chosen(key)
 
     # ----- Commands palette (Ctrl+P) ---------------------------------------
     def action_list(self):
@@ -3641,17 +3800,27 @@ class ReasonCommonsApp(ThemedApp):
         items += [("Consultant calls and cost",
                    "Local: how often the consultant was asked, and what Claude's replies cost, as estimated",
                    self.action_consultant_calls),
-                  ("Export case", "Local: write a portable .reasoncase copy", self.action_export),
-                  ("Import trees", "Local: bring in trees from an .ltp.yaml file; asks no consultant",
-                   self.action_import_trees),
-                  ("Export trees", "Local: write the trees to an .ltp.yaml file", self.action_export_trees)]
-        items += [(f"Consultant: {label}", "Local setting: use this consultant from now on",
-                   lambda key=key: self.switch_provider(key)) for key, label in PROVIDERS.items() if key != self.provider]
+                  ("Export case", "Local: write a portable .reasoncase copy", self.action_export)]
+        if not self.tour:  # the tour's trees and its guide are the story's
+            items.append(("Import trees", "Local: bring in trees from an .ltp.yaml file; asks no consultant",
+                          self.action_import_trees))
+        items.append(("Export trees", "Local: write the trees to an .ltp.yaml file", self.action_export_trees))
+        if not self.tour:
+            items += [(f"Consultant: {label}", "Local setting: use this consultant from now on",
+                       lambda key=key: self.switch_provider(key)) for key, label in PROVIDERS.items()
+                      if key != self.provider]
         items += [("Settings", "Local: change the theme and light or dark (F2)", self.action_settings),
                   ("Theme", f"Local: how Reason Commons looks; now {themes.title(self.theme)}", self.action_change_theme),
                   ("Help", "Local: keys and controls (F1); Explain this covers the reasoning", self.action_help),
-                  ("How this works", "Local: this screen drawn with each part labelled", self.action_how_it_works),
-                  ("Save and quit", "Local: keep your draft and close (Ctrl+Q)", self.action_quit)]
+                  ("How this works", "Local: this screen drawn with each part labelled", self.action_how_it_works)]
+        if self.tour:
+            items += [("Tour: next", "Local: the tour's next step (F3)", self.action_tour_next),
+                      ("Tour: contents", "Local: the nine parts; each starts fresh, with Ruth's answers before it",
+                       lambda: self.tour_chosen("contents")),
+                      ("Leave the tour", "Local: back to the start screen; the tour remembers this part (Ctrl+Q)",
+                       self.action_quit)]
+        else:
+            items.append(("Save and quit", "Local: keep your draft and close (Ctrl+Q)", self.action_quit))
         return [(re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-"), name, detail, run) for name, detail, run in items]
 
     def set_density(self, density):
@@ -3894,10 +4063,11 @@ class NewGoalScreen(ModalScreen):
 class GoalsApp(ThemedApp):
     """Home screen: how to begin on first start, then your goals. Returns what to open next.
 
-    With ``settings`` that were never saved, it first offers the ways to start: set up and
-    start a goal, the guided tour, the real commons, or skipping setup. After that it has two
-    sections: ways to start, and your goals as a table of name, stage and day last changed.
-    Settings live behind F2 and the footer says what they are now.
+    With ``settings`` that were never saved, it first offers the ways to start: the tour (first,
+    until it is finished), starting a goal, setting up first, or the real commons. After that it
+    has two sections: ways to start, and your goals as a table of name, stage and day last
+    changed. Settings live behind F2 and the footer says what they are now. ``tour_progress``
+    says which part of the tour was reached (by default, the one kept in the state folder).
     """
 
     TITLE = "Reason Commons"
@@ -3912,17 +4082,37 @@ class GoalsApp(ThemedApp):
     """
     BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help"),
                 Binding("f2", "settings", "Settings")]
-    # The ways to start: id, the mark before it, its name, and a quieter note after it.
-    START = [("new", "+", "New goal", ""),
-             ("sample", "", "Explore a real commons: the Second Renaissance", ""),
-             ("tour", "", "Guided tour", " · practice goal, about 5 minutes")]
-
-    def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None, start_new=False):
+    def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None, start_new=False,
+                 tour_progress=None):
         super().__init__(settings)
         self.root, self._list, self.start_new = Path(root), list_goals, start_new
         self._create = create or self._create_case
         self._checks = checks
         self.goals, self._marked, self._shown = [], None, False
+        self.tour_place = self.read_tour_place(tour_progress or Progress())
+
+    @staticmethod
+    def read_tour_place(progress):
+        """('new', None), ('started', 'Part 4 of 9: What conflict keeps us stuck?') or ('finished', None)."""
+        try:
+            script = load_tour()
+        except (OSError, ValueError):
+            return "new", None
+        reached, finished = progress.reached(script["story"])
+        if finished:
+            return "finished", None
+        if reached not in {part["id"] for part in script["parts"]} or reached == script["parts"][0]["id"]:
+            return "new", None
+        tour = Tour(script, reached)
+        return "started", f"Part {tour.number()} of {len(tour.numbered)}: {tour.part['title']}"
+
+    def start_rows(self):
+        """The ways to start: id, the mark before it, its name, and a quieter note after it."""
+        state, place = self.tour_place
+        tour = (("tour", "", "Continue the tour", f" · {place}") if state == "started" else
+                ("tour", "", "Take the tour", " · a story, about 15 minutes"))
+        return [("new", "+", "New goal", ""), tour,
+                ("sample", "", "Explore a real commons: the Second Renaissance", "")]
 
     @property
     def first_run(self):
@@ -3939,8 +4129,8 @@ class GoalsApp(ThemedApp):
         super().on_mount()
         self.goals = self._list(self.root)
         self.show_options()
-        if self.start_new:
-            self.new_goal()
+        if self.start_new:  # from the tour or the commons: on first start, with the defaults setup would offer
+            self.start_first_goal() if self.first_run else self.new_goal()
 
     def on_resize(self, event=None):
         if event is not None:
@@ -3983,7 +4173,7 @@ class GoalsApp(ThemedApp):
             parts = [pointer + self.fit(goal["name"], name) + self.GAP]
             parts += [quiet(self.fit(goal["step"], stage) + self.GAP)] * bool(stage)
             return Content.assemble(*parts, quiet(short_day(goal["changed"])))
-        _, sign, name, note = next(item for item in self.START if item[0] == key)
+        _, sign, name, note = next(item for item in self.start_rows() if item[0] == key)
         return Content.assemble(pointer, (sign, "b $accent") if sign else " ", " ", name, quiet(note))
 
     def show_options(self, keep=None):
@@ -3994,19 +4184,30 @@ class GoalsApp(ThemedApp):
             intro = ("[b]Welcome.[/b] Reason Commons helps you make progress on something that matters: you say what "
                      "would count as better, try one small change, and check what actually happened against what "
                      "you expected.\n\nHow would you like to start? Everything stays on this computer.")
+            state, place = self.tour_place
+            tour = Option(option_label(
+                "Continue the tour" if state == "started" else "Take the tour again" if state == "finished"
+                else "Take the tour",
+                f"{place}. It starts that part fresh; leave any time." if state == "started" else
+                "A short story at a hospital that is always full. You play the person asked to fix it. About "
+                "15 minutes; leave any time, nothing is kept."), id="tour")
             options = [Option(option_label("Start my first goal",
                                            f"The offline guide asks the questions; your answers are saved as "
                                            f"{login_name() or 'Me'}. Change either later with F2 Settings."), id="start"),
                        Option(option_label("Choose who asks the questions first",
                                            "Your name, and the offline guide, Claude or a local model. About a "
                                            "minute."), id="setup"),
-                       Option(option_label("Take the guided tour",
-                                           "Practise one whole loop with example answers. About 5 minutes; "
-                                           "nothing is kept."), id="tour"),
                        Option(option_label("Explore a real commons",
                                            "How the Second Renaissance's shared reasoning grew, step by step, "
                                            "and the one action it says comes next."), id="sample")]
-            wanted, self._marked = "start", None
+            # The tour comes first until it is finished; then starting a goal does.
+            if state == "finished":
+                options.insert(2, tour)
+                wanted = "start"
+            else:
+                options.insert(0, tour)
+                wanted = "tour"
+            self._marked = None
         else:
             intro = f"Make progress on a goal that matters, one small loop at a time.\n[$text-muted]{loop}[/]"
             if not self.goals:
@@ -4014,7 +4215,7 @@ class GoalsApp(ThemedApp):
             wanted = keep or ("0" if self.goals else "new")
             row = lambda key: Option(self.row(key, key == wanted), id=key)
             options = [Option(Content.assemble(("START", "b $text-muted")), disabled=True)]
-            options += [row(item[0]) for item in self.START]
+            options += [row(item[0]) for item in self.start_rows()]
             if self.goals:
                 name, stage, date = self.columns()
                 head = self.GAP.join([self.fit("YOUR GOALS", name)] + [self.fit("STAGE", stage)] * bool(stage)
@@ -4065,20 +4266,23 @@ class GoalsApp(ThemedApp):
         elif choice == "setup":
             self.setup(first_run=True)
         elif choice == "start":
-            # The defaults setup would offer; the next screen names the goal.
-            self.settings.set(self.settings.get("name") or login_name() or "Me", "name")
-            self.settings.set("guided", "consultant")
-            try:
-                self.settings.save()
-            except OSError as exc:
-                self.notify(f"Could not save your settings ({exc}).", severity="error", timeout=8)
-            self.settings.apply()
-            self.show_options()
-            self.new_goal()
+            self.start_first_goal()
         elif choice == "new":
             self.new_goal()
         else:
             self.exit(self.goals[int(choice)]["path"])
+
+    def start_first_goal(self):
+        """Save the defaults setup would offer, then name the goal on the next screen."""
+        self.settings.set(self.settings.get("name") or login_name() or "Me", "name")
+        self.settings.set("guided", "consultant")
+        try:
+            self.settings.save()
+        except OSError as exc:
+            self.notify(f"Could not save your settings ({exc}).", severity="error", timeout=8)
+        self.settings.apply()
+        self.show_options()
+        self.new_goal()
 
     @work
     async def setup(self, first_run):
@@ -4190,29 +4394,36 @@ def command_label(title, detail):
 
 SAMPLE = "sample"
 TOUR = "tour"
+TOUR_ARCHIVE = "stories/harrowfield.reasoncase"
 
 
 def run_home(speaker=None, provider=None, model=None, base_url=None, settings=None):
-    """First start or your goals, then the chosen goal (or the tour or example) in the workspace.
+    """First start or your goals, then the chosen goal (or the tour or the real commons) in the workspace.
 
-    The tour returns here when finished; quitting any workspace ends the program.
+    The tour and the commons return here, or go on to a goal of one's own or, from the tour, to the commons;
+    quitting a goal's workspace ends the program.
     """
     options = {"speaker": speaker, "provider": provider, "model": model, "base_url": base_url}
     settings = settings or Settings.load()
     settings.apply()
-    start_new = False
+    start_new, then = False, None
     while True:
-        store = GoalsApp(goals_home(), settings=settings, start_new=start_new).run()
-        start_new = False
+        if then is None:
+            then = GoalsApp(goals_home(), settings=settings, start_new=start_new).run()
+        store, then, start_new = then, None, False
         if store == TOUR:
-            if run_tour(speaker) != TOUR_FINISHED:
+            outcome = run_tour()
+            if outcome == TOUR_OWN_GOAL:
+                start_new = True
+            elif outcome == TOUR_COMMONS:
+                then = SAMPLE
+            elif outcome != TOUR_HOME:
                 return
         elif store == SAMPLE:
             outcome = run_story()
             if outcome == STORY_OWN_GOAL:
                 start_new = True
-                continue
-            if outcome != STORY_HOME:
+            elif outcome != STORY_HOME:
                 return
         elif store is not None:
             run(store, **options)
@@ -4235,15 +4446,34 @@ def run_story():
         return run(Path(folder) / "story", provider="guided", story=load_story())
 
 
-def run_tour(speaker=None):
-    """The guided tour: a practice goal in a throwaway folder, always with the offline guide."""
-    with tempfile.TemporaryDirectory(prefix="reason-commons-tour-") as folder:
-        return run(Path(folder) / "practice", name="Practice: your first loop", speaker=speaker,
-                   provider="guided", tour=True)
+def run_tour(part=None, progress=None):
+    """The guided tour: A winter at Harrowfield, on a throwaway copy of its goal with the offline guide,
+    answered as Ruth Okonjo. It resumes at the part reached last time unless it was finished, and a part chosen
+    from its contents starts on a fresh copy. Returns TOUR_HOME, TOUR_OWN_GOAL, TOUR_COMMONS or None (closed)."""
+    from importlib.resources import as_file, files
+    from reason_commons.bootstrap import import_case
+    script, progress = load_tour(), progress or Progress()
+    if part is None:
+        reached, finished = progress.reached(script["story"])
+        part = reached if reached and not finished and reached in {p["id"] for p in script["parts"]} else None
+    while True:
+        with tempfile.TemporaryDirectory(prefix="reason-commons-tour-") as folder:
+            path = Path(folder) / "harrowfield"
+            with as_file(files("reason_commons.adapters").joinpath(TOUR_ARCHIVE)) as archive:
+                import_case(str(archive), str(path)).close()
+            clock = TourClock(script)
+            tour = Tour(script, part, progress=progress, clock=clock)
+            outcome = run(path, speaker=script["player"], provider="guided", tour=tour, clock=clock)
+        if isinstance(outcome, tuple) and outcome[0] == TOUR_PART:
+            part = outcome[1]
+            continue
+        return outcome
 
 
-def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False, story=None):
-    """Create the case if the folder does not exist yet, then open the workspace."""
+def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=None, story=None,
+        clock=None):
+    """Create the case if the folder does not exist yet, then open the workspace. ``clock`` dates what is saved
+    (the tour's story time); by default, now."""
     cli_model = model
     from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
     settings = Settings.load()
@@ -4259,7 +4489,8 @@ def run(store, name=None, speaker=None, provider=None, model=None, base_url=None
     if not store.exists():
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()
-    app = ReasonCommonsApp(store, speaker, provider, lambda consultant: open_case(store, consultant=consultant),
+    app = ReasonCommonsApp(store, speaker, provider,
+                           lambda consultant: open_case(store, consultant=consultant, clock=clock),
                            factory, tour=tour, story=story, settings=settings,
-                           usage=None if tour or story else usage)  # practice and reading show no meter
+                           usage=None if tour or story else usage)  # the tour and reading show no meter
     return app.run()

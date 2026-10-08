@@ -58,7 +58,7 @@ def test_the_script_names_only_what_the_workspace_has(script, harrowfield):
         for beat in part.get("beats", []):
             # A statement the tour points at is one the part's tree holds, word for word.
             for wanted in ((beat.get("button") or {}).get("select"), (beat.get("until") or {}).get("selected")):
-                if wanted and wanted != "any":
+                if wanted:
                     assert wanted in trees[part["tree"]], (part["id"], wanted)
     # The two decisions the tour asks for are the two waiting in the goal.
     assert decided(script, state["records"], membership) == {"occupancy": "proposed", "pharmacy": "proposed"}
@@ -251,8 +251,24 @@ def test_the_story_clock_follows_the_parts(script):
     assert clock.now() == "2026-01-12T09:00:00+00:00"
     clock.at(Tour(script, "day-three").part)
     assert clock.now() == "2026-01-15T08:45:00+00:00"
-    clock.at(Tour(script, "epilogue").part)
-    assert clock.now() == "2026-01-09T16:30:00+00:00"
+    # Back to an earlier part, the clock stays where the story got to.
+    clock.at(Tour(script, "goal-tree").part)
+    assert clock.now() == "2026-01-15T08:45:00+00:00"
+    # Monday's answers, put in to get Thursday ready, are dated Monday.
+    with clock.during(Tour(script, "monday").part):
+        assert clock.now() == "2026-01-12T09:00:00+00:00"
+    assert clock.now() == "2026-01-15T08:45:00+00:00"
+
+
+def test_moving_into_a_part_sets_the_clock_and_remembers_the_part(script, tmp_path):
+    progress, clock = Progress(tmp_path / "tour.yaml"), TourClock(script)
+    tour = Tour(script, "transition", progress=progress, clock=clock)
+    assert progress.reached("harrowfield") == ("transition", False)
+    while tour.part["id"] == "transition":
+        tour.next()
+    assert progress.reached("harrowfield") == ("monday", False) and clock.now().startswith("2026-01-12")
+    tour.goto("epilogue")
+    assert progress.reached("harrowfield") == ("epilogue", True)
 
 
 def test_the_part_reached_is_remembered_outside_every_goal(tmp_path, monkeypatch):

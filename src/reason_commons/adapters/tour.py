@@ -12,6 +12,7 @@ with the story's own answers, through the same use cases a person's answers go t
 proposals the tour asks the person about. ``Progress`` remembers the part reached, outside every goal.
 """
 
+from contextlib import contextmanager
 from importlib.resources import files
 import os
 from pathlib import Path
@@ -165,12 +166,14 @@ class Tour:
     guide's loop, or the closing page. A beat that waits for something moves on by itself when it happens there
     (or says how it turned out), but never onto a page: pages open only when the person asks."""
 
-    def __init__(self, script, part=None):
+    def __init__(self, script, part=None, progress=None, clock=None):
         self.script, self.parts = script, script["parts"]
         self.index, self.at = (self.part_index(part) if part else 0), 0
         self.facts = {}
         # The beat whose condition was still open when the person reached it: only that one moves on by itself.
         self._waiting = None
+        # Told when the part changes: where to remember it, and the story's clock for what is saved in it.
+        self.progress, self.clock, self._entered = progress, clock, None
         self.arrive()
 
     # ----- where ------------------------------------------------------------------------------------------
@@ -247,7 +250,14 @@ class Tour:
         return self
 
     def arrive(self):
-        """On reaching a beat, note whether its condition is still open: only then may it move on by itself."""
+        """On reaching a beat, note whether its condition is still open: only then may it move on by itself.
+        On reaching a part, set the story's clock to it and remember it (finished, at the last part)."""
+        if self._entered != self.index:
+            self._entered = self.index
+            if self.clock is not None:
+                self.clock.at(self.part)
+            if self.progress is not None:
+                self.progress.save(self.script["story"], self.part["id"], finished=self.index == len(self.parts) - 1)
         beat = self.step.get("beat") or {}
         until = beat.get("until")
         self._waiting = (self.index, self.at) if until and not self.holds(until) else None
@@ -276,7 +286,7 @@ class Tour:
         if kind == "selected":
             if facts.get("view") != "trees" or (self.part.get("tree") and facts.get("tree") != self.part["tree"]):
                 return False
-            return facts.get("selected") is not None if value == "any" else facts.get("selected") == value
+            return facts.get("selected") == value
         return (facts.get("decided") or {}).get(value) in ("accepted", "rejected")
 
     def met(self):
@@ -290,8 +300,10 @@ class Tour:
 
     # ----- what the strip says -----------------------------------------------------------------------------
     def say(self):
-        """The strip's words for this step."""
+        """The strip's words for this step (nothing on a page, which says its own)."""
         step = self.step
+        if self.on_page:
+            return ""
         if step["kind"] == "loop":
             loop = step["loop"]
             if self.met():
@@ -307,12 +319,23 @@ class Tour:
             return done
         return beat["say"]
 
+    # The loop's way back to the question, when the person is looking at something else.
+    BACK_TO_QUESTION = {"label": "Back to the question", "view": "next"}
+
     def button(self):
-        """The beat's own button while what it helps with is still to do."""
+        """The step's own button while what it helps with is still to do: a beat's, until what it opens is on
+        screen; in the loop, the way back to the question from another view."""
         step = self.step
-        if step["kind"] != "beat" or self.met():
+        if self.met() or step["kind"] not in ("beat", "loop"):
             return None
-        return step["beat"].get("button")
+        if step["kind"] == "loop":
+            return None if self.facts.get("view") in (None, "next") else self.BACK_TO_QUESTION
+        button = step["beat"].get("button")
+        if button and "select" not in button and (
+                ("view" in button and self.facts.get("view") == button["view"])
+                or ("tree" in button and self.holds({"tree": button["tree"]}))):
+            return None
+        return button
 
     def status(self):
         """The strip's quiet first line: which part, and its question."""
@@ -326,11 +349,19 @@ def guided_step(question):
     return purpose[len(PREFIX):] if purpose.startswith(PREFIX) else None
 
 
+def kinds_in_model(records, membership):
+    """The kinds of record accepted into the goal's model."""
+    return {record["kind"] for record in records if membership.get(record["ref"]) == "accepted"}
+
+
 def accepted_kinds(case):
     """The kinds of record in the goal's model now."""
-    membership = case.workspace(view="backlog")["membership"]
-    return {record["kind"] for record in case.inspect()["case"]["records"]
-            if membership.get(record["ref"]) == "accepted"}
+    return kinds_in_model(case.inspect()["case"]["records"], case.workspace()["membership"])
+
+
+def producer(script, requirement):
+    """The part whose loop puts this kind of record in the model: where its answers belong in the story."""
+    return next(part for part in script["parts"] if (part.get("loop") or {}).get("until") == requirement)
 
 
 def decided(script, records, membership):
@@ -372,14 +403,27 @@ def prepare(case, script, requirement, speaker, limit=30):
 
 class TourClock:
     """The story's time for what is saved during the tour, so History reads as the story does: the Friday before
-    the pilot, then the Monday it starts, then the third morning."""
+    the pilot, then the Monday it starts, then the third morning. Going back to an earlier part does not turn it
+    back: a step is never saved before the one it follows."""
 
     def __init__(self, script):
         self.times = script.get("clock") or {}
         self.value = self.times.get("default")
 
     def at(self, part):
-        self.value = self.times.get(part.get("clock") or "default", self.value)
+        time = self.times.get(part.get("clock") or "default", self.value)
+        self.value = max(self.value, time) if self.value and time else time or self.value
+
+    @contextmanager
+    def during(self, part):
+        """For a while, the time of an earlier part: Ruth's Monday answers, put in to get Thursday ready, are
+        dated Monday."""
+        before = self.value
+        self.value = self.times.get(part.get("clock") or "default", before)
+        try:
+            yield self
+        finally:
+            self.value = before
 
     def now(self):
         return self.value

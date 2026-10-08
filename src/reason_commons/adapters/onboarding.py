@@ -1,8 +1,7 @@
-"""First start: choosing how to begin, personal setup and the guided tour's coaching.
+"""First start: personal setup.
 
 Setup records only personal settings (name, consultant, model) outside every goal.
-The tour runs the ordinary workspace on a throwaway practice goal with the built-in
-guide; its coaching text lives here and changes nothing in the case.
+The guided tour that first start also offers is in tour.py and tour_view.py.
 """
 
 import asyncio
@@ -18,7 +17,6 @@ from textual.screen import ModalScreen
 from textual.widgets import Input, Label, OptionList, Static
 from textual.widgets.option_list import Option
 
-from reason_commons.adapters.sample import ANSWERS
 from reason_commons.adapters.settings import describe, model_hint
 
 CONSULTANT_CHOICES = [
@@ -322,58 +320,10 @@ async def run_setup(app, settings, first_run, checks=None):
                           "to use these settings."]
             if first_run:
                 options = [("goal", "Start my first goal"),
-                           ("tour", "Take the guided tour first (about 5 minutes, nothing is kept)"),
+                           ("tour", "Take the tour first: a story, about 15 minutes, nothing is kept"),
                            ("sample", "Explore a real commons first")]
             else:
                 options = [("home", "Back to my goals")]
             answer = await app.push_screen_wait(ChoiceStep(
                 None, "You are set up", "\n".join(lines), "Arrows choose, Enter continues.", options))
             return "home" if answer is Step.BACK else answer
-
-
-# ----- the guided tour ----------------------------------------------------------------
-TOUR_PURPOSES = ["goal", "goal_measure", "goal_protect", "test_change", "test_forecast", "test_review",
-                 "test_stop", "action", "observe", "review"]
-EXAMPLE_ANSWERS = dict(zip(TOUR_PURPOSES, ANSWERS))
-TOUR_STAGE = {"goal": 1, "goal_measure": 1, "goal_protect": 1, "test_change": 2, "test_forecast": 2,
-              "test_review": 2, "test_stop": 2, "action": 3, "observe": 4, "review": 5, "done": 6}
-COACH = {
-    "goal": "Welcome! The question is in the middle; you answer in the box under it. Write a goal of your own, "
-            "or press [b]Example answer[/b] to borrow Mira's from the tutorial. Then press [b]Ctrl+S[/b] "
-            "(or Tab to Send, then Enter) to send it.",
-    "goal_measure": "The guide saved your exact words and asked the next question. Press [b]Explain this[/b] "
-                    "to see why a question matters; it never sends anything. Optional questions are "
-                    "skipped by sending an empty answer.",
-    "goal_protect": "Safeguards are what must not get worse. Write one per line: [b]Enter starts a new line "
-                    "and never sends.[/b]",
-    "test_change": "Goal is ticked on the loop line above. Now pick one small change you could make "
-                   "yourself, soon.",
-    "test_forecast": "The key step: [b]write down what you expect before any result exists.[/b] This original "
-                     "forecast is saved now and cannot be quietly rewritten later.",
-    "test_review": "When will you look at the result? Optional: send an empty answer to skip.",
-    "test_stop": "What would make you stop early? Also optional.",
-    "action": "Name the very next action and when. For real, you would now press [b]Ctrl+Q[/b] and go do "
-              "it; everything, even a half-written answer, is saved. In the tour, time skips ahead.",
-    "observe": "Some weeks later... Report what actually happened, separately from what you hoped.",
-    "review": "Your original forecast, word for word, now sits next to what you reported. Check the "
-              "safeguards first, then decide: keep, adjust or drop the change.",
-    "done": "[b]Loop complete.[/b] Look around before you go: [b]Views[/b] then [i]Tests[/i] puts your forecast "
-            "next to the result; [b]Ctrl+T[/b] opens the six trees (Claude or a local model grows them as "
-            "you talk); [b]Ctrl+P[/b] lists every command, including changing consultant. Press "
-            "[b]Finish tour[/b] to start a goal of your own.",
-}
-
-
-def tour_state(question, records):
-    """Which coaching step applies: a guided purpose, or "done" once a review is recorded."""
-    if any(record["kind"] == "review" for record in records):
-        return "done"
-    if not question:
-        return "goal"
-    purpose = question.get("data", {}).get("purpose") or ""
-    return purpose[len("guided:"):] if purpose.startswith("guided:") else "goal"
-
-
-def coach_text(state):
-    return (f"[b]Tour · step {TOUR_STAGE.get(state, 1)} of 6[/b]   [dim]practice goal with the offline "
-            f"guide · nothing here is kept[/dim]\n{COACH.get(state, COACH['goal'])}")

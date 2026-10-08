@@ -44,11 +44,11 @@ def test_the_list_has_a_start_section_and_a_table_of_goals(tmp_path):
             await pilot.pause()
             options = app.query_one("#goals").options
             # Headings are not choices: the cursor skips them, so the first choice is the first goal.
-            assert [option.id for option in options if not option.disabled] == ["new", "sample", "tour", "0", "1", "2"]
+            assert [option.id for option in options if not option.disabled] == ["new", "tour", "sample", "0", "1", "2"]
             assert app.query_one("#goals").highlighted_option.id == "0"
             text = screen_text(app)
             for wanted in ("START", "+ New goal", "Explore a real commons: the Second Renaissance",
-                           "Guided tour", "YOUR GOALS", "STAGE", "UPDATED"):
+                           "Take the tour · a story, about 15 minutes", "YOUR GOALS", "STAGE", "UPDATED"):
                 assert wanted in text, wanted
             # Settings and Theme are not rows any more, and the old "·"-separated, ISO-dated rows are gone.
             assert "Settings:" not in text and "Theme:" not in text and "2026-10-05" not in text

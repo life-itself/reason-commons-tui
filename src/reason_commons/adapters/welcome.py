@@ -119,6 +119,21 @@ def sketch(width):
     return rows
 
 
+def show_drawing(holder, room):
+    """Put the widest sketch that fits ``room`` cells in ``holder``, each part's number after its row, or hide
+    it on a very narrow screen."""
+    width = 76 if room >= 80 else 52 if room >= 56 else 0  # and four more cells for each part's number
+    holder.display = bool(width)
+    if width:
+        lines = []
+        for line, number in sketch(width):
+            text = Text(line, style="dim")
+            if number:
+                text.append(f" ({number})", style="bold")
+            lines.append(text)
+        holder.update(Group(*lines))
+
+
 def explanations(provider):
     who = asker(provider)
     return ["The goal's name, who you are, and that it is saved. Everything is saved as you type.",
@@ -166,17 +181,7 @@ class HowItWorksScreen(ModalScreen):
         """The widest drawing the dialog has room for, or none on a very narrow screen."""
         body = self.query_one("#how-body")
         room = (body.size.width or min(90, int(self.app.size.width * 0.8)) - 6) - body.styles.scrollbar_size_vertical
-        width = 76 if room >= 80 else 52 if room >= 56 else 0  # and four more cells for each part's number
-        holder = self.query_one("#how-sketch", Static)
-        holder.display = bool(width)
-        if width:
-            lines = []
-            for line, number in sketch(width):
-                text = Text(line, style="dim")
-                if number:
-                    text.append(f" ({number})", style="bold")
-                lines.append(text)
-            holder.update(Group(*lines))
+        show_drawing(self.query_one("#how-sketch", Static), room)
 
     @on(Button.Pressed, "#close")
     def close(self):
