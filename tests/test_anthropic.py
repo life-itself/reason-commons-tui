@@ -241,27 +241,31 @@ def test_desktop_launcher_loads_unexported_key_and_serves_native_anthropic(anthr
 
 @pytest.mark.parametrize("slip,repair", [
     (lambda call: call.update(input={"input": call["input"]}), "unwrapped the proposal from input"),
+    (lambda call: call.update(input={"args": call["input"]}), "unwrapped the proposal from args"),
     (lambda call: call["input"].update(proposed_updates=json.dumps(call["input"]["proposed_updates"])),
      "decoded proposed_updates from a string of JSON"),
     (lambda call: call["input"].update(intervention=json.dumps(call["input"]["intervention"])),
      "decoded intervention from a string of JSON"),
     (lambda call: call["input"].update(schema_version=json.dumps(call["input"]["schema_version"])),
      "unquoted schema_version"),
+    (lambda call: [call["input"].pop(field) for field in ("request_id", "schema_version")],
+     "filled the missing schema_version"),
 ])
 def test_lossless_transport_slips_are_undone_and_reported(anthropic_server, tmp_path, slip, repair):
     anthropic_server.transform = lambda response: slip(response["content"][0])
     consultant = adapter(anthropic_server)
     with create_case(tmp_path / "case", consultant=consultant) as app:
         assert submit(app)["status"] == "saved"
-    assert consultant.last_repairs == [repair]
+    assert repair in consultant.last_repairs
 
 
 @pytest.mark.parametrize("slip", [
     lambda call: call.update(input={"input": call["input"], "note": "extra"}),  # not a lone wrapper
-    lambda call: call.update(input={"payload": call["input"]}),  # not a known wrapper name
+    lambda call: call.update(input={"input": {"schema_version": "1"}}),  # wraps no intervention or updates
     lambda call: call["input"].update(proposed_updates="[{\"operation\": "),  # not complete JSON
     lambda call: call["input"].update(proposed_updates=json.dumps({"operation": "record_note"})),  # not a list
     lambda call: call["input"].update(schema_version="'1'"),
+    lambda call: call["input"].update(request_id="in999999"),  # a wrong envelope value is never replaced
 ])
 def test_anything_but_those_slips_reaches_validation_unchanged(anthropic_server, tmp_path, slip):
     anthropic_server.transform = lambda response: slip(response["content"][0])

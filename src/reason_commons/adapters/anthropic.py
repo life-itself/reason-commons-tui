@@ -2,8 +2,8 @@
 
 One proposal tool call is data, never permission to execute an app tool.
 The application validates and publishes it. No retries or provider fallback.
-Three lossless slips in how a model passes the call's arguments are undone and
-reported in last_repairs; nothing a proposal says is changed or filled in.
+Lossless slips in how a model passes the call's arguments are undone and reported
+in last_repairs; nothing the consultant decides is changed or filled in.
 """
 
 from hashlib import sha256
@@ -51,19 +51,20 @@ def _decoded(text, kind):
     return value if isinstance(value, kind) else None
 
 
-def undo_transport_slips(arguments):
+def undo_transport_slips(arguments, envelope):
     """The proposal a call's arguments carry, with what had to be undone to read it.
 
-    Only three lossless slips: the proposal wrapped in a single "input" or "proposal" object, the
-    intervention or the updates sent as a string of JSON, and schema_version or delivery_profile sent
-    as a JSON string literal. Anything else reaches domain validation exactly as it came."""
+    Only lossless slips: the proposal wrapped in an object with a single field, the intervention
+    or the updates sent as a string of JSON, schema_version or delivery_profile sent as a JSON string
+    literal, and an envelope field left out that can have only one value for this call (``envelope``).
+    Anything else, a wrong envelope value included, reaches domain validation exactly as it came."""
     repairs, value = [], arguments
     if len(value) == 1:
         (key, inner), = value.items()
-        if key in {"input", "proposal"} and isinstance(inner, dict) and (
-                {"schema_version", "intervention", "proposed_updates"} & set(inner)):
+        # A lone wrapper (seen as "input" and "args") says nothing; the proposal is what it holds.
+        if isinstance(inner, dict) and {"intervention", "proposed_updates"} & set(inner):
             value = inner
-            repairs.append(f"unwrapped the proposal from {key}")
+            repairs.append("unwrapped the proposal from " + _label(key))
     value = dict(value)
     for field, kind in (("intervention", dict), ("proposed_updates", list)):
         if isinstance(value.get(field), str) and (decoded := _decoded(value[field], kind)) is not None:
@@ -75,6 +76,10 @@ def undo_transport_slips(arguments):
                 and (decoded := _decoded(text, str)) is not None):
             value[field] = decoded
             repairs.append(f"unquoted {field}")
+    for field, only in envelope.items():
+        if field not in value and {"intervention", "proposed_updates"} <= set(value):
+            value[field] = only
+            repairs.append(f"filled the missing {field}")
     return value, repairs
 
 
@@ -135,7 +140,8 @@ class AnthropicConsultant:
             f"{{\"schema_version\": \"{SCHEMA}\", \"delivery_profile\": \"{PROFILE}\", \"request_id\": \"<input ID>\", "
             "\"base_revision\": <revision>, \"intervention\": {\"kind\": \"<question, recommendation or stop>\", "
             "\"purpose\": \"<why this move now>\", \"primary_prompt\": \"<the one question or recommendation>\", "
-            "\"rationale\": \"<plain reasons>\", \"goal_ref\": \"goal\", \"required_context_refs\": [\"note\"]}, "
+            "\"rationale\": \"<plain reasons>\", \"goal_ref\": \"<the goal's ref or temporary_id, or null>\", "
+            "\"required_context_refs\": [<refs, or temporary_ids declared in this proposal, it relies on>]}, "
             "\"proposed_updates\": [<update objects, as the procedure describes>]}\n"
             "This is a data return channel, not an executable application capability.")
 
@@ -187,7 +193,7 @@ class AnthropicConsultant:
     def version(self):
         # Before the model is resolved, the effort is the configured one ("auto" when unset).
         effort = (self._sent_effort or "default") if self._resolved_model else (self.effort or "auto")
-        return (f"anthropic/adapter=3/prompt=9/schema=3/model={self._resolved_model or self.model}"
+        return (f"anthropic/adapter=4/prompt=9/schema=3/model={self._resolved_model or self.model}"
                 f"/max_tokens={self.max_tokens}/effort={effort}/proposal=tool-auto"
                 f"/procedure={sha256(self._procedure.encode()).hexdigest()[:16]}"
                 f"/context={sha256(self._context.encode()).hexdigest()[:16]}")
@@ -311,5 +317,7 @@ class AnthropicConsultant:
             raise ConsultantResponseError("Anthropic called a tool other than submit_proposal")
         if not isinstance(calls[0].get("input"), dict):
             raise ConsultantResponseError("Anthropic's proposal call carried no proposal object")
-        proposal, self.last_repairs = undo_transport_slips(calls[0]["input"])
+        envelope = {"schema_version": SCHEMA, "delivery_profile": PROFILE,
+                    "request_id": request["input"]["request_id"], "base_revision": request["input"]["base_revision"]}
+        proposal, self.last_repairs = undo_transport_slips(calls[0]["input"], envelope)
         return proposal
