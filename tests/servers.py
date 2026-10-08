@@ -31,10 +31,15 @@ def anthropic_server_instance():
 
         def do_GET(self):
             self.server.requests.append(("GET", self.path, dict(self.headers), None))
+            model = self.path.rsplit("/", 1)[-1]
             if self.server.get_status != 200:
                 self.respond({"error": "fixture-secret: unsafe server body"}, self.server.get_status)
-            else:
+            elif self.server.models is None:
                 self.respond(self.server.metadata)
+            elif model in self.server.models:  # with a model list, each model answers for itself
+                self.respond({"id": model, **self.server.models[model]})
+            else:
+                self.respond({"error": "not_found"}, 404)
 
         def do_POST(self):
             payload = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
@@ -61,6 +66,7 @@ def anthropic_server_instance():
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     server.requests, server.custom, server.transform, server.get_status, server.delay = [], None, None, 200, 0
     server.metadata = {"id": DEFAULT_MODEL, "max_input_tokens": 1000000}
+    server.models = None  # or {model id: metadata}; any other model is then not found
     server.url = f"http://127.0.0.1:{server.server_port}/v1"
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()

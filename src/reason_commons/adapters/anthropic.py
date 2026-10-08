@@ -27,6 +27,8 @@ MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 # The lowest-cost model the consulting procedure is validated with (docs/validation.md); a saved or chosen
 # model always wins over it.
 DEFAULT_MODEL = "claude-haiku-5-5"
+# The model the workspace offers for one reply with deeper reasoning, on request only: never a fallback.
+DEFAULT_BOOST_MODEL = "claude-sonnet-5-5"
 # Thinking shares the output budget with the proposal, so leave room for both.
 DEFAULT_MAX_TOKENS = 16000
 EFFORTS = ("low", "medium", "high", "xhigh", "max")
@@ -35,6 +37,15 @@ EFFORTS = ("low", "medium", "high", "xhigh", "max")
 DEFAULT_EFFORT = "high"
 USAGE_FIELDS = ("input_tokens", "output_tokens", "cache_creation_input_tokens", "cache_read_input_tokens")
 MODEL_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
+
+
+def boost_model(environ=os.environ):
+    """The model for one reply with deeper reasoning: REASON_COMMONS_ANTHROPIC_BOOST_MODEL, else the default;
+    none or off there means no such offer. Only the workspace offers it, and only when a person asks."""
+    value = (environ.get("REASON_COMMONS_ANTHROPIC_BOOST_MODEL") or "").strip()
+    if value.lower() in ("none", "off"):
+        return None
+    return value if MODEL_ID.fullmatch(value) else DEFAULT_BOOST_MODEL
 
 
 def usage_tokens(usage):
@@ -205,6 +216,7 @@ class AnthropicConsultant:
                 "credential": {"variable": "ANTHROPIC_API_KEY", "required": True, "present": present},
                 "max_tokens": max_tokens,
                 "effort": effort or f"{DEFAULT_EFFORT} where the model supports it",
+                "boost_model": boost_model(environ),
                 "problems": problems}
 
     @property

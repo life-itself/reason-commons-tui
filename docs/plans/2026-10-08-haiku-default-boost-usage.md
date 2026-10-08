@@ -1,6 +1,6 @@
 # Plan: Haiku 5.5 by default, a one-reply Sonnet boost, and a usage/cost meter with a soft budget
 
-> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–4 done; 5–7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
+> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–5 done; 6–7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
 > evaluation recorded in `docs/validation.md` ("Claude Haiku 5.5 as the consultant"). Line numbers are as of that
 > branch and will drift; search for the named functions.
 
@@ -173,7 +173,7 @@ The blind AI pre-screen of `semantic-haiku55-adapter4` (150 pass, 8 fail, 4 can'
 - Accessible equivalents in `tests/test_accessible.py`.
 - An S119-style check with provider `anthropic`.
 
-### 5. One-reply Sonnet boost
+### 5. One-reply Sonnet boost — done (2026-10-08)
 **Configuration**
 - Settings `("anthropic","boost_model")` maps to `REASON_COMMONS_ANTHROPIC_BOOST_MODEL`.
 - `anthropic.DEFAULT_BOOST_MODEL = "claude-sonnet-5-5"`, reported by `describe_settings`.
@@ -208,7 +208,9 @@ class ChosenConsultant:   # adapters/tui.py
 
 **Commands**
 - "Send with deeper reasoning (Sonnet 5.5)", with detail "Asks the consultant: Sonnet 5.5 answers this one, then Haiku again; ≈ $0.05, about 12× a Haiku reply".
-  - The figure comes from log averages when each model has at least 3 replies in 90 days, otherwise from the list-price ratio.
+  - The figure comes from log averages when each model has at least 3 replies in 90 days, otherwise from a typical
+    reply of each at list price (the token shapes measured in `docs/validation.md`; the bare list-price ratio, 20×,
+    would overstate it, since Haiku thinks at greater length).
   - The detail must not contain "consultant calls" (S07 filter).
 - "Retry with Sonnet 5.5" only when Retry would ask the consultant again, not when it would reapply a received reply (check `case.receipts()`).
 - A `#retry-deeper` button beside Retry from 100 columns up. Narrower, it lives in Commands and the failure toast says so.

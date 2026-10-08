@@ -94,7 +94,7 @@ OPEN_KINDS = {"goal": "Goal", "test": "Test", "action": "Action", "observation":
 WIDE = 90
 # Controls a person passes through on the way to something else. Esc does not return focus to them:
 # it returns to the answer they were writing.
-NAVIGATION_CONTROLS = {"send", "fill", "retry", "accept-all", "explain", "moves", "views-button", "commands", "help",
+NAVIGATION_CONTROLS = {"send", "fill", "retry", "retry-deeper", "accept-all", "explain", "moves", "views-button", "commands", "help",
                        "finish", "views"}
 # What each kind of proposal is called in the Backlog and in decisions.
 KIND_NAMES = {"goal": "Goal", "note": "Note", "test": "Test", "action": "Action", "observation": "Result",
@@ -211,6 +211,10 @@ The **built-in guide** works offline and asks the loop's questions in order.
 **Anthropic** (needs `ANTHROPIC_API_KEY`) or **LM Studio** (a local model) give
 adaptive questions and advice. Ctrl+P switches for this session; F2 **Settings** on
 the home screen saves your name, consultant and model for next time.
+
+With Claude, **Send with deeper reasoning** in Commands sends one answer to Claude
+Sonnet, which reasons more deeply and costs more; the next Send goes to your usual
+model again. When Retry would ask again, **Retry with Sonnet** does the same.
 
 Claude is paid per reply; LM Studio and the guide cost nothing. With Claude, the
 footer's right end estimates what this session and this month cost, each reply's
@@ -1222,6 +1226,26 @@ class ThemedApp(App):
                 self.notify(f"Theme in use, but not saved ({exc}).", severity="error", timeout=8)
 
 
+class ChosenConsultant:
+    """The workspace's consultant, with an optional stand-in for exactly one consultation (a reply with deeper
+    reasoning). The application reads ``version`` after ``propose`` returns, so the stand-in stays until
+    consult() has returned; the workspace then puts it away, whether the consultation worked or not."""
+
+    def __init__(self, consultant):
+        self.default, self.once = consultant, None
+
+    @property
+    def current(self):
+        return self.once or self.default
+
+    @property
+    def version(self):
+        return self.current.version
+
+    def propose(self, request):
+        return self.current.propose(request)
+
+
 class ReasonCommonsApp(ThemedApp):
     TITLE = "Reason Commons"
     CSS = """
@@ -1271,7 +1295,7 @@ class ReasonCommonsApp(ThemedApp):
     #controls #retry { color: $warning; }
     #controls #finish { color: $success; }
     #controls Button:focus, #controls #send:focus { background: $hand-tint; color: $foreground; text-style: bold; }
-    #retry.hidden, #fill.hidden, #finish.hidden { display: none; }
+    #retry.hidden, #retry-deeper.hidden, #fill.hidden, #finish.hidden { display: none; }
     #hint { width: 1fr; height: 1; text-align: right; color: $text-muted; }
     #hint-below { height: 1; color: $text-muted; }
     #hint.hidden, #hint-below.hidden { display: none; }
@@ -1347,8 +1371,12 @@ class ReasonCommonsApp(ThemedApp):
         # None while looking at the live goal; otherwise the past revision on screen.
         self.revision, self._history = None, None
         self._open, self._consultant_factory = open_application, consultant_factory
+        # The consultant in use, and what the case consults: the same, or for one reply a stand-in with deeper
+        # reasoning, built once per model (``stand_in``). ``_asking`` names that model while it answers.
         self.consultant = consultant_factory(provider)
-        self.case = open_application(self.consultant)
+        self.chosen = ChosenConsultant(self.consultant)
+        self._stand_ins, self._asking = {}, None
+        self.case = open_application(self.chosen)
         self.view_name, self.explain, self.busy, self.answer_ready = "next", False, False, False
         self.workspace_value, self._restoring, self._save_timer = None, False, None
         # Which tree the Trees view shows: one of TREE_ORDER, "all", or None until first chosen.
@@ -1389,6 +1417,7 @@ class ReasonCommonsApp(ThemedApp):
                         yield Button("Send ^s", id="send", variant="primary")
                         yield Button("Example answer", id="fill", classes="" if self.tour else "hidden")
                         yield Button("Retry", id="retry", variant="warning", classes="hidden")
+                        yield Button("Retry with Sonnet", id="retry-deeper", classes="hidden")
                         yield Button("Accept all", id="accept-all", classes="hidden")
                         yield Button("Explain this", id="explain")
                         yield Button("Other moves", id="moves")
@@ -1546,7 +1575,9 @@ class ReasonCommonsApp(ThemedApp):
             self.call_after_refresh(self.fit_reading)
 
     def hint_text(self):
-        return f"Enter: new line · Send: get {REPLY_FROM.get(self.provider, f'the reply of {self.provider}')}"
+        model = self.model_name()
+        return (f"Enter: new line · Send: get {REPLY_FROM.get(self.provider, f'the reply of {self.provider}')}"
+                + (f" ({model})" if model else ""))
 
     def check_action(self, action, parameters):
         if action == "next_tree":
@@ -1596,7 +1627,8 @@ class ReasonCommonsApp(ThemedApp):
         w = self.workspace_value
         if w is None:
             return
-        state = (f"Asking {self.send_to()}…" if self.busy else "Answer ready" if self.answer_ready else "Saved")
+        asking = self.send_to() + (f" ({self._asking})" if self._asking else "")
+        state = (f"Asking {asking}…" if self.busy else "Answer ready" if self.answer_ready else "Saved")
         who = None if self.story else self.speaker  # a story is read, not answered as anyone
         if self.story or self.revision is not None:
             state = "Read-only"
@@ -1661,6 +1693,12 @@ class ReasonCommonsApp(ThemedApp):
             self.query_one("#first").disabled = self.revision == 1
         retryable = self.retryable()
         self.query_one("#retry").set_class(not retryable, "hidden")
+        # Beside Retry where there is room, and only when Retry would ask again; narrower, it is in Commands.
+        deeper = self.boost() if retryable and self.terminal.width >= 100 else None
+        offered = bool(deeper) and self.retry_asks_again(retryable[-1]["arguments"]["request_id"])
+        self.query_one("#retry-deeper").set_class(not offered, "hidden")
+        if offered:
+            self.query_one("#retry-deeper", Button).label = f"Retry with {pricing.label(deeper).split()[0]}"
         if self.tour:
             state = self.tour_state()
             self.query_one("#coach", Static).update(coach_text(state))
@@ -2922,6 +2960,10 @@ class ReasonCommonsApp(ThemedApp):
     def retry_pressed(self):
         self.action_retry()
 
+    @on(Button.Pressed, "#retry-deeper")
+    def retry_deeper_pressed(self):
+        self.action_retry(deeper=True)
+
     @on(Button.Pressed, "#explain")
     def explain_pressed(self):
         self.action_explain()
@@ -2999,7 +3041,36 @@ class ReasonCommonsApp(ThemedApp):
         """A reply's likely cost on this model: the log's own average once there is one, else list price."""
         return (self.usage.typical(model) if self.usage is not None else None) or pricing.typical(model)
 
-    def spend_check(self, go):
+    def boost(self):
+        """The model that answers one question with deeper reasoning, or None where none is offered: only with
+        Claude, and only a configured model that differs from the one in use and costs more per reply. It is
+        offered, never used on its own: a person asks for it, one reply at a time."""
+        from reason_commons.adapters.anthropic import boost_model
+        model, deeper = getattr(self.consultant, "model", None), boost_model()
+        if self.provider != "anthropic" or self.story or self.tour or not model or not deeper or deeper == model:
+            return None
+        current, dearer = pricing.typical(model), pricing.typical(deeper)
+        return deeper if current is not None and dearer is not None and dearer > current else None
+
+    def boost_cost(self, deeper):
+        """'≈ $0.05, about 12× a Haiku reply': from the log's own averages once each model has three recent
+        replies, otherwise from a typical reply of each at list price."""
+        model = self.consultant.model
+        logged = [self.usage.typical(m) if self.usage is not None else None for m in (model, deeper)]
+        mine, theirs = logged if None not in logged else (pricing.typical(model), pricing.typical(deeper))
+        return f"≈ {money(theirs)}, about {round(theirs / mine)}× a {pricing.label(model).split()[0]} reply"
+
+    def stand_in(self, deeper):
+        """The consultant for one reply on ``deeper``, built once, here on the main thread."""
+        if deeper not in self._stand_ins:
+            try:
+                self._stand_ins[deeper] = self._consultant_factory(self.provider, model=deeper)
+            except Exception as exc:
+                self.notify(f"Could not set up {pricing.label(deeper)}: {exc}", severity="error", timeout=8)
+                return None
+        return self._stand_ins[deeper]
+
+    def spend_check(self, go, model=None):
         """Past the monthly budget, a send to a paid consultant asks once first. Nothing is blocked: "Not now"
         sends nothing and keeps the answer in the box. The budget is a notice, not a rule of the case."""
         summary = self.refresh_meter() if self.provider == "anthropic" else None
@@ -3007,7 +3078,7 @@ class ReasonCommonsApp(ThemedApp):
         if not limit or summary["month"]["usd"] < limit:
             go()
             return
-        reply = self.typical_reply(getattr(self.consultant, "model", None))
+        reply = self.typical_reply(model or getattr(self.consultant, "model", None))
         body = (f"This month ≈ {money(summary['month']['usd'])} of your {money(limit)} budget (estimate)."
                 + (f" This reply ≈ {money(reply)}." if reply else "")
                 + "\n\nNothing is blocked: send this one now, or keep your answer for later.")
@@ -3232,7 +3303,7 @@ class ReasonCommonsApp(ThemedApp):
             lines.append("This question cites no saved sources.")
         self.push_screen(TextScreen("\n".join(lines)))
 
-    def action_send(self, intent="answer"):
+    def action_send(self, intent="answer", deeper=False):
         if self.story or self.revision is not None:
             self.notify("This is a record of what happened; nothing here can be changed. "
                         + ("Start your own goal to write." if self.story else "Back to now to answer."))
@@ -3247,17 +3318,35 @@ class ReasonCommonsApp(ThemedApp):
         if not text.strip() and self.provider != "guided" and intent == "answer":
             self.notify("Write an answer first.", severity="warning")
             return
-        self.spend_check(lambda: self._send(intent))
+        stand_in = self.deeper_consultant() if deeper else None
+        if deeper and stand_in is None:
+            return
+        self.spend_check(lambda: self._send(intent, stand_in), getattr(stand_in, "model", None))
 
-    def _send(self, intent):
+    def deeper_consultant(self):
+        """The stand-in for one reply with deeper reasoning, or None (said why) where there is none."""
+        deeper = self.boost()
+        if deeper is None:
+            self.notify("Deeper reasoning is offered only with Claude, when a model that reasons more deeply "
+                        "than the one in use is set.")
+            return None
+        return self.stand_in(deeper)
+
+    def asking(self, stand_in):
+        """Get ready to consult: count from here, and let the stand-in, if any, answer the next consultation."""
+        self._usage_mark = self.usage.mark() if self.usage is not None else None
+        self.chosen.once = stand_in
+        self._asking = pricing.label(stand_in.model) if stand_in is not None else None
+        self.set_busy(True)
+
+    def _send(self, intent, stand_in=None):
         """Send the answer in the box now (after any question about the budget)."""
         if self.busy:
             return
         text = self.query_one("#editor", TextArea).text
         if intent == "review_flags" and not text.strip():
             text = "Do the records flagged for review still hold?"
-        self._usage_mark = self.usage.mark() if self.usage is not None else None
-        self.set_busy(True)
+        self.asking(stand_in)
         target = self.workspace_value["target"]
         self.run_worker(lambda: self._submit(text, intent, target), thread=True, exclusive=True)
 
@@ -3269,17 +3358,26 @@ class ReasonCommonsApp(ThemedApp):
                 result = self.case.consult(result["request_id"])
         except Exception as exc:  # keep the draft; report the category only
             result = {"status": "not_saved", "message": f"Not saved ({type(exc).__name__})."}
+        finally:
+            self.chosen.once = None  # one reply only, whatever became of it
         self.call_from_thread(self._submitted, result, text)
 
-    def action_retry(self):
+    def action_retry(self, deeper=False):
         actions = self.retryable()
         if self.busy or not actions:
+            if deeper and self.busy:
+                self.notify("Still waiting for the consultant. You can keep browsing.")
             return
         request_id = actions[-1]["arguments"]["request_id"]
-        if self.retry_asks_again(request_id):
-            self.spend_check(lambda: self._retry(request_id))
-        else:
+        if not self.retry_asks_again(request_id):
+            if deeper:
+                self.notify("Retry applies the reply already received, so it asks no one; nothing was sent.")
             self._retry(request_id)
+            return
+        stand_in = self.deeper_consultant() if deeper else None
+        if deeper and stand_in is None:
+            return
+        self.spend_check(lambda: self._retry(request_id, stand_in), getattr(stand_in, "model", None))
 
     def retry_asks_again(self, request_id):
         """Whether Retry would ask the consultant again, rather than apply a reply it already received (one kept
@@ -3291,17 +3389,18 @@ class ReasonCommonsApp(ThemedApp):
                        and not any(item.get("status") in ("rejected", "stale") for item in items)
                        for items in attempts.values())
 
-    def _retry(self, request_id):
+    def _retry(self, request_id, stand_in=None):
         if self.busy:
             return
-        self._usage_mark = self.usage.mark() if self.usage is not None else None
-        self.set_busy(True)
+        self.asking(stand_in)
 
         def work():
             try:
                 result = self.case.retry(request_id)
             except Exception as exc:
                 result = {"status": "not_saved", "message": f"Not saved ({type(exc).__name__})."}
+            finally:
+                self.chosen.once = None
             self.call_from_thread(self._submitted, result, None)
         self.run_worker(work, thread=True, exclusive=True)
 
@@ -3318,6 +3417,12 @@ class ReasonCommonsApp(ThemedApp):
         before = self._meter["month"]["usd"] if self._meter else None
         self.refresh_meter()
         cost = spent_words(paid)
+        deeper, self._asking = self._asking, None
+        if deeper:  # one reply only: say so, and that Send goes back to the model in use
+            priced = [entry["usd"] for entry in paid if entry["usd"] is not None]
+            spent = f" (≈ {money(sum(priced))})" if paid and len(priced) == len(paid) else ""
+            back = f" Send goes to {self.model_name()} again."
+            cost = (f" {deeper} answered{spent}." if status == "saved" else cost) + back
         if status == "saved":
             if sent:
                 editor.clear()
@@ -3334,8 +3439,11 @@ class ReasonCommonsApp(ThemedApp):
         elif result.get("input_retained"):
             if sent:
                 editor.clear()  # the words are retained in the case; Retry reuses them
-            self.notify(result.get("message", status) + ". Use Retry when the consultant is reachable." + cost,
-                        severity="warning", timeout=8)
+            deeper_retry = self.boost()
+            elsewhere = (f" Retry with {pricing.label(deeper_retry)} is in Commands." if deeper_retry
+                         and self.terminal.width < 100 else "")
+            self.notify(result.get("message", status) + ". Use Retry when the consultant is reachable." + elsewhere
+                        + cost, severity="warning", timeout=8)
         else:
             self.notify(result.get("message", status) + " Your text is still in the editor." + cost,
                         severity="error", timeout=8)
@@ -3350,7 +3458,7 @@ class ReasonCommonsApp(ThemedApp):
         self.busy = busy
         # Other moves stays open while waiting: its local inspections still work, and a move that
         # asks the consultant is refused until the pending reply is in.
-        for name in ("#send", "#retry"):
+        for name in ("#send", "#retry", "#retry-deeper"):
             self.query_one(name).disabled = busy
         if refresh:
             self.render_all()
@@ -3393,8 +3501,19 @@ class ReasonCommonsApp(ThemedApp):
     def action_list(self):
         """Every action as (key, name, what it does and whether it stays local or asks the consultant, run)."""
         items = [("Send answer", "Asks the consultant with your answer (Ctrl+S)", self.action_send)]
-        if self.retryable():
+        deeper = self.boost() if self.revision is None else None
+        if deeper:
+            name, base = pricing.label(deeper), self.model_name()
+            items.append((f"Send with deeper reasoning ({name})",
+                          f"Asks the consultant: {name} answers this one, then {base} again; {self.boost_cost(deeper)}",
+                          lambda: self.action_send(deeper=True)))
+        retryable = self.retryable()
+        if retryable:
             items.append(("Retry", "Asks the consultant again with your saved answer", self.action_retry))
+            if deeper and self.retry_asks_again(retryable[-1]["arguments"]["request_id"]):
+                items.append((f"Retry with {name}", f"Asks the consultant again with your saved answer: {name} "
+                              f"answers it, then {base} again; {self.boost_cost(deeper)}",
+                              lambda: self.action_retry(deeper=True)))
         items += [("Explain this question", "Local: the saved explanation", self.action_explain),
                   ("Other moves", "Local explanations, or a move that asks the consultant; each says which",
                    self.action_other_moves)]
@@ -3588,8 +3707,7 @@ class ReasonCommonsApp(ThemedApp):
             except Exception as exc:
                 self.notify(f"Import failed: {exc}", severity="error", timeout=10)
             finally:
-                self.consultant = self._consultant_factory(self.provider)
-                self.case = self._open(self.consultant)
+                self.case = self._open(self.chosen)  # the same consultant, and no second setup of it
                 self._history = None
             # What waits is decided in Backlog; what was accepted is drawn in the trees.
             self.show_view("backlog" if waiting else "trees")
@@ -3627,8 +3745,8 @@ class ReasonCommonsApp(ThemedApp):
                         severity="warning", timeout=10)
         self.checkpoint()
         self.case.close()
-        self.consultant = consultant
-        self.case = self._open(consultant)
+        self.consultant, self.chosen, self._stand_ins = consultant, ChosenConsultant(consultant), {}
+        self.case = self._open(self.chosen)
         self.provider = provider
         self.refresh_workspace()
         self.refresh_meter()
@@ -4039,6 +4157,7 @@ def run_tour(speaker=None):
 
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False, story=None):
     """Create the case if the folder does not exist yet, then open the workspace."""
+    cli_model = model
     from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
     settings = Settings.load()
     settings.apply()  # fills in only what flags and the environment leave unset
@@ -4046,9 +4165,10 @@ def run(store, name=None, speaker=None, provider=None, model=None, base_url=None
     provider = provider or os.environ.get("REASON_COMMONS_PROVIDER") or "guided"
     speaker = speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
     usage = usage_session("workspace", settings=settings)
-    factory = lambda chosen: configured_consultant(provider=chosen, model=model if chosen == provider else None,
-                                                   base_url=base_url if chosen == provider else None,
-                                                   usage=usage.record)
+    # A model named here is for one reply with deeper reasoning; otherwise the one chosen at start, if any.
+    factory = lambda chosen, model=None: configured_consultant(
+        provider=chosen, model=model or (cli_model if chosen == provider else None),
+        base_url=base_url if chosen == provider else None, usage=usage.record)
     if not store.exists():
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()

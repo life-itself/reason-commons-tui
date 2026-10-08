@@ -296,6 +296,8 @@ def render_provider_settings(settings):
              f"Credential: {credential['variable']} {state}" if credential["variable"] else "Credential: none needed"]
     if "max_tokens" in settings:
         lines.append(f"Output: up to {settings['max_tokens']} tokens; effort {settings['effort']}")
+    if "boost_model" in settings:
+        lines.append("Deeper reasoning on request: " + (settings["boost_model"] or "none"))
     lines.append("Status: " + ("ready (no request was sent to check)" if settings["ready"] else "not ready"))
     lines += [f"  - {problem}" for problem in settings["problems"]]
     lines.append(f"Other providers: {others}")

@@ -382,3 +382,16 @@ def test_parallel_consultations_each_report_their_own_counts(anthropic_server):
         list(pool.map(consultant.propose, requests))
     assert sorted((e["request_id"], e["tokens"]["output"]) for e in events) == [
         (f"in{n:06d}", n) for n in range(1, 9)]
+
+
+def test_the_model_for_one_deeper_reply_is_sonnet_unless_set_or_turned_off():
+    from reason_commons.adapters.anthropic import DEFAULT_BOOST_MODEL, boost_model
+    from reason_commons.adapters.rendering import render_provider_settings
+    from reason_commons.bootstrap import provider_settings
+    assert DEFAULT_BOOST_MODEL == boost_model({}) == "claude-sonnet-5-5"
+    assert boost_model({"REASON_COMMONS_ANTHROPIC_BOOST_MODEL": "claude-opus-5-5"}) == "claude-opus-5-5"
+    assert boost_model({"REASON_COMMONS_ANTHROPIC_BOOST_MODEL": "None"}) is None
+    assert boost_model({"REASON_COMMONS_ANTHROPIC_BOOST_MODEL": "not a model!"}) == "claude-sonnet-5-5"
+    settings = provider_settings(provider="anthropic", environ={})
+    assert settings["boost_model"] == "claude-sonnet-5-5"
+    assert "Deeper reasoning on request: claude-sonnet-5-5" in render_provider_settings(settings)

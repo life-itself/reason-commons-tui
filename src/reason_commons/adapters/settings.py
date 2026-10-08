@@ -21,6 +21,7 @@ ENVIRONMENT = {
     ("name",): "REASON_COMMONS_SPEAKER",
     ("consultant",): "REASON_COMMONS_PROVIDER",
     ("anthropic", "model"): "REASON_COMMONS_ANTHROPIC_MODEL",
+    ("anthropic", "boost_model"): "REASON_COMMONS_ANTHROPIC_BOOST_MODEL",
     ("anthropic", "api_key"): "ANTHROPIC_API_KEY",
     ("lm_studio", "url"): "REASON_COMMONS_LM_STUDIO_URL",
     ("lm_studio", "model"): "REASON_COMMONS_LM_STUDIO_MODEL",

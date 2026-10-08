@@ -1743,3 +1743,189 @@ def test_every_command_with_claude_still_says_local_or_asks_the_consultant(tmp_p
             "cost, as estimated") in commands
     for name, detail in commands:
         assert detail.startswith("Local") or "asks the consultant" in detail.lower(), (name, detail)
+
+
+# ----- one reply with deeper reasoning -----------------------------------------------------------------
+def boostable(path, server, usage, default="claude-haiku-5-5"):
+    """A workspace on Claude whose factory, like run()'s, builds the stand-in for one reply when asked."""
+    from reason_commons.adapters.anthropic import AnthropicConsultant
+    server.models = {"claude-haiku-5-5": {}, "claude-sonnet-5-5": {}, "claude-opus-5-5": {}}
+    made = []
+
+    def factory(provider, model=None):
+        if provider != "anthropic":
+            return GuidedConsultant()
+        made.append(model or default)
+        return AnthropicConsultant(model=model or default, base_url=server.url, api_key="fixture-secret",
+                                   usage=usage.record)
+    app = ReasonCommonsApp(path, "David", "anthropic", lambda c: open_case(path, consultant=c), factory, usage=usage)
+    return app, made
+
+
+def plain_reply(response):
+    """The fake server's reply as a bare next question with a note, citing nothing it does not propose."""
+    proposal = response["content"][0]["input"]
+    proposal["proposed_updates"] = proposal["proposed_updates"][:1]
+    proposal["intervention"].pop("goal_ref", None)
+    proposal["intervention"]["required_context_refs"] = []
+
+
+def models_sent(server):
+    return [payload["model"] for method, path, _, payload in server.requests if path == "/v1/messages"]
+
+
+async def run_command(app, pilot, words):
+    app.open_menu("actions")
+    await pilot.pause()
+    await pilot.press(*words, "enter")
+    await pilot.pause()
+
+
+def test_deeper_reasoning_answers_one_question_and_send_goes_back_to_haiku(tmp_path, claude):
+    path = tmp_path / "case"
+    create_case(path, "Boost").close()
+    usage = counted(tmp_path)
+
+    async def run():
+        app, made = boostable(path, claude, usage)
+        notes = noted(app)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            assert "Send: get Claude's reply (Haiku 5.5)" in app.hint_text()
+            commands = {name: detail for _, name, detail, _ in app.action_list()}
+            assert commands["Send with deeper reasoning (Sonnet 5.5)"] == (
+                "Asks the consultant: Sonnet 5.5 answers this one, then Haiku 5.5 again; "
+                "≈ $0.05, about 12× a Haiku reply")
+            app.query_one("#editor").load_text("We keep missing deliveries")
+            claude.delay = 0.5  # long enough to read the status while Sonnet answers
+            await run_command(app, pilot, "deeper reasoning")
+            states = [screen_text(app)]
+            claude.delay = 0
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            assert app.chosen.once is None
+            claude.transform = plain_reply  # a second goal and test would only repeat the first
+            await send(app, pilot, "Measured weekly")
+            return made, notes, states
+    made, notes, states = asyncio.run(run())
+    assert models_sent(claude) == ["claude-sonnet-5-5", "claude-haiku-5-5"]
+    assert made == ["claude-haiku-5-5", "claude-sonnet-5-5"]  # the stand-in is built once, when first asked for
+    assert any("Asking Claude (Sonnet 5.5)…" in state for state in states)
+    assert any(note.endswith("Sonnet 5.5 answered (≈ $0.03). Send goes to Haiku 5.5 again.") for note in notes), notes
+    assert any(note.endswith("Reply ≈ $0.0017 (Haiku 5.5).") for note in notes), notes
+    with open_case(path, writable=False) as case:
+        versions = case.inspect()["case"]["adapter_versions"]
+    assert "/model=claude-sonnet-5-5/" in versions["in000001"] and "/model=claude-haiku-5-5/" in versions["in000002"]
+    assert [entry["model"] for entry in usage.since(0)] == ["claude-sonnet-5-5", "claude-haiku-5-5"]
+
+
+def test_a_deeper_reply_that_fails_still_hands_send_back_to_haiku(tmp_path, claude):
+    path = tmp_path / "case"
+    create_case(path, "Boost").close()
+
+    async def run():
+        app, _ = boostable(path, claude, counted(tmp_path))
+        notes = noted(app)
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            del claude.models["claude-sonnet-5-5"]  # this key cannot use Sonnet: its model check is a 404
+            app.query_one("#editor").load_text("We keep missing deliveries")
+            app.action_send(deeper=True)
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            assert app.chosen.once is None and app.retryable()
+            app.action_retry()
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            return notes, app.workspace_value["revision"]
+    notes, revision = asyncio.run(run())
+    assert any("Send goes to Haiku 5.5 again." in note for note in notes)
+    assert revision == 1 and models_sent(claude) == ["claude-haiku-5-5"]
+
+
+def test_deeper_reasoning_is_refused_while_busy_and_offered_only_with_a_cheaper_claude(tmp_path, claude, monkeypatch):
+    from reason_commons.adapters.anthropic import AnthropicConsultant
+    path = tmp_path / "case"
+    create_case(path, "Boost").close()
+
+    async def offered(app):
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            names = [name for _, name, _, _ in app.action_list()]
+            app.busy = True
+            app.query_one("#editor").load_text("words")
+            app.action_send(deeper=True)
+            await pilot.pause()
+            return app.boost(), [n for n in names if "deeper" in n or "with Sonnet" in n], app.chosen.once
+    app, _ = boostable(path, claude, counted(tmp_path))
+    assert asyncio.run(offered(app)) == ("claude-sonnet-5-5", ["Send with deeper reasoning (Sonnet 5.5)"], None)
+    assert models_sent(claude) == []
+    app, _ = boostable(path, claude, counted(tmp_path), default="claude-sonnet-5-5")
+    assert asyncio.run(offered(app))[:2] == (None, [])  # already Sonnet
+    app, _ = boostable(path, claude, counted(tmp_path), default="claude-opus-5-5")
+    assert asyncio.run(offered(app))[:2] == (None, [])  # Opus costs more than Sonnet
+    monkeypatch.setenv("REASON_COMMONS_ANTHROPIC_BOOST_MODEL", "none")
+    app, _ = boostable(path, claude, counted(tmp_path))
+    assert asyncio.run(offered(app))[:2] == (None, [])
+    monkeypatch.delenv("REASON_COMMONS_ANTHROPIC_BOOST_MODEL")
+    guide = ReasonCommonsApp(path, "David", "guided", lambda c: open_case(path, consultant=c),
+                             lambda provider: GuidedConsultant(), usage=counted(tmp_path))
+    assert asyncio.run(offered(guide))[:2] == (None, [])
+
+
+def test_retry_with_sonnet_is_offered_only_when_retry_would_ask_again(tmp_path, claude):
+    from textual.widgets import Button
+
+    async def run(name, size):
+        path = tmp_path / name
+        create_case(path, "Boost").close()
+        app, _ = boostable(path, claude, counted(tmp_path))
+        async with app.run_test(size=size) as pilot:
+            await pilot.pause()
+            claude.get_status = 503
+            app.query_one("#editor").load_text("Kept for retry")
+            notes = noted(app)
+            app.action_send()
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            names = [name for _, name, _, _ in app.action_list()]
+            button = not app.query_one("#retry-deeper").has_class("hidden")
+            label = str(app.query_one("#retry-deeper", Button).label)
+            claude.get_status = 200
+            if button:
+                app.query_one("#retry-deeper", Button).press()
+            else:
+                app.action_retry(deeper=True)
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            return names, button, label, notes, app.workspace_value["revision"]
+    names, button, label, notes, revision = asyncio.run(run("wide", (120, 40)))
+    assert "Retry with Sonnet 5.5" in names and button and label == "Retry with Sonnet" and revision == 1
+    assert models_sent(claude) == ["claude-sonnet-5-5"]
+    assert not any("is in Commands" in note for note in notes)
+    names, button, _, notes, revision = asyncio.run(run("narrow", (80, 24)))
+    assert "Retry with Sonnet 5.5" in names and not button and revision == 1
+    assert any("Retry with Sonnet 5.5 is in Commands." in note for note in notes)
+
+
+def test_import_keeps_the_consultant_and_its_stand_in(tmp_path, claude):
+    from importlib.resources import files
+    path = tmp_path / "case"
+    create_case(path, "Import").close()
+
+    async def run():
+        app, made = boostable(path, claude, counted(tmp_path))
+        async with app.run_test(size=(120, 40)) as pilot:
+            await pilot.pause()
+            chosen = app.chosen
+            app.action_import_trees()
+            await pilot.pause()
+            await type_into(app, pilot, str(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")))
+            return app.chosen is chosen, made
+    same, made = asyncio.run(run())
+    assert same and made == ["claude-haiku-5-5"]
+
+
+def test_the_mcp_tools_take_no_model_so_an_agent_cannot_choose_a_dearer_one():
+    from reason_commons.adapters.mcp_server import TOOLS
+    assert all("model" not in tool["inputSchema"]["properties"] for tool in TOOLS)
