@@ -166,6 +166,57 @@ SCENARIOS = (
         "It requests complete follow-up before claiming goal attainment.",
         "Missing observations are not treated as failures or successes.",
     ), seed="rolling_cohort", expects_review=True),
+    # The open-evenings conversation of the live procedure (live-claude-test-prompt.md), split in two so a rejected
+    # reply in one does not hide the other: the trees, then the test-result loop. They ask for the largest replies.
+    Scenario("evenings_trees", ("S01", "S02", "S128"), (
+        Turn("People come to our open evenings, are inspired, and we never see them again. Organisers are tired. "
+             "I am not sure what success would look like yet.", "David"),
+        Turn("Success would be that most newcomers come to a first practice within three weeks; today it is "
+             "about 2 in 30. We must not pressure anyone, and organiser hours must not grow.", "David"),
+        Turn("I think the cause is that we never offer a next step at the end of an evening. Nobody tells "
+             "newcomers that a first practice exists.", "David"),
+        Turn("There is a conflict: to keep evenings welcoming we must not push anyone, but to grow practice we "
+             "must invite people explicitly. We could end each evening with one clear, no-pressure invitation. "
+             "If we did, more newcomers would come to a first practice.", "David"),
+    ), (
+        "David's first report is kept in David's words; any goal is provisional, and no measure, baseline or "
+        "agreement is invented.",
+        "The stated success (most newcomers at a first practice within three weeks), the baseline of about 2 in 30 "
+        "and both protections (no pressure; organiser hours do not grow) are recorded as David said them; a goal "
+        "that already exists gets a new version, not a second goal.",
+        "The cause David reports is in the Current Reality Tree with a causes link to the symptom it explains, in "
+        "David's words.",
+        "The conflict is in the Evaporating Cloud as David stated it: the two needs, the two actions that conflict "
+        "and the no-pressure invitation as the injection; parts David did not state are asked about, not invented.",
+        "The expected effect (more newcomers at a first practice) is linked in the Future Reality Tree from the "
+        "Cloud's injection itself, not from a copy of it.",
+        "Each next move is one prominent question or recommendation that takes up the latest input.",
+    )),
+    Scenario("evenings_loop", ("S01", "S02", "S131", "S34", "S36"), (
+        Turn("People come to our open evenings, are inspired, and we never see them again. Organisers are tired. "
+             "I am not sure what success would look like yet.", "David"),
+        Turn("Success would be that most newcomers come to a first practice within three weeks; today it is "
+             "about 2 in 30. We must not pressure anyone, and organiser hours must not grow.", "David"),
+        Turn("Let's test ending each evening with one clear, no-pressure invitation to a first practice, for three "
+             "weeks starting 16 October. I forecast 6 of 30 newcomers at a first practice. Stop if anyone says "
+             "they felt pushed. I will give the invitation myself.", "David",
+             declarations={"ownership": ["David"]}),
+        Turn("9 of 31 came to a first practice. Nobody felt pushed; organiser hours were the same.", "David"),
+    ), (
+        "David's first report is kept in David's words; any goal is provisional, and no measure, baseline or "
+        "agreement is invented.",
+        "The stated success (most newcomers at a first practice within three weeks), the baseline of about 2 in 30 "
+        "and both protections (no pressure; organiser hours do not grow) are recorded as David said them; a goal "
+        "that already exists gets a new version, not a second goal.",
+        "The test keeps David's original forecast exactly (6 of 30 newcomers at a first practice), the three-week "
+        "window from 16 October and the stop condition.",
+        "Giving the invitation is owned by David because David declared it; no other owner, date or measure is "
+        "invented.",
+        "The result (9 of 31) is reviewed against the unchanged forecast of 6 of 30 with both denominators kept and "
+        "classified as supported; the protections are reported as held; it is not presented as proof of a unique "
+        "cause.",
+        "Each next move is one prominent question or recommendation that takes up the latest input.",
+    )),
     # Held out: the same behaviour in different words, so a prompt tuned on the cases above is checked elsewhere.
     Scenario("heldout_correction", ("S06", "S52"), (
         Turn("Invoices go out late and customers keep complaining."),

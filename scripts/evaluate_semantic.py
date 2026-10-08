@@ -65,6 +65,7 @@ def main():
     report.finish()
     print(str(report.directory / "report.md"), flush=True)
     print(report.value["machine_checks"], flush=True)
+    print(report.value["consultations"], flush=True)
     print("The semantic rubric waits for an attributed review; the v1 participant gate is separate.", flush=True)
     return 1 if report.value["machine_checks"]["failed"] else 0
 

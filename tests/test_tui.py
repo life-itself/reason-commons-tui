@@ -95,6 +95,25 @@ def test_send_saves_a_revision_and_quit_keeps_the_draft(tmp_path):
     asyncio.run(second())
 
 
+def test_a_save_timer_that_fires_after_the_workspace_closes_does_nothing(tmp_path):
+    # The delayed draft save (0.8 s) can fire while the app is being taken down, when the editor is gone.
+    path = tmp_path / "case"
+    create_case(path, "Running").close()
+
+    async def run():
+        app = launch(path, {"guided": GuidedConsultant()})
+        async with app.run_test(size=(80, 24)) as pilot:
+            await pilot.pause()
+            app.query_one("#editor").load_text("kept draft")
+            await pilot.press("ctrl+q")
+        assert not app.query("#editor")
+        app.checkpoint()  # as the late timer would; it must not raise
+
+    asyncio.run(run())
+    with open_case(path, writable=False) as case:
+        assert case.workspace()["draft"]["draft"] == "kept draft"
+
+
 def test_browsing_never_calls_the_consultant(tmp_path):
     path = tmp_path / "case"
     create_case(path, "Local").close()

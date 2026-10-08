@@ -3153,7 +3153,11 @@ class ReasonCommonsApp(ThemedApp):
     def checkpoint(self):
         if self.busy or self.workspace_value is None or self.story or self.revision is not None:
             return
-        editor = self.query_one("#editor", TextArea)
+        # The delayed save can fire after the workspace is taken down; quitting already saved the draft.
+        editors = self.query("#editor")
+        if not editors:
+            return
+        editor = editors.first(TextArea)
         draft = editor.text
         target = self.workspace_value["target"]
         try:

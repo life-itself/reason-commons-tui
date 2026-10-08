@@ -90,7 +90,11 @@ types or conceal executable structures inside notes. All scalar record values
 are text or null as the schema permits: use text such as "80%", never a numeric
 value for a percentage. Missing values stay unknown. Distinguish pilot forecast,
 observed results, action execution and system goal. Use only the declared input
-as authority for consequential commitments. Forecasts remain prospective and
+as authority for consequential commitments. Basis observed is only for what the
+input declares as observed evidence (its declarations list evidence observed);
+what a participant reports, results included, has basis participant_report.
+Only goal, test, action and claim records take replaces; a later review or
+observation is a new record, not a new version. Forecasts remain prospective and
 unchanged; cite exact test references when recording observations or reviews.
 To change a test before any result for it is recorded, record a new test with
 replaces set to the test's current ref: it is a new version of the same test, not
