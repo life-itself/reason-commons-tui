@@ -203,9 +203,11 @@ class CaseApplication:
                 proposal = self._consultant.propose({"input": deepcopy(value), "case": current.to_dict(),
                                                     "sources": deepcopy(sources),
                                                     "model": consulting_view(current)})
-            except ConsultantResponseError:
+            except ConsultantResponseError as exc:
+                # Say why the reply was refused. Adapters word these themselves, with no response text.
                 return self._failure(request_id, "rejected", "Input retained; invalid structured response rejected",
-                                     ["inspect_failure", "reevaluate_current_revision"], attempt)
+                                     ["inspect_failure", "reevaluate_current_revision"], attempt,
+                                     detail={"reason": str(exc)[:300]})
             except Exception as exc:
                 # Provider exception text can include credentials; retain category only.
                 return self._failure(request_id, "unavailable", "Input retained; consultant unavailable",

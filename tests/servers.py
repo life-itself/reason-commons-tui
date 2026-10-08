@@ -33,7 +33,7 @@ def anthropic_server_instance():
             if self.server.get_status != 200:
                 self.respond({"error": "fixture-secret: unsafe server body"}, self.server.get_status)
             else:
-                self.respond({"id": DEFAULT_MODEL, "max_input_tokens": 1000000})
+                self.respond(self.server.metadata)
 
         def do_POST(self):
             payload = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
@@ -50,13 +50,15 @@ def anthropic_server_instance():
                 update.setdefault("temporary_id", f"temp_update_{i}")
             jsonschema.validate(proposal, payload["tools"][0]["input_schema"])
             response = {"model": payload["model"], "stop_reason": "tool_use", "content": [
-                {"type": "tool_use", "name": "submit_proposal", "id": "fixture-call", "input": proposal}]}
+                {"type": "tool_use", "name": "submit_proposal", "id": "fixture-call", "input": proposal}],
+                "usage": {"input_tokens": 12000, "output_tokens": 900, "cache_read_input_tokens": 0}}
             if self.server.transform:
                 self.server.transform(response)
             self.respond(response)
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     server.requests, server.custom, server.transform, server.get_status = [], None, None, 200
+    server.metadata = {"id": DEFAULT_MODEL, "max_input_tokens": 1000000}
     server.url = f"http://127.0.0.1:{server.server_port}/v1"
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()

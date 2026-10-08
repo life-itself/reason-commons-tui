@@ -114,3 +114,22 @@ def test_runs_keep_their_setup_and_failures_by_kind(tmp_path):
     assert run["unjudgeable_turns"] == []
     assert set(report.value["machine_checks"]["failed_by_category"]) == {"consultant", "application", "consequence"}
     assert {c["category"] for c in run["checks"]} <= {"consultant", "application", "consequence"}
+
+
+def test_consultations_count_first_attempts_reasons_and_tokens(tmp_path):
+    report = Report(tmp_path / "evidence", {"model": "fixture"})
+    turn = lambda result, usage=None, seconds=1.0: {"number": 1, "speaker": "Sam", "text": "literal",
+                                                     "result": result, "usage": usage, "elapsed_seconds": seconds}
+    report.append({"id": "one", "turns": [
+        turn({"status": "saved"}, {"input_tokens": 100, "output_tokens": 20}),
+        turn({"status": "rejected", "reason": "Anthropic stopped at max_tokens (4096) before finishing the proposal"},
+             {"input_tokens": 100, "output_tokens": 4096})]})
+    report.append({"id": "two", "turns": [turn({"status": "unavailable", "failure_category": "timeout"}, None, 120.0)]})
+    report.finish()
+    summary = json.loads((report.directory / "report.json").read_text())["consultations"]
+    assert summary["turns"] == 3 and summary["by_status"] == {"saved": 1, "rejected": 1, "unavailable": 1}
+    assert summary["not_saved_reasons"] == {
+        "Anthropic stopped at max_tokens (4096) before finishing the proposal": 1, "timeout": 1}
+    assert summary["tokens"] == {"input_tokens": 200, "output_tokens": 4116} and summary["turns_with_usage"] == 2
+    assert summary["seconds"] == 122.0
+    assert "Consultations:" in (report.directory / "report.md").read_text()

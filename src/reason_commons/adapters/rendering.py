@@ -293,8 +293,10 @@ def render_provider_settings(settings):
     lines = [f"Provider: {settings['provider']} ({chosen})",
              f"Model: {settings['model']} ({source})",
              f"Endpoint: {settings['endpoint'] or 'none (works offline)'}",
-             f"Credential: {credential['variable']} {state}" if credential["variable"] else "Credential: none needed",
-             "Status: " + ("ready (no request was sent to check)" if settings["ready"] else "not ready")]
+             f"Credential: {credential['variable']} {state}" if credential["variable"] else "Credential: none needed"]
+    if "max_tokens" in settings:
+        lines.append(f"Output: up to {settings['max_tokens']} tokens; effort {settings['effort']}")
+    lines.append("Status: " + ("ready (no request was sent to check)" if settings["ready"] else "not ready"))
     lines += [f"  - {problem}" for problem in settings["problems"]]
     lines.append(f"Other providers: {others}")
     return "\n".join(lines) + "\n"
