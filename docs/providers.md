@@ -82,7 +82,7 @@ Neither is ever written into a case or an export.
 | Setting | Anthropic | LM Studio |
 |---|---|---|
 | Credential | `ANTHROPIC_API_KEY` (required) | `LM_STUDIO_API_TOKEN` (optional, only if your server requires one) |
-| Model | `REASON_COMMONS_ANTHROPIC_MODEL`, default `claude-sonnet-5-5` | `REASON_COMMONS_LM_STUDIO_MODEL`; if unset, used automatically only when the server advertises exactly one model |
+| Model | `REASON_COMMONS_ANTHROPIC_MODEL`, default `claude-haiku-5-5` | `REASON_COMMONS_LM_STUDIO_MODEL`; if unset, used automatically only when the server advertises exactly one model |
 | Server URL | `REASON_COMMONS_ANTHROPIC_URL`, default `https://api.anthropic.com/v1` (HTTPS only; plain HTTP just for loopback testing) | `REASON_COMMONS_LM_STUDIO_URL`, default `http://127.0.0.1:1234/v1` |
 | Timeout (seconds) | `REASON_COMMONS_ANTHROPIC_TIMEOUT`, default 120 | `REASON_COMMONS_LM_STUDIO_TIMEOUT`, default 120 |
 
@@ -101,7 +101,7 @@ reason-commons providers --json
 
 ```
 Provider: anthropic (chosen by REASON_COMMONS_PROVIDER)
-Model: claude-sonnet-5-5 (default)
+Model: claude-haiku-5-5 (default)
 Endpoint: https://api.anthropic.com/v1
 Credential: ANTHROPIC_API_KEY not set (required)
 Status: not ready

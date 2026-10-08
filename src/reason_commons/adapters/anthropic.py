@@ -21,7 +21,7 @@ from reason_commons.application.ports import ConsultantResponseError
 
 MAX_REQUEST_BYTES = 4 * 1024 * 1024
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
-DEFAULT_MODEL = "claude-sonnet-5-5"
+DEFAULT_MODEL = "claude-haiku-5-5"
 
 
 class AnthropicError(RuntimeError):

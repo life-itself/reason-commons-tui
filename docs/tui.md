@@ -444,7 +444,7 @@ your shell instead, for example in `~/.zshrc` on a Mac:
 | `REASON_COMMONS_PROVIDER` | Consultant at start: `guided`, `anthropic` or `lm-studio` | `guided` |
 | `REASON_COMMONS_SPEAKER` | Name recorded with your answers | the name from setup, else your login name |
 | `ANTHROPIC_API_KEY` | Key for Claude | none |
-| `REASON_COMMONS_ANTHROPIC_MODEL` | Claude model ID | `claude-sonnet-5-5` |
+| `REASON_COMMONS_ANTHROPIC_MODEL` | Claude model ID | `claude-haiku-5-5` |
 | `REASON_COMMONS_LM_STUDIO_URL` | LM Studio server address | `http://127.0.0.1:1234/v1` |
 | `REASON_COMMONS_LM_STUDIO_MODEL` | LM Studio model ID | the only loaded model |
 | `LM_STUDIO_API_TOKEN` | LM Studio token, if your server needs one | none |
