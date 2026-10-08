@@ -229,6 +229,8 @@ def test_every_rubric_criterion_has_plain_questions_about_real_turns():
                 assert ask.turn is None or 1 <= ask.turn <= len(scenario.turns), (scenario.name, ask.text)
                 text = ask.text.format(consultant="the system")
                 assert "?" in text and "{" not in text, text
+                # Asked plainly: what the reply did, never a double negative ("does it avoid...?").
+                assert "avoid" not in text.lower() and ask.passes in {"yes", "no"}, text
                 # Plain words: no method labels, scenario IDs or pronouns nobody gave.
                 assert not re.search(r"\b(he|she|his|her|him|denominator|proxy|CRT|FRT|S\d+)\b", text), text
         # Nothing is used before it is introduced: a fact belongs to a turn that happens, and a question about a turn
@@ -244,11 +246,15 @@ def test_every_rubric_criterion_has_plain_questions_about_real_turns():
 
 
 def test_a_criterion_is_decided_from_its_questions():
-    from evaluations.review_questions import combine
-    assert combine(["yes", "yes"]) == "pass"
-    assert combine(["yes", "no"]) == "fail" and combine(["no", "unclear"]) == "fail"
-    assert combine(["yes", "cant"]) == "unjudgeable"
-    assert combine(["yes", "unclear"]) == "pending" and combine(["yes", None]) == "pending" and combine([]) == "pending"
+    from evaluations.review_questions import combine, verdict
+    # A question about a mistake is met by No; any other by Yes.
+    assert verdict("yes") == "good" and verdict("no") == "bad"
+    assert verdict("no", passes="no") == "good" and verdict("yes", passes="no") == "bad"
+    assert verdict("cant", passes="no") == "cant" and verdict("unclear") == "unclear"
+    assert combine(["good", "good"]) == "pass"
+    assert combine(["good", "bad"]) == "fail" and combine(["bad", "unclear"]) == "fail"
+    assert combine(["good", "cant"]) == "unjudgeable"
+    assert combine(["good", "unclear"]) == "pending" and combine(["good", None]) == "pending" and combine([]) == "pending"
 
 
 def test_answers_combine_into_the_review_the_checker_accepts(tmp_path):
@@ -257,7 +263,9 @@ def test_answers_combine_into_the_review_the_checker_accepts(tmp_path):
     build_review_package(report.directory / "report.json")
     questions = json.loads((report.directory / "review-package" / "questions.json").read_text())
     run = questions["cases"][0]
-    answers = {f"{run['id']}__{q['id']}": {"answer": "yes", "why": ""} for q in run["questions"]}
+    # Each question answered the way that meets its criterion (No for a question about a mistake), but one.
+    answers = {f"{run['id']}__{q['id']}": {"answer": q["passes"], "why": ""} for q in run["questions"]}
+    assert {q["passes"] for q in run["questions"]} == {"yes", "no"}
     answers[f"{run['id']}__2.2"] = {"answer": "no", "why": "It asks who is to blame"}
     review = review_from_answers(questions, {"reviewer": "Test reviewer", "reviewer_role": "fixture",
                                              "reviewed_at": "2026-10-08", "answers": answers})

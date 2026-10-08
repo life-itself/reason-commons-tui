@@ -36,6 +36,8 @@ ROLES = {"goal": "the goal", "critical_success_factor": "something the goal need
          "transition_existing_reality": "where things start", "transition_need": "why something must change",
          "transition_action": "an action", "transition_expected_effect": "what should then be seen",
          "observation": "an observation", "evidence": "evidence"}
+ROLE_WORDS = {key: value.split(" ", 1)[1] if value.startswith(("a ", "an ", "the ")) else value
+              for key, value in ROLES.items()}
 RELATIONS = {"necessary_for": "is needed for", "causes": "causes", "contributes_to": "contributes to",
              "conflicts_with": "conflicts with", "requires": "requires", "satisfies": "meets",
              "overcomes": "overcomes", "precedes": "comes before", "produces": "leads to",
@@ -83,13 +85,22 @@ class Names:
             return MOVE_NAMES.get(record["data"].get("kind"), KIND_NAMES["intervention"])
         return KIND_NAMES.get(record["kind"], "an item")
 
-    def explain(self, text):
-        """The text as written, with what each record code in it names added in brackets."""
+    def explain(self, text, seen=None):
+        """The text as written, with what each record code in it names added in brackets: in full the first time
+        in a reply (``seen`` holds the codes already explained), then by kind alone."""
+        seen = set() if seen is None else seen
+
         def name(match):
             record = self.records.get(base(match.group(0)))
             if not record:
                 return match.group(0)
+            if base(match.group(0)) in seen:
+                return f"{match.group(0)} [{self.kind(match.group(0))}]"
+            seen.add(base(match.group(0)))
             named = f"{self.kind(match.group(0))} {self(match.group(0), short=True)}"
+            details = [record["data"].get(key) for key in ("scope", "horizon")] if record["kind"] == "goal" else []
+            if any(details):
+                named += " (" + ", ".join(str(d) for d in details if d) + ")"
             protections = record["data"].get("protections") if record["kind"] == "goal" else None
             if protections:
                 named += ", which also protects " + "; ".join(f"“{p}”" for p in protections)
@@ -130,15 +141,18 @@ def recorded_item(record, names):
         return f"A note: “{data['text']}”", basis
     if kind == "goal":
         return f"The goal{newer}: “{data['statement']}”", [
-            f"Covers: {show(data.get('scope'))}", f"Deadline: {show(data.get('horizon'))}",
-            f"Measured by: {show(data.get('measure'))}",
-            f"Where things stand now: {show(data.get('baseline'), 'unknown')}",
-            f"Must not get worse: {show(data.get('protections'), 'nothing said')}"]
+            f"Covers (the system's word: scope): {show(data.get('scope'))}",
+            f"Deadline (horizon): {show(data.get('horizon'))}",
+            f"Measured by (measure): {show(data.get('measure'))}",
+            f"Where things stand now (baseline): {show(data.get('baseline'), 'unknown')}",
+            f"Must not get worse (protections): {show(data.get('protections'), 'nothing said')}"]
     if kind == "test":
-        lines = [f"Covers: {show(data.get('scope'))}"]
-        lines += [f"Prediction: {forecast_line(f)}" for f in data.get("forecast") or []] or ["Prediction: not said"]
-        lines += [f"Stop if: {show(data.get('stop_condition'))}", f"Review on: {show(data.get('review_date'))}"]
-        for key, label in (("baseline", "Where things stood before"), ("dose", "How much of the change"),
+        lines = [f"Covers (scope): {show(data.get('scope'))}"]
+        lines += [f"Prediction (forecast): {forecast_line(f)}" for f in data.get("forecast") or []] or [
+            "Prediction (forecast): not said"]
+        lines += [f"Stop if (stop condition): {show(data.get('stop_condition'))}",
+                  f"Review on: {show(data.get('review_date'))}"]
+        for key, label in (("baseline", "Where things stood before (baseline)"), ("dose", "How much of the change"),
                            ("alternative_explanation", "Another possible explanation")):
             if data.get(key):
                 lines.append(f"{label}: {data[key]}")
@@ -163,17 +177,18 @@ def recorded_item(record, names):
     if kind == "review":
         lines = [f"Of the trial {names(data['test_ref'])}"]
         if data.get("next_decision"):
-            lines.append(f"Next decision: {data['next_decision']}")
+            lines.append(f"The system's suggested next decision: {data['next_decision']}")
         return f"A review of the trial's results, in the system's words: “{data['assessment']}”", lines
     if kind == "claim":
-        role = ROLES.get(data["role"], data["role"].replace("_", " "))
+        role = ROLE_WORDS.get(data["role"], data["role"].replace("_", " "))
         where = TREE_NAMES.get(data["tree"], data["tree"])
-        return f"Added to {where}{newer}, labelled by the system as {role}: “{data['statement']}”", basis
+        return f"Added to {where}{newer}, with the system's label “{role}”: “{data['statement']}”", basis
     if kind == "link":
         start, end = names.tree(data["from_ref"]), names.tree(data["to_ref"])
         where = lambda tree: f" (in {TREE_NAMES[tree]})" if tree in TREE_NAMES and tree != data["tree"] else ""
         relation = RELATIONS.get(data["relation"], data["relation"].replace("_", " "))
-        line = f"Assuming: {data['assumption']}" if data.get("assumption") else "No assumption stated"
+        line = (f"The system's note on this link: {data['assumption']}" if data.get("assumption")
+                else "The system gave no note on this link")
         return (f"Linked in {TREE_NAMES.get(data['tree'], data['tree'])}: {names(data['from_ref'])}{where(start)} "
                 f"{relation} {names(data['to_ref'])}{where(end)}", [line])
     if kind == "retraction":
@@ -196,12 +211,55 @@ def plain_reply(records, names, source_of, consultant):
                        for option in data.get("options") or []]
             if options:
                 lines.append("Other choices it offered, as buttons on the person's screen: " + "; ".join(options))
-            parts.insert(0, {"kind": "move", "headline": f"{consultant} {ASKS.get(data['kind'], 'says')}: "
-                                                         f"{names.explain(data['primary_prompt'])}",
-                             "lines": [names.explain(line) for line in lines], "source": ""})
+            parts.insert(0, {"record": record, "lines": lines})
+        else:
+            parts.append({"record": record})
+    seen = set()  # each code is explained in full once per reply, in reading order
+    out = []
+    for part in parts:
+        record = part["record"]
+        if record["kind"] == "intervention":
+            data = record["data"]
+            out.append({"kind": "move", "headline": f"{consultant} {ASKS.get(data['kind'], 'says')}: "
+                                                    f"{names.explain(data['primary_prompt'], seen)}",
+                        "lines": [names.explain(line, seen) for line in part["lines"]], "source": ""})
         else:
             headline, lines = recorded_item(record, names)
-            parts.append({"kind": "recorded", "headline": names.explain(headline),
-                          "lines": [names.explain(line) for line in lines],
-                          "source": source_of(record.get("source_refs") or [])})
-    return parts
+            out.append({"kind": "recorded", "headline": names.explain(headline, seen),
+                        "lines": [names.explain(line, seen) for line in lines],
+                        "source": source_of(record.get("source_refs") or [])})
+    return out
+
+
+# Words the system uses in its own replies, explained where a reply uses them.
+GLOSSARY = (
+    (r"\bthe case\b", "case", "the system's record of the whole conversation"),
+    (r"\bthe model\b", "the model", "everything the system has recorded so far (not the AI model)"),
+    (r"\b(next|later|this|the|one) moves?\b", "move", "the system's next question or suggested step"),
+    (r"\battributed\b", "attributed", "marked with who said it"),
+    (r"\bprovisional\b", "provisional", "a first draft, not settled"),
+    (r"\bqualitative\b", "qualitative", "described in words, not numbers"),
+    (r"\bpilot\b", "pilot", "the trial"),
+    (r"\b(the|this|a) test\b", "test", "the trial"),
+    (r"\bforecast", "forecast", "the prediction"),
+    (r"\bhorizon\b", "horizon", "the deadline"),
+    (r"\bbaseline\b", "baseline", "where things stood before a change"),
+    (r"\bscope\b", "scope", "what something covers"),
+    (r"\bdenominators?\b", "denominator", "the number something is counted out of (in “40 of 50”, it is 50)"),
+    (r"\bprotect(ion|ed)", "protection", "something that must not get worse while trying a change"),
+    (r"\bguardrail", "guardrail", "something that must not get worse while trying a change"),
+    (r"\bstop condition\b", "stop condition", "the point at which the trial must stop"),
+    (r"\bsystem goal\b", "system goal", "the goal for the whole department (not a goal of the AI)"),
+    (r"\b(decision )?authority\b", "authority", "who is allowed to decide"),
+    (r"\bpremise\b", "premise", "what a question takes for granted"),
+    (r"\bmechanism\b", "mechanism", "how something actually happens, step by step"),
+    (r"\bparticipants?\b", "participant", "a person in the conversation"),
+    (r"\bconstraint\b", "constraint", "the one thing that limits progress most"),
+    (r"\bproxy\b", "proxy", "something measured in place of what really matters"),
+)
+
+
+def words_in(parts):
+    """The system's own words in a reply that the page explains, in the order the glossary lists them."""
+    text = " ".join([p["headline"] for p in parts] + [line for p in parts for line in p["lines"]])
+    return [(word, meaning) for pattern, word, meaning in GLOSSARY if re.search(pattern, text, re.IGNORECASE)]

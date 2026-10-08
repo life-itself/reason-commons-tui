@@ -28,9 +28,9 @@ import re
 import tempfile
 
 from evaluations.fixtures import SCENARIOS
-from evaluations.plain_reply import CODE, Names, plain_reply
+from evaluations.plain_reply import CODE, Names, plain_reply, words_in
 from evaluations.review import review_template
-from evaluations.review_questions import ANSWERS, REVIEW, Ask, combine
+from evaluations.review_questions import ANSWERS, REVIEW, Ask, combine, verdict
 from evaluations.screens import replay_run
 
 # The page names the assistant "the system", whichever model a run used.
@@ -41,9 +41,8 @@ CAPABILITIES = {"db": {"rules": [{"path": "reviews", "read": "owner", "write": "
                 "user": {}, "downloads": True}
 SCREEN_LABELS = {"Next step, answer typed": "Before sending", "Case context": "Everything the system has recorded",
                  "Trees": "The diagrams", "Backlog": "Waiting for approval"}
-HOW = {"answer": "{speaker} typed this and sent it.", "direct_advice": "{speaker} typed this and sent it.",
-       "explain_observation": "{speaker} typed this and sent it.",
-       "another_question": "{speaker} pressed the button that asks the system for a different question."}
+# Only a message that was not simply typed and sent says how it was sent.
+HOW = {"another_question": "{speaker} pressed the button that asks the system for a different question."}
 DECLARED = ("With this message, {speaker} also formally stated being the person in charge of the work. (The system "
             "only records someone as in charge when they state it this way.)")
 
@@ -73,7 +72,7 @@ def case_questions(run, authored, consultant, turns):
             asks = [Ask(None, "Is this true of {consultant}'s replies? " + rubric)]
         for index, ask in enumerate(asks, 1):
             question = {"id": f"{criterion}.{index}", "criterion": criterion, "turn": ask.turn,
-                        "text": ask.text.format(consultant=consultant)}
+                        "text": ask.text.format(consultant=consultant), "passes": ask.passes}
             if ask.turn is not None and ask.turn not in replied:
                 why = (f"The system couldn't produce a reply in Turn {ask.turn}, so there is nothing to judge."
                        if ask.turn in sent else
@@ -128,11 +127,12 @@ def package_data(report_path, provider=None, only=None):
                 fill = {"speaker": turn["speaker"], "consultant": consultant}
                 turns.append({
                     "number": turn["number"], "speaker": turn["speaker"], "text": turn["text"],
-                    "how": HOW.get(entry["intent"], HOW["answer"]).format(**fill),
+                    "how": HOW.get(entry["intent"], "").format(**fill),
                     "declared": DECLARED.format(**fill) if entry["notes"] else "",
                     "saved": saved,
                     "reply": reply,
                     "codes": (CODE.search(json.dumps(reply, ensure_ascii=False)) or [""])[0] if reply else "",
+                    "words": words_in(reply) if reply else [],
                     "screens": [{"key": Path(s["file"]).stem, "label": screen_label(s)} for s in shots]})
             title = authored.title if authored else name.replace("_", " ")
             planned_turns = planned.get(name, len(run["turns"]))
@@ -176,7 +176,9 @@ def build_review_package(report_path, output=None, provider=None, only=None):
         (output / case["file"]).write_text(
             f"(window.reviewScreens = window.reviewScreens || {{}})[{safe_json(case['id'])}] = "
             f"{safe_json(screens[case['id']])};\n", encoding="utf-8")
-    page = PAGE.replace("{consultant}", data["consultant"]).replace("/*DATA*/", safe_json(data))
+    page = (PAGE.replace("{consultant}", data["consultant"]).replace("{count}", str(len(data["cases"])))
+            .replace("{total}", str(sum(case["minutes"] for case in data["cases"])))
+            .replace("/*DATA*/", safe_json(data)))
     (output / "index.html").write_text(page, encoding="utf-8")
     (output / "questions.json").write_text(json.dumps(
         {"template": data["template"], "answers": ANSWERS,
@@ -202,7 +204,8 @@ def review_from_answers(questions, stored):
     for decision in review["decisions"]:
         asked = [q for q in by_case.get(decision["run_id"], []) if q["criterion"] == decision["criterion"]]
         given = [q.get("given") or answers.get(f"{decision['run_id']}__{q['id']}") for q in asked]
-        decision["status"] = combine([g["answer"] if g and g.get("answer") in ANSWERS else None for g in given])
+        decision["status"] = combine([verdict(g["answer"], q.get("passes", "yes")) if g and g.get("answer") in ANSWERS
+                                      else None for q, g in zip(asked, given)])
         decision["evidence"] = " | ".join(evidence(q, g, questions["answers"]) for q, g in zip(asked, given)
                                           if g and g.get("answer") in ANSWERS)
     review["answers"] = answers  # kept so the page can reopen the file
@@ -303,6 +306,8 @@ button.primary { background: var(--accent); color: var(--on-accent); border-colo
 .reply li .lines { color: var(--muted); font-size: 14px; }
 .reply li .src { font-size: 13px; color: var(--muted); font-style: italic; }
 .rejected { color: var(--no); font-weight: 600; }
+.words-here { font-size: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+.words-here ul { margin: 4px 0 0; padding-left: 18px; }
 .finish { background: var(--panel); border: 2px solid var(--accent); border-radius: 8px; padding: 12px 16px; display: grid; gap: 6px; }
 .words summary { cursor: pointer; color: var(--accent); }
 .words ul { margin-top: 8px; }
@@ -348,9 +353,9 @@ textarea.missing { border-color: var(--no); }
       different results, and they are not in time order. Read each one on its own.</p>
       <div>
         <p class="label">The parts of a reply</p>
-        <p>Each of the system's replies can have three parts: its question or recommendation; its reasons, in its own
-        words; and the things it recorded. A question about "the reply" or "the system" means all three parts, unless
-        it names one.</p>
+        <p>Each of the system's replies can have up to four parts: its question or recommendation; its reasons, in its
+        own words; other choices it offered the person, as buttons; and the things it recorded. A question about "the
+        reply" or "the system" means all of these, unless it names one part.</p>
       </div>
       <div>
         <p class="label">What the system keeps a record of</p>
@@ -359,6 +364,7 @@ textarea.missing { border-color: var(--no); }
           <li><b>The goal</b>: what the person wants to achieve, and what must not get worse along the way.</li>
           <li><b>A trial</b>: a small change the person will try, with a prediction of what it will do, written down
           before it starts.</li>
+          <li><b>Actions</b>: a step someone will take, who will take it, and whether it has been done.</li>
           <li><b>Results and reviews</b>: what was measured during a trial, and the system's reading of the results
           against the prediction.</li>
           <li><b>Diagrams</b>: simple maps of the problem, made of short statements and links between them (for
@@ -367,7 +373,7 @@ textarea.missing { border-color: var(--no); }
         <p>Each thing the system records says which message it is based on.</p>
       </div>
       <details class="words">
-        <summary>Words the system uses in its replies (open this if a reply puzzles you)</summary>
+        <summary>Words the system uses in its replies (they are also explained under each reply that uses them)</summary>
         <ul>
           <li><b>case</b>: the system's record of the whole conversation</li>
           <li><b>the model</b>: everything the system has recorded so far (not the AI model)</li>
@@ -380,6 +386,7 @@ textarea.missing { border-color: var(--no); }
           <li><b>baseline</b>: where things stand before a change</li>
           <li><b>scope</b>: what something covers</li>
           <li><b>denominator</b>: the number something is counted out of (in "40 of 50", it is 50)</li>
+          <li><b>system goal</b>: the goal for the whole department (not a goal of the AI)</li>
           <li><b>protection</b>, <b>guardrail</b>, <b>stop condition</b>: a line that must not be crossed while
           trying something</li>
           <li><b>decision authority</b>: who is allowed to decide</li>
@@ -397,6 +404,9 @@ textarea.missing { border-color: var(--no); }
         </ul>
         <p>Under each question is a box. Write a few words there saying why you chose your answer. This is needed for
         every answer except Yes; for Yes it's optional.</p>
+        <p>Just say what the reply did. Most questions ask whether it did something it should, and some ask whether
+        it made a particular mistake (such as making up a number). Either way, answer Yes if it did, and No if it
+        didn't. We work out from your answers whether the reply was good.</p>
       </div>
       <div class="example">
         <p class="label">An example (made up, not one of the conversations)</p>
@@ -404,14 +414,17 @@ textarea.missing { border-color: var(--no); }
         <p><b>The system replied:</b> “That's 75% sold. What share did you hope to sell?”</p>
         <p><b>Question:</b> Does the system work out what share of the tickets was sold?</p>
         <p><b>Answer:</b> Yes. <b>Why (optional for Yes):</b> “It says 75%, and 30 of 40 is 75%.”</p>
+        <p><b>Another question:</b> Does the system make up a target for Anna?</p>
+        <p><b>Answer:</b> No. <b>Why:</b> “It asks Anna what she hoped for instead.”</p>
       </div>
       <div>
         <p class="label">Good to know</p>
         <ul>
-          <li>Each conversation shows roughly how long it takes. Your answers save as you go, so you can stop and
-          come back.</li>
+          <li>There are {count} conversations, about {total} minutes in all. Each shows roughly how long it takes.</li>
           <li>Where a message contains numbers, we've done the sums for you, next to that message.</li>
-          <li>When you've answered every question, the end of the last conversation tells you how to finish.</li>
+          <li id="finish-note">Your answers are kept in this browser as you go. To hand them in when you've finished,
+          click “Save my answers to a file” (at the top of the list of conversations) and send that file to the person
+          who sent you this page.</li>
         </ul>
       </div>
     </div>
@@ -423,9 +436,9 @@ textarea.missing { border-color: var(--no); }
       <label><span class="label">Your background</span>
         <select id="reviewer_role">
           <option value="">Choose one</option>
-          <option>No background in this kind of work</option>
-          <option>Some experience running teams or projects</option>
-          <option>Familiar with the Theory of Constraints (a management method)</option>
+          <option>I haven't run teams or projects at work</option>
+          <option>I've run teams or projects at work</option>
+          <option>I know the Theory of Constraints (a management method; not needed for this review)</option>
         </select></label>
       <span class="status" id="saved" role="status"></span>
     </div>
@@ -467,10 +480,12 @@ const answerOf = (c, q) => q.given || answers[keyOf(c, q)] || null;
 const needsWhy = a => a && a.answer !== "yes" && !(a.why || "").trim();
 const isDone = (c, q) => { const a = answerOf(c, q); return !!(a && a.answer && !needsWhy(a)); };
 
-// A criterion's decision from its questions' answers (the same rule as review_questions.combine).
+// A criterion's decision from its questions' answers (the same rules as review_questions.verdict and combine):
+// Yes and No count as good or bad by the question's polarity, since a question may ask about a mistake.
+const verdict = (answer, passes) => answer === "yes" || answer === "no" ? (answer === (passes || "yes") ? "good" : "bad") : answer;
 function combine(list) {
-  if (!list.length || list.some(a => !a) || (list.includes("unclear") && !list.includes("no"))) return "pending";
-  if (list.includes("no")) return "fail";
+  if (!list.length || list.some(a => !a) || (list.includes("unclear") && !list.includes("bad"))) return "pending";
+  if (list.includes("bad")) return "fail";
   if (list.includes("cant")) return "unjudgeable";
   return "pass";
 }
@@ -481,7 +496,7 @@ function reviewFile() {
     const c = data.cases.find(c => c.id === d.run_id);
     const asked = c ? c.questions.filter(q => q.criterion === d.criterion) : [];
     const given = asked.map(q => answerOf(c, q));
-    d.status = combine(given.map(g => g && data.answers[g.answer] ? g.answer : null));
+    d.status = combine(given.map((g, i) => g && data.answers[g.answer] ? verdict(g.answer, asked[i].passes) : null));
     d.evidence = asked.map((q, i) => {
       const g = given[i];
       if (!g || !data.answers[g.answer]) return null;
@@ -551,6 +566,8 @@ async function connect() {
   if (snap.exists) restore(snap.data());
   else { try { await state.ref.set(stored()); } catch (e) { readOnly(); } }
   if (!state.readOnly) status("Your answers save as you go. Other reviewers can't see them.");
+  document.getElementById("finish-note").textContent = "Your answers are saved for the person who sent you this "
+    + "link as you go, and other reviewers can't see them. When you've answered everything, you've finished: just close the page.";
   for (const f of ["reviewer", "reviewer_role"]) document.getElementById(f).value = me[f];
   show(shown); progress();
   if (await user.isOwner()) watchReviewers(db);
@@ -630,6 +647,11 @@ function facts(rows, label) {
   if (!rows.length) return null;
   return el("div", {class: "stack"}, el("p", {class: "label", text: label}),
     el("div", {class: "scroll"}, el("table", {class: "facts"}, el("tbody", {}, ...rows.map(([, k, v]) => el("tr", {}, el("th", {text: k}), el("td", {text: v})))))));
+}
+function words(turn) {
+  if (!turn.words || !turn.words.length) return null;
+  return el("div", {class: "words-here"}, el("p", {class: "label", text: "Words in this reply"}),
+    el("ul", {}, ...turn.words.map(([w, m]) => el("li", {}, el("b", {text: w}), `: ${m}`))));
 }
 function reply(turn, explainCodes) {
   if (!turn.saved) return el("div", {class: "reply"}, el("p", {class: "label", text: "The system replied"}),
@@ -720,9 +742,9 @@ function show(index) {
     codesExplained = codesExplained || explain;
     parts.push(el("section", {class: "turn"}, el("h3", {text: `Turn ${t.number}`}),
       el("div", {class: "said"}, el("p", {class: "label", text: `${t.speaker} wrote`}), el("blockquote", {text: t.text}),
-        el("p", {class: "small muted", text: t.how}), t.declared ? el("p", {class: "small muted", text: t.declared}) : null),
-      facts(c.facts.filter(f => f[0] === t.number), "In plain terms, with the sums done"),
-      reply(t, explain), screens(c, t),
+        t.how ? el("p", {class: "small muted", text: t.how}) : null, t.declared ? el("p", {class: "small muted", text: t.declared}) : null),
+      facts(c.facts.filter(f => f[0] === t.number), "About this message"),
+      reply(t, explain), words(t), screens(c, t),
       asked.length ? el("div", {class: "questions"}, el("p", {class: "label", text: `Questions about the system's reply in Turn ${t.number}`}), ...asked.map(q => question(c, q)))
         : el("p", {class: "small muted", text: "No questions about this reply. It's here so you can follow the conversation."})));
   }
