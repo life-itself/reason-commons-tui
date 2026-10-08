@@ -123,23 +123,35 @@ Then ask Claude Code to "publish the review package in
 each reviewer as a Contributor. `--case NAME` builds a shorter package from some
 fixtures only.
 
-The page is written for a reviewer with no background. It opens with a short
-brief: what the app is, who Sam and the assistant are, that the reviewer judges
-the assistant's replies (not Sam, and not the plan), what each answer means, and
-a worked example. Each case then gives what was going on, the facts with the
-arithmetic done, and each turn as what the person wrote and what the assistant
-replied, in plain words: the question it asked and each item it saved, with
-whose words it came from (`evaluations/plain_reply.py`). Under each reply are
-yes/no questions about it (`evaluations/review_questions.py`): each rubric
-criterion becomes one or more questions, one idea each, tied to the turn they
-are about, in plain words, with one name for each thing (the 95% rule is always
-"the 95% urgent-request line"). Answers are Yes, No, Can't tell and "I don't
-understand the question", with a few words on why. A criterion's decision comes
-from its questions: every question Yes is a pass, any No a fail, otherwise it
-cannot be judged, and a question the reviewer did not understand leaves it
-undecided. A question about a reply the application rejected, or a turn never
-sent, is answered for the reviewer. The workspace's own screens are folded under
-each reply, named by what they show.
+The page is written for a reviewer with no background, who reads it once, top to
+bottom. So it introduces each thing before using it and gives each thing one
+name: the assistant is always "the system" (the brief names the model once, to
+explain the person's screens), and a reviewer's unit is a "conversation". The
+brief says what the system does, what a turn is, that the reviewer judges the
+system's replies (not the person, and not the plan), what the system keeps a
+record of (notes, the goal, a trial, results and reviews, diagrams), what each
+answer means, and gives a worked example of its own; the reviewer's name comes
+after it. Each conversation says who is talking and what was set up before it.
+Each turn then gives what the person wrote; right under it, the facts that
+message brings, with the sums done; the system's reply in plain words, its own
+reasoning marked as its own words (`evaluations/plain_reply.py`); and the
+yes/no questions about that reply (`evaluations/review_questions.py`), or a line
+saying there are none. A fact is shown in the turn in which it becomes known,
+never before, and a test checks that no question names a fact from a later turn.
+Where the system's own wording cites an item by a code (such as P1@1), the first
+reply that does so says what the codes are, and what each names follows in
+brackets. Where the person or the system has other names for something (a
+"pilot" or "test" for the trial, a "stop condition" for the 95% urgent-request
+line), the facts say so.
+
+Each rubric criterion becomes one or more questions, one idea each, tied to the
+turn they are about. Answers are Yes, No, Can't tell and "I don't understand the
+question", with a few words on why. A criterion's decision comes from its
+questions: every question Yes is a pass, any No a fail, otherwise it cannot be
+judged, and a question the reviewer did not understand leaves it undecided. A
+question about a reply the system could not produce, or a turn that never
+happened, is answered for the reviewer. The person's own screens are folded
+under each reply, named by what they show.
 
 Reviewers' answers save as they go, under their own account; only the reviewer
 and the page's owner can read them. As the owner, you see everyone's progress on

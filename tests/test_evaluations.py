@@ -178,7 +178,7 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     # Each turn is what was written and what the assistant replied, in plain words, without record IDs.
     assert [t["speaker"] for t in case["turns"]] == ["Sam", "Priya"] and case["unsent"] == [3]
     first = case["turns"][0]
-    assert first["reply"][0]["headline"] == "Claude asks: What should we observe next?"
+    assert first["reply"][0]["headline"] == "The system asks: What should we observe next?"
     assert first["reply"][1]["source"] == "From Sam's message in Turn 1"
     assert not re.search(r"\b[A-Z]\d+@\d+\b", json.dumps([t["reply"] for t in case["turns"]]))
     # A code in the assistant's own words stays, with what it names beside it.
@@ -201,7 +201,8 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     assert {"path": "reviews", "read": "owner", "write": "owner"} in CAPABILITIES["db"]["rules"]
     # Blind: no machine check, check name or prior review reaches the page; the method's labels stay out.
     assert "checks" not in json.dumps(data) and "machine" not in html and "S06" not in html
-    assert "{consultant}" not in html and "Claude" in html
+    # The assistant is "the system" throughout; the brief names the model once, to explain the person's screens.
+    assert "{consultant}" not in html and html.count("Claude") == 1 and "the system" in html
     with pytest.raises(FileExistsError):
         build_review_package(report.directory / "report.json")
     # The reviewer's stored answers become a review.json the unchanged checker validates.
@@ -226,12 +227,20 @@ def test_every_rubric_criterion_has_plain_questions_about_real_turns():
             assert asks
             for ask in asks:
                 assert ask.turn is None or 1 <= ask.turn <= len(scenario.turns), (scenario.name, ask.text)
-                text = ask.text.format(consultant="Claude")
+                text = ask.text.format(consultant="the system")
                 assert "?" in text and "{" not in text, text
                 # Plain words: no method labels, scenario IDs or pronouns nobody gave.
                 assert not re.search(r"\b(he|she|his|her|him|denominator|proxy|CRT|FRT|S\d+)\b", text), text
-        for label, value in case.facts:
-            assert label and value
+        # Nothing is used before it is introduced: a fact belongs to a turn that happens, and a question about a turn
+        # names no fact that only becomes known in a later turn.
+        assert "Claude" not in case.situation + str(case.facts) + str(case.criteria)
+        for turn, label, value in case.facts:
+            assert 0 <= turn <= len(scenario.turns) and label and value, (scenario.name, label)
+        for _, asks in case.criteria:
+            for ask in asks:
+                later = [label for turn, label, _ in case.facts
+                         if label.lower() in ask.text.lower() and ask.turn is not None and turn > ask.turn]
+                assert not later, (scenario.name, ask.text, later)
 
 
 def test_a_criterion_is_decided_from_its_questions():

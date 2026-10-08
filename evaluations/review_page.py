@@ -1,15 +1,19 @@
-"""A review package a reviewer with no background can use: each case's conversation in plain words, with questions.
+"""A review package a reviewer with no background can use: each conversation in plain words, with questions.
 
 ``build_review_package`` replays every run of a completed report through the workspace (``evaluations.screens``)
 and writes a folder holding ``index.html``, one ``cases/case-NN.js`` per case with that case's screens,
 ``publish.json`` (the publish call) and ``questions.json`` (what ``collect_reviews`` needs).
 
-The page starts with a short brief: what the app is, who Sam and the assistant are, that the reviewer judges the
-assistant's replies, and what each answer means, with a worked example. Each case then gives what was going on, the
-facts with the arithmetic done, and each turn as what the person wrote and what the assistant replied, in plain
-words (``evaluations.plain_reply``), followed by yes/no questions about that reply (``evaluations.review_questions``).
-The workspace's own screens are there, folded, under each reply. A question about a reply the application rejected
-is answered for the reviewer: there is no reply to judge.
+The page is read once, top to bottom, by someone who knows nothing of the method, the fixtures or the app, so it
+introduces each thing before using it and gives each thing one name: the assistant is always "the system", and a
+reviewer's case is a "conversation". The brief says what the system does, what a turn is, what the reviewer judges,
+what the system keeps a record of, and what each answer means, with a worked example of its own; the reviewer's
+name comes after it. Each conversation then gives who is talking and what was set up before it, and each turn gives
+what the person wrote, the facts that message brings (with the sums done) right under it, the system's reply in
+plain words (``evaluations.plain_reply``; codes in the system's own wording are explained where they first appear),
+and the yes/no questions about that reply (``evaluations.review_questions``), or a line saying there are none. The
+person's own screens are there, folded, under each reply. A question about a reply the system could not produce is
+answered for the reviewer.
 
 Each rubric criterion's decision comes from its questions' answers (``combine``), so the ``review.json`` the page
 saves, and ``collect_reviews`` builds, is the template ``scripts/review_evaluation.py`` checks against the unchanged
@@ -24,25 +28,26 @@ import re
 import tempfile
 
 from evaluations.fixtures import SCENARIOS
-from evaluations.plain_reply import Names, plain_reply
+from evaluations.plain_reply import CODE, Names, plain_reply
 from evaluations.review import review_template
 from evaluations.review_questions import ANSWERS, REVIEW, Ask, combine
 from evaluations.screens import replay_run
 
-CONSULTANTS = {"anthropic": "Claude", "lm-studio": "the assistant"}
+# The page names the assistant "the system", whichever model a run used.
+CONSULTANT = "the system"
 # Each reviewer writes reviews/<their id>; nobody else reads it but the page's owner.
 CAPABILITIES = {"db": {"rules": [{"path": "reviews", "read": "owner", "write": "owner"},
                                  {"path": "reviews/{self}", "read": "interact", "write": "interact"}]},
                 "user": {}, "downloads": True}
-SCREEN_LABELS = {"Next step, answer typed": "Before sending", "Case context": "Everything the app has saved",
+SCREEN_LABELS = {"Next step, answer typed": "Before sending", "Case context": "Everything the system has recorded",
                  "Trees": "The diagrams", "Backlog": "Waiting for approval"}
-HOW = {"answer": "{speaker} typed this and pressed Send.",
-       "direct_advice": "{speaker} typed this and chose “Ask for direct advice”.",
-       "explain_observation": "{speaker} typed this and chose “Ask for help planning an observation”, which asks "
-                              "{consultant} to help make sense of results.",
-       "another_question": "{speaker} chose “Ask another question”."}
-DECLARED = ("Along with this message, {speaker} formally stated being the person in charge of the work. The app only "
-            "records someone as in charge when they state it this way.")
+HOW = {"answer": "{speaker} typed this and sent it.",
+       "direct_advice": "{speaker} typed this and sent it with the button that asks for direct advice.",
+       "explain_observation": "{speaker} typed this and sent it with the button labelled “Ask for help planning an "
+                              "observation”, which asks the system for help with results.",
+       "another_question": "{speaker} pressed the button that asks the system for a different question."}
+DECLARED = ("With this message, {speaker} also formally stated being the person in charge of the work. (The system "
+            "only records someone as in charge when they state it this way.)")
 
 
 def fixture_of(run_id):
@@ -72,9 +77,9 @@ def case_questions(run, authored, consultant, turns):
             question = {"id": f"{criterion}.{index}", "criterion": criterion, "turn": ask.turn,
                         "text": ask.text.format(consultant=consultant)}
             if ask.turn is not None and ask.turn not in replied:
-                why = (f"The app rejected {consultant}'s reply to Turn {ask.turn}, so there is no reply to judge."
+                why = (f"The system couldn't produce a reply in Turn {ask.turn}, so there is nothing to judge."
                        if ask.turn in sent else
-                       f"Turn {ask.turn} was never sent: the conversation stopped after a reply was rejected.")
+                       f"Turn {ask.turn} never happened: the conversation stopped after the error in an earlier turn.")
                 question["given"] = {"answer": "cant", "why": why}
             questions.append(question)
     return questions
@@ -90,7 +95,7 @@ def package_data(report_path, provider=None, only=None):
     if not template["decisions"]:
         raise ValueError("This report contains no semantic criteria to review")
     provider = provider or report.get("configuration", {}).get("provider") or "anthropic"
-    consultant = CONSULTANTS.get(provider, "the assistant")
+    consultant = CONSULTANT
     planned = {s.name: len(s.turns) for s in SCENARIOS}
     runs = [run for run in report["runs"] if run.get("rubric")
             and (not only or run["id"] in only or fixture_of(run["id"])[0] in only)]
@@ -113,7 +118,7 @@ def package_data(report_path, provider=None, only=None):
                     if ref in speakers:
                         number, speaker = speakers[ref]
                         return f"From {speaker}'s message in Turn {number}"
-                return "From the setup" if refs else "No source given"
+                return "From what was set up before this conversation" if refs else "Source not given"
             names = Names(run.get("setup_records", []))
             turns = []
             for turn, entry in zip(sent, replayed):
@@ -121,21 +126,22 @@ def package_data(report_path, provider=None, only=None):
                 records = turn.get("new_records", [])
                 names.add(records)
                 shots = ([entry["before"]] if "before" in entry else []) + entry["screens"]
+                reply = plain_reply(records, names, source_of, capital(consultant)) if saved else None
                 fill = {"speaker": turn["speaker"], "consultant": consultant}
                 turns.append({
                     "number": turn["number"], "speaker": turn["speaker"], "text": turn["text"],
                     "how": HOW.get(entry["intent"], HOW["answer"]).format(**fill),
                     "declared": DECLARED.format(**fill) if entry["notes"] else "",
                     "saved": saved,
-                    "reply": plain_reply(records, names, source_of, capital(consultant)) if saved else None,
+                    "reply": reply,
+                    "codes": (CODE.search(json.dumps(reply, ensure_ascii=False)) or [""])[0] if reply else "",
                     "screens": [{"key": Path(s["file"]).stem, "label": screen_label(s)} for s in shots]})
             title = authored.title if authored else name.replace("_", " ")
             planned_turns = planned.get(name, len(run["turns"]))
             cases.append({
                 "id": run["id"], "title": title + (f" (run {repetition})" if repetition > 1 else ""),
-                "situation": authored.situation if authored else run.get("setup", ""),
-                "facts": [list(row) for row in authored.facts] if authored else [],
-                "setup_text": run.get("setup_text"), "turns": turns,
+                "situation": authored.situation if authored else "No description of this conversation was written.",
+                "facts": [list(row) for row in authored.facts] if authored else [], "turns": turns,
                 "unsent": list(range(len(turns) + 1, planned_turns + 1)),
                 "questions": case_questions(run, authored, consultant, turns)})
     for index, case in enumerate(cases, 1):
@@ -224,8 +230,8 @@ PAGE = """<title>Reason Commons reply review</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
-/* Layout: one reading column, in the order a newcomer needs it: the brief, the case, then each turn's words, reply
-   and questions; the app's screens stay folded under each reply. */
+/* Layout: one reading column, in the order a newcomer needs it: the brief, the conversation, then each turn's words,
+   facts, reply and questions; the person's screens stay folded under each reply. */
 :root {
   --bg: #f6f5f9; --panel: #ffffff; --ink: #1c1a24; --muted: #5f5a6e; --line: #dcd9e5; --shade: #eeecf3;
   --accent: #5a3fc0; --on-accent: #ffffff; --sam: #ece9f7; --reply: #f1f6f3;
@@ -290,6 +296,7 @@ button.primary { background: var(--accent); color: var(--on-accent); border-colo
 .reply li .lines { color: var(--muted); font-size: 14px; }
 .reply li .src { font-size: 13px; color: var(--muted); font-style: italic; }
 .rejected { color: var(--no); font-weight: 600; }
+.reply .note { font-size: 14px; background: var(--panel); border-radius: 6px; padding: 6px 10px; }
 details.screens summary { cursor: pointer; color: var(--accent); }
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-block: 8px; }
 .tabs button { font-size: 14px; padding: 3px 10px; }
@@ -316,59 +323,80 @@ textarea.missing { border-color: var(--no); }
 </style>
 <div class="page">
 <div class="top">
-  <h1>Is the AI assistant's reply any good?</h1>
-  <div class="who">
-    <label><span class="label">Your name</span><input id="reviewer" autocomplete="name" placeholder="So we know whose answers these are"></label>
-    <label><span class="label">Your background</span>
-      <select id="reviewer_role">
-        <option value="">Choose one</option>
-        <option>No background in this kind of work</option>
-        <option>Some experience running teams or projects</option>
-        <option>Familiar with the Theory of Constraints</option>
-      </select></label>
-    <span class="status" id="saved" role="status"></span>
-  </div>
+  <h1>Reviewing the system's replies</h1>
   <details class="brief" id="brief" open>
-    <summary>Read this first: what you're being asked to do (2 minutes)</summary>
+    <summary>Read this first (about two minutes)</summary>
     <div class="stack">
-      <p><b>Reason Commons</b> is an app that helps someone think through a problem at work, step by step, with an AI
-      assistant (here, <b>{consultant}</b>). In these cases the person is usually <b>Sam</b>, a manager in a company's
-      Payments area (sometimes a colleague, Priya, or a community organiser, David). They type what's going on, and
-      {consultant} replies: it saves what they said, as notes and other items, and asks one next question or gives a
-      recommendation.</p>
-      <p><b>Your job is to judge {consultant}'s replies.</b> You are not judging Sam, or whether Sam's plan is a good
-      business idea. Each case shows what was going on, the facts (with the sums already done), what Sam wrote, and
-      what {consultant} replied. Under each reply are a few yes/no questions about it.</p>
+      <p><b>What this is.</b> Reason Commons is a system that helps people think through a problem at work, one step
+      at a time. A person types a message about what is going on. The system replies: it keeps a record of what they
+      said, and asks one next question or suggests a next step. One message and the system's reply to it make up a
+      <b>turn</b>.</p>
+      <p><b>What we'd like from you.</b> You'll read a few short conversations between a person and the system, one
+      at a time. Under the system's replies are some yes/no questions about those replies. You are judging the
+      system's replies only: not the person, and not whether their plan is a good idea.</p>
+      <div>
+        <p class="label">What the system keeps a record of</p>
+        <ul>
+          <li><b>Notes</b>: something a person said, kept in their own words.</li>
+          <li><b>The goal</b>: what the person wants to achieve, and what must not get worse along the way.</li>
+          <li><b>A trial</b>: a small change the person will try, with a prediction of what it will do, written down
+          before it starts. People and the system may also call it a <b>pilot</b> or a <b>test</b>.</li>
+          <li><b>Results and reviews</b>: what was measured during a trial, and the system's reading of the results
+          against the prediction.</li>
+          <li><b>Diagrams</b>: simple maps of the problem, made of short statements and links between them (for
+          example, what is going wrong and what causes it).</li>
+        </ul>
+        <p>Each thing the system records says whose message it came from.</p>
+      </div>
       <div>
         <p class="label">How to answer each question</p>
         <ul>
           <li><b>Yes</b>: the reply clearly does this.</li>
-          <li><b>No</b>: it doesn't, or it says the opposite.</li>
+          <li><b>No</b>: it doesn't, or it does the opposite.</li>
           <li><b>Can't tell</b>: what's shown isn't enough to decide.</li>
           <li><b>I don't understand the question</b>: please say so. That tells us the question needs rewriting; it
           is never a wrong answer.</li>
         </ul>
+        <p>Then add a few words saying why. This is needed for every answer except Yes.</p>
       </div>
-      <p>Then add a few words on why, pointing at what you saw: “The reply says 18 of 20 is below 95%.” This is
-      needed for No, Can't tell and I don't understand; for Yes it helps but is optional.</p>
       <div class="example">
-        <p class="label">An example (a made-up case)</p>
-        <p><b>Sam wrote:</b> “We sold 30 of the 40 tickets.”</p>
-        <p><b>The reply:</b> “That's 75% sold. What share did you hope to sell?”</p>
-        <p><b>Question:</b> Does {consultant} work out what share of the tickets was sold?</p>
+        <p class="label">An example (made up, not one of the conversations)</p>
+        <p><b>Anna wrote:</b> “We sold 30 of our 40 tickets.”</p>
+        <p><b>The system replied:</b> “That's 75% sold. What share did you hope to sell?”</p>
+        <p><b>Question:</b> Does the system work out what share of the tickets was sold?</p>
         <p><b>Answer:</b> Yes. <b>Why:</b> “It says 75%, and 30 of 40 is 75%.”</p>
       </div>
-      <p>Where {consultant} refers to a saved item by a code (like P1@1), we add what that item is in square
-      brackets. Sam's screen showed the code alone.</p>
-      <p>Under each reply you can also open <b>Sam's actual screen</b>, exactly as the app showed it. You don't need
-      it to answer, and the answer box on that screen is Sam's, not yours. Each case takes about five minutes. Your
-      answers save as you go, so you can stop and come back.</p>
+      <div>
+        <p class="label">Good to know</p>
+        <ul>
+          <li>Each conversation takes about five minutes. Your answers save as you go, so you can stop and come
+          back.</li>
+          <li>Where a message contains numbers, we've done the sums for you, next to that message.</li>
+          <li>Under each reply you can open the person's actual screen. You don't need it to answer. On that screen,
+          the system's replies are labelled with the name of the AI model it uses (Claude), and the box for typing
+          belongs to the person, not to you.</li>
+        </ul>
+      </div>
     </div>
   </details>
+  <div class="stack">
+    <p class="label">Before you start</p>
+    <div class="who">
+      <label><span class="label">Your name</span><input id="reviewer" autocomplete="name" placeholder="So we know whose answers these are"></label>
+      <label><span class="label">Your background</span>
+        <select id="reviewer_role">
+          <option value="">Choose one</option>
+          <option>No background in this kind of work</option>
+          <option>Some experience running teams or projects</option>
+          <option>Familiar with the Theory of Constraints (a management method)</option>
+        </select></label>
+      <span class="status" id="saved" role="status"></span>
+    </div>
+  </div>
   <section class="reviewers" id="reviewers" hidden aria-label="Reviewers"></section>
 </div>
 <div class="nav">
-  <select id="case" aria-label="Case"></select>
+  <select id="case" aria-label="Conversation"></select>
   <span class="status num" id="progress"></span>
   <button id="save" type="button">Save my answers to a file</button>
   <button id="load" type="button">Open saved answers</button>
@@ -545,7 +573,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") document.get
 function screens(c, turn) {
   const box = el("div", {class: "shot"});
   const tabs = el("div", {class: "tabs", role: "tablist"});
-  const details = el("details", {class: "screens"}, el("summary", {text: `See ${turn.speaker}'s actual screen for this turn`}), tabs, box);
+  const details = el("details", {class: "screens"}, el("summary", {text: `See ${turn.speaker}'s actual screen for this turn (optional)`}), tabs, box);
   const pick = async index => {
     const s = turn.screens[index];
     [...tabs.children].forEach((b, j) => b.setAttribute("aria-selected", j === index));
@@ -560,17 +588,23 @@ function screens(c, turn) {
   details.addEventListener("toggle", () => { if (details.open && !box.childNodes.length) pick(Math.max(0, turn.screens.findIndex(s => s.label === "After the reply"))); });
   return details;
 }
-function reply(turn) {
-  if (!turn.saved) return el("div", {class: "reply"}, el("p", {class: "label", text: `${Cap} replied`}),
-    el("p", {class: "rejected", text: `${Cap}'s reply wasn't in a form the app could use, so the app rejected it: ${turn.speaker} saw an error message, and nothing from the reply was saved.`}));
+function facts(rows, label) {
+  if (!rows.length) return null;
+  return el("div", {class: "stack"}, el("p", {class: "label", text: label}),
+    el("div", {class: "scroll"}, el("table", {class: "facts"}, el("tbody", {}, ...rows.map(([, k, v]) => el("tr", {}, el("th", {text: k}), el("td", {text: v})))))));
+}
+function reply(turn, explainCodes) {
+  if (!turn.saved) return el("div", {class: "reply"}, el("p", {class: "label", text: "The system replied"}),
+    el("p", {class: "rejected", text: `The system couldn't produce a reply here. ${turn.speaker} saw an error message, and nothing was recorded.`}));
   const move = turn.reply.find(p => p.kind === "move");
-  const saved = turn.reply.filter(p => p.kind === "saved");
-  return el("div", {class: "reply"}, el("p", {class: "label", text: `${Cap} replied`}),
-    move ? el("p", {class: "move"}, el("b", {text: move.headline.slice(0, move.headline.indexOf(": ") + 1) + " "}),
-      move.headline.slice(move.headline.indexOf(": ") + 2)) : null,
+  const recorded = turn.reply.filter(p => p.kind === "recorded");
+  const colon = move ? move.headline.indexOf(": ") : -1;
+  return el("div", {class: "reply"}, el("p", {class: "label", text: "The system replied"}),
+    explainCodes ? el("p", {class: "note", text: `Codes like ${turn.codes} below are the system's own labels for things it recorded earlier. We've added in [square brackets] what each one refers to. The person saw only the code.`}) : null,
+    move ? el("p", {class: "move"}, el("b", {text: move.headline.slice(0, colon + 1) + " "}), move.headline.slice(colon + 2)) : null,
     ...(move ? move.lines.map(line => el("p", {class: "why", text: line})) : []),
-    saved.length ? el("p", {class: "small", text: `${Cap} saved ${saved.length === 1 ? "this" : "these " + saved.length + " items"}:`}) : el("p", {class: "small muted", text: `${Cap} saved nothing else.`}),
-    saved.length ? el("ul", {}, ...saved.map(p => el("li", {}, el("div", {text: p.headline}),
+    recorded.length ? el("p", {class: "small", text: `The system recorded ${recorded.length === 1 ? "this" : "these " + recorded.length + " things"}:`}) : el("p", {class: "small muted", text: "The system recorded nothing else."}),
+    recorded.length ? el("ul", {}, ...recorded.map(p => el("li", {}, el("div", {text: p.headline}),
       p.lines.length ? el("div", {class: "lines", text: p.lines.join(" · ")}) : null,
       el("div", {class: "src", text: p.source})))) : null);
 }
@@ -584,7 +618,7 @@ function question(c, q) {
   }
   const key = keyOf(c, q);
   const current = answers[key] || {answer: null, why: ""};
-  const why = el("textarea", {id: "why-" + key, "aria-label": "Why?", placeholder: `Why? What in ${C}'s reply shows this? A few words is enough.`});
+  const why = el("textarea", {id: "why-" + key, "aria-label": "Why?", placeholder: "Why? What in the reply shows this? A few words is enough."});
   why.value = current.why || "";
   why.disabled = state.readOnly;
   const choices = el("div", {class: "choices", role: "radiogroup", "aria-label": "Your answer"});
@@ -623,12 +657,12 @@ function progress() {
   const c = data.cases[shown] || data.cases[0];
   const mine = c.questions.filter(q => !q.given);
   document.getElementById("progress").textContent = (mine.length
-    ? `This case: ${mine.filter(q => isDone(c, q)).length} of ${mine.length} answered` : "Nothing to answer in this case")
-    + ` · All cases: ${done} of ${all.length}`;
+    ? `This conversation: ${mine.filter(q => isDone(c, q)).length} of ${mine.length} questions answered`
+    : "Nothing to answer in this conversation") + ` · All conversations: ${done} of ${all.length}`;
   data.cases.forEach((c, i) => {
     const qs = c.questions.filter(q => !q.given);
     const n = qs.filter(q => isDone(c, q)).length;
-    select.options[i].textContent = `${i + 1}. ${c.title} ${n === qs.length ? "(done)" : `(${n} of ${qs.length})`}`;
+    select.options[i].textContent = `${i + 1}. ${c.title} ${n === qs.length ? "(done)" : `(${n} of ${qs.length} answered)`}`;
   });
 }
 let shown = 0;
@@ -638,37 +672,40 @@ function show(index) {
   const c = data.cases[index];
   const body = document.getElementById("case-body");
   const parts = [el("div", {class: "stack"},
-    el("p", {class: "label", text: `Case ${index + 1} of ${data.cases.length}`}), el("h2", {text: c.title}),
+    el("p", {class: "label", text: `Conversation ${index + 1} of ${data.cases.length}`}), el("h2", {text: c.title}),
     el("p", {text: c.situation}))];
-  if (c.facts.length) parts.push(el("div", {class: "stack"}, el("p", {class: "label", text: "The facts (sums worked out for you)"}),
-    el("div", {class: "scroll"}, el("table", {class: "facts"}, el("tbody", {}, ...c.facts.map(([k, v]) => el("tr", {}, el("th", {text: k}), el("td", {text: v}))))))));
-  if (c.setup_text) parts.push(el("details", {}, el("summary", {class: "small", text: "Sam's exact setup message (we wrote it to create the situation; it isn't being judged)"}),
-    el("p", {class: "small muted", text: c.setup_text})));
+  parts.push(facts(c.facts.filter(f => f[0] === 0), "Set up before this conversation"));
+  let codesExplained = false;
   for (const t of c.turns) {
     const asked = c.questions.filter(q => q.turn === t.number);
+    const explain = t.codes && !codesExplained;
+    codesExplained = codesExplained || explain;
     parts.push(el("section", {class: "turn"}, el("h3", {text: `Turn ${t.number}`}),
       el("div", {class: "said"}, el("p", {class: "label", text: `${t.speaker} wrote`}), el("blockquote", {text: t.text}),
         el("p", {class: "small muted", text: t.how}), t.declared ? el("p", {class: "small muted", text: t.declared}) : null),
-      reply(t), screens(c, t),
-      asked.length ? el("div", {class: "questions"}, el("p", {class: "label", text: `Questions about ${C}'s reply to Turn ${t.number}`}), ...asked.map(q => question(c, q))) : null));
+      facts(c.facts.filter(f => f[0] === t.number), "In plain terms, with the sums done"),
+      reply(t, explain), screens(c, t),
+      asked.length ? el("div", {class: "questions"}, el("p", {class: "label", text: `Questions about the system's reply in Turn ${t.number}`}), ...asked.map(q => question(c, q)))
+        : el("p", {class: "small muted", text: "No questions about this reply. It's here so you can follow the conversation."})));
   }
   for (const n of c.unsent) {
     const asked = c.questions.filter(q => q.turn === n);
     parts.push(el("section", {class: "turn"}, el("h3", {text: `Turn ${n}`}),
-      el("p", {class: "muted", text: "This turn was never sent: the conversation stopped after the app rejected a reply."}),
+      el("p", {class: "muted", text: `Turn ${n} never happened: the conversation stopped after the error in an earlier turn.`}),
       ...asked.map(q => question(c, q))));
   }
   const whole = c.questions.filter(q => q.turn === null);
   if (whole.length) parts.push(el("section", {class: "turn"}, el("h3", {text: "The conversation as a whole"}),
+    el("p", {class: "small muted", text: "These questions are about all of the system's replies above."}),
     el("div", {class: "questions"}, ...whole.map(q => question(c, q)))));
   const left = c.questions.filter(q => !q.given && !isDone(c, q)).length;
   parts.push(el("div", {class: "end"},
-    el("p", {class: "muted", text: left ? `${left} question${left === 1 ? "" : "s"} left in this case.`
-      : c.questions.every(q => q.given) ? "There is nothing for you to answer in this case." : "You've answered every question in this case. Thank you."}),
+    el("p", {class: "muted", text: left ? `${left} question${left === 1 ? "" : "s"} left in this conversation.`
+      : c.questions.every(q => q.given) ? "There is nothing for you to answer in this conversation." : "You've answered every question in this conversation. Thank you."}),
     el("div", {class: "who"},
-      index > 0 ? el("button", {type: "button", text: "Previous case", onclick: () => { show(index - 1); window.scrollTo(0, 0); }}) : null,
-      index < data.cases.length - 1 ? el("button", {type: "button", class: "primary", text: "Next case", onclick: () => { show(index + 1); window.scrollTo(0, 0); }}) : null)));
-  body.replaceChildren(...parts);
+      index > 0 ? el("button", {type: "button", text: "Previous conversation", onclick: () => { show(index - 1); window.scrollTo(0, 0); }}) : null,
+      index < data.cases.length - 1 ? el("button", {type: "button", class: "primary", text: "Next conversation", onclick: () => { show(index + 1); window.scrollTo(0, 0); }}) : null)));
+  body.replaceChildren(...parts.filter(Boolean));
   progress();
   try { sessionStorage.setItem(local + "-case", index); } catch (e) { /* storage unavailable */ }
 }
