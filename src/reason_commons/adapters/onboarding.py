@@ -123,6 +123,16 @@ def option_text(title, detail):
     return text
 
 
+def recommended_model(ids):
+    """The model setup highlights: the default where the key can use it, else Sonnet, else the first listed.
+
+    Never any Haiku: only Haiku 5.5 has been validated as a consultant, and older ones cost more."""
+    from reason_commons.adapters.anthropic import DEFAULT_MODEL
+    if DEFAULT_MODEL in ids:
+        return DEFAULT_MODEL
+    return next((model for model in ids if "sonnet" in model.lower()), ids[0])
+
+
 # ----- connection checks (run in a thread) ---------------------------------------------
 def check_anthropic(key):
     """Return (models, None) or (None, plain explanation)."""
@@ -257,14 +267,14 @@ async def run_setup(app, settings, first_run, checks=None):
             current = settings.get("anthropic" if provider == "anthropic" else "lm_studio", "model")
             ids = [model_id for model_id, _ in models]
             if provider == "anthropic":
-                recommended = next((m for m in ids if "sonnet" in m.lower()), ids[0])
+                recommended = recommended_model(ids)
                 options = []
                 for model_id, display in models:
                     hint = model_hint(model_id) or "Claude model"
                     title = display + ("  (recommended)" if model_id == recommended else "")
                     options.append((model_id, option_text(title, f"{hint}  ·  {model_id}")))
-                explanation = ("These are the models your key can use. Sonnet suits most people; "
-                               "you can change it later.")
+                explanation = ("These are the models your key can use. Haiku 5.5 costs least and suits "
+                               "most replies; Sonnet reasons more deeply and costs more. You can change it later.")
             else:
                 recommended = ids[0]
                 options = [(model_id, model_id) for model_id in ids]

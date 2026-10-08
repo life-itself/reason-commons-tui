@@ -135,9 +135,11 @@ def model_hint(model_id):
     if "opus" in lowered:
         return "most capable; slower and costs more"
     if "sonnet" in lowered:
-        return "balanced; recommended for most people"
+        return "deeper reasoning; costs more per reply"
+    if "haiku-5-5" in lowered:
+        return "lowest cost; quick, lighter reasoning"
     if "haiku" in lowered:
-        return "cheapest; lighter reasoning, more replies to retry"
+        return "older; not validated as a consultant"
     if "fable" in lowered or "mythos" in lowered:
         return "top tier; highest cost"
     return ""

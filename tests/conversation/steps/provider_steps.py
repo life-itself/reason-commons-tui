@@ -269,6 +269,21 @@ def key_not_stored(context):
     assert SECRET.encode() not in saved_text(context) and SECRET.encode() not in exported
 
 
+@then("the consultant settings name claude-haiku-5-5 as the default Claude model")
+def haiku_default_settings(context):
+    settings = provider_settings()
+    assert settings["provider"] == "anthropic", settings
+    assert (settings["model"], settings["model_source"]) == ("claude-haiku-5-5", "default"), settings
+    assert "Model: claude-haiku-5-5 (default)" in render_provider_settings(settings)
+
+
+@then("the case records that Claude Haiku 5.5 produced it")
+def haiku_recorded(context):
+    sent = [payload["model"] for method, path, _, payload in context.server.requests if path == "/v1/messages"]
+    assert sent == ["claude-haiku-5-5"], sent
+    assert "/model=claude-haiku-5-5/" in context.app.inspect()["case"]["adapter_versions"]["in000001"]
+
+
 @then("the case records that LM Studio produced it")
 def lm_recorded(context):
     assert context.app.inspect()["case"]["adapter_versions"]["in000001"].startswith("lm-studio/")

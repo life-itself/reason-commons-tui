@@ -70,6 +70,14 @@ Feature: The consultant is a replaceable choice made outside the case
     Then a question is saved
     And the API key is not stored in the case or its export
 
+  Scenario: Claude Haiku 5.5 consults when no Claude model is chosen
+    Given an Anthropic server and an environment choosing it with an API key
+    And a case opened with the configured consultant
+    When David contributes to the empty case
+    Then a question is saved
+    And the case records that Claude Haiku 5.5 produced it
+    And the consultant settings name claude-haiku-5-5 as the default Claude model
+
   Scenario: Consult a local model end to end
     Given a local LM Studio server and an environment choosing it
     And a case opened with the configured consultant

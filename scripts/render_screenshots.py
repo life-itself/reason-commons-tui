@@ -320,7 +320,7 @@ async def first_start(folder):
     """The first-start choices, two setup steps and the tour's coaching."""
     from reason_commons.adapters.settings import Settings
     models = [("claude-opus-5-5", "Claude Opus 5.5"), ("claude-sonnet-5-5", "Claude Sonnet 5.5"),
-              ("claude-haiku-4-5-20251001", "Claude Haiku 4.5")]
+              ("claude-haiku-5-5", "Claude Haiku 5.5"), ("claude-haiku-4-5-20251001", "Claude Haiku 4.5")]
     os.environ["USER"] = "mira"
 
     def fresh():

@@ -38,7 +38,7 @@ carry on with the next step.
   `rm -rf /tmp/rc-live && mkdir -p /tmp/rc-live` once at the start). Below, `$RC`
   means that path. Never touch `~/ReasonCommons` or any existing case.
 - Use the Anthropic consultant for every contribution: pass `--provider anthropic`.
-  Keep the default model unless told otherwise.
+  Keep the default model (`claude-haiku-5-5`) unless told otherwise.
 - Read results with `show CASE --view VIEW --format json` and `inspect CASE --json`.
   Judge the application by its JSON, never by the consultant's prose.
 - A contribution that fails (`rejected`, `unavailable`, `stale`) is a finding: record

@@ -1,6 +1,6 @@
 # Plan: Haiku 5.5 by default, a one-reply Sonnet boost, and a usage/cost meter with a soft budget
 
-> Status: planned, not started (steps 2–7). Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
+> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–2 done; 3–7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
 > evaluation recorded in `docs/validation.md` ("Claude Haiku 5.5 as the consultant"). Line numbers are as of that
 > branch and will drift; search for the named functions.
 
@@ -37,7 +37,7 @@ Decided with the user:
 The blind AI pre-screen of `semantic-haiku55-adapter4` (150 pass, 8 fail, 4 can't judge) is recorded in
 `docs/validation.md`, with its failure patterns (review classification, the Cloud layout, the fixtures' dates).
 
-### 2. Haiku 5.5 is the default
+### 2. Haiku 5.5 is the default — done (2026-10-08)
 - **Default model.** `adapters/anthropic.py:27` `DEFAULT_MODEL = "claude-haiku-5-5"`.
 - **Onboarding.**
   - `adapters/onboarding.py:260`: recommend `DEFAULT_MODEL` if listed, else Sonnet, else the first model. Never "any haiku": Haiku 4.5 is unvalidated and costs $1 / $5.

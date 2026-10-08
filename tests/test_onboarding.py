@@ -64,9 +64,32 @@ def test_unreadable_settings_count_as_first_start(tmp_path):
 
 
 def test_model_hints_name_the_trade_off():
-    assert "recommended" in model_hint("claude-sonnet-5-5")
+    assert model_hint("claude-haiku-5-5") == "lowest cost; quick, lighter reasoning"
+    assert model_hint("claude-sonnet-5-5") == "deeper reasoning; costs more per reply"
     assert "capable" in model_hint("claude-opus-5-5")
-    assert "cheapest" in model_hint("claude-haiku-4-5-20251001")
+    # An older Haiku costs more than Haiku 5.5 and was never validated, so it is not called the cheapest.
+    hint = model_hint("claude-haiku-4-5-20251001")
+    assert "lowest" not in hint and "not validated" in hint
+
+
+def test_setup_recommends_haiku_5_5_and_otherwise_sonnet_never_another_haiku():
+    from reason_commons.adapters.onboarding import recommended_model
+    assert recommended_model(["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5",
+                              "claude-haiku-4-5-20251001"]) == "claude-haiku-5-5"
+    assert recommended_model(["claude-opus-5-5", "claude-haiku-4-5-20251001", "claude-sonnet-5-5"]) == \
+        "claude-sonnet-5-5"
+    assert recommended_model(["claude-opus-5-5", "claude-haiku-4-5-20251001"]) == "claude-opus-5-5"
+
+
+def test_a_saved_claude_model_stays_after_the_default_changes():
+    """Someone who chose Sonnet keeps it: the saved choice fills the model the adapter reads."""
+    from reason_commons.adapters.anthropic import AnthropicConsultant
+    settings = Settings(data={"consultant": "anthropic", "anthropic": {"model": "claude-sonnet-5-5"}}, exists=True)
+    environment = {}
+    settings.apply(environment)
+    assert environment["REASON_COMMONS_ANTHROPIC_MODEL"] == "claude-sonnet-5-5"
+    assert AnthropicConsultant.describe_settings(environ=environment)["model"] == "claude-sonnet-5-5"
+    assert AnthropicConsultant.describe_settings(environ={})["model"] == "claude-haiku-5-5"
 
 
 async def pick(app, pilot, key):
@@ -141,7 +164,8 @@ def test_setup_with_claude_checks_the_key_offers_models_and_starts_a_goal(tmp_pa
             await type_in(app, pilot, "sk-ant-good")
             await pilot.pause(0.2)
             choices = app.screen.query_one("#choices")
-            assert choices.options[choices.highlighted].id == "claude-sonnet-5-5"  # recommended
+            # Haiku 5.5 is not listed, and an older Haiku is never recommended: Sonnet is.
+            assert choices.options[choices.highlighted].id == "claude-sonnet-5-5"
             await pick(app, pilot, "claude-opus-5-5")
             await pick(app, pilot, "goal")
             await type_in(app, pilot, "Sleep better")
@@ -157,6 +181,31 @@ def test_setup_with_claude_checks_the_key_offers_models_and_starts_a_goal(tmp_pa
     assert os.environ["REASON_COMMONS_PROVIDER"] == "anthropic"
     with open_case(created, writable=False) as case:
         assert "sk-ant" not in str(case.inspect())
+
+
+def test_setup_highlights_haiku_5_5_when_the_key_can_use_it(tmp_path):
+    settings = Settings.load(tmp_path / "settings.yaml")
+    models = [("claude-opus-5-5", "Claude Opus 5.5"), ("claude-sonnet-5-5", "Claude Sonnet 5.5"),
+              ("claude-haiku-5-5", "Claude Haiku 5.5"), ("claude-haiku-4-5-20251001", "Claude Haiku 4.5")]
+
+    async def run():
+        app = GoalsApp(tmp_path / "goals", settings=settings, checks={"anthropic": lambda key: (models, None)})
+        async with app.run_test(size=(100, 30)) as pilot:
+            await pick(app, pilot, "setup")
+            await type_in(app, pilot, "Dana")
+            await pick(app, pilot, "anthropic")
+            await type_in(app, pilot, "sk-ant-good")
+            await pilot.pause(0.2)
+            choices = app.screen.query_one("#choices")
+            labels = {option.id: str(option.prompt) for option in choices.options}
+            assert choices.options[choices.highlighted].id == "claude-haiku-5-5"
+            assert [key for key, label in labels.items() if "(recommended)" in label] == ["claude-haiku-5-5"]
+            assert "Haiku 5.5 costs least" in str(app.screen.query_one(".explanation").render())
+            await pilot.press("enter")
+            await pick(app, pilot, "sample")
+        return app.return_value
+    assert asyncio.run(run()) == "sample"
+    assert Settings.load(tmp_path / "settings.yaml").get("anthropic", "model") == "claude-haiku-5-5"
 
 
 def test_setup_falls_back_to_the_guide_when_lm_studio_is_missing(tmp_path):
