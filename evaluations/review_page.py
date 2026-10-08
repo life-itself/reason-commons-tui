@@ -373,15 +373,16 @@ textarea.missing { border-color: var(--no); }
           <li><b>Results and reviews</b>: what was measured during a trial, and the system's reading of the results
           against the prediction.</li>
           <li><b>Diagrams</b>: simple maps of the problem, made of short statements and links between them (for
-          example, what is going wrong and what causes it).</li>
+          example, what is going wrong and what causes it). The system gives each statement a label of its own
+          choosing, such as “problem” or “cause”.</li>
         </ul>
         <p>Each thing the system records says which message it is based on.</p>
       </div>
       <details class="words">
         <summary>Words the system uses in its replies (they are also explained under each reply that uses them)</summary>
         <ul>
-          <li><b>case</b>: the system's record of the whole conversation</li>
-          <li><b>the model</b>: everything the system has recorded so far (not the AI model)</li>
+          <li><b>case</b>, <b>the model</b>: two names for the same thing, everything the system has recorded in
+          this conversation (not the AI model)</li>
           <li><b>move</b>: the system's next question or suggested step</li>
           <li><b>attributed</b>: marked with who said it</li>
           <li><b>provisional</b>: a first draft, not settled</li>
@@ -391,7 +392,7 @@ textarea.missing { border-color: var(--no); }
           <li><b>baseline</b>: where things stand before a change</li>
           <li><b>scope</b>: what something covers</li>
           <li><b>denominator</b>: the number something is counted out of (in "40 of 50", it is 50)</li>
-          <li><b>system goal</b>: the goal for the whole department (not a goal of the AI)</li>
+          <li><b>system goal</b>: the goal for the whole business unit (not a goal of the AI)</li>
           <li><b>protection</b>, <b>protected condition</b>, <b>guardrail</b>, <b>bound</b>: something that must be
           kept up while trying a change, such as a minimum that must not be missed</li>
           <li><b>stop condition</b>: the point at which a trial is meant to stop</li>
@@ -429,7 +430,8 @@ textarea.missing { border-color: var(--no); }
         <p class="label">Good to know</p>
         <ul>
           <li>There are {count} conversations, about {total} minutes in all. Each shows roughly how long it takes.</li>
-          <li>Where a message contains numbers, we've done the sums for you, next to that message.</li>
+          <li>Where a message contains numbers, we've done the sums for you, in a box headed “About this message”
+          just under it.</li>
           <li id="finish-note">Your answers are kept in this browser as you go. To hand them in when you've finished,
           click “Save my answers to a file” (just below the list of conversations) and send that file to the person
           who sent you this page. If you saved a file earlier, “Open a file of saved answers” brings those answers
@@ -788,7 +790,8 @@ function show(index) {
     el("p", {class: "label", text: "How to finish"}),
     el("p", {text: (remaining ? `You have ${remaining} question${remaining === 1 ? "" : "s"} left across all the conversations; the list at the top shows which conversations aren't done. ` : "You've answered every question. ")
       + (state.hosted ? "Your answers are already saved for the person who sent you this link, so when everything is done you can simply close this page. Thank you."
-                      : "When everything is done, click “Save my answers to a file” (just below the list of conversations) and send that file to the person who sent you this page. Thank you.")})));
+                      : "When everything is done, save your answers to a file with the button below and send that file to the person who sent you this page. Thank you.")}),
+    state.hosted ? null : el("div", {}, el("button", {type: "button", class: "primary", text: "Save my answers to a file", onclick: () => offer("review.json", reviewFile())}))));
   body.replaceChildren(...parts.filter(Boolean));
   progress();
   try { sessionStorage.setItem(local + "-case", index); } catch (e) { /* storage unavailable */ }

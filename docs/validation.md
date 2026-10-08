@@ -145,13 +145,27 @@ brackets. Where the person or the system has other names for something (a
 line), the facts say so.
 
 Each rubric criterion becomes one or more questions, one idea each, tied to the
-turn they are about. Answers are Yes, No, Can't tell and "I don't understand the
+turn they are about. Each asks plainly what the reply did ("Does the system make
+up a percentage?"), never in a double negative, and records which answer meets
+the criterion. Answers are Yes, No, Can't tell and "I don't understand the
 question", with a few words on why. A criterion's decision comes from its
-questions: every question Yes is a pass, any No a fail, otherwise it cannot be
-judged, and a question the reviewer did not understand leaves it undecided. A
+questions: every question answered the way that meets it is a pass, any
+answered the other way a fail, otherwise it cannot be judged, and a question
+the reviewer did not understand leaves it undecided. Each conversation ends with
+an optional "Anything else?" box, kept in `review.json` as `comments`. A
 question about a reply the system could not produce, or a turn that never
 happened, is answered for the reviewer. The person's own screens are folded
 under each reply, named by what they show.
+
+Before reaching people, the page was read four times by separate agents given
+only its rendered text and asked to answer every question as a first-time
+reviewer, noting every point of confusion. Each round's findings were fixed
+before the next, which started without the earlier reports: confident answers
+rose from 16 of 28 to 18 of 28, then 25 of 31 twice, as the problems found moved
+from structure (facts shown before their turn, double negatives, missing
+definitions) to wording. That is a check on the page's clarity, not evidence
+about real reviewers; the participant test with intended reviewers is still to
+do.
 
 Reviewers' answers save as they go, under their own account; only the reviewer
 and the page's owner can read them. As the owner, you see everyone's progress on

@@ -233,8 +233,9 @@ def plain_reply(records, names, source_of, consultant):
 
 # Words the system uses in its own replies, explained where a reply uses them.
 GLOSSARY = (
-    (r"\bthe case\b", "case", "the system's record of the whole conversation"),
-    (r"\bthe model\b", "the model", "everything the system has recorded so far (not the AI model)"),
+    (r"\bthe case\b", "case", "everything the system has recorded in this conversation (it also calls this the "
+                             "model)"),
+    (r"\bthe model\b", "the model", "everything the system has recorded in this conversation (not the AI model)"),
     (r"\b(next|later|this|the|one) moves?\b", "move", "the system's next question or suggested step"),
     (r"\battributed\b", "attributed", "marked with who said it"),
     (r"\bprovisional\b", "provisional", "a first draft, not settled"),
@@ -249,8 +250,10 @@ GLOSSARY = (
     (r"\bprotect(ion|ed)", "protection", "something that must be kept up while trying a change, such as a minimum "
                                           "that must not be missed"),
     (r"\bguardrail", "guardrail", "something that must not get worse while trying a change"),
-    (r"\bstop condition\b", "stop condition", "the point at which the trial must stop"),
-    (r"\bsystem goal\b", "system goal", "the goal for the whole department (not a goal of the AI)"),
+    (r"\bstop condition\b", "stop condition", "the rule for when a trial is meant to stop; \"breached\" means that "
+                                               "point was reached"),
+    (r"\bsystem goal\b", "system goal", "the goal for the whole business unit (not a goal of the AI)"),
+    (r"\bfrozen\b", "frozen", "fixed, no longer supposed to change"),
     (r"\b(decision )?authority\b", "authority", "who is allowed to decide"),
     (r"\bpremise\b", "premise", "what a question takes for granted"),
     (r"\bmechanism\b", "mechanism", "how something actually happens, step by step"),
