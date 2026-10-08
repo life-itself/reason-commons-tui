@@ -142,14 +142,14 @@ def main(argv=None):
                         help="Record refs such as C3@1; for acceptance, review or automatic")
     decide.add_argument("--speaker", help="Your name as recorded with the decision (default: $USER)")
     decide.add_argument("--confirm", action="store_true", help="Confirm a decision that takes more, or an undo")
-    usage = commands.add_parser("usage", help="What Claude's replies cost, estimated from the local usage log",
-                                description="Reads only the usage log kept outside every goal; sends nothing. "
-                                            "Estimates at list prices; your bill is in the Anthropic Console.")
-    period = usage.add_mutually_exclusive_group()
+    spending = commands.add_parser("usage", help="What Claude's replies cost, estimated from the local usage log",
+                                   description="Reads only the usage log kept outside every goal; sends nothing. "
+                                               "Estimates at list prices; your bill is in the Anthropic Console.")
+    period = spending.add_mutually_exclusive_group()
     period.add_argument("--month", metavar="YYYY-MM", help="A month on your own clock (default: this month)")
     period.add_argument("--all", action="store_true", help="Everything in the log")
-    usage.add_argument("--goal", metavar="FOLDER", help="Only this goal's replies")
-    usage.add_argument("--json", action="store_true")
+    spending.add_argument("--goal", metavar="FOLDER", help="Only this goal's replies")
+    spending.add_argument("--json", action="store_true")
     receipts = commands.add_parser("receipts", help="Inspect attempts for a retained request offline")
     receipts.add_argument("store")
     receipts.add_argument("request_id")

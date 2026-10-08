@@ -285,4 +285,5 @@ class ChosenConsultant:   # adapters/tui.py
      - Open "Consultant calls and cost".
   4. `inspect --json` shows Haiku, Sonnet, Haiku versions in order.
   5. Record the results in `docs/validation.md`. A day later, compare the log with the Anthropic Console.
+  - Done 2026-10-08 (≈ $0.10, budget $0.06 for the reason given there); the Console comparison is still to do.
 - **Ship.** Commit and push each step (done on `claude/haiku-default-sonnet-boost-15ad85`).
