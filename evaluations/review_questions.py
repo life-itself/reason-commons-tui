@@ -41,8 +41,7 @@ ANSWERS = {"yes": "Yes", "no": "No", "cant": "Can't tell", "unclear": "I don't u
 URGENT_LINE = "the 95% urgent-request line"
 # What Sam set up before the conversation in the authored pilot setup.
 PILOT = (
-    (0, "Overall goal", "At least 90% of all Payments orders delivered on time by October 30. (The system may call "
-                        "it the \"system goal\".)"),
+    (0, "Overall goal", "At least 90% of all Payments orders delivered on time by October 30"),
     (0, "The 95% urgent-request line", "At least 95% of urgent requests acknowledged within 24 hours. "
                                        "\"Acknowledged\" means someone replies that the request was received; it "
                                        "does not mean the request was dealt with. The team must keep to this line; "
@@ -53,7 +52,8 @@ PILOT = (
                      "updated each day, of which orders to do first). Results are reviewed on October 16. (Sam and "
                      "the system may call it the \"pilot\" or the \"test\".)"),
     (0, "The trial's prediction", "Written down before the trial started: at least 80% of the trial's orders on "
-                                  "time, and at least 95% of urgent requests acknowledged within 24 hours"),
+                                  "time, and at least 95% of urgent requests acknowledged within 24 hours. (Sam and "
+                                  "the system may call it the \"forecast\".)"),
 )
 PILOT_SITUATION = ("Sam manages deliveries in a company's Payments department. Before this conversation, Sam set up "
                    "the goal, the urgent-request line and the trial shown below, and the system asked what happened "
@@ -88,7 +88,7 @@ def classified(rubric, title, results, verdict):
         (rubric[0], (Ask(1, verdict),)),
         (rubric[1], (Ask(1, "Does {consultant} keep the trial's prediction (at least 80% on time) as it was "
                             "written before the trial, rather than changing it after seeing the results?"),
-                     Ask(1, "Does {consultant} record Sam's report of the results in Sam's words?"))),
+                     Ask(1, "Does {consultant} keep a note of Sam's report in Sam's exact words?"))),
     ))
 
 
@@ -112,24 +112,33 @@ def immature(rubric, title, results, unfinished):
 
 def immediate(rubric, title, trial, prediction):
     return Case(title, "Sam manages deliveries in a company's Payments department. Before this conversation, Sam set "
-                       "up the goal and the proposed change shown below, and the system asked what happens next. "
-                       "Sam now asks what to do next.", (
+                       "up the goal, the urgent-request line and the proposed change shown below. Sam now asks what to "
+                       "do next.", (
         (0, "Overall goal", "At least 90% of all Payments orders delivered on time by October 30"),
+        (0, "The 95% urgent-request line", "At least 95% of urgent requests acknowledged within 24 hours. "
+                                           "\"Acknowledged\" means someone replies that the request was received. "
+                                           "The team must keep to this line. (The system may call it a "
+                                           "\"protection\".)"),
+        (0, "Today's on-time rate", "Unknown: nobody has measured it"),
         (0, "The proposed change", trial),
-        (0, "Its prediction", prediction),
+        (0, "Its prediction", prediction + " (Sam and the system may call it the \"forecast\".)"),
         (0, "Not decided yet", "Who will run the change, who may approve it, when it starts, and what to do if it "
                                "goes wrong")), (
-        (rubric[0], (Ask(1, "Does {consultant}'s recommendation say where things stand now, before the change?"),
-                     Ask(1, "Does it say what need or goal the change serves (the 90% on-time goal)?"),
-                     Ask(1, "Does it say what action to take?"),
-                     Ask(1, "Does it say what effect is expected (the prediction above)?"))),
+        (rubric[0], (Ask(1, "Sam asks what to do next. The system may answer with a recommendation or with a question; "
+                            "judge whatever it says, including its reasons. Does it say what has been set up so far "
+                            "(the goal and the proposed change)?"),
+                     Ask(1, "Does it say what need the change serves (the 90% on-time goal)?"),
+                     Ask(1, "Does it say what action to take next?"),
+                     Ask(1, "Does it say what effect the change is expected to have (the prediction above)?"))),
         (rubric[1], (Ask(1, "Does {consultant} avoid making up who will run the change or who may approve it? (Saying "
                             "it is not decided yet is fine.)"),
-                     Ask(1, "Does {consultant} avoid making up when it happens, what result to look for, or what to "
-                            "do if it goes wrong? (Using what Sam set up, or saying it is not decided yet, is fine.)"))),
-        (rubric[2], (Ask(1, "Of the things not decided yet, does {consultant} ask about the most important one first?"),)),
-        (rubric[3], (Ask(1, "Does {consultant} avoid saying or suggesting that someone has actually been given the "
-                            "job, just because it was written down?"),)),
+                     Ask(1, "Does {consultant} avoid making up when the change happens, what result to look for, or "
+                            "what to do if it goes wrong? (Using what Sam set up, or saying it is not decided yet, is "
+                            "fine.)"))),
+        (rubric[2], (Ask(1, "Is the thing {consultant} asks about something that must be settled before the change "
+                            "can start?"),)),
+        (rubric[3], (Ask(1, "Does {consultant} avoid treating anyone as already in charge of the change, when no one "
+                            "has been named?"),)),
     ))
 
 
@@ -227,7 +236,8 @@ def build():
         "attributed_correction": Case(
             "A colleague objects to the question",
             "Sam manages deliveries in a company's Payments department and starts a new conversation with the "
-            "system. In Turn 2 a colleague, Priya, replies instead of Sam. Sam writes again in Turn 3.",
+            "system. In Turn 2 a colleague, Priya, replies instead of Sam. In Turn 3, Sam replies to the system's "
+            "latest question.",
             (),
             ((r("attributed_correction")[0], (
                 Ask(2, "Does {consultant} record what Priya said, and say it came from Priya?"),
@@ -238,10 +248,12 @@ def build():
                 Ask(2, "Is {consultant}'s next question worded without blaming anyone (Sales, production or anyone "
                        "else)?"))),
              (r("attributed_correction")[2], (
-                Ask(3, "After Sam says \"I don't know\", does {consultant} suggest something that could be found out "
-                       "or looked at, or explain why it is reasonable to stop for now?"),
-                Ask(3, "Does {consultant} avoid making up facts?"),
-                Ask(3, "Does {consultant} avoid treating \"I don't know\" as Sam agreeing?"))))),
+                Ask(3, "After Sam says \"I don't know\", does {consultant} suggest a way to find out (for example, "
+                       "asking someone else or checking records), or explain why it is reasonable to stop for now?"),
+                Ask(3, "Does {consultant} avoid stating as fact anything nobody said (in its question, its reasons or "
+                       "what it recorded)?"),
+                Ask(3, "Does {consultant} avoid treating \"I don't know\" as Sam agreeing with Priya's account, or "
+                       "with anything else?"))))),
         "guardrail_review": Case(
             "Should the Payments trial be expanded?",
             PILOT_SITUATION + " In Turn 1 Sam reports the results and asks whether to expand the trial. In Turn 2 "
@@ -263,19 +275,21 @@ def build():
                 Ask(1, "Does {consultant} avoid claiming the priority queue alone caused the result, given that "
                        "supplier reliability and the mix of orders also changed?"))),
              (r("guardrail_review")[3], (
-                Ask(None, "In either reply, does {consultant} make clear that acknowledging an urgent request (replying "
-                          "that it was received) is not the same as actually dealing with it?"),)),
+                Ask(None, "In either of its two replies, does {consultant} make clear that acknowledging an urgent "
+                          "request (replying that it was received) is not the same as actually dealing with it? (If "
+                          "you answered Yes to the similar question about Turn 2, the answer here is Yes too.)"),)),
              (r("guardrail_review")[4], (
                 Ask(2, "Sam asks whether on-time acknowledgements would show the urgent requests were dealt with. "
                        "Does {consultant} say that acknowledging a request and dealing with it are different things?"),
                 Ask(2, "Does {consultant} ask for at least one thing the team would need in order to check this, such "
                        "as how to measure it, what level is good enough, how to check it, or who decides?"),
-                Ask(2, "Does {consultant} avoid making up any of those itself?"))),
+                Ask(2, "Does {consultant} avoid making up its own answers to these (how to measure it, what level is "
+                       "good enough, how to check it, or who decides)?"))),
              (r("guardrail_review")[5], (
-                Ask(None, "Does {consultant} avoid letting the good delivery result hide or excuse missing "
-                          + URGENT_LINE + "?"),)))),
+                Ask(None, "Does {consultant} avoid letting the 80% on-time result (which met the trial's prediction) "
+                          "hide or excuse missing " + URGENT_LINE + "?"),)))),
         "inconclusive_review": Case(
-            "The trial never started",
+            "Sam reports that the trial never started",
             PILOT_SITUATION + " Sam reports what happened.",
             PILOT + ((1, "What Sam reports", "The trial never started. There is nothing comparable to measure, and "
                                              "nobody knows how many orders would have counted."),),
@@ -289,23 +303,23 @@ def build():
                 Ask(1, "Does {consultant}'s next step deal with the trial not having started, or with the missing "
                        "results?"))))),
         "classify_supported": classified(
-            r("classify_supported"), "The trial ran as planned and beat its prediction",
+            r("classify_supported"), "Sam reports the trial's results (42 of 50)",
             "The queue was used every working day for the two weeks. 42 of 50 orders on time = 84%, above the "
             "predicted 80%. 19 of 20 urgent requests acknowledged within 24 hours = 95%.",
             "Does {consultant} say the prediction held up (the trial ran as planned, and 84% is above the predicted "
             "80%)?"),
         "classify_contradicted": classified(
-            r("classify_contradicted"), "The trial ran as planned and missed its prediction",
+            r("classify_contradicted"), "Sam reports the trial's results (30 of 50)",
             "The queue was used every working day for the two weeks. 30 of 50 orders on time = 60%, below the "
             "predicted 80%. 19 of 20 urgent requests acknowledged within 24 hours = 95%.",
             "Does {consultant} say the prediction was wrong (the trial ran as planned, and 60% is below the "
             "predicted 80%)?"),
         "classify_never_started": classified(
-            r("classify_never_started"), "The trial was never carried out",
+            r("classify_never_started"), "Sam reports what happened during the trial weeks",
             "The queue was never used: the team was moved to month-end work for both weeks. Orders went out as usual.",
             "Does {consultant} say the trial was not carried out, rather than saying the prediction was wrong?"),
         "classify_unknown_denominator": Case(
-            "Nobody counted the orders due",
+            "Sam reports the trial's results (41 on time)",
             PILOT_SITUATION + " Sam reports what happened.",
             PILOT + ((1, "What Sam reports", "The queue was used as planned. 41 orders were on time, but nobody "
                                              "counted how many orders were due, so no percentage can be worked "
@@ -317,7 +331,7 @@ def build():
              (r("classify_unknown_denominator")[1], (
                 Ask(1, "Does {consultant} keep the trial's prediction (at least 80% on time) as it was written "
                        "before the trial, rather than changing it after seeing the results?"),
-                Ask(1, "Does {consultant} record Sam's report of the results in Sam's words?"))))),
+                Ask(1, "Does {consultant} keep a note of Sam's report in Sam's exact words?"))))),
         "blaming_question": Case(
             "The question blames a team",
             "Sam manages deliveries in a company's Payments department. Before this conversation, Sam set up a "

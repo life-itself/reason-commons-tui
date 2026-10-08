@@ -179,7 +179,7 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     assert [t["speaker"] for t in case["turns"]] == ["Sam", "Priya"] and case["unsent"] == [3]
     first = case["turns"][0]
     assert first["reply"][0]["headline"] == "The system asks: What should we observe next?"
-    assert first["reply"][1]["source"] == "From Sam's message in Turn 1"
+    assert first["reply"][1]["source"] == "Based on Sam's message in Turn 1"
     assert not re.search(r"\b[A-Z]\d+@\d+\b", json.dumps([t["reply"] for t in case["turns"]]))
     # A code in the assistant's own words stays, with what it names beside it.
     from evaluations.plain_reply import Names
@@ -201,7 +201,7 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     assert {"path": "reviews", "read": "owner", "write": "owner"} in CAPABILITIES["db"]["rules"]
     # Blind: no machine check, check name or prior review reaches the page; the method's labels stay out.
     assert "checks" not in json.dumps(data) and "machine" not in html and "S06" not in html
-    # The assistant is "the system" throughout; the brief names the model once, to explain the person's screens.
+    # The assistant is "the system" throughout; the model is named once, beside the person's screens.
     assert "{consultant}" not in html and html.count("Claude") == 1 and "the system" in html
     with pytest.raises(FileExistsError):
         build_review_package(report.directory / "report.json")

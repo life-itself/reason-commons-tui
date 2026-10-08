@@ -18,8 +18,11 @@ ATTAINMENT = {"unknown": "not known yet", "pending": "not known yet", "met": "ye
 ASKS = {"question": "asks", "recommendation": "recommends", "stop": "suggests stopping here"}
 CODE = re.compile(r"\b[A-Z]\d+@\d+\b")
 KIND_NAMES = {"goal": "the goal", "note": "the note", "test": "the trial", "action": "the action",
-              "observation": "the result", "review": "the review", "intervention": "the earlier question",
+              "observation": "the result", "review": "the review", "intervention": "the system's earlier question",
               "claim": "the diagram statement", "link": "the link", "retraction": "the withdrawal"}
+MOVE_NAMES = {"question": "the system's earlier question", "recommendation": "the system's earlier recommendation",
+              "stop": "the system's earlier suggestion to stop"}
+SHORT = 90  # a named item longer than this is cut, so a bracket never buries the sentence it explains
 TREE_NAMES = {"goal": "the goal diagram", "current_reality": "the diagram of what is going wrong now",
               "conflict": "the conflict diagram", "future_reality": "the diagram of what should happen if they act",
               "prerequisite": "the diagram of obstacles and first steps", "transition": "the action-plan diagram"}
@@ -56,15 +59,29 @@ class Names:
         for record in records:
             self.records[base(record["ref"])] = record
 
-    def __call__(self, ref):
+    def __call__(self, ref, short=False):
         record = self.records.get(base(ref))
         if not record:
             return "an earlier item"
         data = record["data"]
         if record["kind"] == "link":
-            return f"from {self(data['from_ref'])} to {self(data['to_ref'])}"
+            return f"from {self(data['from_ref'], short)} to {self(data['to_ref'], short)}"
         text = data.get("statement") or data.get("text") or data.get("primary_prompt") or data.get("measure")
-        return f"“{text}”" if text else "an earlier item"
+        if not text:
+            return "an earlier item"
+        # A named item's own codes become what they are ("the goal"), so no unexplained code is left inside it.
+        text = CODE.sub(lambda m: self.kind(m.group(0)), text)
+        if short and len(text) > SHORT:
+            text = text[:SHORT].rsplit(" ", 1)[0] + "…"
+        return f"“{text}”"
+
+    def kind(self, ref):
+        record = self.records.get(base(ref))
+        if not record:
+            return "an earlier item"
+        if record["kind"] == "intervention":
+            return MOVE_NAMES.get(record["data"].get("kind"), KIND_NAMES["intervention"])
+        return KIND_NAMES.get(record["kind"], "an item")
 
     def explain(self, text):
         """The text as written, with what each record code in it names added in brackets."""
@@ -72,7 +89,11 @@ class Names:
             record = self.records.get(base(match.group(0)))
             if not record:
                 return match.group(0)
-            return f"{match.group(0)} [{KIND_NAMES.get(record['kind'], 'an item')} {self(match.group(0))}]"
+            named = f"{self.kind(match.group(0))} {self(match.group(0), short=True)}"
+            protections = record["data"].get("protections") if record["kind"] == "goal" else None
+            if protections:
+                named += ", which also protects " + "; ".join(f"“{p}”" for p in protections)
+            return f"{match.group(0)} [{named}]"
         return CODE.sub(name, text) if isinstance(text, str) else text
 
     def tree(self, ref):
@@ -131,7 +152,8 @@ def recorded_item(record, names):
         if data.get("expected_state"):
             lines.append(f"What it should lead to: {data['expected_state']}")
         if data.get("expected_state_attainment"):
-            lines.append(f"Has it led to that: {ATTAINMENT.get(data['expected_state_attainment'], 'not known yet')}")
+            lines.append("Has it had the effect it should have: "
+                         + ATTAINMENT.get(data["expected_state_attainment"], "not known yet"))
         return f"An action{newer}: “{data['statement']}”", lines
     if kind == "observation":
         lines = [f"For the trial {names(data['test_ref'])}"]
@@ -146,7 +168,7 @@ def recorded_item(record, names):
     if kind == "claim":
         role = ROLES.get(data["role"], data["role"].replace("_", " "))
         where = TREE_NAMES.get(data["tree"], data["tree"])
-        return f"Added to {where}{newer}, as {role}: “{data['statement']}”", basis
+        return f"Added to {where}{newer}, labelled by the system as {role}: “{data['statement']}”", basis
     if kind == "link":
         start, end = names.tree(data["from_ref"]), names.tree(data["to_ref"])
         where = lambda tree: f" (in {TREE_NAMES[tree]})" if tree in TREE_NAMES and tree != data["tree"] else ""
@@ -173,7 +195,7 @@ def plain_reply(records, names, source_of, consultant):
             options = [option.get("label") if isinstance(option, dict) else str(option)
                        for option in data.get("options") or []]
             if options:
-                lines.append("Other choices it offered: " + "; ".join(options))
+                lines.append("Other choices it offered, as buttons on the person's screen: " + "; ".join(options))
             parts.insert(0, {"kind": "move", "headline": f"{consultant} {ASKS.get(data['kind'], 'says')}: "
                                                          f"{names.explain(data['primary_prompt'])}",
                              "lines": [names.explain(line) for line in lines], "source": ""})

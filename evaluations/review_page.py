@@ -41,10 +41,8 @@ CAPABILITIES = {"db": {"rules": [{"path": "reviews", "read": "owner", "write": "
                 "user": {}, "downloads": True}
 SCREEN_LABELS = {"Next step, answer typed": "Before sending", "Case context": "Everything the system has recorded",
                  "Trees": "The diagrams", "Backlog": "Waiting for approval"}
-HOW = {"answer": "{speaker} typed this and sent it.",
-       "direct_advice": "{speaker} typed this and sent it with the button that asks for direct advice.",
-       "explain_observation": "{speaker} typed this and sent it with the button labelled “Ask for help planning an "
-                              "observation”, which asks the system for help with results.",
+HOW = {"answer": "{speaker} typed this and sent it.", "direct_advice": "{speaker} typed this and sent it.",
+       "explain_observation": "{speaker} typed this and sent it.",
        "another_question": "{speaker} pressed the button that asks the system for a different question."}
 DECLARED = ("With this message, {speaker} also formally stated being the person in charge of the work. (The system "
             "only records someone as in charge when they state it this way.)")
@@ -117,8 +115,8 @@ def package_data(report_path, provider=None, only=None):
                 for ref in refs:
                     if ref in speakers:
                         number, speaker = speakers[ref]
-                        return f"From {speaker}'s message in Turn {number}"
-                return "From what was set up before this conversation" if refs else "Source not given"
+                        return f"Based on {speaker}'s message in Turn {number}"
+                return "Based on what was set up before this conversation" if refs else "Source not given"
             names = Names(run.get("setup_records", []))
             turns = []
             for turn, entry in zip(sent, replayed):
@@ -146,7 +144,16 @@ def package_data(report_path, provider=None, only=None):
                 "questions": case_questions(run, authored, consultant, turns)})
     for index, case in enumerate(cases, 1):
         case["file"] = f"cases/case-{index:02d}.js"
+        case["minutes"] = minutes(case)
     return {"template": template, "cases": cases, "consultant": consultant, "answers": ANSWERS}, screens
+
+
+def minutes(case):
+    """A rough reading-and-answering time: about 200 words a minute, and half a minute a question."""
+    words = len(json.dumps([case["situation"], case["facts"], [(t["text"], t["reply"]) for t in case["turns"]]],
+                           ensure_ascii=False).split())
+    asked = sum(1 for q in case["questions"] if not q.get("given"))
+    return max(3, round(words / 200 + asked * 0.5))
 
 
 def capital(text):
@@ -296,6 +303,9 @@ button.primary { background: var(--accent); color: var(--on-accent); border-colo
 .reply li .lines { color: var(--muted); font-size: 14px; }
 .reply li .src { font-size: 13px; color: var(--muted); font-style: italic; }
 .rejected { color: var(--no); font-weight: 600; }
+.finish { background: var(--panel); border: 2px solid var(--accent); border-radius: 8px; padding: 12px 16px; display: grid; gap: 6px; }
+.words summary { cursor: pointer; color: var(--accent); }
+.words ul { margin-top: 8px; }
 .reply .note { font-size: 14px; background: var(--panel); border-radius: 6px; padding: 6px 10px; }
 details.screens summary { cursor: pointer; color: var(--accent); }
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-block: 8px; }
@@ -325,31 +335,59 @@ textarea.missing { border-color: var(--no); }
 <div class="top">
   <h1>Reviewing the system's replies</h1>
   <details class="brief" id="brief" open>
-    <summary>Read this first (about two minutes)</summary>
+    <summary>Read this first (about three minutes)</summary>
     <div class="stack">
-      <p><b>What this is.</b> Reason Commons is a system that helps people think through a problem at work, one step
-      at a time. A person types a message about what is going on. The system replies: it keeps a record of what they
-      said, and asks one next question or suggests a next step. One message and the system's reply to it make up a
-      <b>turn</b>.</p>
+      <p><b>What this is.</b> Reason Commons is an AI system that helps people think through a problem at work, one
+      step at a time. A person types a message about what is going on. The system replies: it keeps a record of what
+      they said, and asks one next question or suggests a next step. One message and the system's reply to it make up
+      a <b>turn</b>.</p>
       <p><b>What we'd like from you.</b> You'll read a few short conversations between a person and the system, one
-      at a time. Under the system's replies are some yes/no questions about those replies. You are judging the
-      system's replies only: not the person, and not whether their plan is a good idea.</p>
+      at a time. Under the system's replies are some questions about those replies. You are judging the system's
+      replies only: not the person, and not whether their plan is a good idea.</p>
+      <p>The conversations are separate, made-up situations. Some reuse the same people, or the same trial with
+      different results, and they are not in time order. Read each one on its own.</p>
+      <div>
+        <p class="label">The parts of a reply</p>
+        <p>Each of the system's replies can have three parts: its question or recommendation; its reasons, in its own
+        words; and the things it recorded. A question about "the reply" or "the system" means all three parts, unless
+        it names one.</p>
+      </div>
       <div>
         <p class="label">What the system keeps a record of</p>
         <ul>
           <li><b>Notes</b>: something a person said, kept in their own words.</li>
           <li><b>The goal</b>: what the person wants to achieve, and what must not get worse along the way.</li>
           <li><b>A trial</b>: a small change the person will try, with a prediction of what it will do, written down
-          before it starts. People and the system may also call it a <b>pilot</b> or a <b>test</b>.</li>
+          before it starts.</li>
           <li><b>Results and reviews</b>: what was measured during a trial, and the system's reading of the results
           against the prediction.</li>
           <li><b>Diagrams</b>: simple maps of the problem, made of short statements and links between them (for
           example, what is going wrong and what causes it).</li>
         </ul>
-        <p>Each thing the system records says whose message it came from.</p>
+        <p>Each thing the system records says which message it is based on.</p>
       </div>
+      <details class="words">
+        <summary>Words the system uses in its replies (open this if a reply puzzles you)</summary>
+        <ul>
+          <li><b>case</b>: the system's record of the whole conversation</li>
+          <li><b>the model</b>: everything the system has recorded so far (not the AI model)</li>
+          <li><b>move</b>: the system's next question or suggested step</li>
+          <li><b>attributed</b>: marked with who said it</li>
+          <li><b>provisional</b>: a first draft, not settled</li>
+          <li><b>pilot</b>, <b>test</b>: a trial</li>
+          <li><b>forecast</b>: a prediction</li>
+          <li><b>horizon</b>: a deadline</li>
+          <li><b>baseline</b>: where things stand before a change</li>
+          <li><b>scope</b>: what something covers</li>
+          <li><b>denominator</b>: the number something is counted out of (in "40 of 50", it is 50)</li>
+          <li><b>protection</b>, <b>guardrail</b>, <b>stop condition</b>: a line that must not be crossed while
+          trying something</li>
+          <li><b>decision authority</b>: who is allowed to decide</li>
+        </ul>
+      </details>
       <div>
         <p class="label">How to answer each question</p>
+        <p>Each question has four answers to choose from:</p>
         <ul>
           <li><b>Yes</b>: the reply clearly does this.</li>
           <li><b>No</b>: it doesn't, or it does the opposite.</li>
@@ -357,24 +395,23 @@ textarea.missing { border-color: var(--no); }
           <li><b>I don't understand the question</b>: please say so. That tells us the question needs rewriting; it
           is never a wrong answer.</li>
         </ul>
-        <p>Then add a few words saying why. This is needed for every answer except Yes.</p>
+        <p>Under each question is a box. Write a few words there saying why you chose your answer. This is needed for
+        every answer except Yes; for Yes it's optional.</p>
       </div>
       <div class="example">
         <p class="label">An example (made up, not one of the conversations)</p>
         <p><b>Anna wrote:</b> “We sold 30 of our 40 tickets.”</p>
         <p><b>The system replied:</b> “That's 75% sold. What share did you hope to sell?”</p>
         <p><b>Question:</b> Does the system work out what share of the tickets was sold?</p>
-        <p><b>Answer:</b> Yes. <b>Why:</b> “It says 75%, and 30 of 40 is 75%.”</p>
+        <p><b>Answer:</b> Yes. <b>Why (optional for Yes):</b> “It says 75%, and 30 of 40 is 75%.”</p>
       </div>
       <div>
         <p class="label">Good to know</p>
         <ul>
-          <li>Each conversation takes about five minutes. Your answers save as you go, so you can stop and come
-          back.</li>
+          <li>Each conversation shows roughly how long it takes. Your answers save as you go, so you can stop and
+          come back.</li>
           <li>Where a message contains numbers, we've done the sums for you, next to that message.</li>
-          <li>Under each reply you can open the person's actual screen. You don't need it to answer. On that screen,
-          the system's replies are labelled with the name of the AI model it uses (Claude), and the box for typing
-          belongs to the person, not to you.</li>
+          <li>When you've answered every question, the end of the last conversation tells you how to finish.</li>
         </ul>
       </div>
     </div>
@@ -573,7 +610,8 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") document.get
 function screens(c, turn) {
   const box = el("div", {class: "shot"});
   const tabs = el("div", {class: "tabs", role: "tablist"});
-  const details = el("details", {class: "screens"}, el("summary", {text: `See ${turn.speaker}'s actual screen for this turn (optional)`}), tabs, box);
+  const details = el("details", {class: "screens"}, el("summary", {text: `See ${turn.speaker}'s actual screen for this turn (optional)`}),
+    el("p", {class: "small muted", text: `This is exactly what ${turn.speaker} saw. You don't need it to answer. On it, the system's replies are labelled with the name of the AI model it uses (Claude), and the box for typing is ${turn.speaker}'s, not yours.`}), tabs, box);
   const pick = async index => {
     const s = turn.screens[index];
     [...tabs.children].forEach((b, j) => b.setAttribute("aria-selected", j === index));
@@ -672,8 +710,8 @@ function show(index) {
   const c = data.cases[index];
   const body = document.getElementById("case-body");
   const parts = [el("div", {class: "stack"},
-    el("p", {class: "label", text: `Conversation ${index + 1} of ${data.cases.length}`}), el("h2", {text: c.title}),
-    el("p", {text: c.situation}))];
+    el("p", {class: "label", text: `Conversation ${index + 1} of ${data.cases.length} · about ${c.minutes} minutes`}),
+    el("h2", {text: c.title}), el("p", {text: c.situation}))];
   parts.push(facts(c.facts.filter(f => f[0] === 0), "Set up before this conversation"));
   let codesExplained = false;
   for (const t of c.turns) {
@@ -705,6 +743,12 @@ function show(index) {
     el("div", {class: "who"},
       index > 0 ? el("button", {type: "button", text: "Previous conversation", onclick: () => { show(index - 1); window.scrollTo(0, 0); }}) : null,
       index < data.cases.length - 1 ? el("button", {type: "button", class: "primary", text: "Next conversation", onclick: () => { show(index + 1); window.scrollTo(0, 0); }}) : null)));
+  const remaining = data.cases.reduce((n, c) => n + c.questions.filter(q => !q.given && !isDone(c, q)).length, 0);
+  if (index === data.cases.length - 1 || !remaining) parts.push(el("div", {class: "finish"},
+    el("p", {class: "label", text: "How to finish"}),
+    el("p", {text: (remaining ? `You have ${remaining} question${remaining === 1 ? "" : "s"} left across all the conversations; the list at the top shows which conversations aren't done. ` : "You've answered every question. ")
+      + (state.hosted ? "Your answers are already saved for the person who sent you this link, so when everything is done you can simply close this page. Thank you."
+                      : "When everything is done, click “Save my answers to a file” at the top of the page and send that file to the person who sent you this page. Thank you.")})));
   body.replaceChildren(...parts.filter(Boolean));
   progress();
   try { sessionStorage.setItem(local + "-case", index); } catch (e) { /* storage unavailable */ }
