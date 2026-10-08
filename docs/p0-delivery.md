@@ -608,3 +608,40 @@ workspace meter, budget and boost, the accessible presentation, the command and 
 notices. They establish the integration with fake servers; the live smoke in
 [validation](validation.md) checks it once against Anthropic. Whether the meter helps
 people spend as they intend is not established.
+
+## A story tour and a first-use note (8 October 2026)
+
+Outside the specification's scenarios, following the
+[plan](plans/2026-10-08-story-tour-and-welcome.md): no feature file of the
+specification changed, nor the application layer or `CaseCapabilities`.
+
+- **A new goal's first screen orients without gating.** A numbered note under the answer
+  box says who asks, how to answer and send, that each reply proposes and you decide, and
+  where the loop line and Views are. The answer box keeps the keys; the note folds on a
+  short screen, goes after the first answer, and *Hide this* retires it (a setting, saved
+  only once the settings file exists, so it never ends first start). *How this works*, the
+  specification's own first-screen control (M01), draws the workspace with its parts
+  numbered; it is in Commands too, and the accessible presentation says the same. S114 and
+  S117 still pass: nothing stands before the first answer.
+- **The guided tour is a story.** *A winter at Harrowfield* replaces the practice goal and
+  its coaching strip. Story pages narrate; the person plays Ruth Okonjo at a hospital that
+  is always full, walks through a lived-in goal's six trees one plain question at a time,
+  decides the two proposals waiting in Backlog, and runs one loop with the built-in guide
+  whose forecast misses on day three. A strip under the workspace narrates each part's
+  steps, and one koan from *Thinking Processes as Koans* closes each part. The goal is
+  built from `adapters/stories/harrowfield.yaml` one revision per chapter, as the real
+  commons is; the tour opens a throwaway copy, saved under the story's clock, and a part
+  chosen from Contents starts fresh with Ruth's answers before it, put in through the
+  ordinary use cases. The part reached is kept in the state folder
+  (`$XDG_STATE_HOME/reason-commons/tour.yaml`), beside the usage log. First start offers
+  the tour first until it is finished.
+- **The tour is held to the workspace.** Its script is checked as it loads: every view,
+  tree and statement it names exists, each tree's part asks that tree's own question, a
+  step fits the strip and a page an 80 by 24 screen, and none of the method's
+  abbreviations appear. Pilot tests walk its pages, both decisions, the Monday loop on
+  Ruth's answers and day three's review (the forecast beside the result), leaving and the
+  contents, and how the start screen and `run_home` reach it.
+
+These tests establish the tour's behaviour with the offline guide. Whether newcomers
+understand the method better after taking it is not established, and S73 (first-hour
+usability evidence) is still outstanding.

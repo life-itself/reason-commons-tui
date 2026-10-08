@@ -27,8 +27,8 @@ repository.
 | p0 durable case engine | Implemented: revisions, YAML storage, export/import, retry, consultant ports, CLI, MCP |
 | Terminal workspace (TUI) | First personal-use slice of p1: `reason-commons tui`, built with Textual |
 | Built-in guide | Offline consultant (`guided`) that walks the loop without a model or key |
-| Real commons | The Second Renaissance story (`adapters/stories/second-renaissance.yaml`), built one revision per chapter by `scripts/build_story.py` into the packaged `.reasoncase`; History becomes a steppable timeline for every goal |
-| First start | Ways to begin, setup (name, consultant, checked key and model), Settings and the in-app guided tour (`adapters/onboarding.py`, `adapters/settings.py`) |
+| Stories | The Second Renaissance story (`adapters/stories/second-renaissance.yaml`), the real commons, and the Harrowfield goal the tour opens (`adapters/stories/harrowfield.yaml`), each built one revision per chapter by `scripts/build_story.py NAME` into its packaged `.reasoncase`; History becomes a steppable timeline for every goal |
+| First start | Ways to begin, setup (name, consultant, checked key and model) and Settings (`adapters/onboarding.py`, `adapters/settings.py`); a new goal's first-use note and How this works (`adapters/welcome.py`); the guided tour, *A winter at Harrowfield* (`adapters/tours/harrowfield.yaml`, `adapters/tour.py`, `adapters/tour_view.py`) |
 | Six trees | Tree statements, links (which may reach another tree), new versions and withdrawals, with the goal at the Goal Tree's top (p2, S128–S134); Trees view, `trees` command, `.ltp.yaml` import/export |
 | Deciding what enters the model | Proposals, the acceptance setting, the ordered Backlog, review flags and undo (p2, S135–S150; `domain/membership.py`); Backlog view, Accept all, Undo in History, `decide` command, MCP decision tools |
 | Full p1 contract | Not yet delivered: `--accessible`, speaker switching, 80×24 specimens, usability evidence |
@@ -40,6 +40,17 @@ The README and docs pictures are rendered from the real workspace with the
 built-in guide and fixed dates. After changing what the workspace shows, run
 `python3 scripts/render_screenshots.py` (PNG copies need Chromium and Pillow) and
 commit `docs/images/`. `docs/images/loop.svg` is drawn by hand.
+
+## Stories and the tour
+
+A story file is a list of chapters, each saved as one revision through the
+application. After editing one, rebuild its package by name and commit both:
+`python3 scripts/build_story.py harrowfield` (or `second-renaissance`); the tests
+compare each package with a fresh build. The tour's words, beats and Ruth's example
+answers are in `adapters/tours/harrowfield.yaml`. It is checked as it loads, and
+`tests/test_tour.py` holds it to the workspace: every view, tree and statement it
+names must exist, each tree's part asks that tree's own question, a beat fits three
+lines and a page an 80 by 24 screen, and none of the method's abbreviations appear.
 
 ## Engine, utilities and agents
 

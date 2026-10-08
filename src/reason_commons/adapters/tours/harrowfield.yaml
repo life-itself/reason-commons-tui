@@ -4,7 +4,7 @@
 # throwaway copy of the packaged Harrowfield goal (stories/harrowfield.yaml) on the Friday before the pilot,
 # walks through its six trees one question at a time, asks for the two decisions still waiting, and then runs
 # one real loop with the built-in guide. Each part: an opening page, the workspace with a strip that narrates
-# a few beats, and a closing page with one koan from "Thinking Processes as Koans" (David Joseph, 2026), after
+# a few beats, and a closing page with one koan from David's "Thinking Processes as Koans" (8 October 2026), after
 # the reader has seen what it points to.
 #
 # Beats: `say` is at most three lines at 80 columns. A `button` moves the view only when pressed: `view` opens

@@ -50,24 +50,40 @@ the forecast and the result stack one above the other:
 | **Views** | Switch view, when the list on the left does not fit |
 | Ctrl+P, or **Commands** in the footer | Every command, one to a line: send with deeper reasoning (with Claude), accept all the last reply proposed, accept proposals automatically (or hold them for review), ask about the open reviews, export, import or export trees, retry (and retry with Sonnet), consultant calls and cost, change consultant, views, trees, help, quit; each says whether it is local or asks the consultant |
 | F1, or **Help** in the footer | Keys and controls |
-| Ctrl+Q | Save your draft and quit |
+| Ctrl+Q | Save your draft and quit (in the tour: leave it, for the start screen) |
 
 On the goals list: arrows choose, Enter opens, F1 shows help, F2 opens Settings, Ctrl+Q quits.
 
 ## First start, settings and the tour
 
-The first time, `reason-commons` offers four ways to start: start a first goal
-straight away (the offline guide, with your login name), choose who asks the
-questions first, take the guided tour, or explore a real commons. Choosing
-first asks for your name (recorded with your answers), the consultant and, for
-Claude or LM Studio, checks the connection and lets you choose a model. Esc goes
-back a step; leaving setup changes nothing. F2 **Settings** on the home screen, then
-**You**, runs it again.
+The first time, `reason-commons` offers four ways to start: take the tour (first,
+until you have finished it), start a first goal straight away (the offline guide,
+with your login name), choose who asks the questions first, or explore a real
+commons. Choosing first asks for your name (recorded with your answers), the
+consultant and, for Claude or LM Studio, checks the connection and lets you choose a
+model. Esc goes back a step; leaving setup changes nothing. F2 **Settings** on the
+home screen, then **You**, runs it again.
 
-The guided tour opens a practice goal with the built-in guide. A coaching strip
-explains each of the six steps; **Example answer** puts the tutorial's answer in
-the box and **Finish tour** returns to the home screen. The practice goal is
-deleted afterwards.
+A new goal's first screen has a short note under the answer box: who asks, how to
+answer and send, that each reply proposes and you decide, and where the loop line and
+Views are. It gates nothing (the answer box keeps the keys) and goes once the first
+answer is sent. **How this works** draws the workspace with each part numbered and says
+what each is for; it is also in Commands. **Hide this** puts the note away on every
+new goal. When the screen is short, the note folds to one line, then goes.
+
+**The tour**, *A winter at Harrowfield*, is a story in nine parts. You are Ruth
+Okonjo, the new Director of Patient Flow at a hospital that is always full and about to
+spend £9.4 million on 24 more beds. Story pages tell what happened; then the workspace
+opens on her goal, whose six trees hold the words of the people who work there, and a
+strip under it narrates a few steps: open this tree, choose that statement, decide the
+proposal waiting in Backlog. A step's button moves the view only when you press it, and
+**Next ▶** (or F3) always goes on. Each part asks one of the six questions and ends with
+a short koan from a monastery on a mountain pass. Parts 8 and 9 are a real loop with the
+built-in guide: you choose a test, write its forecast before anything happens, and three
+days later compare it with what happened. **Example answer** puts in Ruth's words.
+**Contents** starts any part fresh, with Ruth's answers for everything before it;
+**Leave tour** (Ctrl+Q) returns to the start screen, which then offers **Continue the
+tour** at the part you reached. Nothing you write in the tour is kept.
 
 ## Screens
 
@@ -78,14 +94,20 @@ progress or the real commons. `scripts/render_screenshots.py` regenerates them.
 
 | | |
 | --- | --- |
-| ![The first screen: start a first goal, choose who asks, the tour or the real commons](images/first-start.png) | The ways to start, shown once |
+| ![The first screen: take the tour, start a first goal, choose who asks, or the real commons](images/first-start.png) | The ways to start, shown once |
 | ![Choosing who asks the questions](images/setup-consultant.png) | Setup: who asks the questions |
 | ![Choosing a Claude model](images/setup-model.png) | Setup: the models your key can use |
-| ![The guided tour, step 1](images/tour.png) | The guided tour's coaching strip and **Example answer** |
+| ![The tour's first page: A winter at Harrowfield, a story in nine parts, with Begin, Contents and Not now](images/tour-start.png) | The tour's first page |
+| ![A story page: Harrowfield General, where Alwyn Pryce waited 31 hours, and You are Ruth Okonjo](images/tour-story.png) | A story page |
+| ![The workspace during the tour: the Goal Tree with a condition chosen, and the tour's strip beneath](images/tour-strip.png) | The workspace and the tour's strip |
+| ![A part's closing page: the koan Ten Complaints, its key, and what comes next](images/tour-koan.png) | A part's closing koan |
+| ![Day three: the review question with the original forecast, 8 in 10, beside the reported result, 4 of 11](images/tour-day-three.png) | Day three: the forecast beside what happened |
+| ![A new goal's first screen with the note under the answer box](images/welcome.png) | A new goal's first screen, with its note |
+| ![How this works: the workspace drawn with five numbered parts and what each is for](images/how-this-works.png) | How this works |
 
 ### The goals list
 
-The list has two sections: **Start** (**New goal**, the real commons, the guided tour) and
+The list has two sections: **Start** (**New goal**, the tour, the real commons) and
 **Your goals**, a table of each goal's name, the stage it has reached and the day it last
 changed, with ▸ beside the highlighted row. The footer lists the keys and, on the right,
 what is set now: your name, who asks the questions and the theme. Settings are behind F2.

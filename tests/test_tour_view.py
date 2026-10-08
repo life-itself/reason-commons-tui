@@ -112,6 +112,25 @@ def test_the_tour_opens_on_its_story_and_the_workspace_answers_as_ruth(tmp_path)
     asyncio.run(run())
 
 
+def test_how_this_works_puts_its_explanations_first_on_a_short_screen(tmp_path):
+    async def run():
+        app, tour = tour_app(tmp_path, "workspace")
+        async with app.run_test(size=(80, 24)) as pilot:
+            await calm(pilot)
+            await pilot.press("enter")
+            await calm(pilot, 10)
+            assert tour.step["kind"] == "how"
+            text = screen_text(app)
+            # The drawing would push the explanations out of sight; they say everything without it.
+            assert "The goal's name, who you are" in text and "Answer as you" not in text
+            assert "pgdn More" in footer(app)
+            body = app.screen.query_one("#page-body")
+            await pilot.press("pagedown")
+            await calm(pilot)
+            assert body.scroll_y > 0 and app.screen.query_one("#page-choices").has_focus
+    asyncio.run(run())
+
+
 def test_a_waiting_decision_is_asked_for_and_the_strip_says_how_it_turned_out(tmp_path):
     async def run():
         app, tour = tour_app(tmp_path, "goal-tree")

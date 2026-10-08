@@ -37,20 +37,27 @@ There is no Python setup to manage. To update later, run `uv tool upgrade reason
 
 The first time, you choose how to begin:
 
+- **Take the tour**: a short story at a hospital that is always full, in which you
+  play the person asked to fix it. You walk through the six questions with the
+  people who work there, make two decisions and run one loop yourself. About 15
+  minutes; leave any time, and nothing is kept.
 - **Start my first goal**: the offline guide asks the questions, straight away.
 - **Choose who asks the questions first**: your name, then the offline guide,
   Claude or a local model. About a minute.
-- **Take the guided tour**: practise one whole loop with example answers. Nothing
-  is kept.
 - **Explore a real commons**: read how one movement's shared reasoning grew, step
   by step, and the action it says comes next.
 
-![The first screen offers four ways to start: start my first goal with the offline guide, choose who asks the questions first, take the guided tour, or explore a real commons](docs/images/first-start.png)
+![The first screen offers four ways to start: take the tour, start my first goal with the offline guide, choose who asks the questions first, or explore a real commons](docs/images/first-start.png)
 
 After that, `reason-commons` opens a list of your goals. A goal opens on one
 question; you answer in ordinary words. Enter adds a line, **Ctrl+S** sends,
 **Ctrl+P** lists every command and **Ctrl+Q** quits. Everything is saved as you
-type, including an unsent draft, and you come back to where you were.
+type, including an unsent draft, and you come back to where you were. A new goal's
+first screen has a short note under the answer box on how the screen works;
+**How this works** draws the screen with each part labelled, and **Hide this** puts
+the note away for good. It never stands between you and your first answer.
+
+![The guided tour: Ruth Okonjo's workspace at Harrowfield General with the Goal Tree open, the condition "No one occupies a bed they no longer need" chosen, and the tour's strip under it saying why it matters and that Graham Teller's proposal waits in Backlog](docs/images/tour-strip.png)
 
 ## How it works
 
@@ -224,7 +231,7 @@ This is an early prototype for personal use.
 
 | | |
 | --- | --- |
-| **Works now** | The loop end to end, offline with the built-in guide or with an AI consultant; all six trees, grown in conversation by Claude or a local model, or imported; a backlog where you accept or reject what the consultant proposes, with review flags and undo; History for every goal; export and import; the real commons and the guided tour |
+| **Works now** | The loop end to end, offline with the built-in guide or with an AI consultant; all six trees, grown in conversation by Claude or a local model, or imported; a backlog where you accept or reject what the consultant proposes, with review flags and undo; History for every goal; export and import; the real commons and a guided tour told as a story |
 | **Planned** | Joint causes (AND), rival explanations; review of consequences no reference records; automatic acceptance above a confidence you set; group work, with several people's positions on one tree; an accessible plain-text mode |
 
 The order follows the [delivery plan](reason-commons-spec/delivery-phases.md).

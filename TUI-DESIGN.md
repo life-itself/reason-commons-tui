@@ -81,6 +81,15 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   clock ("Oct 3, 18:02"), and who wrote it appears only when more than one person has.
 - **Home.** Ways to *Start*, then *Your goals* as aligned columns (name, stage, day last changed).
   Settings are behind F2, and the footer says what they are now.
+- **First use teaches beside the work, never before it.** A new goal's first screen has a quiet numbered
+  note under the answer box, which keeps the keys; on a short screen it folds to one line, then goes, and
+  it goes after the first answer or for good with *Hide this*. *How this works* is the one page that draws
+  the screen with its parts numbered, reached from the note, Commands and the tour. The guided tour speaks
+  only in its own two places: **story pages**, in first start's grammar (a quiet top line, an accent
+  heading, plain words, people's words and koans behind a bar, choices as rows), and the **tour strip**
+  in the story strip's place and frame (which part in the border, at most three lines, quiet buttons).
+  A step's button moves the view only when pressed; a step moves on when what it asks for happens there;
+  nothing opens a page or moves focus by itself, and the loop line keeps its one meaning.
 - **The trees read as sentences.** A statement opens its line, led in by its relation word
   ("because:"); its role is a quiet trailing tag in its colour family and the assumption behind the
   link hangs under it after a dotted rule (┆). A statement whose only deeper branch is its last

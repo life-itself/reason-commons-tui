@@ -22,7 +22,7 @@ from textual.screen import Screen
 from textual.widgets import Button, OptionList, Static
 from textual.widgets.option_list import Option
 
-from reason_commons.adapters.welcome import HowItWorksScreen, explanations, numbered, show_drawing
+from reason_commons.adapters.welcome import HowItWorksScreen, explanations, numbered, show_drawing, sketch
 
 HOW = {"kicker": "Before you open it", "heading": "How this works",
        "lead": "This is the screen you'll work on, with each part numbered. Ruth's goal is already in it."}
@@ -45,8 +45,8 @@ StoryPage #page, ContentsPage #page { padding: 0 2; height: 1fr; }
 .quote:light { border-left: outer $text-secondary; }
 .page-quiet { color: $text-muted; }
 #page-choices { height: auto; border: none; background: transparent; padding: 0; }
-#page-choices > .option-list--option-highlighted { background: $hand-tint; color: $foreground; text-style: bold; }
-#page-choices:focus > .option-list--option-highlighted { background: $hand-tint; }
+#page-choices > .option-list--option-highlighted { background: transparent; color: $accent; text-style: bold; }
+#page-choices:focus > .option-list--option-highlighted { background: $hand-tint; color: $foreground; }
 #page-nav { height: 1; }
 #page-nav.hidden, #page-nav Button.hidden { display: none; }
 #page-nav Button { min-width: 8; height: 1; border: none; margin-right: 1; background: transparent;
@@ -101,7 +101,10 @@ class TourPage(Screen):
 
     BINDINGS = [Binding("escape", "choose('back')", "Back", show=False),
                 Binding("ctrl+q", "choose('leave')", "Leave tour", priority=True, show=False),
-                Binding("f1", "app.help", "Help", show=False)]
+                Binding("f1", "app.help", "Help", show=False),
+                # Before the choices' own paging: the choices are a few rows, and the words are what runs on.
+                Binding("pagedown", "page(1)", "More", show=False, priority=True),
+                Binding("pageup", "page(-1)", "Back up", show=False, priority=True)]
     DEFAULT_CSS = TOUR_CSS
     SCOPED_CSS = False
 
@@ -128,6 +131,11 @@ class TourPage(Screen):
 
     def on_mount(self):
         self.show()
+        # Whether there is more below changes as the words are laid out: the footer follows.
+        self.watch(self.query_one("#page-body"), "virtual_size", lambda _: self.refresh_hints(), init=False)
+
+    def refresh_hints(self):
+        self.query_one("HintBar").update_hints(self.hints(), controls=False)
 
     def show(self):
         """Draw what this page says now."""
@@ -154,16 +162,21 @@ class TourPage(Screen):
         for name, visible in shown.items():
             self.query_one("#" + name).set_class(not visible, "hidden")
         self.query_one("#page-nav").set_class(not any(shown.values()), "hidden")
-        self.query_one("HintBar").update_hints(self.hints(), controls=False)
+        self.refresh_hints()
         self.call_after_refresh(self.fit)
 
     def can_go_back(self):
         return not self.tour.first()
 
+    def more(self):
+        """The words go on below: PgDn shows them, and the footer says so."""
+        bodies = self.query("#page-body")
+        return [("pgdn", "More", "pagedown")] if bodies and bodies.first().max_scroll_y > 0 else []
+
     def hints(self):
         back = [("esc", "Back", "escape")] if self.can_go_back() else []
-        return [("↑↓", "Choose", None), ("⏎", "Open", "enter"), *back, ("^q", "Leave tour", "ctrl+q", "Leave"),
-                ("f1", "Help", "f1")]
+        return [("↑↓", "Choose", None), ("⏎", "Open", "enter"), *self.more(), *back,
+                ("^q", "Leave tour", "ctrl+q", "Leave"), ("f1", "Help", "f1")]
 
     def content(self):
         """(kicker, heading, body widgets, choices, the part's place) for the tour's step."""
@@ -198,15 +211,24 @@ class TourPage(Screen):
 
     def fit(self):
         """The words take the room the heading and the choices leave, and scroll only when they need more, so
-        the choices sit right under them. How this works draws the screen where there is room for it."""
+        the choices sit right under them. How this works draws the screen only where the drawing leaves room
+        for its numbered explanations, which say everything without it. The footer then says whether there is
+        more below."""
         page, body = self.query_one("#page"), self.query_one("#page-body")
         rows = lambda widget: widget.outer_size.height + widget.styles.margin.top + widget.styles.margin.bottom
         taken = sum(rows(widget) for widget in page.children if widget is not body and widget.display)
-        body.styles.max_height = max(3, page.size.height - taken - body.styles.margin.top
-                                     - body.styles.margin.bottom)
+        room = max(3, page.size.height - taken - body.styles.margin.top - body.styles.margin.bottom)
+        body.styles.max_height = room
         holder = self.query("#page-sketch")
         if holder:
-            show_drawing(holder.first(Static), body.size.width - body.styles.scrollbar_size_vertical)
+            drawing = holder.first(Static)
+            words = sum(rows(widget) for widget in body.children if widget is not drawing)
+            fits = room >= words + len(sketch(52)) + drawing.styles.margin.bottom
+            show_drawing(drawing, body.size.width - body.styles.scrollbar_size_vertical if fits else 0)
+
+    def action_page(self, direction):
+        body = self.query_one("#page-body")
+        (body.scroll_page_down if direction > 0 else body.scroll_page_up)(animate=False)
 
     def on_resize(self):
         self.call_after_refresh(self.fit)
@@ -236,7 +258,8 @@ class ContentsPage(TourPage):
         return True
 
     def hints(self):
-        return [("↑↓", "Choose", None), ("⏎", "Start", "enter"), ("esc", "Back", "escape"), ("f1", "Help", "f1")]
+        return [("↑↓", "Choose", None), ("⏎", "Start", "enter"), *self.more(), ("esc", "Back", "escape"),
+                ("f1", "Help", "f1")]
 
     def content(self):
         here = self.tour.part["id"]

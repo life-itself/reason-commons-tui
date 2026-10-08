@@ -395,6 +395,13 @@ Row budget:
 
 ### Step 3: Remove onboarding steps instead of adding teaching (PR 3, size S)
 
+> **8 October 2026.** David reversed part of this step. A new goal's first screen now has a
+> non-blocking note under the answer box, with *How this works* (the specification's own
+> first-screen control, M01/S01), and the guided tour became a story, *A winter at
+> Harrowfield*, offered first until it is finished. There is still no step before the first
+> answer (symptom 13): the note gates nothing, and the tour is one of the ways to start. See
+> [the plan](docs/plans/2026-10-08-story-tour-and-welcome.md).
+
 - **First run.** The highlighted default becomes "Start my first goal": the
   offline guide, the login name, then straight to naming the goal. This is
   today's "Skip setup" behaviour promoted. "Choose who asks the questions
