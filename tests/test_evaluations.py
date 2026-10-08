@@ -166,20 +166,30 @@ def test_the_replay_refuses_a_report_its_case_does_not_match(tmp_path):
 
 def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(tmp_path):
     import re
-    from evaluations.review_page import build_review_package
+    from evaluations.review_page import CAPABILITIES, build_review_package
     report = screens_report(tmp_path, ("attributed_correction", RejectedSecondReply()))
-    page = build_review_package(report.directory / "report.json", tmp_path / "package")
+    page = build_review_package(report.directory / "report.json")
+    package = report.directory / "review-package"  # beside the report unless told otherwise
+    assert page == package / "index.html"
     data = json.loads(re.search(r'<script type="application/json" id="data">(.*?)</script>',
                                 page.read_text(), re.S).group(1))
     assert data["template"] == review_template(report.directory / "report.json")
     case = data["cases"][0]
     # The rejected reply is shown as the operator saw it, and the run is marked as stopped.
     assert [t["saved"] for t in case["turns"]] == [True, False] and case["stopped"]
-    assert all((tmp_path / "package" / s["file"]).exists() for t in case["turns"] for s in t["screens"])
+    # Every screen the page names is in its case's file, as the workspace's own SVG.
+    screens = json.loads((package / case["file"]).read_text().split("] = ", 1)[1].rstrip(";\n"))
+    keys = {s["key"] for t in case["turns"] for s in t["screens"]}
+    assert keys == set(screens) and all(svg.lstrip().startswith("<svg") for svg in screens.values())
+    # The publish call: the case files, and each reviewer's record readable only by them and the owner.
+    publish = json.loads((package / "publish.json").read_text())
+    assert publish["files"] == {case["file"]: case["file"]} and publish["capabilities"] == CAPABILITIES
+    assert {"path": "reviews/{self}", "read": "interact", "write": "interact"} in CAPABILITIES["db"]["rules"]
+    assert {"path": "reviews", "read": "owner", "write": "owner"} in CAPABILITIES["db"]["rules"]
     # Blind: no machine check, check name or prior review reaches the page.
     assert "checks" not in json.dumps(data) and "machine" not in page.read_text()
     with pytest.raises(FileExistsError):
-        build_review_package(report.directory / "report.json", tmp_path / "package")
+        build_review_package(report.directory / "report.json")
     # What the page saves is the template with decisions filled in, which the unchanged checker validates.
     review = data["template"]
     review.update(reviewer="Test reviewer", reviewed_at="2026-10-07", reviewer_role="test fixture")

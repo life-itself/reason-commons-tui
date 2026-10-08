@@ -111,34 +111,49 @@ five real first-time participants and assistive-technology testing.
 ### Reviewing the screens the operator saw
 
 A criterion such as "one prominent next move" is about what the operator sees, so
-the reviewer can judge each case from the workspace's own screens:
+reviewers judge each case from the workspace's own screens, on a page they open by
+link:
 
 ```sh
-python3 scripts/review_screens.py .evaluation-runs/my-model-check/report.json \
-  --output .evaluation-runs/my-model-check/review-package
-# Open review-package/index.html, judge each criterion, then Save review.json.
+python3 scripts/review_screens.py .evaluation-runs/my-model-check/report.json
 ```
+
+Then ask Claude Code to "publish the review package in
+.evaluation-runs/my-model-check/review-package" (the `publish-review` skill in
+`.claude/skills/` does it), and share the link from the page's Share menu with
+each reviewer as a Contributor. Reviewers only open the link: they fill in their
+name, judge each criterion, and their decisions save as they go, under their own
+account. Only the reviewer and the page's owner can read a reviewer's decisions,
+so reviewers do not see each other's. As the owner, you see everyone's progress
+on the page and save each reviewer's `review.json` from it (or ask Claude to
+collect them), then check each with `review_evaluation.py --review`. Opened as a
+file, `index.html` also works offline: it keeps decisions in the browser and
+saves `review.json` itself.
+
+The review never calls a model. It shows the replies the evaluation run
+recorded, so it reviews whichever model that run used; with `--provider
+anthropic`, `evaluate_semantic.py` uses Claude Haiku 5.5 unless `--model` says
+otherwise.
 
 `evaluations/screens.py` replays every run through the real workspace. It
 rebuilds the case from the run's own inputs and the replies recorded in the
-report, so no model is called. Each evaluated turn's words are put in the
-answer box and sent as a person sends them: Send, or the Other moves entry for
-a turn that asked for advice or an observation. A turn by another participant
-is sent from a workspace opened as them, and every step carries its recorded
-time. The screens are exported as each reply lands: Next step at 120×40 and
-80×24, Case context, and Trees or Backlog when they hold anything. The first
-turn also shows the question with the answer typed in. The replay refuses to
-produce screens unless it reproduces the recorded inputs, replies and
-revisions exactly.
+report. Each evaluated turn's words are put in the answer box and sent as a
+person sends them: Send, or the Other moves entry for a turn that asked for
+advice or an observation. A turn by another participant is sent from a workspace
+opened as them, and every step carries its recorded time. The screens are
+exported as each reply lands: Next step at 120×40 and 80×24, Case context, and
+Trees or Backlog when they hold anything. The first turn also shows the question
+with the answer typed in. The replay refuses to produce screens unless it
+reproduces the recorded inputs, replies and revisions exactly.
 
 The page (`evaluations/review_page.py`) shows one case at a time: the setup,
 each turn's literal words and how they were sent, and its screens. A reply the
 application rejected is shown as the operator saw it. The rubric is judged on a
 form beside the screens, never on them. The records behind each screen are
 there, folded, for criteria a screen cannot settle. The page carries no machine
-check, earlier review or score. It keeps the reviewer's decisions in the
-browser and saves a `review.json` in the template's format, which
-`review_evaluation.py --review` checks against the unchanged report as before.
+check, earlier review or score. Every `review.json` it saves is the template's
+format, which `review_evaluation.py --review` checks against the unchanged
+report as before.
 
 One fixture turn cannot be typed into the workspace as written. The workspace
 has no control for declaring an owner or observed evidence, so

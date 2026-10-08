@@ -205,6 +205,7 @@ async def drive(path, provider, clock, consultant, turns, directory):
                 index += 1
             if getattr(app, "_save_timer", None):
                 app._save_timer.stop()  # a pending draft save must not fire while the app shuts down
+            await pilot.pause(0.5)  # let the last view finish drawing before the workspace closes
     return screens
 
 
