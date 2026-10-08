@@ -16,13 +16,25 @@ python3 scripts/evaluate_lm_studio.py \
 # The semantic fixtures with any configured consultant, Claude included (billed):
 python3 scripts/evaluate_semantic.py --provider anthropic --repeat 2 \
   --output .evaluation-runs/my-claude-check
+# The live procedure's consultant steps, replayed in review mode (billed):
+python3 scripts/evaluate_procedure.py --provider anthropic --repeat 2 \
+  --output .evaluation-runs/my-procedure-check
 ```
+
+The model and its output settings come from the environment, as in use
+(`REASON_COMMONS_ANTHROPIC_MODEL`, `REASON_COMMONS_ANTHROPIC_MAX_TOKENS`,
+`REASON_COMMONS_ANTHROPIC_EFFORT`; `--model` overrides the first). Each report ends
+with a `consultations` summary: how the attempted turns ended (each is attempted
+once, so the share saved is first-attempt validity), the reason each other turn
+was not saved, the transport slips the adapter undid, and tokens and seconds.
 
 `evaluate_semantic.py` runs every fixture in `evaluations/fixtures.py` (or `--case
 NAME`, repeatable) once per repetition, each generation attempted once. The
 fixtures cover the twelve `@semantic` p2 scenarios (S01, S02, S06, S30, S34, S35,
 S36 with one case per outline row, S52, S102, S104, S105, S122); authored setups
-are seeded through the application. Each case is created with automatic acceptance,
+are seeded through the application. Two more carry the live procedure's
+open-evenings conversation, which asks for the largest replies: its trees (a cause
+and an Evaporating Cloud, S128) and its test-result loop (S131, S34, S36). Each case is created with automatic acceptance,
 recorded as Sam's setting, so a turn builds on the last; every proposal and its
 membership stays in the evidence.
 
