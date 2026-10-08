@@ -2,6 +2,8 @@
 
 One proposal tool call is data, never permission to execute an app tool.
 The application validates and publishes it. No retries or provider fallback.
+Three lossless slips in how a model passes the call's arguments are undone and
+reported in last_repairs; nothing a proposal says is changed or filled in.
 """
 
 from hashlib import sha256
@@ -17,6 +19,7 @@ from urllib.request import ProxyHandler, Request, build_opener
 
 from reason_commons.adapters.provider_support import NoRedirect, decode_json, request_schema
 from reason_commons.application.ports import ConsultantResponseError
+from reason_commons.domain.model import FIELDS, PROFILE, SCHEMA
 
 
 MAX_REQUEST_BYTES = 4 * 1024 * 1024
@@ -38,6 +41,41 @@ def _label(value):
 
 def _supported(node):
     return isinstance(node, dict) and node.get("supported") is True
+
+
+def _decoded(text, kind):
+    try:
+        value = decode_json(text)
+    except (ValueError, RecursionError):
+        return None
+    return value if isinstance(value, kind) else None
+
+
+def undo_transport_slips(arguments):
+    """The proposal a call's arguments carry, with what had to be undone to read it.
+
+    Only three lossless slips: the proposal wrapped in a single "input" or "proposal" object, the
+    intervention or the updates sent as a string of JSON, and schema_version or delivery_profile sent
+    as a JSON string literal. Anything else reaches domain validation exactly as it came."""
+    repairs, value = [], arguments
+    if len(value) == 1:
+        (key, inner), = value.items()
+        if key in {"input", "proposal"} and isinstance(inner, dict) and (
+                {"schema_version", "intervention", "proposed_updates"} & set(inner)):
+            value = inner
+            repairs.append(f"unwrapped the proposal from {key}")
+    value = dict(value)
+    for field, kind in (("intervention", dict), ("proposed_updates", list)):
+        if isinstance(value.get(field), str) and (decoded := _decoded(value[field], kind)) is not None:
+            value[field] = decoded
+            repairs.append(f"decoded {field} from a string of JSON")
+    for field in ("schema_version", "delivery_profile"):
+        text = value.get(field)
+        if (isinstance(text, str) and len(text) > 1 and text[0] == text[-1] == '"'
+                and (decoded := _decoded(text, str)) is not None):
+            value[field] = decoded
+            repairs.append(f"unquoted {field}")
+    return value, repairs
 
 
 class AnthropicError(RuntimeError):
@@ -71,35 +109,35 @@ class AnthropicConsultant:
         self.model, self.timeout, self.max_tokens, self.effort = model, timeout, max_tokens, effort
         self.base_url = urlunsplit((parts.scheme, parts.netloc, "/v1", "", ""))
         self._api_key, self._resolved_model, self._sent_effort = api_key, None, None
-        # Token counts of the last reply, for evaluation evidence; never part of the case.
-        self.last_usage = None
+        # Token counts and transport repairs of the last reply, for evaluation evidence; never part of the case.
+        self.last_usage, self.last_repairs = None, []
         self._opener = build_opener(ProxyHandler({}), NoRedirect())
         self._context = files("reason_commons.domain").joinpath("CONTEXT.md").read_text(encoding="utf-8")
         self._procedure = files("reason_commons.adapters").joinpath("prompts/consultant.md").read_text(encoding="utf-8")
-        self._procedure += ("\n\nANTHROPIC TRANSPORT\nReturn the complete proposal by calling submit_proposal "
-                            "exactly once. Supply the proposal as its input, rather than emitting JSON as plain text. "
-                            "Give schema_version and delivery_profile as the exact strings the schema names "
-                            "(schema_version is the string \"1\", never the number 1). "
-                            "The proposal's top level has exactly six fields: schema_version, delivery_profile, "
-                            "request_id, base_revision, intervention and proposed_updates. Everything about the next "
-                            "move (kind, purpose, primary_prompt, rationale, goal_ref, decision, options, "
-                            "required_context_refs) goes inside the intervention object, never beside it. "
-                            "Those eight are the intervention's only fields, and a record has only the fields "
-                            "its schema lists: never invent another field. Anything more you want to say about "
-                            "the move belongs in its rationale. The move refers to the goal through goal_ref: the "
-                            "goal's ref, or its temporary_id when this proposal records it (such as \"goal\"), "
-                            "or null when there is none. decision and options are optional: omit one rather than "
-                            "send it empty. proposed_updates is an array of update objects, never a string. "
-                            "The shape, with your own values in place of the angle brackets:\n"
-                            "{\"schema_version\": \"1\", \"delivery_profile\": \"<as the schema names>\", "
-                            "\"request_id\": \"<input ID>\", \"base_revision\": <revision>, "
-                            "\"intervention\": {\"kind\": \"<question, recommendation or stop>\", "
-                            "\"purpose\": \"<why this move now>\", "
-                            "\"primary_prompt\": \"<the one question or recommendation>\", "
-                            "\"rationale\": \"<plain reasons>\", \"goal_ref\": \"goal\", "
-                            "\"required_context_refs\": [\"note\"]}, "
-                            "\"proposed_updates\": [<update objects, as the procedure describes>]}\n"
-                            "This is a data return channel, not an executable application capability.")
+        self._procedure += (
+            "\n\nANTHROPIC TRANSPORT\nReturn the complete proposal by calling submit_proposal exactly once, rather "
+            "than writing JSON as plain text. The call's arguments are the proposal itself, not wrapped in another "
+            "object: its top level has exactly six fields, schema_version, delivery_profile, request_id, "
+            "base_revision, intervention and proposed_updates. schema_version and delivery_profile are the plain "
+            "strings the schema names, with no quotation marks inside them. Everything about the next move (kind, "
+            "purpose, primary_prompt, rationale, goal_ref, decision, options, required_context_refs) goes inside the "
+            "intervention object, never beside it. Those eight are the intervention's only fields, and a record has "
+            "only the fields its schema lists: never invent another field. Anything more you want to say about the "
+            "move belongs in its rationale. An update's data has only the fields of its operation (one you have "
+            "nothing for is null or left out): " + "; ".join(f"record_{kind}: {', '.join(sorted(fields))}"
+                                                          for kind, fields in FIELDS.items()) + ". "
+            "The move refers to the goal through goal_ref: the goal's ref, or its "
+            "temporary_id when this proposal records it (such as \"goal\"), or null when there is none. The "
+            "intervention's decision and options are optional: leave them out rather than send them empty or null. "
+            "intervention is an "
+            "object and proposed_updates an array of update objects, never strings holding JSON. The shape, with "
+            "your own values in place of the angle brackets:\n"
+            f"{{\"schema_version\": \"{SCHEMA}\", \"delivery_profile\": \"{PROFILE}\", \"request_id\": \"<input ID>\", "
+            "\"base_revision\": <revision>, \"intervention\": {\"kind\": \"<question, recommendation or stop>\", "
+            "\"purpose\": \"<why this move now>\", \"primary_prompt\": \"<the one question or recommendation>\", "
+            "\"rationale\": \"<plain reasons>\", \"goal_ref\": \"goal\", \"required_context_refs\": [\"note\"]}, "
+            "\"proposed_updates\": [<update objects, as the procedure describes>]}\n"
+            "This is a data return channel, not an executable application capability.")
 
     @staticmethod
     def _output_settings(environ):
@@ -149,7 +187,7 @@ class AnthropicConsultant:
     def version(self):
         # Before the model is resolved, the effort is the configured one ("auto" when unset).
         effort = (self._sent_effort or "default") if self._resolved_model else (self.effort or "auto")
-        return (f"anthropic/adapter=2/prompt=8/schema=3/model={self._resolved_model or self.model}"
+        return (f"anthropic/adapter=3/prompt=9/schema=3/model={self._resolved_model or self.model}"
                 f"/max_tokens={self.max_tokens}/effort={effort}/proposal=tool-auto"
                 f"/procedure={sha256(self._procedure.encode()).hexdigest()[:16]}"
                 f"/context={sha256(self._context.encode()).hexdigest()[:16]}")
@@ -246,7 +284,7 @@ class AnthropicConsultant:
 
     def propose(self, request):
         payload = self._payload(request)
-        self.last_usage = None
+        self.last_usage, self.last_repairs = None, []
         response = self._request("/messages", payload)
         if not isinstance(response, dict) or response.get("model") != self._resolved_model:
             raise ConsultantResponseError("Anthropic returned a different or unidentified response model")
@@ -273,4 +311,5 @@ class AnthropicConsultant:
             raise ConsultantResponseError("Anthropic called a tool other than submit_proposal")
         if not isinstance(calls[0].get("input"), dict):
             raise ConsultantResponseError("Anthropic's proposal call carried no proposal object")
-        return calls[0]["input"]
+        proposal, self.last_repairs = undo_transport_slips(calls[0]["input"])
+        return proposal

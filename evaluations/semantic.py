@@ -38,7 +38,8 @@ def run_scenario(report, scenario, consultant, repeat):
         for number, turn in enumerate(scenario.turns, 1):
             before = app.inspect()["case"]
             if hasattr(consultant, "last_usage"):
-                consultant.last_usage = None  # a turn that never reaches the provider reports no tokens
+                # A turn that never reaches the provider reports no tokens and no repairs.
+                consultant.last_usage, consultant.last_repairs = None, []
             start = time.monotonic()
             result = app.submit(turn.text, turn.speaker, before["revision"], before["current_intervention"],
                                 intent=turn.intent, declarations=turn.declarations)
@@ -86,6 +87,7 @@ def run_scenario(report, scenario, consultant, repeat):
             turns.append({"number": number, "text": turn.text, "speaker": turn.speaker,
                           "elapsed_seconds": round(time.monotonic() - start, 2), "result": result,
                           "usage": deepcopy(getattr(consultant, "last_usage", None)),
+                          "repairs": list(getattr(consultant, "last_repairs", None) or []),
                           "new_records": deepcopy(new), "provider_version": consultant.version,
                           "membership": {r["ref"]: app.workspace()["membership"].get(r["ref"]) for r in new
                                          if r["kind"] != "intervention"},

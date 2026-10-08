@@ -16,12 +16,15 @@ def check(name, passed, evidence="", category="consultant"):
 
 
 def consultation_summary(runs):
-    """How the evaluated turns ended, why the others were not saved, and what they cost in tokens and time.
+    """How the evaluated turns ended, why the others were not saved, what the adapter had to undo in how a
+    reply was passed, and what the turns cost in tokens and time.
 
     Each turn is attempted once, so the share saved is the first-attempt validity of the replies."""
     turns = [turn for run in runs for turn in run.get("turns", [])]
-    by_status, reasons, tokens = {}, {}, {}
+    by_status, reasons, tokens, repairs = {}, {}, {}, {}
     for turn in turns:
+        for repair in turn.get("repairs") or []:
+            repairs[repair] = repairs.get(repair, 0) + 1
         status = turn["result"].get("status", "unknown")
         by_status[status] = by_status.get(status, 0) + 1
         if status != "saved":
@@ -31,7 +34,7 @@ def consultation_summary(runs):
         for key, count in (turn.get("usage") or {}).items():
             if type(count) is int:
                 tokens[key] = tokens.get(key, 0) + count
-    return {"turns": len(turns), "by_status": by_status, "not_saved_reasons": reasons,
+    return {"turns": len(turns), "by_status": by_status, "not_saved_reasons": reasons, "transport_repairs": repairs,
             "turns_with_usage": sum(bool(turn.get("usage")) for turn in turns), "tokens": tokens,
             "seconds": round(sum(turn.get("elapsed_seconds", 0) for turn in turns), 1)}
 

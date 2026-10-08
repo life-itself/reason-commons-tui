@@ -162,7 +162,12 @@ not `unavailable`, and also never publishes anything. Its `reason` says why in t
 application's own words: a field or reference the domain refused, or for Anthropic
 that the reply stopped at the output budget (raise
 `REASON_COMMONS_ANTHROPIC_MAX_TOKENS`), was declined (`refusal`, with its category),
-or came back without a proposal.
+or came back without a proposal. Before validation the Anthropic adapter undoes
+three slips in how a model passes its proposal, none of which changes what the
+proposal says: the proposal wrapped in one `input` or `proposal` object, the next
+move or the updates sent as a string of JSON, and the schema version or profile
+sent with quotation marks inside it. Everything else is validated exactly as it
+came.
 
 ## Using a provider from the skill (MCP)
 

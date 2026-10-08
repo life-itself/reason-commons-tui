@@ -237,3 +237,36 @@ def test_desktop_launcher_loads_unexported_key_and_serves_native_anthropic(anthr
                 assert result.structuredContent["workspace"]["revision"] == 1
     asyncio.run(run())
     assert anthropic_server.requests[-1][2]["X-Api-Key"] == "fixture-secret"
+
+
+@pytest.mark.parametrize("slip,repair", [
+    (lambda call: call.update(input={"input": call["input"]}), "unwrapped the proposal from input"),
+    (lambda call: call["input"].update(proposed_updates=json.dumps(call["input"]["proposed_updates"])),
+     "decoded proposed_updates from a string of JSON"),
+    (lambda call: call["input"].update(intervention=json.dumps(call["input"]["intervention"])),
+     "decoded intervention from a string of JSON"),
+    (lambda call: call["input"].update(schema_version=json.dumps(call["input"]["schema_version"])),
+     "unquoted schema_version"),
+])
+def test_lossless_transport_slips_are_undone_and_reported(anthropic_server, tmp_path, slip, repair):
+    anthropic_server.transform = lambda response: slip(response["content"][0])
+    consultant = adapter(anthropic_server)
+    with create_case(tmp_path / "case", consultant=consultant) as app:
+        assert submit(app)["status"] == "saved"
+    assert consultant.last_repairs == [repair]
+
+
+@pytest.mark.parametrize("slip", [
+    lambda call: call.update(input={"input": call["input"], "note": "extra"}),  # not a lone wrapper
+    lambda call: call.update(input={"payload": call["input"]}),  # not a known wrapper name
+    lambda call: call["input"].update(proposed_updates="[{\"operation\": "),  # not complete JSON
+    lambda call: call["input"].update(proposed_updates=json.dumps({"operation": "record_note"})),  # not a list
+    lambda call: call["input"].update(schema_version="'1'"),
+])
+def test_anything_but_those_slips_reaches_validation_unchanged(anthropic_server, tmp_path, slip):
+    anthropic_server.transform = lambda response: slip(response["content"][0])
+    consultant = adapter(anthropic_server)
+    with create_case(tmp_path / "case", consultant=consultant) as app:
+        result = submit(app)
+        assert result["status"] == "rejected" and app.inspect()["case"]["revision"] == 0
+    assert consultant.last_repairs == []

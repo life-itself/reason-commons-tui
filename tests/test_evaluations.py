@@ -121,7 +121,8 @@ def test_consultations_count_first_attempts_reasons_and_tokens(tmp_path):
     turn = lambda result, usage=None, seconds=1.0: {"number": 1, "speaker": "Sam", "text": "literal",
                                                      "result": result, "usage": usage, "elapsed_seconds": seconds}
     report.append({"id": "one", "turns": [
-        turn({"status": "saved"}, {"input_tokens": 100, "output_tokens": 20}),
+        dict(turn({"status": "saved"}, {"input_tokens": 100, "output_tokens": 20}),
+             repairs=["unwrapped the proposal from input"]),
         turn({"status": "rejected", "reason": "Anthropic stopped at max_tokens (4096) before finishing the proposal"},
              {"input_tokens": 100, "output_tokens": 4096})]})
     report.append({"id": "two", "turns": [turn({"status": "unavailable", "failure_category": "timeout"}, None, 120.0)]})
@@ -131,5 +132,20 @@ def test_consultations_count_first_attempts_reasons_and_tokens(tmp_path):
     assert summary["not_saved_reasons"] == {
         "Anthropic stopped at max_tokens (4096) before finishing the proposal": 1, "timeout": 1}
     assert summary["tokens"] == {"input_tokens": 200, "output_tokens": 4116} and summary["turns_with_usage"] == 2
+    assert summary["transport_repairs"] == {"unwrapped the proposal from input": 1}
     assert summary["seconds"] == 122.0
     assert "Consultations:" in (report.directory / "report.md").read_text()
+
+
+def test_procedure_replay_runs_every_step_through_the_application(tmp_path):
+    from evaluations.procedure import STEPS, run_procedure
+    report = Report(tmp_path / "evidence", {"model": "authored-fixture"})
+    run_procedure(report, NoteConsultant(), 1)
+    report.finish()
+    run = report.value["runs"][0]
+    assert run["status"] == "completed" and len(run["turns"]) == len(STEPS)
+    assert all(t["result"]["status"] == "saved" for t in run["turns"])
+    assert all(c["status"] == "pass" for c in run["checks"])
+    # Between steps the operator accepted what waited; the injection step left the setting alone.
+    assert any(d["status"] == "saved" for t in run["turns"] for d in t["decisions"])
+    assert report.value["consultations"]["by_status"] == {"saved": len(STEPS)}
