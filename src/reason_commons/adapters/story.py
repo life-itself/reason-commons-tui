@@ -20,6 +20,7 @@ from pathlib import Path
 
 import yaml
 
+from reason_commons.adapters.guided import question
 from reason_commons.adapters.ltp_trees import read_trees
 from reason_commons.domain.model import RELATIONS, ROLES, require
 
@@ -139,8 +140,9 @@ class Chapter:
 
         if chapter.get("goal"):
             goal = chapter["goal"]
-            data = {"statement": goal["statement"], "scope": None, "horizon": None,
-                    "measure": goal.get("measure"), "baseline": None, "protections": []}
+            data = {"statement": goal["statement"], "scope": goal.get("scope"), "horizon": goal.get("horizon"),
+                    "measure": goal.get("measure"), "baseline": goal.get("baseline"),
+                    "protections": list(goal.get("protections", []))}
             if state.goal:
                 data["replaces"] = state.goal  # a case has one goal; a changed one is its new version
             temp = update("goal", data, ("goal", None, None))
@@ -192,13 +194,18 @@ class Chapter:
                               "owner": action.get("owner"), "authority": None,
                               "execution": action.get("execution", "planned"),
                               "expected_state_attainment": "pending"}, None)
-        intervention = {"kind": "recommendation" if chapter.get("final") else "question",
-                        "purpose": "story", "decision": chapter["title"],
-                        "primary_prompt": chapter["question"],
-                        "rationale": " ".join((chapter.get("why") or chapter["summary"]).split()),
-                        "required_context_refs": [], "options": []}
-        if goal_ref:
-            intervention["goal_ref"] = goal_ref
+        if chapter.get("handover"):
+            # The story ends by handing the goal to the built-in guide: its own question for that step, so the
+            # guide carries on from there rather than starting the step again.
+            intervention = question(chapter["handover"], [goal_ref] if goal_ref else [])
+        else:
+            intervention = {"kind": "recommendation" if chapter.get("final") else "question",
+                            "purpose": "story", "decision": chapter["title"],
+                            "primary_prompt": chapter["question"],
+                            "rationale": " ".join((chapter.get("why") or chapter["summary"]).split()),
+                            "required_context_refs": [], "options": []}
+            if goal_ref:
+                intervention["goal_ref"] = goal_ref
         self.keys, self.goal_aliases = keys, goal_aliases
         return {"schema_version": "1", "delivery_profile": "p2", "request_id": request["input"]["request_id"],
                 "base_revision": request["input"]["base_revision"], "intervention": intervention,
@@ -256,7 +263,12 @@ class Narrator:
 
 
 def build_story(path, story=None):
-    """Create the story's goal at path (which must not exist); return path."""
+    """Create the story's goal at path (which must not exist); return path.
+
+    Every chapter enters the model as it is saved, except where the story says otherwise: a chapter with
+    ``acceptance: review`` records only that decision (by its speaker), after which a ``pending`` chapter's
+    proposals wait for whoever opens the goal. A chapter with ``handover: <step>`` ends on the built-in
+    guide's own question for that step, so the guide carries on from it."""
     from reason_commons.bootstrap import create_case
     story = story or load_story()
     chapters = story["chapters"]
@@ -266,6 +278,10 @@ def build_story(path, story=None):
                      actor=EDITOR) as app:
         for chapter in chapters:
             clock.value = chapter["date"]
+            if chapter.get("acceptance"):
+                result = app.set_acceptance(chapter["acceptance"], chapter["speaker"], app.workspace()["revision"])
+                require(result["status"] == "saved", f"Could not switch to {chapter['acceptance']} acceptance")
+                continue
             model = None
             if chapter.get("model"):
                 source = files("reason_commons.adapters").joinpath(chapter["model"]["file"])
@@ -288,6 +304,14 @@ def build_story(path, story=None):
                                 target["response_target"], declarations=declarations)
             require(result["status"] == "saved",
                     f"Chapter {chapter['title']!r} was not saved: {result.get('message', result['status'])}")
+            if chapter.get("pending"):
+                require(not result["accepted_automatically"],
+                        f"Chapter {chapter['title']!r} should wait for a decision; switch to review acceptance first")
+            elif story.get("every_chapter_accepted"):
+                # A withdrawal that takes links with it waits even under automatic acceptance (S148); the story
+                # would then read as if it had happened when it had not.
+                waiting = set(result["proposed"]) - set(result["accepted_automatically"])
+                require(not waiting, f"Chapter {chapter['title']!r} left proposals waiting: {sorted(waiting)}")
             narrator.chapter.settle(app.inspect()["case"]["records"])
         target = app.workspace()["target"]
         app.checkpoint({"view": "next", "focus": "browse", "draft": "", "caret": 0, "speaker": story["reader"],

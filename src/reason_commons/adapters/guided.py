@@ -291,23 +291,30 @@ class GuidedConsultant:
         return refs
 
     def _proposal(self, value, updates, step, context, notice=None, change=None, after_review=False):
-        decision, prompt, rationale, _ = STEPS[step]
-        if change and step in ("test_forecast", "test_review", "test_stop"):
-            prompt = f"Your change: \"{' '.join(change.split())}\" {prompt}"
-        if after_review and step == "test_change":
-            prompt = ("Review saved. What is the next small change you want to try? It can be the same "
-                      "change, adjusted. If the goal is met, you can stop here.")
-        if notice:
-            prompt = notice + " " + prompt
-        intervention = {"kind": "question", "purpose": PREFIX + step, "decision": decision,
-                        "primary_prompt": prompt, "rationale": rationale,
-                        "required_context_refs": context,
-                        "options": [{"id": "goal", "label": "Goal", "action": {"type": "view", "target": "goal"}},
-                                    {"id": "sources", "label": "Your words",
-                                     "action": {"type": "view", "target": "sources"}}]}
-        goal = next((r for r in context if r == "goal" or r.startswith("G")), None)
-        if goal:
-            intervention["goal_ref"] = goal
         return {"schema_version": "1", "delivery_profile": "p2", "request_id": value["request_id"],
-                "base_revision": value["base_revision"], "intervention": intervention,
+                "base_revision": value["base_revision"],
+                "intervention": question(step, context, notice, change, after_review),
                 "proposed_updates": deepcopy(updates)}
+
+
+def question(step, context, notice=None, change=None, after_review=False):
+    """The guide's question for a step, as the intervention it publishes. A packaged story that hands its goal to
+    the guide ends on one of these, so the guide carries on from that step (it reads the step from the purpose)."""
+    decision, prompt, rationale, _ = STEPS[step]
+    if change and step in ("test_forecast", "test_review", "test_stop"):
+        prompt = f"Your change: \"{' '.join(change.split())}\" {prompt}"
+    if after_review and step == "test_change":
+        prompt = ("Review saved. What is the next small change you want to try? It can be the same "
+                  "change, adjusted. If the goal is met, you can stop here.")
+    if notice:
+        prompt = notice + " " + prompt
+    intervention = {"kind": "question", "purpose": PREFIX + step, "decision": decision,
+                    "primary_prompt": prompt, "rationale": rationale,
+                    "required_context_refs": context,
+                    "options": [{"id": "goal", "label": "Goal", "action": {"type": "view", "target": "goal"}},
+                                {"id": "sources", "label": "Your words",
+                                 "action": {"type": "view", "target": "sources"}}]}
+    goal = next((r for r in context if r == "goal" or r.startswith("G")), None)
+    if goal:
+        intervention["goal_ref"] = goal
+    return intervention

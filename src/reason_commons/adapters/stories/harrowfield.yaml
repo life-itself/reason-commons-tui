@@ -1,0 +1,1053 @@
+# Harrowfield General: the goal behind the guided tour, one saved step per chapter.
+#
+# A composite case, from David Joseph's "Thinking Processes as Koans" (8 October 2026). The hospital, its people
+# and its numbers are invented but typical; the dynamics and the remedies are drawn from real patient-flow
+# work. Nobody here is a real person, so there is no one to ask before quoting.
+#
+# Each chapter becomes one saved revision of a goal, in order, attributed to the person who says it in the
+# story: `words` are their words, `summary` is the narration, and the tree changes are what those words add.
+# The tour (adapters/tours/harrowfield.yaml) opens a copy of the built goal as Ruth Okonjo, on the Friday
+# before the pilot: everything below is already in the model except the two chapters marked `pending`,
+# which wait for the person taking the tour to decide them, and the last chapter hands the goal to the
+# built-in guide, which asks for the first test.
+#
+# Rebuild the packaged goal after editing: python3 scripts/build_story.py harrowfield
+
+name: Harrowfield General
+as_of: "9 January 2026"
+reader: Ruth Okonjo
+# Every chapter but the pending ones must enter the model as it is saved; the build stops otherwise.
+every_chapter_accepted: true
+intro: >-
+  Harrowfield General is a 340-bed hospital that is always full, and its board is about to spend £9.4 million
+  on 24 more beds. Ruth Okonjo, its new Director of Patient Flow, has 90 days to say whether that is the right
+  call. This is the reasoning she built with the people who work there.
+fidelity: >-
+  A composite case: the people and the numbers are invented but typical; the dynamics and the remedies are
+  drawn from real patient-flow work.
+
+chapters:
+# ----- What must be true: the Goal Tree ----------------------------------------------------------------------
+- date: '2025-10-06T16:30:00+00:00'
+  speaker: Ruth Okonjo
+  title: What Harrowfield is for
+  summary: Ruth's first day as Director of Patient Flow. Before anyone argues about beds, she writes down what the
+    hospital is for, how she will know it is getting better and what must not get worse, then the four things
+    the goal cannot do without.
+  source: Ruth's notebook, first day
+  words: |-
+    Before anyone argues about beds: what is Harrowfield for? Not "full". Full is how the hospital looks, not what it is for.
+
+    The people we serve get timely, safe, effective hospital care, this winter and for the next ten.
+
+    How we will know: the wait for a bed after the decision to admit (a median of 7.5 hours now, 14% over 12) and how many patients go home before noon (11% now). What must not get worse: 7-day readmissions, and whether nurses choose to stay.
+
+    In order to have that, we must have four things. Patients reach the right bed, with the right team, when they need one. Care in hospital is safe and effective. The hospital pays its way. And staff can sustain the work and choose to stay.
+  goal:
+    statement: The people Harrowfield serves get timely, safe, effective hospital care, this winter and for the
+      next ten.
+    measure: The wait for a bed after the decision to admit (median 7.5 hours now, 14% over 12) and discharges
+      before noon (11% now), both better by next winter
+    protections:
+    - 7-day readmissions stay within last year's range
+    - "Nurses keep choosing to stay: turnover no higher than today's 24%"
+  add:
+  - {id: g, tree: goal, role: goal, statement: "The people Harrowfield serves get timely, safe, effective hospital care"}
+  - id: csf-access
+    tree: goal
+    role: critical_success_factor
+    statement: "Access: patients reach the right bed, with the right team, when they need one"
+  - id: csf-quality
+    tree: goal
+    role: critical_success_factor
+    statement: "Quality: care in hospital is safe and effective"
+  - id: csf-viability
+    tree: goal
+    role: critical_success_factor
+    statement: "Viability: the hospital pays its way; it is paid for each patient it treats, not for each bed it
+      fills"
+  - id: csf-workforce
+    tree: goal
+    role: critical_success_factor
+    statement: "Workforce: staff can sustain the work and choose to stay"
+  links:
+  - {from: csf-access, to: g, relation: necessary_for}
+  - {from: csf-quality, to: g, relation: necessary_for}
+  - {from: csf-viability, to: g, relation: necessary_for}
+  - {from: csf-workforce, to: g, relation: necessary_for}
+  question: What must be true under each of the four?
+
+- date: '2025-10-07T08:10:00+00:00'
+  speaker: Dr Samir Haddad
+  title: The wards won't take our patients
+  summary: In the emergency department Dr Haddad puts it plainly. In the Goal Tree his complaint becomes the first
+    condition under Access.
+  source: Emergency department huddle, 7 October
+  words: |-
+    The wards won't take our patients. We decide to admit, and then they wait, on trolleys, in corridors, for hours. Whatever else is true, a bed has to be free when we make that decision.
+  add:
+  - {id: nc-bed-free, tree: goal, role: necessary_condition, statement: A bed is free when the decision to admit is made}
+  links:
+  - {from: nc-bed-free, to: csf-access, relation: necessary_for}
+  question: What has to happen for a bed to be free at that moment?
+
+- date: '2025-10-08T14:00:00+00:00'
+  speaker: Joy Mensah
+  title: We can't take anyone until ours go home
+  summary: Joy Mensah runs Ward 7. A bed is free at the right moment only if beds come free when people arrive,
+    and only if nobody occupies one they no longer need.
+  source: Ward 7, talking with Joy Mensah
+  words: |-
+    We can't take anyone until ours go home, and the ED sends them at six in the evening.
+
+    So beds have to come free when people arrive, not at five o'clock. And nobody should be in a bed they don't need any more: a bed that has stopped healing someone is harming them. Half my waiting patients are waiting for care at home to be arranged.
+  add:
+  - id: nc-release
+    tree: goal
+    role: necessary_condition
+    statement: Beds are released at the hours and on the days that admissions arrive
+  - {id: nc-no-one, tree: goal, role: necessary_condition, statement: No one occupies a bed they no longer need}
+  - id: nc-onward
+    tree: goal
+    role: necessary_condition
+    statement: Onward care (home support, a care-home place) is ready when the patient is
+  links:
+  - {from: nc-release, to: nc-bed-free, relation: necessary_for}
+  - {from: nc-no-one, to: nc-bed-free, relation: necessary_for}
+  - {from: nc-no-one, to: csf-quality, relation: necessary_for}
+  - {from: nc-onward, to: nc-no-one, relation: necessary_for}
+  question: What else must hold for care to be safe and effective?
+
+- date: '2025-10-09T12:30:00+00:00'
+  speaker: Dr Helen Marsh
+  title: The sickest first
+  summary: Dr Marsh, a respiratory consultant, adds what quality needs, as she first puts it.
+  source: Respiratory team meeting, 9 October
+  words: |-
+    Two things for quality. Patients have to be on a ward that knows their condition; a pneumonia on an orthopaedic ward gets worse care, however kind the nurses are. And consultants must see the sickest patients first. That's what a round is for.
+  add:
+  - {id: nc-right-ward, tree: goal, role: necessary_condition, statement: Patients are on a ward that matches their condition}
+  - {id: nc-review-draft, tree: goal, role: necessary_condition, statement: Consultants round on the sickest patients first}
+  links:
+  - {from: nc-right-ward, to: csf-access, relation: necessary_for}
+  - {from: nc-right-ward, to: csf-quality, relation: necessary_for}
+  question: Is each of these a condition, or a way of meeting one?
+
+- date: '2025-10-09T17:00:00+00:00'
+  speaker: Graham Teller
+  title: What paying its way takes
+  summary: Graham Teller, the finance director, says what viability needs. Harrowfield is paid for each patient
+    it treats.
+  source: Finance office, 9 October
+  words: |-
+    We're paid for each patient we treat. So for the books: planned operations have to go ahead on the day they're booked, because every cancellation is income we don't get. Agency nurses at premium rates have to be the exception: we spent £11 million on them last year, up 40%. And any capital we spend has to buy capacity we can actually staff. The modular ward needs 38 nurses.
+  add:
+  - {id: nc-planned, tree: goal, role: necessary_condition, statement: Planned operations go ahead on the day booked}
+  - {id: nc-agency, tree: goal, role: necessary_condition, statement: Premium-rate agency staffing is the exception}
+  - {id: nc-capital, tree: goal, role: necessary_condition, statement: Capital buys capacity that can actually be staffed}
+  links:
+  - {from: nc-planned, to: csf-access, relation: necessary_for}
+  - {from: nc-planned, to: csf-viability, relation: necessary_for}
+  - {from: nc-agency, to: csf-viability, relation: necessary_for}
+  - {from: nc-capital, to: csf-viability, relation: necessary_for}
+  question: What does the workforce need?
+
+- date: '2025-10-10T09:00:00+00:00'
+  speaker: Director of Nursing
+  title: Work that can be planned
+  summary: The Director of Nursing adds what staying takes.
+  source: Nursing leadership meeting, 10 October
+  words: |-
+    We don't have enough nurses. But staying isn't only about numbers: people leave when every shift is a surprise. The work has to be predictable enough to plan for, and our senior nurses have to spend their time on care and on getting better at it, not on four bed meetings a day.
+  add:
+  - {id: nc-predictable, tree: goal, role: necessary_condition, statement: Daily workload is predictable enough to plan for}
+  - id: nc-seniors
+    tree: goal
+    role: necessary_condition
+    statement: Senior staff spend their time on care and improvement, not on finding beds
+  links:
+  - {from: nc-predictable, to: csf-workforce, relation: necessary_for}
+  - {from: nc-seniors, to: csf-workforce, relation: necessary_for}
+  question: Is anything here not really necessary, or missing?
+
+- date: '2025-10-10T16:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: Needs, not means
+  summary: Ruth checks every condition with one question, could the goal be met without it? The physicians'
+    "sickest first" is a way of meeting a need, not the need. A buffer, which nobody named, goes in. Occupancy
+    appears nowhere in the tree.
+  source: Ruth's notebook, end of the first week
+  words: |-
+    I asked of every condition: could we reach the goal without it? Two changes.
+
+    "Round on the sickest first" is a way of meeting a need, not the need. The need is that acutely ill patients get prompt senior review. The way will come back later, as one side of an argument.
+
+    And one condition nobody named: a buffer. When arrivals vary, waiting climbs steeply as a hospital gets close to full. Occupancy itself is nowhere in this tree. It's a measure, not a necessity.
+  reword:
+  - {id: nc-review-draft, new: nc-review, statement: Acutely ill patients get prompt senior medical review}
+  add:
+  - id: nc-buffer
+    tree: goal
+    role: necessary_condition
+    statement: Capacity carries a buffer against day-to-day variation in arrivals
+  links:
+  - {from: nc-review, to: csf-quality, relation: necessary_for}
+  - {from: nc-buffer, to: nc-bed-free, relation: necessary_for}
+  question: Why are we not there yet?
+
+# ----- Why we are not there: the Current Reality Tree -------------------------------------------------------
+- date: '2025-10-17T17:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: Ten things that go wrong
+  summary: Two weeks at the front door, on the wards and in the bed meetings. Each thing that goes wrong is the
+    gap between a condition in the Goal Tree and what actually happens.
+  source: Ruth's notebook, weeks two and three
+  words: |-
+    Two weeks at the front door, on the wards at noon and in the bed meetings. Ten things go wrong, and each department owns a piece of it.
+
+    Admitted patients wait hours in the emergency department for a bed: a median of 7.5 hours after the decision, 14% over 12. Ambulances queue to hand patients over: about 1,900 crew-hours lost last winter. One planned operation in nine is cancelled on the day. About a quarter of occupied beds hold patients who are medically fit and waiting. Medical patients land on the wrong wards, 31 a day. Older patients leave weaker than they came, or cannot go home at all. Nurses leave, and agency staff fill the gaps. Senior staff spend hours in four bed meetings a day. The hospital loses money while full: a £6.2 million deficit. And most discharges happen after 15:00, after the admissions have arrived.
+  add:
+  - {id: u-ed-wait, tree: current_reality, role: undesirable_effect, statement: Admitted patients wait hours in the emergency department for a bed}
+  - {id: u-ambulances, tree: current_reality, role: undesirable_effect, statement: Ambulances queue to hand patients over}
+  - {id: u-cancelled, tree: current_reality, role: undesirable_effect, statement: Planned operations are cancelled on the day}
+  - id: u-beds-held
+    tree: current_reality
+    role: undesirable_effect
+    statement: About a quarter of occupied beds hold patients who are medically fit and waiting
+  - {id: u-wrong-ward, tree: current_reality, role: undesirable_effect, statement: Medical patients are placed on the wrong wards}
+  - id: u-weaker
+    tree: current_reality
+    role: undesirable_effect
+    statement: Older patients leave weaker than they arrived, or cannot go home at all
+  - {id: u-nurses-leave, tree: current_reality, role: undesirable_effect, statement: "Nurses leave, and agency staff fill the gaps"}
+  - {id: u-meetings, tree: current_reality, role: undesirable_effect, statement: Senior staff spend hours a day in bed meetings}
+  - {id: u-money, tree: current_reality, role: undesirable_effect, statement: The hospital loses money while full}
+  - id: u-late
+    tree: current_reality
+    role: undesirable_effect
+    statement: Most discharges happen late in the afternoon, after the admission peak
+  question: What causes each one?
+
+- date: '2025-10-20T08:30:00+00:00'
+  speaker: Dr Samir Haddad
+  title: The gate is not slow, the gate is full
+  summary: The wards say the emergency department is slow to decide. Dr Haddad brings his times. The wait lies
+    downstream of the decision, and full cubicles slow the decisions too.
+  source: Emergency department times, last winter
+  words: |-
+    The wards say we're slow to decide. Here are our times: a median of 3.1 hours to the decision to admit, and 7.5 hours after it. The wait is downstream of us. When the cubicles are full of people waiting for beds, our decisions slow down too, and the ambulances can't hand over.
+
+    And our admissions reach the wards mostly between 11:00 and 16:00. That's when the sick arrive; it isn't going to change.
+  add:
+  - id: r-peak
+    tree: current_reality
+    role: root_cause
+    statement: Emergency admissions reach the wards mostly between 11:00 and 16:00
+  links:
+  - from: u-ed-wait
+    to: u-ambulances
+    relation: causes
+    assumption: Cubicles fill with admitted patients waiting for beds, so crews cannot hand over
+  - from: r-peak
+    to: u-ed-wait
+    relation: contributes_to
+    assumption: The beds that will empty today are still occupied during the peak
+  question: Why are the beds still occupied at the peak?
+
+- date: '2025-10-21T13:00:00+00:00'
+  speaker: Joy Mensah
+  title: Discharges at five
+  summary: On Ward 7 the patients ready to go home are seen last, after the sickest, late in the morning; then
+    everything they need to leave takes hours.
+  source: Ward 7, discharge times for October
+  words: |-
+    Our ready patients are seen last on the round, usually after half past eleven, because the sickest go first. Then nothing can start until the decision: take-home medicines, the letter, transport. That takes three to five hours. So they go at five, and the patient the ED has been holding since lunchtime comes up at six.
+  add:
+  - {id: c-late-review, tree: current_reality, role: intermediate_cause, statement: Patients ready to leave are reviewed late in the morning}
+  links:
+  - from: c-late-review
+    to: u-late
+    relation: causes
+    assumption: Medicines, the letter, transport and referrals start only after the decision, and take three to
+      five hours
+  - from: u-late
+    to: u-ed-wait
+    relation: contributes_to
+    assumption: Admissions arrive from 11:00, before the beds empty
+  question: Why are they reviewed so late?
+
+- date: '2025-10-22T12:00:00+00:00'
+  speaker: Dr Helen Marsh
+  title: Social care takes weeks
+  summary: Dr Marsh names what she sees as the bottleneck. Ruth's census gives it its size, of 23 points of
+    waiting beds, 9 wait for social care and 14 for things inside the hospital, and even the social-care wait
+    starts late.
+  source: Census of waiting patients, 22 October
+  words: |-
+    Social care takes weeks to place people. That's the bottleneck. The county won't take a referral until we declare the patient medically fit, and only then does anyone start arranging care at home or a care-home place. Meanwhile they lie in bed, and at 84 a week in bed costs you your legs.
+  add:
+  - id: r-county
+    tree: current_reality
+    role: root_cause
+    statement: Social care accepts a referral only once the patient is declared medically fit
+  - id: c-care-late
+    tree: current_reality
+    role: intermediate_cause
+    statement: Arranging care at home or in a care home starts only once the patient is fit, and the patient waits
+      in bed for days
+  links:
+  - {from: r-county, to: c-care-late, relation: causes}
+  - {from: c-care-late, to: u-beds-held, relation: contributes_to}
+  - from: u-beds-held
+    to: u-weaker
+    relation: causes
+    assumption: Most inpatients are over 75, and days in bed cost muscle, mobility and confidence
+  question: And the other 14 points?
+
+- date: '2025-10-23T10:00:00+00:00'
+  speaker: Graham Teller
+  title: We are at 97%
+  summary: Graham Teller brings the money. More beds, he says. Read against the tree, fullness looks like an
+    effect of how beds are released, not only of how many there are.
+  source: Finance report, October
+  words: |-
+    We're at 97%, 99% in January. Every cancelled operation is income we lose, and agency spend is £11 million, up 40%. We need more beds. And every report the board reads says that being full is being efficient.
+  add:
+  - {id: c-full, tree: current_reality, role: intermediate_cause, statement: "Effective occupancy sits at 97 to 99%, with almost no slack"}
+  - {id: r-queues, tree: current_reality, role: root_cause, statement: "When arrivals vary, queues grow sharply as occupancy nears 100%"}
+  - {id: r-measure, tree: current_reality, role: root_cause, statement: Reports and the budget treat high occupancy as efficiency}
+  links:
+  - from: u-beds-held
+    to: c-full
+    relation: contributes_to
+    assumption: About 75 beds are held by people who are fit and waiting
+  - from: c-full
+    to: u-ed-wait
+    relation: contributes_to
+    assumption: With almost no slack, every surge becomes a long queue
+  - {from: r-queues, to: u-ed-wait, relation: contributes_to}
+  - from: r-measure
+    to: c-full
+    relation: contributes_to
+    assumption: Losses push the hospital to run fuller and hold vacancies
+  - {from: u-cancelled, to: u-money, relation: contributes_to, assumption: Income follows treated cases}
+  - {from: u-nurses-leave, to: u-money, relation: contributes_to, assumption: Agency staff cost a premium}
+  question: Is "too few beds" a cause, or an effect?
+
+- date: '2025-10-24T09:00:00+00:00'
+  speaker: Director of Nursing
+  title: The same 14% all day
+  summary: The nursing vacancy rate is the same at 08:00 and at 17:00, yet the waits peak every afternoon and
+    every Monday. Too few nurses makes the problem worse; it does not start it.
+  source: Nursing rotas and vacancy figures
+  words: |-
+    We don't have enough nurses: 14% of our posts are empty. But it's the same 14% at eight in the morning and at five in the afternoon, and the waits aren't the same. What breaks people is that the work peaks late and arrives unannounced, often on the wrong ward.
+  links:
+  - from: u-ed-wait
+    to: u-nurses-leave
+    relation: contributes_to
+    assumption: Nursing work peaks late and arrives unannounced
+  - from: u-wrong-ward
+    to: u-nurses-leave
+    relation: contributes_to
+    assumption: Patients on the wrong ward need care the ward is not set up to give
+  question: Who decides where a waiting patient goes?
+
+- date: '2025-10-27T17:30:00+00:00'
+  speaker: Ruth Okonjo
+  title: Ten complaints, one policy
+  summary: Ruth reads the tree from the bottom and finds one policy under all ten problems. About 75 beds are held
+    by people waiting; the modular ward would add 24.
+  source: Ruth's notebook, end of week three
+  words: |-
+    Bed managers have to place every waiting patient fast, and long waits in the ED are penalised, so they use any free bed: beds held for surgery, beds on the wrong ward. Mondays start with a backlog, because few consultants work weekends and every discharge needs one.
+
+    Read the tree from the bottom and one policy reaches all ten problems: a discharge is decided on the day, late in a sickest-first round, and preparation to leave starts only after that decision. Nobody knows when anyone will leave, so we meet four times a day to find out. It doesn't remove the midday peak or the way queues behave near full, but it decides what they do to us.
+
+    About 75 of our beds are held by people waiting. The modular ward would add 24. Nobody here is to blame: every cause in this tree is a policy or a habit, not a person.
+  add:
+  - id: r-place-fast
+    tree: current_reality
+    role: root_cause
+    statement: Bed managers must place every waiting emergency patient fast; long waits there are penalised
+  - {id: r-weekend, tree: current_reality, role: root_cause, statement: "Few consultants work weekends, and every discharge needs one"}
+  - {id: c-monday, tree: current_reality, role: intermediate_cause, statement: Every Monday starts with a backlog}
+  - id: core
+    tree: current_reality
+    role: critical_root_cause
+    statement: Discharge is decided on the day, late in a sickest-first round, and preparation to leave starts
+      only after that decision
+  links:
+  - from: u-ed-wait
+    to: u-cancelled
+    relation: contributes_to
+    assumption: Waiting patients are placed in any free bed, including beds held for surgery
+  - from: u-ed-wait
+    to: u-wrong-ward
+    relation: contributes_to
+    assumption: Waiting patients are placed in any free bed, including beds on unrelated wards
+  - {from: r-place-fast, to: u-cancelled, relation: contributes_to}
+  - {from: r-place-fast, to: u-wrong-ward, relation: contributes_to}
+  - {from: r-weekend, to: c-monday, relation: contributes_to}
+  - {from: c-monday, to: c-full, relation: contributes_to}
+  - from: core
+    to: c-late-review
+    relation: causes
+    assumption: Only a consultant decides a discharge, on the daily round, and the round goes sickest first
+  - from: core
+    to: u-meetings
+    relation: causes
+    assumption: Nobody knows when any patient will leave, so the picture is put together in four meetings a day
+  - from: core
+    to: c-care-late
+    relation: contributes_to
+    assumption: No expected discharge date is set at admission, so referrals start late
+  - from: core
+    to: u-beds-held
+    relation: contributes_to
+    assumption: Scans, opinions and medicines are asked for only when the round notices the need, a day each
+  - from: core
+    to: c-monday
+    relation: contributes_to
+    assumption: Weekend discharges fall to 45% of a weekday's
+  question: If the cause is that plain, why has nobody fixed it?
+
+# ----- What keeps us stuck: the Evaporating Cloud ----------------------------------------------------------
+- date: '2025-10-31T16:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: Two true needs, one morning
+  summary: Harrowfield has attacked the core problem three times, and each campaign faded within eight weeks.
+    Ruth draws the conflict that keeps undoing them.
+  source: Ruth's notebook, week four
+  words: |-
+    Three "discharge before noon" campaigns in five years. Each lifted morning discharges to about 25%, and each decayed to where it started within eight weeks. A remedy that decays isn't short of willpower. It's losing to a legitimate need.
+
+    Every patient should get the care they need when they need it. For that, the acutely ill need prompt senior review, so consultants round on the sickest first. And beds must come free before the afternoon peak, so consultants round on the patients ready to leave first. One consultant's morning can't go first to both.
+
+    Both needs are true; that's why neither side gives way. What holds the conflict together is an assumption: that only the morning round can trigger a discharge.
+  add:
+  - {id: cl-objective, tree: conflict, role: cloud_objective, statement: "Every patient gets the care they need, when they need it"}
+  - {id: cl-review, tree: conflict, role: cloud_requirement, statement: Acutely ill patients get prompt senior review}
+  - id: cl-release
+    tree: conflict
+    role: cloud_requirement
+    statement: Beds are released as soon as patients no longer need them, before the afternoon peak
+  - {id: cl-sickest, tree: conflict, role: cloud_prerequisite, statement: Consultants round on the sickest patients first}
+  - {id: cl-ready, tree: conflict, role: cloud_prerequisite, statement: Consultants round on the patients ready to leave first}
+  links:
+  - from: cl-review
+    to: cl-objective
+    relation: necessary_for
+    assumption: Delay in senior review lets deterioration go unnoticed
+  - from: cl-release
+    to: cl-objective
+    relation: necessary_for
+    assumption: Both the patient waiting downstairs and the recovered patient in the bed are harmed by a late
+      discharge
+  - from: cl-review
+    to: cl-sickest
+    relation: requires
+    assumption: The sickest patients this team is responsible for are on its ward
+  - from: cl-release
+    to: cl-ready
+    relation: requires
+    assumption: A patient cannot leave until a consultant has seen them that day
+  - from: cl-sickest
+    to: cl-ready
+    relation: conflicts_with
+    assumption: Only the consultant's morning round can trigger a discharge
+  question: Which assumption is false?
+
+# ----- Will it work, and what could go wrong: the Future Reality Tree -------------------------------------
+- date: '2025-11-04T16:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: Move the decision out of the morning
+  summary: The change that dissolves the conflict. The consultant still decides; the decision is made the day
+    before, on explicit criteria, and a trained nurse checks them in the morning.
+  source: Ruth's notebook, week five
+  words: |-
+    Move the decision out of the morning. Within 14 hours of admission, the admitting consultant sets an expected discharge date and explicit criteria: for pneumonia, off oxygen for 24 hours with saturation at 92% or more, no fever for 24 hours, walking to the bathroom, taking oral antibiotics. Each afternoon the team confirms tomorrow's likely discharges; next morning a trained nurse checks the criteria and discharges without waiting for the round. Medicines, letter, transport and referrals are ready the evening before.
+
+    The consultant still makes the decision; it was made yesterday, on conditions anyone can check. Consultants can go to the sickest first, and the ready still leave between nine and eleven.
+  add:
+  - id: inj-decide-early
+    tree: future_reality
+    role: injection
+    statement: Within 14 hours of admission, the admitting consultant sets an expected discharge date and
+      explicit clinical criteria
+  - id: inj-criteria
+    tree: future_reality
+    role: injection
+    statement: Each afternoon the team confirms tomorrow's likely discharges; next morning a trained nurse checks
+      the criteria and discharges without waiting for the round
+  - id: inj-full-kit
+    tree: future_reality
+    role: injection
+    statement: Medicines, the discharge letter, transport and onward-care referrals are prepared against the
+      expected date, ready the evening before
+  - {id: d-known, tree: future_reality, role: desired_effect, statement: "Most of tomorrow's discharges are known by 16:00 today"}
+  - id: d-before-noon
+    tree: future_reality
+    role: desired_effect
+    statement: "Patients who meet their criteria leave between 09:00 and 11:00, before the admission peak"
+  - id: d-right-ward
+    tree: future_reality
+    role: desired_effect
+    statement: "Beds are free at 10:00 for admissions from 11:00, so few patients land on the wrong ward"
+  links:
+  - {from: inj-decide-early, to: d-known, relation: contributes_to}
+  - {from: inj-criteria, to: d-known, relation: contributes_to}
+  - {from: d-known, to: d-before-noon, relation: contributes_to}
+  - from: inj-full-kit
+    to: d-before-noon
+    relation: contributes_to
+    assumption: A patient without medicines or transport cannot leave, however well
+  - from: d-before-noon
+    to: d-right-ward
+    relation: contributes_to
+    assumption: "Emergency admissions keep arriving from 11:00"
+  question: Is that enough to turn all ten around?
+
+- date: '2025-11-06T16:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: Three more, for it to be enough
+  summary: Drawing the future tree shows three more changes are needed for it to work.
+  source: Ruth's notebook, week five
+  words: |-
+    On its own it isn't enough. Three more changes. Every ward holds a 15-minute board round at 08:30 that marks each patient green, amber or red, and every red names its blocker and an owner; one daily flow meeting replaces the four bed meetings. We stop reporting occupancy as efficiency and report waiting bed-days, discharges by hour and planned operations done. And patients likely to need care after discharge are referred to the county on day one.
+
+    If the waits inside the hospital halve and the social-care waits fall by a third, about ten points of occupied beds come free: from 97% to about 87%, with no new beds.
+  add:
+  - id: inj-board-round
+    tree: future_reality
+    role: injection
+    statement: "A 15-minute board round at 08:30 marks every patient green, amber or red; each red names its
+      blocker and an owner, and one daily flow meeting replaces the four bed meetings"
+  - id: inj-measures
+    tree: future_reality
+    role: injection
+    statement: Report waiting bed-days, discharges by hour and planned operations done, not occupancy
+  - id: inj-early-referral
+    tree: future_reality
+    role: injection
+    statement: Patients likely to need care after discharge are referred to the county on day one
+  - {id: d-internal, tree: future_reality, role: desired_effect, statement: Waits for things inside the hospital halve}
+  - {id: d-social, tree: future_reality, role: desired_effect, statement: Waits for social care fall by a third}
+  - {id: d-occupancy, tree: future_reality, role: desired_effect, statement: "Occupancy falls from 97% to about 87%, with no new beds"}
+  - id: d-ed
+    tree: future_reality
+    role: desired_effect
+    statement: Admitted patients reach a bed within hours, and ambulances hand over
+  - {id: d-operations, tree: future_reality, role: desired_effect, statement: Planned operations go ahead on the day booked}
+  - {id: d-stronger, tree: future_reality, role: desired_effect, statement: More older patients go home as able as they came}
+  - id: d-nursing
+    tree: future_reality
+    role: desired_effect
+    statement: Nursing work becomes plannable, and turnover and agency spend fall
+  - {id: d-one-meeting, tree: future_reality, role: desired_effect, statement: One daily flow meeting replaces four bed meetings}
+  - id: d-money
+    tree: future_reality
+    role: desired_effect
+    statement: The hospital stops losing money, and the modular ward is not needed
+  links:
+  - {from: inj-board-round, to: d-internal, relation: causes}
+  - {from: inj-early-referral, to: d-social, relation: causes}
+  - {from: d-internal, to: d-occupancy, relation: contributes_to}
+  - {from: d-social, to: d-occupancy, relation: contributes_to}
+  - from: d-occupancy
+    to: d-ed
+    relation: contributes_to
+    assumption: "Near 87%, surges are absorbed instead of becoming queues"
+  - {from: d-ed, to: d-operations, relation: causes, assumption: Emergency patients no longer need surgical beds}
+  - {from: d-occupancy, to: d-stronger, relation: contributes_to, assumption: Shorter stays mean less time weakening in bed}
+  - {from: d-known, to: d-nursing, relation: contributes_to, assumption: Ward work is known a day ahead}
+  - {from: d-right-ward, to: d-nursing, relation: contributes_to}
+  - {from: inj-board-round, to: d-one-meeting, relation: causes, assumption: Everyone sees the same board}
+  - {from: d-operations, to: d-money, relation: contributes_to}
+  - {from: d-nursing, to: d-money, relation: contributes_to}
+  - {from: inj-measures, to: d-money, relation: contributes_to, assumption: The budget stops rewarding fullness}
+  question: What could go wrong?
+
+- date: '2025-11-10T12:00:00+00:00'
+  speaker: Dr Helen Marsh
+  title: If a nurse gets it wrong
+  summary: Dr Marsh names the risk that would end the change, and what would keep it from happening.
+  source: Medical staff committee, 10 November
+  words: |-
+    Here's what would end it. A nurse discharges a patient on vague criteria, or because she felt pressed to, the patient deteriorates, and every consultant in the building goes back to deciding on the day. So the criteria have to be measurable, any doubt means escalate with no penalty, and I want every criteria-led discharge audited weekly for two months, with 7-day readmissions plotted against last year.
+  add:
+  - id: nb-trust
+    tree: future_reality
+    role: undesirable_effect
+    statement: A nurse discharges a patient who deteriorates; consultants lose trust and go back to deciding on
+      the day
+  - id: trim-trust
+    tree: future_reality
+    role: injection
+    statement: Criteria are measurable, any doubt means escalate with no penalty, and every criteria-led
+      discharge is audited weekly for two months
+  links:
+  - from: inj-criteria
+    to: nb-trust
+    relation: contributes_to
+    assumption: Criteria are vague, or a nurse feels pressed to discharge
+  - {from: trim-trust, to: nb-trust, relation: challenges}
+  question: What else could go wrong?
+
+- date: '2025-11-11T16:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: The branch that would undo everything
+  summary: Asking every group what could go wrong finds five more risks. One matters most, because no single
+    department can see it and it looks like prudence.
+  source: Ruth's notebook, week six
+  words: |-
+    Five more ways it could go wrong, from five different rooms. Managers chase date "accuracy" and dates become targets. Pharmacy gets every prescription at eight in the morning. Ward nurses face discharges, the medicine round and the first admissions all at once. Families aren't ready at ten, so patients wait anyway.
+
+    And the one that matters most, because nobody inside one department can see it and it looks like prudence: finance sees empty beds at noon, closes a ward, occupancy is back at 97% and everything reverts. Before the pilot, the board has to commit the beds we free to the waiting list and the buffer.
+  add:
+  - id: nb-targets
+    tree: future_reality
+    role: undesirable_effect
+    statement: "Expected dates become targets: patients are pushed out early, or dates are padded so they are
+      always met"
+  - id: trim-targets
+    tree: future_reality
+    role: injection
+    statement: "The date is a plan, not a target: measure why reds happen, never whether dates were hit"
+  - id: nb-harvest
+    tree: future_reality
+    role: undesirable_effect
+    statement: "Freed beds are harvested as savings: a ward closes and occupancy returns to 97%"
+  - id: trim-harvest
+    tree: future_reality
+    role: injection
+    statement: Before the pilot, the board commits freed beds to the planned-operations waiting list and to the
+      buffer
+  - id: nb-pharmacy
+    tree: future_reality
+    role: undesirable_effect
+    statement: "Pharmacy becomes the new bottleneck, with every discharge prescription demanded at 08:00"
+  - id: trim-pharmacy
+    tree: future_reality
+    role: injection
+    statement: "Pharmacy gets tomorrow's list by 16:00 and prepares the medicines the afternoon before"
+  - id: nb-pileup
+    tree: future_reality
+    role: undesirable_effect
+    statement: Ward nurses face discharges, the medicine round and the first admissions all at once
+  - id: trim-pileup
+    tree: future_reality
+    role: injection
+    statement: "A staffed discharge lounge, with patient transport spread across 09:00 to 12:00"
+  - {id: nb-families, tree: future_reality, role: undesirable_effect, statement: "Families are not ready at 10:00, so patients wait anyway"}
+  - id: trim-families
+    tree: future_reality
+    role: injection
+    statement: The expected date is shared with the patient and family at admission
+  links:
+  - {from: inj-decide-early, to: nb-targets, relation: contributes_to, assumption: Managers chase date "accuracy"}
+  - {from: trim-targets, to: nb-targets, relation: challenges}
+  - from: d-occupancy
+    to: nb-harvest
+    relation: contributes_to
+    assumption: Finance reads empty beds at noon as spare capacity
+  - {from: trim-harvest, to: nb-harvest, relation: challenges}
+  - {from: inj-full-kit, to: nb-pharmacy, relation: contributes_to, assumption: Morning discharges concentrate the demand}
+  - {from: trim-pharmacy, to: nb-pharmacy, relation: challenges}
+  - {from: d-before-noon, to: nb-pileup, relation: contributes_to, assumption: Discharges are concentrated early}
+  - {from: trim-pileup, to: nb-pileup, relation: challenges}
+  - {from: inj-decide-early, to: nb-families, relation: contributes_to, assumption: "The hospital knows the date; the family does not"}
+  - {from: trim-families, to: nb-families, relation: challenges}
+  question: What will stop this working?
+
+# ----- What stands in the way, and what comes first: the Prerequisite Tree --------------------------------
+- date: '2025-11-12T09:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: What will stop this working?
+  summary: Ruth asks every group the same question and writes down every answer without arguing. In this tree an
+    objection is not resistance to be managed; it names something that must exist first.
+  source: Ruth's notebook, week six
+  words: |-
+    I'm asking every group the same question, what will stop this working, and writing down every answer without arguing. Each objection names something that has to exist before the change can work. The aim for now is modest: criteria-led discharge running on two pilot wards.
+  add:
+  - {id: p-objective, tree: prerequisite, role: implementation_objective, statement: Criteria-led discharge runs on two pilot wards}
+  question: What will stop this working?
+
+- date: '2025-11-12T11:00:00+00:00'
+  speaker: Graham Teller
+  title: The ward is in the capital plan
+  summary: Finance's objection, and what would overcome it.
+  source: Finance office, 12 November
+  words: |-
+    The modular ward is in the capital plan, and the deficit needs savings. If you want me to wait, the board has to decide to defer it, and to say in writing what happens to any beds you free.
+  add:
+  - id: o-capital
+    tree: prerequisite
+    role: obstacle
+    statement: The modular ward is in the capital plan, and the deficit needs savings
+  - id: io-board
+    tree: prerequisite
+    role: intermediate_objective
+    statement: The board defers the modular ward six months and commits freed beds to the waiting list and the
+      buffer
+  links:
+  - {from: io-board, to: o-capital, relation: overcomes}
+  question: What else will stop it?
+
+- date: '2025-11-12T14:00:00+00:00'
+  speaker: Joy Mensah
+  title: The fourth campaign in five years
+  summary: The ward staff's objection, and what would overcome it.
+  source: Ward 7 staff meeting, 12 November
+  words: |-
+    This is the fourth discharge campaign in five years. Nobody on my ward will believe in another one unless the consultants choose it themselves. Start with wards whose consultants want to do it.
+  add:
+  - {id: o-campaign, tree: prerequisite, role: obstacle, statement: This is the fourth discharge campaign in five years}
+  - {id: io-wards, tree: prerequisite, role: intermediate_objective, statement: Two pilot wards whose consultants chose to join}
+  links:
+  - {from: io-wards, to: o-campaign, relation: overcomes}
+  question: What else will stop it?
+
+- date: '2025-11-12T16:00:00+00:00'
+  speaker: Medical director
+  title: Vague criteria are unsafe
+  summary: The medical director's objection, and what would overcome it.
+  source: Medical director's office, 12 November
+  words: |-
+    Consultants have never written discharge criteria, and vague criteria are unsafe. If the consultants who will use them write templates for the five commonest admissions on each pilot ward, I'll take them seriously.
+  add:
+  - id: o-criteria
+    tree: prerequisite
+    role: obstacle
+    statement: Consultants have never written criteria, and vague criteria are unsafe
+  - id: io-templates
+    tree: prerequisite
+    role: intermediate_objective
+    statement: Criteria templates for the five commonest admissions on each pilot ward, written by the
+      consultants who will use them
+  links:
+  - {from: io-templates, to: o-criteria, relation: overcomes}
+  - {from: io-wards, to: io-templates, relation: enables}
+  question: What else will stop it?
+
+- date: '2025-11-13T09:30:00+00:00'
+  speaker: Dr Helen Marsh
+  title: Whose registration is on the line?
+  summary: The consultants' objection, with the nursing director's, and what would overcome it.
+  source: Consultants' meeting, 13 November
+  words: |-
+    Nurses aren't authorised to discharge. If it goes wrong, whose registration is on the line? It has to go through governance: the consultants own the criteria, and the nurses apply them.
+  add:
+  - id: o-authority
+    tree: prerequisite
+    role: obstacle
+    statement: Nurses are not authorised to discharge, and someone's registration is on the line
+  - id: io-governance
+    tree: prerequisite
+    role: intermediate_objective
+    statement: "Governance approves criteria-led discharge: consultants own the criteria, nurses apply them"
+  links:
+  - {from: io-governance, to: o-authority, relation: overcomes}
+  - {from: io-templates, to: io-governance, relation: enables}
+  question: What else will stop it?
+
+- date: '2025-11-13T13:00:00+00:00'
+  speaker: Ward 7 nurses
+  title: Carrying that responsibility
+  summary: The ward nurses' objection, and what would overcome it.
+  source: Ward 7 nurses' handover, 13 November
+  words: |-
+    We'll be anxious carrying that responsibility. We'd want proper training, and to do a few with someone watching before we do them alone.
+  add:
+  - {id: o-anxious, tree: prerequisite, role: obstacle, statement: Nurses will be anxious carrying that responsibility}
+  - id: io-trained
+    tree: prerequisite
+    role: intermediate_objective
+    statement: "Pilot nurses are trained and signed off: a two-hour session and three supervised discharges each"
+  links:
+  - {from: io-trained, to: o-anxious, relation: overcomes}
+  - {from: io-governance, to: io-trained, relation: enables}
+  - {from: io-trained, to: p-objective, relation: enables}
+  question: What else will stop it?
+
+- date: '2025-11-13T15:00:00+00:00'
+  speaker: Junior doctors
+  title: Another form will be ignored
+  summary: The junior doctors' objection, and what would overcome it.
+  source: Junior doctors' forum, 13 November
+  words: |-
+    We're overloaded. Another form will be ignored. If the expected date has to go somewhere, put it in a box we already fill in on the post-take round.
+  add:
+  - {id: o-form, tree: prerequisite, role: obstacle, statement: "Juniors are overloaded, and another form will be ignored"}
+  - id: io-post-take
+    tree: prerequisite
+    role: intermediate_objective
+    statement: The expected date and criteria are recorded on the post-take round, replacing an existing
+      admission field
+  links:
+  - {from: io-post-take, to: o-form, relation: overcomes}
+  - {from: io-templates, to: io-post-take, relation: enables}
+  - {from: io-post-take, to: p-objective, relation: enables}
+  question: What else will stop it?
+
+- date: '2025-11-14T09:00:00+00:00'
+  speaker: IT
+  title: Nine months for the record system
+  summary: IT's objection, and what would overcome it on two wards.
+  source: IT service desk, 14 November
+  words: |-
+    The record system can't show expected dates, and the change takes nine months. For two wards, though, you don't need us. A whiteboard would do.
+  add:
+  - id: o-it
+    tree: prerequisite
+    role: obstacle
+    statement: The record system cannot show expected dates, and the change takes nine months
+  - id: io-whiteboard
+    tree: prerequisite
+    role: intermediate_objective
+    statement: "A whiteboard on each pilot ward: bed, expected date, criteria, colour, blocker"
+  links:
+  - {from: io-whiteboard, to: o-it, relation: overcomes}
+  - {from: io-whiteboard, to: p-objective, relation: enables}
+  question: What else will stop it?
+
+- date: '2025-11-14T11:00:00+00:00'
+  speaker: Pharmacy
+  title: We only dispense against a final discharge
+  summary: Pharmacy's objection, and what would overcome it.
+  source: Pharmacy, 14 November
+  words: |-
+    We only dispense against a final discharge, and doses change. Give us tomorrow's likely list by four in the afternoon and we can have most of it ready.
+  add:
+  - {id: o-dispense, tree: prerequisite, role: obstacle, statement: "Pharmacy only dispenses against a final discharge, and doses change"}
+  - id: io-pharmacy
+    tree: prerequisite
+    role: intermediate_objective
+    statement: "Pharmacy prepares tomorrow's discharge medicines from a list sent by 16:00"
+  links:
+  - {from: io-pharmacy, to: o-dispense, relation: overcomes}
+  - {from: io-pharmacy, to: p-objective, relation: enables}
+  question: What else will stop it?
+
+- date: '2025-11-14T14:00:00+00:00'
+  speaker: County social care
+  title: No referral until medically fit
+  summary: The county's objection, and what would overcome it.
+  source: Call with the county, 14 November
+  words: |-
+    County rules: no referral until the patient is medically fit. If the hospital commits to the pilot properly, we can try day-one referrals for the pilot patients and assess them at home.
+  add:
+  - {id: o-county, tree: prerequisite, role: obstacle, statement: "County rules: no referral until the patient is medically fit"}
+  - id: io-county
+    tree: prerequisite
+    role: intermediate_objective
+    statement: The county accepts day-one referrals and assesses pilot patients at home
+  links:
+  - {from: io-county, to: o-county, relation: overcomes}
+  - {from: io-board, to: io-county, relation: enables}
+  - {from: io-county, to: p-objective, relation: enables}
+  question: What else will stop it?
+
+- date: '2025-11-14T16:00:00+00:00'
+  speaker: Patient transport
+  title: Booked on the day only
+  summary: Patient transport's objection, and what would overcome it.
+  source: Patient transport, 14 November
+  words: |-
+    We only take bookings on the day. If wards could book the day before, we could give them a slot between nine and twelve.
+  add:
+  - {id: o-transport, tree: prerequisite, role: obstacle, statement: Transport is booked on the day only}
+  - id: io-transport
+    tree: prerequisite
+    role: intermediate_objective
+    statement: "Patient transport can be booked the day before, in 09:00 to 12:00 windows"
+  links:
+  - {from: io-transport, to: o-transport, relation: overcomes}
+  - {from: io-transport, to: p-objective, relation: enables}
+  question: In what order, then?
+
+# ----- What exactly do we do next: the Transition Tree ----------------------------------------------------
+- date: '2025-12-15T16:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: Ten small steps for Ward 7, the first five
+  summary: The pilot is Ward 7, 28 respiratory beds. Each step has a stated need, an action and an effect
+    someone else can see, and a check before the next step.
+  source: Ward 7 pilot plan, part one
+  words: |-
+    Ward 7 is the pilot: 28 respiratory beds. Its objective is that at least 35% of its patients go home before noon within eight weeks, with no rise in 7-day readmissions. Ten small steps, each with a need, what we do, what we expect to see, and how anyone else could tell. The first is small: one conversation with one consultant, with one number.
+  add:
+  - id: t1-need
+    tree: transition
+    role: transition_need
+    statement: The pilot needs a consultant who owns it, and Dr Marsh thinks the bottleneck is social care
+  - id: t1-effect
+    tree: transition
+    role: transition_expected_effect
+    statement: Dr Marsh sees early discharge as a safety issue for her own patients, and volunteers Ward 7 at the
+      medical board
+  - id: t1-action
+    tree: transition
+    role: transition_action
+    statement: "Ruth shows Dr Marsh one number: last month 41 of her own patients waited in the emergency
+      department for a Ward 7 bed, median 9 hours, and 6 were placed on surgical wards"
+  - {id: t2-need, tree: transition, role: transition_need, statement: "Criteria must be specific to be safe, and none exist"}
+  - id: t2-effect
+    tree: transition
+    role: transition_expected_effect
+    statement: Five templates, signed by all three consultants, cover most patients from day one
+  - id: t2-action
+    tree: transition
+    role: transition_action
+    statement: Dr Marsh, two colleagues and Joy Mensah write criteria for the five conditions behind about 70% of
+      Ward 7's admissions
+  - {id: t3-need, tree: transition, role: transition_need, statement: Nurses need authority to act on criteria}
+  - {id: t3-effect, tree: transition, role: transition_expected_effect, statement: "Criteria-led discharge is approved practice, in the minutes"}
+  - id: t3-action
+    tree: transition
+    role: transition_action
+    statement: The medical and nursing directors take the protocol to the governance meeting
+  - {id: t4-need, tree: transition, role: transition_need, statement: Nurses need competence and confidence}
+  - id: t4-effect
+    tree: transition
+    role: transition_expected_effect
+    statement: At least two signed-off nurses on every day shift, weekends included, as the rota shows
+  - {id: t4-action, tree: transition, role: transition_action, statement: Train eight Ward 7 nurses; each does three supervised discharges}
+  - id: t5-need
+    tree: transition
+    role: transition_need
+    statement: Everyone must see the plan, and the record system cannot show it
+  - id: t5-effect
+    tree: transition
+    role: transition_expected_effect
+    statement: Anyone asked can say in under a minute who leaves tomorrow and what they are waiting for
+  - id: t5-action
+    tree: transition
+    role: transition_action
+    statement: "Put up the whiteboard: bed, expected date, criteria met, colour, blocker, owner"
+  links:
+  - {from: t1-effect, to: t1-need, relation: satisfies}
+  - {from: t1-action, to: t1-effect, relation: produces}
+  - {from: t2-effect, to: t2-need, relation: satisfies}
+  - {from: t2-action, to: t2-effect, relation: produces}
+  - {from: t3-effect, to: t3-need, relation: satisfies}
+  - {from: t3-action, to: t3-effect, relation: produces}
+  - {from: t4-effect, to: t4-need, relation: satisfies}
+  - {from: t4-action, to: t4-effect, relation: produces}
+  - {from: t5-effect, to: t5-need, relation: satisfies}
+  - {from: t5-action, to: t5-effect, relation: produces}
+  question: And the rest?
+
+- date: '2025-12-16T15:00:00+00:00'
+  speaker: Joy Mensah
+  title: Ten small steps for Ward 7, the next five
+  summary: Joy Mensah writes the steps her ward will run every day.
+  source: Ward 7 pilot plan, part two
+  words: |-
+    The rest is what my ward does every day. A standing board round at half past eight, fifteen minutes, with the pharmacist there. At three the registrar confirms tomorrow's likely discharges and the list goes to pharmacy and transport by four, and the families are told. From eight the next morning a signed-off nurse checks the criteria. Dr Marsh reviews every one of them weekly. And every Friday I count the week's red reasons and take the commonest to the flow meeting.
+  add:
+  - {id: t6-need, tree: transition, role: transition_need, statement: Blockers must surface before they cost a day}
+  - {id: t6-effect, tree: transition, role: transition_expected_effect, statement: "Every red has an owner and a deadline by 08:45"}
+  - id: t6-action
+    tree: transition
+    role: transition_action
+    statement: "A 15-minute standing board round at 08:30: consultant, nurse in charge, physiotherapist and
+      pharmacist"
+  - {id: t7-need, tree: transition, role: transition_need, statement: "Medicines, letters, transport and family must be ready before morning"}
+  - id: t7-effect
+    tree: transition
+    role: transition_expected_effect
+    statement: "Full kit ready by 08:00 for at least 80% of next-day discharges, by the morning checklist"
+  - id: t7-action
+    tree: transition
+    role: transition_action
+    statement: "At 15:00 the registrar confirms tomorrow's likely discharges; the list goes to pharmacy and
+      transport by 16:00, and families are told"
+  - {id: t8-need, tree: transition, role: transition_need, statement: Beds must empty before the emergency peak}
+  - {id: t8-effect, tree: transition, role: transition_expected_effect, statement: "Beds free by 11:00, by the discharge time stamps"}
+  - id: t8-action
+    tree: transition
+    role: transition_action
+    statement: "From 08:00 a signed-off nurse checks criteria; patients who meet them move to the discharge lounge
+      by 10:30"
+  - id: t9-need
+    tree: transition
+    role: transition_need
+    statement: Consultants will trust criteria only if the evidence says they are safe
+  - id: t9-effect
+    tree: transition
+    role: transition_expected_effect
+    statement: Readmissions stay within last year's range, and any harm is reviewed openly
+  - id: t9-action
+    tree: transition
+    role: transition_action
+    statement: Dr Marsh reviews every criteria-led discharge weekly, with 7-day readmissions plotted against last
+      year
+  - {id: t10-need, tree: transition, role: transition_need, statement: Some blockers lie outside the ward}
+  - id: t10-effect
+    tree: transition
+    role: transition_expected_effect
+    statement: The top internal delay gets an owner who can fix it, and the top reason changes over the weeks
+  - id: t10-action
+    tree: transition
+    role: transition_action
+    statement: Each Friday Joy counts the week's red reasons and takes the commonest to the flow meeting
+  links:
+  - {from: t6-effect, to: t6-need, relation: satisfies}
+  - {from: t6-action, to: t6-effect, relation: produces}
+  - {from: t7-effect, to: t7-need, relation: satisfies}
+  - {from: t7-action, to: t7-effect, relation: produces}
+  - {from: t8-effect, to: t8-need, relation: satisfies}
+  - {from: t8-action, to: t8-effect, relation: produces}
+  - {from: t9-effect, to: t9-need, relation: satisfies}
+  - {from: t9-action, to: t9-effect, relation: produces}
+  - {from: t10-effect, to: t10-need, relation: satisfies}
+  - {from: t10-action, to: t10-effect, relation: produces}
+  question: Ready for January?
+
+# ----- The week before the pilot: two proposals wait, and the guide takes over -----------------------------
+- date: '2026-01-06T09:00:00+00:00'
+  speaker: Ruth Okonjo
+  acceptance: review
+
+- date: '2026-01-07T10:00:00+00:00'
+  speaker: Graham Teller
+  title: One more condition, for the board's paper
+  summary: For the January board paper Graham sends one more condition for the Goal Tree. It waits for Ruth's
+    decision.
+  source: Email from Graham Teller, 7 January
+  pending: true
+  words: |-
+    For the January board paper: whatever the pilot does, keep occupancy at 95% or more. Beds we pay for should be full. Please add it to the Goal Tree, under Viability.
+  add:
+  - {id: nc-occupancy, tree: goal, role: necessary_condition, statement: "Keep occupancy at 95% or more"}
+  links:
+  - {from: nc-occupancy, to: csf-viability, relation: necessary_for}
+  question: Must it be true for the goal?
+
+- date: '2026-01-08T15:00:00+00:00'
+  speaker: Joy Mensah
+  title: You've missed pharmacy
+  summary: Ruth reads the Current Reality Tree aloud on Ward 7. Joy stops her at the afternoon discharges. Her
+    correction waits for Ruth's decision.
+  source: Ward 7, the tree read aloud, 8 January
+  pending: true
+  words: |-
+    You've missed pharmacy. Nothing goes home without its medicines, and pharmacy only starts on them once the discharge is final, so they queue all afternoon behind everyone else's. Put it in the tree, next to the late decisions.
+  add:
+  - id: r-pharmacy
+    tree: current_reality
+    role: root_cause
+    statement: Pharmacy starts on take-home medicines only once a discharge is final, so they queue through the
+      afternoon
+  links:
+  - {from: r-pharmacy, to: u-late, relation: contributes_to, assumption: Nothing goes home without its medicines}
+  question: Is she right?
+
+- date: '2026-01-09T16:00:00+00:00'
+  speaker: Ruth Okonjo
+  title: Monday, on Ward 7
+  summary: The pilot starts on Monday. Ruth hands the goal to the built-in guide, which asks for the first test.
+  source: Ruth's notebook, the Friday before the pilot
+  handover: test_change
+  words: |-
+    Ward 7 starts on Monday. Before then, two proposals to decide. Then one step from the Transition Tree to test properly: what we'll do, what we expect to see, and when we'll look.

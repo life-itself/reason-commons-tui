@@ -39,7 +39,8 @@ def test_story_file_builds_one_revision_per_chapter_and_matches_the_package(tmp_
     built = build_story(tmp_path / "fresh", story)
     with open_case(built, writable=False) as fresh, open_case(story_case, writable=False) as packaged:
         assert fresh.workspace()["revision"] == len(story["chapters"])
-        # The packaged archive is the story file, built: rerun scripts/build_story.py after editing it.
+        # The packaged archive is the story file, built: rerun scripts/build_story.py second-renaissance after
+        # editing it.
         assert comparable(fresh) == comparable(packaged)
 
 
@@ -72,6 +73,64 @@ def test_the_story_rewords_withdraws_and_ends_with_one_open_action(story_case):
     assert "Decide how the trees get updated" in first["earlier_wording"]
     # Robert's objection is still on record even though its condition was condensed away.
     assert any("create the pull but to align with it" in c["statement"] for c in trees["goal"]["claims"])
+
+
+def small_story(**extra):
+    """A goal, a switch to review, a proposal that waits, and the hand-over to the built-in guide."""
+    day = lambda n: f"2026-01-0{n}T09:00:00+00:00"
+    story = {"name": "Small", "reader": "Ann", "every_chapter_accepted": True, "chapters": [
+        {"date": day(1), "speaker": "Ann", "title": "A goal", "summary": "Ann sets a goal.", "source": "Notes",
+         "words": "We want the kitchen tidy.",
+         "goal": {"statement": "The kitchen is tidy", "measure": "Dishes left at night (5 now)",
+                  "protections": ["Nobody cooks less"]},
+         "add": [{"id": "g", "tree": "goal", "role": "goal", "statement": "The kitchen is tidy"},
+                 {"id": "csf", "tree": "goal", "role": "critical_success_factor", "statement": "Dishes get washed"}],
+         "links": [{"from": "csf", "to": "g", "relation": "necessary_for"}], "question": "What else?"},
+        {"date": day(2), "speaker": "Ann", "acceptance": "review"},
+        {"date": day(3), "speaker": "Bob", "title": "One more", "summary": "Bob adds one.", "source": "A note",
+         "pending": True, "words": "Buy a dishwasher.",
+         "add": [{"id": "nc", "tree": "goal", "role": "necessary_condition", "statement": "A dishwasher"}],
+         "links": [{"from": "nc", "to": "csf", "relation": "necessary_for"}], "question": "Must it?"},
+        {"date": day(4), "speaker": "Ann", "title": "Over to the guide", "summary": "Ann hands over.",
+         "source": "Notes", "handover": "test_change", "words": "Monday, then."}]}
+    story.update(extra)
+    return story
+
+
+def test_a_story_can_leave_proposals_waiting_and_hand_its_goal_to_the_guide(tmp_path):
+    from reason_commons.adapters.guided import question
+    story = small_story()
+    path = build_story(tmp_path / "small", story)
+    with open_case(path, writable=False) as case:
+        state = case.inspect()["case"]
+        backlog = case.workspace(view="backlog")["backlog"]
+        asked = case.workspace()["question"]["data"]
+        entries = revision_changes(case.history()["revisions"], case.sources()["sources"])
+    # One revision per entry, the switch to review included, so chapter n is still revision n.
+    assert len(entries) == len(story["chapters"]) + 1
+    goal = next(r for r in state["records"] if r["kind"] == "goal")
+    assert goal["data"]["protections"] == ["Nobody cooks less"] and goal["data"]["measure"].startswith("Dishes")
+    assert state["membership"]["acceptance"] == "review"
+    # Bob's chapter waits for whoever opens the goal: the statement and the link that joins it.
+    assert [entry["summary"] for entry in backlog][:1] == ["A dishwasher"] and len(backlog) == 2
+    # The last question is the guide's own, as the guide itself would have asked it.
+    expected = question("test_change", [goal["ref"]])
+    assert {key: asked[key] for key in expected} == expected
+
+
+def test_a_story_stops_when_a_chapter_would_not_enter_the_model(tmp_path):
+    story = small_story()
+    # Withdrawing a statement that has links leaves the withdrawal waiting even under automatic acceptance.
+    story["chapters"][1] = {"date": "2026-01-02T09:00:00+00:00", "speaker": "Ann", "title": "Not that",
+                            "summary": "Ann withdraws it.", "source": "Notes", "words": "Scrap that.",
+                            "withdraw": [{"id": "csf", "reason": "Not needed"}], "question": "And now?"}
+    with pytest.raises(Exception, match="left proposals waiting"):
+        build_story(tmp_path / "small", story)
+    # A pending chapter must come after the switch to review.
+    story = small_story()
+    del story["chapters"][1]
+    with pytest.raises(Exception, match="should wait for a decision"):
+        build_story(tmp_path / "again", story)
 
 
 def test_change_summary_counts_in_plain_words():
