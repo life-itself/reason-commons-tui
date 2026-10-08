@@ -27,9 +27,13 @@ To publish a new run, build a new package and publish it as a new page; one page
 
 ## Collect the reviews
 
-The owner can save each reviewer's `review.json` from the Reviewers table on the page. Or read them
-here: `ArtifactData` `list` of `reviews` returns one document per reviewer with `reviewer`,
-`reviewer_role`, `reviewed_at` and `decisions` keyed `<run_id>__<criterion>`. Build the file with
-`evaluations.review.review_template(report)` and fill each decision's `status` and `evidence` from that
-map (missing keys stay `pending`), then check it:
+The owner can save each reviewer's `review.json` from the Reviewers table on the page. Or collect them
+all here: `ArtifactData` `list` of collection `reviews` with `out_dir` set to a new folder (one JSON file
+per reviewer, holding their name, background and answers to the plain questions), then run
+`python3 scripts/review_screens.py <report.json> --collect <that folder> --output <new folder>`. It
+combines each reviewer's answers into the rubric's decisions (every question Yes is a pass, any No a
+fail, otherwise can't judge; a question the reviewer did not understand leaves the criterion undecided)
+and writes `review-<name>.json`. Check each with
 `python3 scripts/review_evaluation.py <report.json> --review <file> --output <new reviewed.json>`.
+Report the questions reviewers marked "I don't understand the question": they show which plain
+questions in `evaluations/review_questions.py` need rewriting.

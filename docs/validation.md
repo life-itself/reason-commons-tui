@@ -108,11 +108,10 @@ application, or only the consequence of an uncommitted reply. Pending criteria a
 of these fixtures still cannot approve the unimplemented TUI or substitute for
 five real first-time participants and assistive-technology testing.
 
-### Reviewing the screens the operator saw
+### Reviewing replies with people who have no background
 
-A criterion such as "one prominent next move" is about what the operator sees, so
-reviewers judge each case from the workspace's own screens, on a page they open by
-link:
+Reviewers judge each case from the assistant's replies, in plain words, with the
+workspace's own screens beside them, on a page they open by link:
 
 ```sh
 python3 scripts/review_screens.py .evaluation-runs/my-model-check/report.json
@@ -121,14 +120,32 @@ python3 scripts/review_screens.py .evaluation-runs/my-model-check/report.json
 Then ask Claude Code to "publish the review package in
 .evaluation-runs/my-model-check/review-package" (the `publish-review` skill in
 `.claude/skills/` does it), and share the link from the page's Share menu with
-each reviewer as a Contributor. Reviewers only open the link: they fill in their
-name, judge each criterion, and their decisions save as they go, under their own
-account. Only the reviewer and the page's owner can read a reviewer's decisions,
-so reviewers do not see each other's. As the owner, you see everyone's progress
-on the page and save each reviewer's `review.json` from it (or ask Claude to
-collect them), then check each with `review_evaluation.py --review`. Opened as a
-file, `index.html` also works offline: it keeps decisions in the browser and
-saves `review.json` itself.
+each reviewer as a Contributor. `--case NAME` builds a shorter package from some
+fixtures only.
+
+The page is written for a reviewer with no background. It opens with a short
+brief: what the app is, who Sam and the assistant are, that the reviewer judges
+the assistant's replies (not Sam, and not the plan), what each answer means, and
+a worked example. Each case then gives what was going on, the facts with the
+arithmetic done, and each turn as what the person wrote and what the assistant
+replied, in plain words: the question it asked and each item it saved, with
+whose words it came from (`evaluations/plain_reply.py`). Under each reply are
+yes/no questions about it (`evaluations/review_questions.py`): each rubric
+criterion becomes one or more questions, one idea each, tied to the turn they
+are about, in plain words, with one name for each thing (the 95% rule is always
+"the 95% urgent-request line"). Answers are Yes, No, Can't tell and "I don't
+understand the question", with a few words on why. A criterion's decision comes
+from its questions: every question Yes is a pass, any No a fail, otherwise it
+cannot be judged, and a question the reviewer did not understand leaves it
+undecided. A question about a reply the application rejected, or a turn never
+sent, is answered for the reviewer. The workspace's own screens are folded under
+each reply, named by what they show.
+
+Reviewers' answers save as they go, under their own account; only the reviewer
+and the page's owner can read them. As the owner, you see everyone's progress on
+the page and save each reviewer's `review.json` from it, or collect them all
+with `--collect` (see the skill), then check each with `review_evaluation.py
+--review`. Opened as a file, `index.html` also works offline.
 
 The review never calls a model. It shows the replies the evaluation run
 recorded, so it reviews whichever model that run used; with `--provider
@@ -146,19 +163,14 @@ Trees or Backlog when they hold anything. The first turn also shows the question
 with the answer typed in. The replay refuses to produce screens unless it
 reproduces the recorded inputs, replies and revisions exactly.
 
-The page (`evaluations/review_page.py`) shows one case at a time: the setup,
-each turn's literal words and how they were sent, and its screens. A reply the
-application rejected is shown as the operator saw it. The rubric is judged on a
-form beside the screens, never on them. The records behind each screen are
-there, folded, for criteria a screen cannot settle. The page carries no machine
-check, earlier review or score. Every `review.json` it saves is the template's
-format, which `review_evaluation.py --review` checks against the unchanged
-report as before.
+The page carries no machine check, earlier review, scenario ID or score. Every
+`review.json` it saves is the template's format, which `review_evaluation.py
+--review` checks against the unchanged report as before.
 
-One fixture turn cannot be typed into the workspace as written. The workspace
-has no control for declaring an owner or observed evidence, so
-`goal_action_review`'s ownership turn is sent the way the command line sends
-it, and the page says so. The evaluation cases accept proposals automatically,
+Two fixture turns cannot be typed into the workspace as written. The workspace
+has no control for declaring an owner or observed evidence, so the ownership
+turns of `goal_action_review` and `evenings_loop` are sent the way the command
+line sends them, and the page says the person formally stated being in charge. The evaluation cases accept proposals automatically,
 so their screens show that setting, not the default of holding proposals in the
 Backlog.
 

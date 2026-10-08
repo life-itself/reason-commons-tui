@@ -166,17 +166,25 @@ def test_the_replay_refuses_a_report_its_case_does_not_match(tmp_path):
 
 def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(tmp_path):
     import re
-    from evaluations.review_page import CAPABILITIES, build_review_package
+    from evaluations.review_page import CAPABILITIES, build_review_package, collect_reviews
     report = screens_report(tmp_path, ("attributed_correction", RejectedSecondReply()))
     page = build_review_package(report.directory / "report.json")
     package = report.directory / "review-package"  # beside the report unless told otherwise
     assert page == package / "index.html"
-    data = json.loads(re.search(r'<script type="application/json" id="data">(.*?)</script>',
-                                page.read_text(), re.S).group(1))
+    html = page.read_text()
+    data = json.loads(re.search(r'<script type="application/json" id="data">(.*?)</script>', html, re.S).group(1))
     assert data["template"] == review_template(report.directory / "report.json")
     case = data["cases"][0]
-    # The rejected reply is shown as the operator saw it, and the run is marked as stopped.
-    assert [t["saved"] for t in case["turns"]] == [True, False] and case["stopped"]
+    # Each turn is what was written and what the assistant replied, in plain words, without record IDs.
+    assert [t["speaker"] for t in case["turns"]] == ["Sam", "Priya"] and case["unsent"] == [3]
+    first = case["turns"][0]
+    assert first["reply"][0]["headline"] == "Claude asks: What should we observe next?"
+    assert first["reply"][1]["source"] == "From Sam's message in Turn 1"
+    assert not re.search(r"\b[A-Z]\d+@\d+\b", json.dumps([t["reply"] for t in case["turns"]]))
+    # A question about the rejected reply, or the turn never sent, is answered for the reviewer.
+    given = {q["id"]: q.get("given", {}).get("answer") for q in case["questions"]}
+    assert given == {"1.1": "cant", "1.2": "cant", "2.1": "cant", "2.2": "cant", "3.1": "cant", "3.2": "cant",
+                     "3.3": "cant"}
     # Every screen the page names is in its case's file, as the workspace's own SVG.
     screens = json.loads((package / case["file"]).read_text().split("] = ", 1)[1].rstrip(";\n"))
     keys = {s["key"] for t in case["turns"] for s in t["screens"]}
@@ -186,18 +194,64 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     assert publish["files"] == {case["file"]: case["file"]} and publish["capabilities"] == CAPABILITIES
     assert {"path": "reviews/{self}", "read": "interact", "write": "interact"} in CAPABILITIES["db"]["rules"]
     assert {"path": "reviews", "read": "owner", "write": "owner"} in CAPABILITIES["db"]["rules"]
-    # Blind: no machine check, check name or prior review reaches the page.
-    assert "checks" not in json.dumps(data) and "machine" not in page.read_text()
+    # Blind: no machine check, check name or prior review reaches the page; the method's labels stay out.
+    assert "checks" not in json.dumps(data) and "machine" not in html and "S06" not in html
+    assert "{consultant}" not in html and "Claude" in html
     with pytest.raises(FileExistsError):
         build_review_package(report.directory / "report.json")
-    # What the page saves is the template with decisions filled in, which the unchanged checker validates.
-    review = data["template"]
-    review.update(reviewer="Test reviewer", reviewed_at="2026-10-07", reviewer_role="test fixture")
-    for decision in review["decisions"]:
-        decision.update(status="unjudgeable", evidence="Turn 2, Next step: the reply was not saved")
+    # The reviewer's stored answers become a review.json the unchanged checker validates.
+    rows = tmp_path / "rows" / "reviews"
+    rows.mkdir(parents=True)
+    stored = {"reviewer": "Test reviewer", "reviewer_role": "No background in this kind of work",
+              "reviewed_at": "2026-10-08", "report_sha256": data["template"]["report_sha256"], "answers": {}}
+    (rows / "u_reviewer.json").write_text(json.dumps({"id": "u_reviewer", "data": stored}))
+    written = collect_reviews(package, tmp_path / "rows", tmp_path / "reviews")
+    assert [p.name for p in written] == ["review-Test-reviewer.json"]
+    outcome = apply_review(report.directory / "report.json", written[0], tmp_path / "reviewed.json")
+    assert outcome["semantic_status"] == "incomplete"  # nothing could be judged: every reply was rejected or unsent
+
+
+def test_every_rubric_criterion_has_plain_questions_about_real_turns():
+    import re
+    from evaluations.review_questions import REVIEW
+    for scenario in SCENARIOS:
+        case = REVIEW[scenario.name]
+        assert [rubric for rubric, _ in case.criteria] == list(scenario.rubric), scenario.name
+        for _, asks in case.criteria:
+            assert asks
+            for ask in asks:
+                assert ask.turn is None or 1 <= ask.turn <= len(scenario.turns), (scenario.name, ask.text)
+                text = ask.text.format(consultant="Claude")
+                assert "?" in text and "{" not in text, text
+                # Plain words: no method labels, scenario IDs or pronouns nobody gave.
+                assert not re.search(r"\b(he|she|his|her|him|denominator|proxy|CRT|FRT|S\d+)\b", text), text
+        for label, value in case.facts:
+            assert label and value
+
+
+def test_a_criterion_is_decided_from_its_questions():
+    from evaluations.review_questions import combine
+    assert combine(["yes", "yes"]) == "pass"
+    assert combine(["yes", "no"]) == "fail" and combine(["no", "unclear"]) == "fail"
+    assert combine(["yes", "cant"]) == "unjudgeable"
+    assert combine(["yes", "unclear"]) == "pending" and combine(["yes", None]) == "pending" and combine([]) == "pending"
+
+
+def test_answers_combine_into_the_review_the_checker_accepts(tmp_path):
+    from evaluations.review_page import build_review_package, review_from_answers
+    report = screens_report(tmp_path, ("blaming_question", NoteConsultant()))
+    build_review_package(report.directory / "report.json")
+    questions = json.loads((report.directory / "review-package" / "questions.json").read_text())
+    run = questions["cases"][0]
+    answers = {f"{run['id']}__{q['id']}": {"answer": "yes", "why": ""} for q in run["questions"]}
+    answers[f"{run['id']}__2.2"] = {"answer": "no", "why": "It asks who is to blame"}
+    review = review_from_answers(questions, {"reviewer": "Test reviewer", "reviewer_role": "fixture",
+                                             "reviewed_at": "2026-10-08", "answers": answers})
+    assert [d["status"] for d in review["decisions"]] == ["pass", "fail", "pass"]
+    assert "Turn 1:" in review["decisions"][1]["evidence"] and "It asks who is to blame" in review["decisions"][1]["evidence"]
     write_json(tmp_path / "review.json", review)
     outcome = apply_review(report.directory / "report.json", tmp_path / "review.json", tmp_path / "reviewed.json")
-    assert outcome["semantic_status"] == "incomplete"
+    assert outcome["semantic_status"] == "fail"
 
 
 def test_the_replay_refuses_screens_of_a_case_that_came_out_differently(tmp_path, monkeypatch):
