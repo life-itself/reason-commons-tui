@@ -9,7 +9,8 @@ from behave import given, when, then
 
 from reason_commons.adapters.lm_studio import LMStudioConsultant
 from reason_commons.adapters.rendering import workspace_output, render_provider_settings
-from reason_commons.bootstrap import configured_consultant, create_case, open_case, provider_settings
+from reason_commons.adapters.usage import KEYS, UsageLog
+from reason_commons.bootstrap import configured_consultant, create_case, open_case, provider_settings, usage_session
 from tests.servers import anthropic_server_instance, lm_studio_server_instance
 from tests.support import ScriptedConsultant, bounded_case, cli, submit
 
@@ -139,6 +140,12 @@ def rejected(context):
 @given("a case opened with the configured consultant")
 def configured_case(context):
     reopen_with(context, configured_consultant())
+
+
+@given("a case opened with the configured consultant, counting its usage")
+def counted_case(context):
+    context.usage = usage_session("cli")
+    reopen_with(context, configured_consultant(usage=context.usage.record))
 
 
 @given("a consultant that fails with a {category} problem containing a secret")
@@ -282,6 +289,36 @@ def haiku_recorded(context):
     sent = [payload["model"] for method, path, _, payload in context.server.requests if path == "/v1/messages"]
     assert sent == ["claude-haiku-5-5"], sent
     assert "/model=claude-haiku-5-5/" in context.app.inspect()["case"]["adapter_versions"]["in000001"]
+
+
+@then("the usage log counts one Claude Haiku 5.5 reply of {sent:d} tokens in and {received:d} out, about ${usd}")
+def usage_counted(context, sent, received, usd):
+    entries, skipped = UsageLog(context.usage_log).read()
+    assert skipped == 0 and len(entries) == 1, entries
+    entry = entries[0]
+    assert (entry["model"], entry["outcome"], entry["request_id"]) == ("claude-haiku-5-5", "proposal", "in000001")
+    assert (entry["tokens"]["input"], entry["tokens"]["output"]) == (sent, received)
+    assert str(entry["usd"]) == usd
+    assert entry["case_id"] == context.app.inspect()["case"]["case_id"]
+
+
+@then("the case and its export hold no token counts or cost")
+def case_holds_no_usage(context):
+    bundle = context.path.parent / "handoff.reasoncase"
+    context.app.export(str(bundle))
+    with zipfile.ZipFile(bundle) as archive:
+        exported = b"\n".join(archive.read(name) for name in archive.namelist())
+    for held in (saved_text(context), exported):
+        for marker in (b"input_tokens", b"output_tokens", b"cache_read", b"usd", b"0.00165", b"12000"):
+            assert marker not in held, marker
+
+
+@then("the usage log holds no words from the case, no case name, no path and no key")
+def log_holds_nothing_private(context):
+    raw = context.usage_log.read_text(encoding="utf-8")
+    assert tuple(json.loads(raw.splitlines()[0])) == KEYS
+    for private in (LITERAL.splitlines()[0], "Second line", "Payments", str(context.path.parent), SECRET):
+        assert private not in raw, private
 
 
 @then("the case records that LM Studio produced it")

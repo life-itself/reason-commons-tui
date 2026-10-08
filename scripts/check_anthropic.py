@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Explicit provider check; never retries or changes a participant's case."""
+"""Explicit provider check; never retries or changes a participant's case.
+
+A billed smoke consultation is counted in the usage log (entry "check"), like any other reply."""
 
 import argparse
 from hashlib import sha256
@@ -11,18 +13,20 @@ import tempfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from reason_commons.adapters.anthropic import AnthropicConsultant
-from reason_commons.bootstrap import create_case, open_case
+from reason_commons.bootstrap import create_case, open_case, usage_session
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", help="Count the complete pending prompt, without inference or writes")
     parser.add_argument("--smoke", action="store_true", help="One billed synthetic consultation in a temporary case")
+    parser.add_argument("--model", help="Claude model ID; otherwise REASON_COMMONS_ANTHROPIC_MODEL or the default")
     parser.add_argument("--output", help="New JSON verification file; contains no key, case text or model output")
     args = parser.parse_args()
     if args.output and Path(args.output).exists():
         parser.error("Choose a new output file")
-    consultant = AnthropicConsultant.from_env()
+    usage = usage_session("check")
+    consultant = AnthropicConsultant.from_env(model=args.model, usage=usage.record)
     metadata = consultant.model_metadata()
     report = {"model": metadata["id"], "max_input_tokens": metadata.get("max_input_tokens"),
               "max_tokens": metadata.get("max_tokens"), "participant_consultations": 0}
@@ -50,8 +54,13 @@ def main():
                 result = app.submit("This is a synthetic integration check. We want to reduce missed deliveries. "
                                     "We have not agreed a numerical target or safeguards yet.",
                                     "Synthetic test participant", base_revision=0, response_target=None)
+                spent = [entry["usd"] for entry in usage.since(0)]
                 report["synthetic_smoke"] = {"status": result["status"], "revision": app.inspect()["case"]["revision"],
-                                             "provider_version": consultant.version}
+                                             "provider_version": consultant.version,
+                                             "usage": consultant.last_usage,
+                                             # An estimate at list prices; the Anthropic Console has the bill.
+                                             "estimated_cost_usd": None if None in spent or not spent
+                                             else str(sum(spent))}
     if args.output:
         path = Path(args.output)
         path.parent.mkdir(parents=True, exist_ok=True)

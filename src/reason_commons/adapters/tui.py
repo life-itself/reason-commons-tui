@@ -32,10 +32,11 @@ from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label, Markdown, OptionList, Static, TextArea
 from textual.widgets.option_list import Option
 
-from reason_commons.adapters import themes
+from reason_commons.adapters import pricing, themes
 from reason_commons.adapters.guided import STEPS, placeholder, split_hint
 from reason_commons.adapters.onboarding import EXAMPLE_ANSWERS, coach_text, login_name, run_setup, tour_state
 from reason_commons.adapters.settings import Settings, summary
+from reason_commons.adapters.usage import BUDGET_VARIABLE, crossed, parse_budget, skipped_words
 from reason_commons.adapters.rendering import _literal
 from reason_commons.adapters.timeline import (change_summary, day, decision_words, moment, next_action,
                                               revision_changes, short_day, tree_summary)
@@ -93,7 +94,7 @@ OPEN_KINDS = {"goal": "Goal", "test": "Test", "action": "Action", "observation":
 WIDE = 90
 # Controls a person passes through on the way to something else. Esc does not return focus to them:
 # it returns to the answer they were writing.
-NAVIGATION_CONTROLS = {"send", "fill", "retry", "accept-all", "explain", "moves", "views-button", "commands", "help",
+NAVIGATION_CONTROLS = {"send", "fill", "retry", "retry-deeper", "accept-all", "explain", "moves", "views-button", "commands", "help",
                        "finish", "views"}
 # What each kind of proposal is called in the Backlog and in decisions.
 KIND_NAMES = {"goal": "Goal", "note": "Note", "test": "Test", "action": "Action", "observation": "Result",
@@ -210,6 +211,17 @@ The **built-in guide** works offline and asks the loop's questions in order.
 **Anthropic** (needs `ANTHROPIC_API_KEY`) or **LM Studio** (a local model) give
 adaptive questions and advice. Ctrl+P switches for this session; F2 **Settings** on
 the home screen saves your name, consultant and model for next time.
+
+With Claude, **Send with deeper reasoning** in Commands sends one answer to Claude
+Sonnet, which reasons more deeply and costs more; the next Send goes to your usual
+model again. When Retry would ask again, **Retry with Sonnet** does the same.
+
+Claude is paid per reply; LM Studio and the guide cost nothing. With Claude, the
+footer's right end estimates what this session and this month cost, each reply's
+notice says what it cost, and **Consultant calls and cost** in Commands has the
+details. They are estimates at Anthropic's list prices; your bill is in the
+Anthropic Console. A **monthly budget** (F2 Settings) is a soft limit: past it,
+each send asks once first, and nothing is blocked.
 
 ## Themes
 
@@ -769,21 +781,26 @@ class TextScreen(ModalScreen):
 
 
 class CallsScreen(ModalScreen):
-    """How often the consultant was asked, counted from the saved attempt receipts."""
+    """How often the consultant was asked, counted from the saved attempt receipts, and with a usage log, what
+    paid replies cost: estimates from the log kept outside every goal, never from the case."""
 
     BINDINGS = [Binding("escape,enter", "dismiss", "Back")]
 
-    def __init__(self, calls, offline):
+    def __init__(self, calls, offline, report=None):
         super().__init__()
-        self.calls, self.offline = calls, offline
+        self.calls, self.offline, self.report = calls, offline, report
 
     def compose(self) -> ComposeResult:
         with Vertical(id="dialog"):
-            yield Label("Consultant calls", classes="dialog-title")
-            yield Static(f"Consultant calls in this goal: {self.calls}\n"
-                         f"Offline imports, which ask no consultant: {self.offline}", id="calls-text")
-            yield Label("Counted from the attempt receipts saved with your inputs. Reading them asks the "
-                        "consultant nothing. Esc returns.", classes="hint")
+            yield Label("Consultant calls and cost", classes="dialog-title")
+            with VerticalScroll(id="calls-body"):
+                yield Static(f"Consultant calls in this goal: {self.calls}\n"
+                             f"Offline imports, which ask no consultant: {self.offline}", id="calls-text")
+                if self.report is not None:
+                    yield Static(self.report, id="cost-text")
+            yield Static("Counted from the attempt receipts saved with your inputs"
+                         + (", and costs from the usage log kept outside every goal" if self.report is not None else "")
+                         + ". Reading them asks the consultant nothing. Esc returns.", classes="hint")
 
 
 class PathScreen(ModalScreen):
@@ -802,6 +819,27 @@ class PathScreen(ModalScreen):
     @on(Input.Submitted)
     def submitted(self, event):
         self.dismiss(event.value.strip() or None)
+
+
+class BudgetScreen(ModalScreen):
+    """The monthly budget, typed: "5", "$5" or "5.50". Returns the text (blank clears it), or None for Esc."""
+
+    BINDINGS = [Binding("escape", "dismiss", "Cancel")]
+
+    def __init__(self, current):
+        super().__init__()
+        self.current = current
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="dialog"):
+            yield Label("Monthly budget for Claude replies, in dollars", classes="dialog-title")
+            yield Input(self.current, placeholder="for example 5", id="budget")
+            yield Static("A soft limit: at 80% and 100% you are told, and past it each send asks first. Nothing is "
+                         "blocked. Enter keeps it; blank, none or 0 clears it. Esc cancels.", classes="hint")
+
+    @on(Input.Submitted)
+    def submitted(self, event):
+        self.dismiss(event.value.strip())
 
 
 class ExportScreen(PathScreen):
@@ -863,7 +901,7 @@ class SettingsScreen(ModalScreen):
     """Settings at a glance: Left and Right change the highlighted row and apply (and save) at once.
 
     Where the home screen can ask, a third row, You, opens the questions for your name and consultant
-    (the dialog closes and returns "setup")."""
+    (the dialog closes and returns "setup"). The last row, Budget, opens a box for the monthly budget."""
 
     BINDINGS = [Binding("escape,f2", "close", "Done"), Binding("left", "step(-1)", "Previous"),
                 Binding("right", "step(1)", "Next")]
@@ -879,7 +917,7 @@ class SettingsScreen(ModalScreen):
             yield Static(id="settings-about")
             yield Static("↑↓ choose a setting, ←→ change it. Changes apply and are kept at once. "
                          + ("Enter on You changes your name and consultant. " if self.offer_setup else "")
-                         + "Esc closes.", classes="hint")
+                         + "Enter on Budget changes it. Esc closes.", classes="hint")
 
     def on_mount(self):
         self.rows = self.query_one("#settings-rows", OptionList)
@@ -892,6 +930,8 @@ class SettingsScreen(ModalScreen):
         if self.offer_setup:
             options.append(Option(Content.assemble("You      ", summary(self.app.settings),
                                                    ("   Enter changes", "$text-muted")), id="setup"))
+        options.append(Option(Content.assemble("Budget   ", self.app.budget_words(),
+                                               ("   Enter changes", "$text-muted")), id="budget"))
         self.rows.clear_options()
         self.rows.add_options(options)
         self.rows.highlighted = index
@@ -903,7 +943,7 @@ class SettingsScreen(ModalScreen):
 
     def action_step(self, direction):
         row = self.current()
-        if row == "setup":
+        if row in ("setup", "budget"):
             return
         voice, mode = themes.split_name(self.app.theme)
         if row == "voice":
@@ -916,9 +956,20 @@ class SettingsScreen(ModalScreen):
 
     @on(OptionList.OptionSelected, "#settings-rows")
     def chosen(self, event):
-        """Enter (or a click) on You opens the questions; on the other rows it changes nothing: Left and Right do."""
+        """Enter (or a click) on You opens the questions and on Budget its box; on the other rows it changes
+        nothing: Left and Right do."""
         if event.option.id == "setup":
             self.dismiss("setup")
+        elif event.option.id == "budget":
+            amount, _ = self.app.budget_state()
+            self.app.push_screen(BudgetScreen(f"{amount}" if amount is not None else ""), self.budget_typed)
+
+    def budget_typed(self, text):
+        if text is None:
+            return
+        if not self.app.keep_budget(text):
+            self.app.notify("Type an amount such as 5 or 5.50, or none to have no budget. Nothing changed.")
+        self.show(self.rows.highlighted or 0)
 
     def action_close(self):
         self.dismiss(None)
@@ -1106,6 +1157,57 @@ class ThemedApp(App):
     def action_change_theme(self):
         self.push_screen(ThemeScreen(self.theme), self.keep_theme)
 
+    def budget_state(self):
+        """The monthly budget (dollars or None), and whether your shell sets it, so this app cannot keep it."""
+        saved = parse_budget(self.settings.get("usage", "monthly_budget_usd")) if self.settings is not None else None
+        raw = os.environ.get(BUDGET_VARIABLE)
+        if raw is None or not raw.strip():
+            return saved, False
+        amount = parse_budget(raw)
+        return amount, amount != saved and not getattr(self, "_budget_kept", False)
+
+    def month_spent(self):
+        """This month's estimated spending, from the usage log."""
+        from reason_commons.adapters.usage import UsageLog, UsageSession
+        usage = getattr(self, "usage", None) or UsageSession(UsageLog.from_env(), "workspace")
+        return usage.summary()["month"]["usd"]
+
+    def budget_words(self):
+        """The Budget row: '$5 a month · ≈ $1.40 so far', or 'none set'."""
+        amount, shell = self.budget_state()
+        words = "none set" if amount is None else f"{money(amount)} a month · ≈ {money(self.month_spent())} so far"
+        return words + (" · set in your shell" if shell else "")
+
+    def keep_budget(self, text):
+        """Use this monthly budget from now on: for this run, and in the settings file once there is one. Blank,
+        none or 0 clears it. False, changing nothing, when the amount cannot be read."""
+        cleared = text.strip().lower() in ("", "none", "off")
+        amount = None if cleared else pricing.parse_amount(text)
+        if not cleared and amount is None:
+            return False
+        value = None if not amount else int(amount) if amount == amount.to_integral_value() else float(amount)
+        _, shell = self.budget_state()
+        os.environ[BUDGET_VARIABLE] = "none" if value is None else str(value)
+        self._budget_kept = True
+        if getattr(self, "usage", None) is not None:
+            self.usage.saved_budget = value
+        if self.settings is not None:
+            self.settings.set(value, "usage", "monthly_budget_usd")
+            if self.settings.exists:
+                try:
+                    saved = Settings.load(self.settings.path)
+                    saved.set(value, "usage", "monthly_budget_usd")
+                    saved.save()
+                except OSError as exc:
+                    self.notify(f"Budget in use, but not saved ({exc}).", severity="error", timeout=8)
+        if shell:
+            self.notify(f"Your shell also sets {BUDGET_VARIABLE}, which wins the next time you start.", timeout=8)
+        self.budget_changed()
+        return True
+
+    def budget_changed(self):
+        """What to redraw after the budget changes."""
+
     def keep_theme(self, name):
         """Use this theme from now on: for this run, and in the settings file once there is one."""
         if not name:
@@ -1122,6 +1224,26 @@ class ThemedApp(App):
                 saved.save()
             except OSError as exc:
                 self.notify(f"Theme in use, but not saved ({exc}).", severity="error", timeout=8)
+
+
+class ChosenConsultant:
+    """The workspace's consultant, with an optional stand-in for exactly one consultation (a reply with deeper
+    reasoning). The application reads ``version`` after ``propose`` returns, so the stand-in stays until
+    consult() has returned; the workspace then puts it away, whether the consultation worked or not."""
+
+    def __init__(self, consultant):
+        self.default, self.once = consultant, None
+
+    @property
+    def current(self):
+        return self.once or self.default
+
+    @property
+    def version(self):
+        return self.current.version
+
+    def propose(self, request):
+        return self.current.propose(request)
 
 
 class ReasonCommonsApp(ThemedApp):
@@ -1173,7 +1295,7 @@ class ReasonCommonsApp(ThemedApp):
     #controls #retry { color: $warning; }
     #controls #finish { color: $success; }
     #controls Button:focus, #controls #send:focus { background: $hand-tint; color: $foreground; text-style: bold; }
-    #retry.hidden, #fill.hidden, #finish.hidden { display: none; }
+    #retry.hidden, #retry-deeper.hidden, #fill.hidden, #finish.hidden { display: none; }
     #hint { width: 1fr; height: 1; text-align: right; color: $text-muted; }
     #hint-below { height: 1; color: $text-muted; }
     #hint.hidden, #hint-below.hidden { display: none; }
@@ -1197,6 +1319,8 @@ class ReasonCommonsApp(ThemedApp):
     #controls #accept-all { color: $success; }
     #accept-all.hidden { display: none; }
     #choice-body { height: auto; max-height: 60%; }
+    #calls-body { height: auto; max-height: 30; }
+    #cost-text { margin-top: 1; }
     .step-count { color: $text-muted; }
     Step #dialog, Checking #dialog { padding: 0 2; }
     .explanation { margin-bottom: 1; }
@@ -1211,7 +1335,7 @@ class ReasonCommonsApp(ThemedApp):
                                        background: transparent; color: $text-muted; text-style: none; }
     MenuScreen #menu-controls Button:focus { background: $hand-tint; color: $foreground; text-style: bold; }
     MenuScreen, PathScreen, HelpScreen, ThemeScreen, SettingsScreen, StatementScreen, CallsScreen, TextScreen, Step, Checking,
-    ChoiceScreen {
+    ChoiceScreen, BudgetScreen {
         align: center middle; }
     #dialog { width: 80%; max-width: 90; height: auto; max-height: 90%; border: thick $accent;
               background: $surface; padding: 1 2; }
@@ -1234,8 +1358,12 @@ class ReasonCommonsApp(ThemedApp):
     ]
 
     def __init__(self, store, speaker, provider, open_application, consultant_factory, tour=False, story=None,
-                 settings=None):
+                 settings=None, usage=None):
         super().__init__(settings)
+        # The usage log session this workspace's paid replies are counted in, or None (tests, the story and the
+        # tour), which hides the meter. What it says is cached in _meter: read on mount, after each reply and
+        # when the cost screen opens, never while the footer is drawn.
+        self.usage, self._meter, self._usage_mark = usage, None, None
         self.store, self.speaker, self.provider, self.tour = str(store), speaker, provider, tour
         # A story is read, not answered: its goal opens read-only with its chapters for narration.
         self.story = story
@@ -1243,7 +1371,12 @@ class ReasonCommonsApp(ThemedApp):
         # None while looking at the live goal; otherwise the past revision on screen.
         self.revision, self._history = None, None
         self._open, self._consultant_factory = open_application, consultant_factory
-        self.case = open_application(consultant_factory(provider))
+        # The consultant in use, and what the case consults: the same, or for one reply a stand-in with deeper
+        # reasoning, built once per model (``stand_in``). ``_asking`` names that model while it answers.
+        self.consultant = consultant_factory(provider)
+        self.chosen = ChosenConsultant(self.consultant)
+        self._stand_ins, self._asking = {}, None
+        self.case = open_application(self.chosen)
         self.view_name, self.explain, self.busy, self.answer_ready = "next", False, False, False
         self.workspace_value, self._restoring, self._save_timer = None, False, None
         # Which tree the Trees view shows: one of TREE_ORDER, "all", or None until first chosen.
@@ -1284,6 +1417,7 @@ class ReasonCommonsApp(ThemedApp):
                         yield Button("Send ^s", id="send", variant="primary")
                         yield Button("Example answer", id="fill", classes="" if self.tour else "hidden")
                         yield Button("Retry", id="retry", variant="warning", classes="hidden")
+                        yield Button("Retry with Sonnet", id="retry-deeper", classes="hidden")
                         yield Button("Accept all", id="accept-all", classes="hidden")
                         yield Button("Explain this", id="explain")
                         yield Button("Other moves", id="moves")
@@ -1366,6 +1500,10 @@ class ReasonCommonsApp(ThemedApp):
         self.query_one("#earlier" if self.story else "#editor").focus()
         self.watch(self.screen, "focused", lambda _: (self.refresh_hints(), self.fit_answer_box(), self.refit_dimming()))
         self.on_resize()
+        self.refresh_meter()
+        if self._meter and self.provider == "anthropic" and self._meter["budget"] and \
+                self._meter["month"]["usd"] >= self._meter["budget"]:
+            self.notify(budget_notice(100, self._meter["month"]["usd"], self._meter["budget"]), timeout=10)
 
     MOMENT_LABELS = {"earlier": ("◀ Earlier", "◀ Earlier"), "later": ("Later ▶", "Later ▶"),
                      "now": ("Back to now", "Now"), "first": ("From the beginning", "First"),
@@ -1437,7 +1575,9 @@ class ReasonCommonsApp(ThemedApp):
             self.call_after_refresh(self.fit_reading)
 
     def hint_text(self):
-        return f"Enter: new line · Send: get {REPLY_FROM.get(self.provider, f'the reply of {self.provider}')}"
+        model = self.model_name()
+        return (f"Enter: new line · Send: get {REPLY_FROM.get(self.provider, f'the reply of {self.provider}')}"
+                + (f" ({model})" if model else ""))
 
     def check_action(self, action, parameters):
         if action == "next_tree":
@@ -1487,7 +1627,8 @@ class ReasonCommonsApp(ThemedApp):
         w = self.workspace_value
         if w is None:
             return
-        state = (f"Asking {self.send_to()}…" if self.busy else "Answer ready" if self.answer_ready else "Saved")
+        asking = self.send_to() + (f" ({self._asking})" if self._asking else "")
+        state = (f"Asking {asking}…" if self.busy else "Answer ready" if self.answer_ready else "Saved")
         who = None if self.story else self.speaker  # a story is read, not answered as anyone
         if self.story or self.revision is not None:
             state = "Read-only"
@@ -1552,6 +1693,12 @@ class ReasonCommonsApp(ThemedApp):
             self.query_one("#first").disabled = self.revision == 1
         retryable = self.retryable()
         self.query_one("#retry").set_class(not retryable, "hidden")
+        # Beside Retry where there is room, and only when Retry would ask again; narrower, it is in Commands.
+        deeper = self.boost() if retryable and self.terminal.width >= 100 else None
+        offered = bool(deeper) and self.retry_asks_again(retryable[-1]["arguments"]["request_id"])
+        self.query_one("#retry-deeper").set_class(not offered, "hidden")
+        if offered:
+            self.query_one("#retry-deeper", Button).label = f"Retry with {pricing.label(deeper).split()[0]}"
         if self.tour:
             state = self.tour_state()
             self.query_one("#coach", Static).update(coach_text(state))
@@ -2813,6 +2960,10 @@ class ReasonCommonsApp(ThemedApp):
     def retry_pressed(self):
         self.action_retry()
 
+    @on(Button.Pressed, "#retry-deeper")
+    def retry_deeper_pressed(self):
+        self.action_retry(deeper=True)
+
     @on(Button.Pressed, "#explain")
     def explain_pressed(self):
         self.action_explain()
@@ -2849,7 +3000,100 @@ class ReasonCommonsApp(ThemedApp):
     # ----- the footer ---------------------------------------------------
     def refresh_hints(self):
         if self.workspace_value is not None:
-            self.query_one(HintBar).update_hints(*self.footer_hints())
+            before, after = self.footer_hints()
+            self.query_one(HintBar).update_hints(before, after, summary=self.meter_texts())
+
+    # ----- what paid replies cost -------------------------------------------
+    def refresh_meter(self):
+        """Read the usage log again (it is cached by size and time) and keep what it says for the footer."""
+        if self.usage is not None:
+            self._meter = self.usage.summary(case_id=self.case.inspect()["case"]["case_id"])
+            self.refresh_hints()
+        return self._meter
+
+    def model_name(self):
+        """The paid consultant's model in everyday words ("Haiku 5.5"), or None."""
+        model = getattr(self.consultant, "model", None)
+        return pricing.label(model) if self.provider == "anthropic" and model else None
+
+    def meter_texts(self):
+        """The footer's right end: what this session and this month cost, longest first, so the bar shows what
+        fits and drops it before any hint. Words only, no colour. Nothing for the guide when nothing was spent."""
+        summary = self._meter
+        if summary is None:
+            return []
+        month, session = summary["month"], summary["session"]
+        month_part = [month_meter(month, summary["budget"])] if summary["logging"] else []
+        if self.provider == "anthropic":
+            spent = [f"session ≈ {money(session['usd'])}"] if session["replies"] or session["no_reply"] else []
+            tail = " · ".join(spent + month_part)
+            name = self.model_name() or "Claude"
+            family = name.split(" ")[0]
+            texts = [f"{name} · {tail}", f"{family} · {tail}", tail] if tail else [name, family]
+            return texts + month_part
+        who = "local model" if self.provider == "lm-studio" else "offline guide"
+        if not (month["replies"] or month["no_reply"]):
+            return [] if self.provider == "guided" else [f"{who} · no charge", "no charge"]
+        return [f"{who} · no charge · {month_part[0]}", f"no charge · {month_part[0]}", *month_part] if month_part \
+            else [f"{who} · no charge"]
+
+    def typical_reply(self, model):
+        """A reply's likely cost on this model: the log's own average once there is one, else list price."""
+        return (self.usage.typical(model) if self.usage is not None else None) or pricing.typical(model)
+
+    def boost(self):
+        """The model that answers one question with deeper reasoning, or None where none is offered: only with
+        Claude, and only a configured model that differs from the one in use and costs more per reply. It is
+        offered, never used on its own: a person asks for it, one reply at a time."""
+        from reason_commons.adapters.anthropic import boost_model
+        model, deeper = getattr(self.consultant, "model", None), boost_model()
+        if self.provider != "anthropic" or self.story or self.tour or not model or not deeper or deeper == model:
+            return None
+        current, dearer = pricing.typical(model), pricing.typical(deeper)
+        return deeper if current is not None and dearer is not None and dearer > current else None
+
+    def boost_cost(self, deeper):
+        """'≈ $0.05, about 12× a Haiku reply': from the log's own averages once each model has three recent
+        replies, otherwise from a typical reply of each at list price."""
+        model = self.consultant.model
+        logged = [self.usage.typical(m) if self.usage is not None else None for m in (model, deeper)]
+        mine, theirs = logged if None not in logged else (pricing.typical(model), pricing.typical(deeper))
+        return f"≈ {money(theirs)}, about {round(theirs / mine)}× a {pricing.label(model).split()[0]} reply"
+
+    def stand_in(self, deeper):
+        """The consultant for one reply on ``deeper``, built once, here on the main thread."""
+        if deeper not in self._stand_ins:
+            try:
+                self._stand_ins[deeper] = self._consultant_factory(self.provider, model=deeper)
+            except Exception as exc:
+                self.notify(f"Could not set up {pricing.label(deeper)}: {exc}", severity="error", timeout=8)
+                return None
+        return self._stand_ins[deeper]
+
+    def spend_check(self, go, model=None):
+        """Past the monthly budget, a send to a paid consultant asks once first. Nothing is blocked: "Not now"
+        sends nothing and keeps the answer in the box. The budget is a notice, not a rule of the case."""
+        summary = self.refresh_meter() if self.provider == "anthropic" else None
+        limit = summary["budget"] if summary else None
+        if not limit or summary["month"]["usd"] < limit:
+            go()
+            return
+        reply = self.typical_reply(model or getattr(self.consultant, "model", None))
+        body = (f"This month ≈ {money(summary['month']['usd'])} of your {money(limit)} budget (estimate)."
+                + (f" This reply ≈ {money(reply)}." if reply else "")
+                + "\n\nNothing is blocked: send this one now, or keep your answer for later.")
+
+        def chosen(choice):
+            if choice == "send":
+                go()
+            else:
+                self.checkpoint()
+                self.notify("Nothing was sent. Your answer is still in the box.")
+        self.push_screen(ChoiceScreen("Past your monthly budget", body,
+                                      [("send", "Send this one"), ("not-now", "Not now")]), chosen)
+
+    def budget_changed(self):
+        self.refresh_meter()
 
     def footer_hints(self):
         """What the footer says for the control that has the keyboard, as (before Commands, after Commands):
@@ -3059,7 +3303,7 @@ class ReasonCommonsApp(ThemedApp):
             lines.append("This question cites no saved sources.")
         self.push_screen(TextScreen("\n".join(lines)))
 
-    def action_send(self, intent="answer"):
+    def action_send(self, intent="answer", deeper=False):
         if self.story or self.revision is not None:
             self.notify("This is a record of what happened; nothing here can be changed. "
                         + ("Start your own goal to write." if self.story else "Back to now to answer."))
@@ -3071,13 +3315,39 @@ class ReasonCommonsApp(ThemedApp):
         if w["historical"]:
             return
         text = self.query_one("#editor", TextArea).text
-        if intent == "review_flags" and not text.strip():
-            text = "Do the records flagged for review still hold?"
         if not text.strip() and self.provider != "guided" and intent == "answer":
             self.notify("Write an answer first.", severity="warning")
             return
+        stand_in = self.deeper_consultant() if deeper else None
+        if deeper and stand_in is None:
+            return
+        self.spend_check(lambda: self._send(intent, stand_in), getattr(stand_in, "model", None))
+
+    def deeper_consultant(self):
+        """The stand-in for one reply with deeper reasoning, or None (said why) where there is none."""
+        deeper = self.boost()
+        if deeper is None:
+            self.notify("Deeper reasoning is offered only with Claude, when a model that reasons more deeply "
+                        "than the one in use is set.")
+            return None
+        return self.stand_in(deeper)
+
+    def asking(self, stand_in):
+        """Get ready to consult: count from here, and let the stand-in, if any, answer the next consultation."""
+        self._usage_mark = self.usage.mark() if self.usage is not None else None
+        self.chosen.once = stand_in
+        self._asking = pricing.label(stand_in.model) if stand_in is not None else None
         self.set_busy(True)
-        target = w["target"]
+
+    def _send(self, intent, stand_in=None):
+        """Send the answer in the box now (after any question about the budget)."""
+        if self.busy:
+            return
+        text = self.query_one("#editor", TextArea).text
+        if intent == "review_flags" and not text.strip():
+            text = "Do the records flagged for review still hold?"
+        self.asking(stand_in)
+        target = self.workspace_value["target"]
         self.run_worker(lambda: self._submit(text, intent, target), thread=True, exclusive=True)
 
     def _submit(self, text, intent, target):
@@ -3088,20 +3358,49 @@ class ReasonCommonsApp(ThemedApp):
                 result = self.case.consult(result["request_id"])
         except Exception as exc:  # keep the draft; report the category only
             result = {"status": "not_saved", "message": f"Not saved ({type(exc).__name__})."}
+        finally:
+            self.chosen.once = None  # one reply only, whatever became of it
         self.call_from_thread(self._submitted, result, text)
 
-    def action_retry(self):
+    def action_retry(self, deeper=False):
         actions = self.retryable()
         if self.busy or not actions:
+            if deeper and self.busy:
+                self.notify("Still waiting for the consultant. You can keep browsing.")
             return
-        self.set_busy(True)
         request_id = actions[-1]["arguments"]["request_id"]
+        if not self.retry_asks_again(request_id):
+            if deeper:
+                self.notify("Retry applies the reply already received, so it asks no one; nothing was sent.")
+            self._retry(request_id)
+            return
+        stand_in = self.deeper_consultant() if deeper else None
+        if deeper and stand_in is None:
+            return
+        self.spend_check(lambda: self._retry(request_id, stand_in), getattr(stand_in, "model", None))
+
+    def retry_asks_again(self, request_id):
+        """Whether Retry would ask the consultant again, rather than apply a reply it already received (one kept
+        with no result that rejected it), which costs nothing."""
+        attempts = {}
+        for item in self.case.receipts(request_id)["attempts"]:
+            attempts.setdefault(item.get("attempt"), []).append(item)
+        return not any(any("proposal" in item for item in items)
+                       and not any(item.get("status") in ("rejected", "stale") for item in items)
+                       for items in attempts.values())
+
+    def _retry(self, request_id, stand_in=None):
+        if self.busy:
+            return
+        self.asking(stand_in)
 
         def work():
             try:
                 result = self.case.retry(request_id)
             except Exception as exc:
                 result = {"status": "not_saved", "message": f"Not saved ({type(exc).__name__})."}
+            finally:
+                self.chosen.once = None
             self.call_from_thread(self._submitted, result, None)
         self.run_worker(work, thread=True, exclusive=True)
 
@@ -3111,6 +3410,19 @@ class ReasonCommonsApp(ThemedApp):
         editor = self.query_one("#editor", TextArea)
         status = result["status"]
         sent = text is not None and editor.text == text
+        # What this send cost: the requests the usage log took while it ran (none when a retry only applied a
+        # reply already received), then whether the month passed 80% or 100% of the budget.
+        paid = self.usage.since(self._usage_mark) if self.usage is not None and self._usage_mark is not None else []
+        self._usage_mark = None
+        before = self._meter["month"]["usd"] if self._meter else None
+        self.refresh_meter()
+        cost = spent_words(paid)
+        deeper, self._asking = self._asking, None
+        if deeper:  # one reply only: say so, and that Send goes back to the model in use
+            priced = [entry["usd"] for entry in paid if entry["usd"] is not None]
+            spent = f" (≈ {money(sum(priced))})" if paid and len(priced) == len(paid) else ""
+            back = f" Send goes to {self.model_name()} again."
+            cost = (f" {deeper} answered{spent}." if status == "saved" else cost) + back
         if status == "saved":
             if sent:
                 editor.clear()
@@ -3123,15 +3435,22 @@ class ReasonCommonsApp(ThemedApp):
                 "accepted_automatically")
             proposed = f" {len(result['proposed'])} proposed; they wait in Backlog." if waiting else ""
             self.notify(("Answer ready: Next step shows the new question." if self.answer_ready else "Saved.")
-                        + grown + proposed)
+                        + grown + proposed + cost)
         elif result.get("input_retained"):
             if sent:
                 editor.clear()  # the words are retained in the case; Retry reuses them
-            self.notify(result.get("message", status) + ". Use Retry when the consultant is reachable.",
-                        severity="warning", timeout=8)
+            deeper_retry = self.boost()
+            elsewhere = (f" Retry with {pricing.label(deeper_retry)} is in Commands." if deeper_retry
+                         and self.terminal.width < 100 else "")
+            self.notify(result.get("message", status) + ". Use Retry when the consultant is reachable." + elsewhere
+                        + cost, severity="warning", timeout=8)
         else:
-            self.notify(result.get("message", status) + " Your text is still in the editor.",
+            self.notify(result.get("message", status) + " Your text is still in the editor." + cost,
                         severity="error", timeout=8)
+        if before is not None and self._meter:
+            share = crossed(before, self._meter["month"]["usd"], self._meter["budget"])
+            if share:
+                self.notify(budget_notice(share, self._meter["month"]["usd"], self._meter["budget"]), timeout=10)
         self.refresh_workspace()
         self.checkpoint()
 
@@ -3139,7 +3458,7 @@ class ReasonCommonsApp(ThemedApp):
         self.busy = busy
         # Other moves stays open while waiting: its local inspections still work, and a move that
         # asks the consultant is refused until the pending reply is in.
-        for name in ("#send", "#retry"):
+        for name in ("#send", "#retry", "#retry-deeper"):
             self.query_one(name).disabled = busy
         if refresh:
             self.render_all()
@@ -3182,8 +3501,19 @@ class ReasonCommonsApp(ThemedApp):
     def action_list(self):
         """Every action as (key, name, what it does and whether it stays local or asks the consultant, run)."""
         items = [("Send answer", "Asks the consultant with your answer (Ctrl+S)", self.action_send)]
-        if self.retryable():
+        deeper = self.boost() if self.revision is None else None
+        if deeper:
+            name, base = pricing.label(deeper), self.model_name()
+            items.append((f"Send with deeper reasoning ({name})",
+                          f"Asks the consultant: {name} answers this one, then {base} again; {self.boost_cost(deeper)}",
+                          lambda: self.action_send(deeper=True)))
+        retryable = self.retryable()
+        if retryable:
             items.append(("Retry", "Asks the consultant again with your saved answer", self.action_retry))
+            if deeper and self.retry_asks_again(retryable[-1]["arguments"]["request_id"]):
+                items.append((f"Retry with {name}", f"Asks the consultant again with your saved answer: {name} "
+                              f"answers it, then {base} again; {self.boost_cost(deeper)}",
+                              lambda: self.action_retry(deeper=True)))
         items += [("Explain this question", "Local: the saved explanation", self.action_explain),
                   ("Other moves", "Local explanations, or a move that asks the consultant; each says which",
                    self.action_other_moves)]
@@ -3223,7 +3553,8 @@ class ReasonCommonsApp(ThemedApp):
         if self.revision is not None:
             items += [("History: step forward", "Local: one step later (→)", self.action_later),
                       ("History: back to now", "Local: the goal as it is now", lambda: self.go_to(None))]
-        items += [("Consultant calls", "Local: how often the consultant was asked, from saved receipts",
+        items += [("Consultant calls and cost",
+                   "Local: how often the consultant was asked, and what Claude's replies cost, as estimated",
                    self.action_consultant_calls),
                   ("Export case", "Local: write a portable .reasoncase copy", self.action_export),
                   ("Import trees", "Local: bring in trees from an .ltp.yaml file; asks no consultant",
@@ -3266,7 +3597,80 @@ class ReasonCommonsApp(ThemedApp):
         return calls, offline
 
     def action_consultant_calls(self):
-        self.push_screen(CallsScreen(*self.call_counts()))
+        self.push_screen(CallsScreen(*self.call_counts(), report=self.cost_report()))
+
+    def model_where(self):
+        """Where the Claude model in use was chosen, in words."""
+        from reason_commons.adapters.anthropic import DEFAULT_MODEL
+        model = getattr(self.consultant, "model", None)
+        environment = os.environ.get("REASON_COMMONS_ANTHROPIC_MODEL")
+        saved = self.settings.get("anthropic", "model") if self.settings is not None else None
+        if model == environment:
+            return "your saved choice" if saved == model else "set by REASON_COMMONS_ANTHROPIC_MODEL"
+        return "the default" if model == DEFAULT_MODEL else "chosen when this goal was opened"
+
+    def cost_report(self):
+        """What paid replies cost, from the usage log: this goal, the last reply, this session, today and this
+        month by model against the budget, and the model in use. Estimates in words; no ids, no ISO times."""
+        from reason_commons.adapters.anthropic import DEFAULT_MODEL
+        summary = self.refresh_meter()
+        if summary is None:
+            return None
+        rows = []  # (label, value), aligned as text: Textual draws a Rich grid's padding as nothing
+        row = lambda label, value: rows.append((label, value))
+        row("This goal", "Claude: " + replies_words(summary["goal"]))
+        reply = summary["reply"]
+        if reply is not None:
+            tokens = reply["tokens"]
+            row("Last reply", f"{pricing.label(reply['model'])} · {pricing.prompt_tokens(tokens):,} tokens in, "
+                              f"{tokens['output']:,} out · "
+                              + ("cost not known" if reply["usd"] is None else f"≈ {money(reply['usd'])}"))
+        row("This session", replies_words(summary["session"]))
+        month, limit = summary["month"], summary["budget"]
+        if summary["logging"]:
+            row("Today", replies_words(summary["today"]))
+            if limit is None:
+                standing = "no monthly budget set"
+            elif month["usd"] > limit:
+                standing = f"past your {money(limit)} budget; each send asks first, and nothing is blocked"
+            else:
+                standing = f"of your {money(limit)} budget ({int(month['usd'] * 100 / limit)}%)"
+            row("This month", f"{replies_words(month)}, {standing}")
+            for model, total in sorted(month["by_model"].items(), key=lambda item: -item[1]["usd"]):
+                row("", f"{pricing.label(model)}: {replies_words(total)}")
+            if month["no_reply"]:
+                row("No reply", f"{month['no_reply']} this month: sent, with no reply back; they may still "
+                                "have been billed")
+        name = self.model_name()
+        if name:
+            row("Claude now", f"{name}, {self.model_where()}")
+        else:
+            row("Consultant now", ("LM Studio" if self.provider == "lm-studio" else "the built-in guide")
+                + ": no charge")
+        row("No charge", "LM Studio and the built-in guide")
+        notes = []
+        saved = self.settings.get("anthropic", "model") if self.settings is not None else None
+        if name and saved not in (None, DEFAULT_MODEL) and saved == getattr(self.consultant, "model", None):
+            notes.append(f"{pricing.label(DEFAULT_MODEL)} is now the default and costs least. Your saved choice, "
+                         f"{name}, stays until you change it: F2 Settings, then You, on the home screen.")
+        notes.append(f"Estimates at Anthropic's list prices of {day(pricing.AS_OF)}, from each reply's token counts; "
+                     "your bill is in the Anthropic Console.")
+        path = summary["path"]
+        if path is None:
+            notes.append("The usage log is off (REASON_COMMONS_USAGE_LOG=off), so only this session is counted.")
+        else:
+            home = str(Path.home())
+            shown = "~" + str(path)[len(home):] if str(path).startswith(home + os.sep) else str(path)
+            notes.append(f"Kept in {shown}, readable only by you: counts and estimates, never your words.")
+        if summary["skipped"]:
+            notes.append(skipped_words(summary["skipped"]))
+        if summary["error"]:
+            notes.append(f"The log could not be written ({summary['error']}); this session's replies are counted "
+                         "here only.")
+        width = max(len(label) for label, _ in rows) + 2
+        lines = [Text.assemble((label.ljust(width), "bold"), value) for label, value in rows]
+        return Group(Text("CLAUDE REPLIES", style="bold dim"), *lines, Text(""),
+                     *[Text(note, style="dim") for note in notes])
 
     def action_export(self):
         default = str(Path(self.store).with_name(f"{Path(self.store).name}-{date.today().isoformat()}.reasoncase"))
@@ -3303,7 +3707,7 @@ class ReasonCommonsApp(ThemedApp):
             except Exception as exc:
                 self.notify(f"Import failed: {exc}", severity="error", timeout=10)
             finally:
-                self.case = self._open(self._consultant_factory(self.provider))
+                self.case = self._open(self.chosen)  # the same consultant, and no second setup of it
                 self._history = None
             # What waits is decided in Backlog; what was accepted is drawn in the trees.
             self.show_view("backlog" if waiting else "trees")
@@ -3341,9 +3745,11 @@ class ReasonCommonsApp(ThemedApp):
                         severity="warning", timeout=10)
         self.checkpoint()
         self.case.close()
-        self.case = self._open(consultant)
+        self.consultant, self.chosen, self._stand_ins = consultant, ChosenConsultant(consultant), {}
+        self.case = self._open(self.chosen)
         self.provider = provider
         self.refresh_workspace()
+        self.refresh_meter()
         self.notify(f"Consultant: {PROVIDERS[provider]}")
 
     def on_unmount(self):
@@ -3647,6 +4053,47 @@ def option_label(title, detail):
     return text
 
 
+def money(value):
+    return pricing.money(value)
+
+
+def replies_words(total):
+    """'3 replies, ≈ $0.012', with any whose price is not known."""
+    count = total["replies"]
+    words = f"{count} {'reply' if count == 1 else 'replies'}, ≈ {money(total['usd'])}"
+    return words + (f" ({total['unpriced']} at a price not known)" if total["unpriced"] else "")
+
+
+def month_meter(total, limit):
+    """The month in the footer: 'month ≈ $1.40 of $5', or 'month ≈ $5.20, over $5'."""
+    spent = money(total["usd"])
+    if limit is None:
+        return f"month ≈ {spent}"
+    return f"month ≈ {spent}, over {money(limit)}" if total["usd"] > limit else f"month ≈ {spent} of {money(limit)}"
+
+
+def spent_words(entries):
+    """What one send cost, for its notice: ' Reply ≈ $0.0049 (Haiku 5.5).' Nothing when nothing was paid for."""
+    if not entries:
+        return ""
+    models = ", ".join(dict.fromkeys(pricing.label(entry["model"]) for entry in entries))
+    if all(entry["outcome"] == "no_reply" for entry in entries):
+        return f" No reply came from {models}; the request may still be billed."
+    priced = [entry["usd"] for entry in entries if entry["usd"] is not None]
+    if len(priced) < len(entries):
+        return f" Reply from {models}; its cost is not known."
+    return f" Reply ≈ {money(sum(priced))} ({models})."
+
+
+def budget_notice(share, spent, limit):
+    """Said once when this month's spending reaches 80% or 100% of the budget. The budget asks; it never blocks."""
+    if share == 80:
+        return (f"This month's Claude replies ≈ {money(spent)}: 80% of your {money(limit)} budget (estimate). "
+                "Nothing is blocked.")
+    return (f"This month's Claude replies ≈ {money(spent)}, past your {money(limit)} budget (estimate). "
+            "Each send will ask first; nothing is blocked.")
+
+
 def command_label(title, detail):
     """A command on one line: what it is, then, quieter, what it does and whether it asks the consultant."""
     text = Text(title, style="bold")
@@ -3710,17 +4157,22 @@ def run_tour(speaker=None):
 
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False, story=None):
     """Create the case if the folder does not exist yet, then open the workspace."""
-    from reason_commons.bootstrap import configured_consultant, create_case, open_case
+    cli_model = model
+    from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
     settings = Settings.load()
     settings.apply()  # fills in only what flags and the environment leave unset
     store = Path(os.path.expanduser(store)).resolve()
     provider = provider or os.environ.get("REASON_COMMONS_PROVIDER") or "guided"
     speaker = speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
-    factory = lambda chosen: configured_consultant(provider=chosen, model=model if chosen == provider else None,
-                                                   base_url=base_url if chosen == provider else None)
+    usage = usage_session("workspace", settings=settings)
+    # A model named here is for one reply with deeper reasoning; otherwise the one chosen at start, if any.
+    factory = lambda chosen, model=None: configured_consultant(
+        provider=chosen, model=model or (cli_model if chosen == provider else None),
+        base_url=base_url if chosen == provider else None, usage=usage.record)
     if not store.exists():
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()
     app = ReasonCommonsApp(store, speaker, provider, lambda consultant: open_case(store, consultant=consultant),
-                           factory, tour=tour, story=story, settings=settings)
+                           factory, tour=tour, story=story, settings=settings,
+                           usage=None if tour or story else usage)  # practice and reading show no meter
     return app.run()

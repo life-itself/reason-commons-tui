@@ -720,3 +720,57 @@ The prompt changes above were made while watching these fixtures; the four
 held-out fixtures and the procedure replay check them elsewhere, but these numbers
 are not independent of the tuning. Samples are small, the semantic status of every
 run is `fail` or `incomplete`, and the participant gate is separate.
+
+## Haiku by default, one Sonnet reply, and the cost meter: live smoke (2026-10-08)
+
+The final smoke of the [plan](plans/2026-10-08-haiku-default-boost-usage.md), billed,
+with the key passed by reference and a usage log of its own in a throwaway folder
+(`REASON_COMMONS_USAGE_LOG`). No key, request body or provider response is recorded
+here, and the key was found in none of the run's files. All data is synthetic.
+
+1. **`scripts/check_anthropic.py --smoke`** saved revision 1 on `claude-haiku-5-5`
+   (15,709 tokens in, 1,437 out, ≈ $0.0023) and, with `--model claude-sonnet-5-5`,
+   on Sonnet (15,711 in, 592 out, ≈ $0.037). Each report gives its `usage` and
+   `estimated_cost_usd`.
+2. **`reason-commons usage`** counted the two replies, one each of Haiku and Sonnet,
+   both under "provider check", ≈ $0.04 in all.
+3. **The workspace**, opened by `tui.run()` itself (the same composition, settings,
+   usage session and consultant factory as `reason-commons tui CASE --provider
+   anthropic`) and driven headlessly by Textual's pilot at 120 by 40, since an agent
+   cannot press keys in a live terminal. The budget was $0.06, not the plan's $0.02:
+   the two smokes had already spent $0.04 this month, so $0.02 would have made the
+   first Send ask, where the plan's order has the question come after the Sonnet
+   reply; $0.06 keeps the plan's $0.02 of room.
+   - On opening, the footer said "Haiku 5.5 · month ≈ $0.04 of $0.06".
+   - **Send** (Haiku): the top line said "Asking Claude…", the notice "Saved. 3
+     proposed; they wait in Backlog. Reply ≈ $0.0031 (Haiku 5.5).", the footer
+     "session ≈ $0.0031 · month ≈ $0.04 of $0.06" (the model's name gives way when
+     the bar is short), and the hint "Send: get Claude's reply (Haiku 5.5)".
+   - **Commands › Send with deeper reasoning (Sonnet 5.5)**, whose line read "Asks the
+     consultant: Sonnet 5.5 answers this one, then Haiku 5.5 again; ≈ $0.05, about 12×
+     a Haiku reply": the top line said "Asking Claude (Sonnet 5.5)…"; the notice "Saved.
+     2 proposed; they wait in Backlog. Sonnet 5.5 answered (≈ $0.05). Send goes to Haiku
+     5.5 again.", and a second notice "This month's Claude replies ≈ $0.09, past your
+     $0.06 budget (estimate). Each send will ask first; nothing is blocked." The
+     stand-in was put away after the reply.
+   - The next **Send** asked first: "This month ≈ $0.09 of your $0.06 budget
+     (estimate). This reply ≈ $0.0042." **Not now** sent nothing, kept the draft in the
+     box and the revision as it was, and said "Nothing was sent. Your answer is still
+     in the box."
+   - **Consultant calls and cost** showed 2 calls in this goal (the third had not been
+     sent), the last reply as Sonnet 5.5 with 17,039 tokens in and 1,548 out
+     (≈ $0.05), this session, today and this month (4 replies, ≈ $0.09, past the
+     budget: Sonnet 2, ≈ $0.09; Haiku 2, ≈ $0.0054), "Haiku 5.5, the default", the
+     list-price date, the Console as the authority and the log's place.
+   - **Send** again, then **Send this one**: Haiku answered (≈ $0.0032).
+4. **`inspect --json`** gave the applied requests in order: `in000001` Haiku,
+   `in000002` Sonnet, `in000003` Haiku.
+5. The log then held five billed requests, ≈ $0.096 (Haiku 3, ≈ $0.0086; Sonnet 2,
+   ≈ $0.087; provider check 2, workspace 3), no unreadable line, and only its own
+   keys; it held no words of the case or its name. Neither the case's files nor its
+   `.reasoncase` export held a token count or a cost.
+
+Not yet done: comparing the log with the Anthropic Console a day later, as the plan
+asks; the Console is the authority on what was billed. The workspace was driven by
+the pilot, not by a person at a terminal, and notices were read as the app raised
+them (Textual's headless screenshots do not draw them).

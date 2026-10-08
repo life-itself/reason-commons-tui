@@ -326,7 +326,7 @@ def test_settings_offers_you_on_the_home_screen_and_it_runs_the_setup_questions(
             await pilot.press("f2")
             await pilot.pause()
             rows = app.screen.query_one("#settings-rows")
-            assert [option.id for option in rows.options] == ["voice", "mode", "setup"]
+            assert [option.id for option in rows.options] == ["voice", "mode", "setup", "budget"]
             assert "Dana · offline guide" in str(rows.get_option("setup").prompt)
             # Left and Right do nothing on You (they change the voice and mode rows), and Enter opens the questions.
             await pilot.press("down", "down", "right", "left")
@@ -354,7 +354,7 @@ def test_the_workspace_settings_has_no_you_row(tmp_path):
             await pilot.press("f2")
             await pilot.pause()
             return [option.id for option in app.screen.query_one("#settings-rows").options]
-    assert asyncio.run(run()) == ["voice", "mode"]
+    assert asyncio.run(run()) == ["voice", "mode", "budget"]
 
 
 def test_you_in_settings_is_also_there_on_first_start_and_a_click_on_theme_changes_nothing(tmp_path, monkeypatch):
@@ -369,7 +369,7 @@ def test_you_in_settings_is_also_there_on_first_start_and_a_click_on_theme_chang
             await pilot.press("f2")
             await pilot.pause()
             rows = app.screen.query_one("#settings-rows")
-            assert [option.id for option in rows.options] == ["voice", "mode", "setup"]
+            assert [option.id for option in rows.options] == ["voice", "mode", "setup", "budget"]
             # Choosing a row with Enter or a click does not change it; Left and Right do.
             await pilot.click("#settings-rows", offset=(5, 0))
             await pilot.press("enter")

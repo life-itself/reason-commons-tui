@@ -70,6 +70,11 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   on the right. Every key it names must be a real binding. Commands and Help are also controls: Tab
   reaches them and Enter presses them. On a narrow terminal the hints say less and then drop from the
   end, but Commands and Help always stay, and the footer never changes under a click.
+- **Cost is said where it is spent.** With a paid consultant, the footer's right end estimates what this
+  session and this month cost (the first thing to go when the bar is short), a reply's notice says what it
+  cost, and Commands › *Consultant calls and cost* has the rest, from the usage log kept outside every goal,
+  never from the case. Past a monthly budget each send asks once; nothing is blocked and "Not now" keeps the
+  answer in the box. The amounts are words: no colour marks them, least of all the warning colour.
 - **One word, one meaning.** *Commands* is everything you can do (Ctrl+P). *Loop actions* is the view of
   the plan's actions. *Action* is a step of the loop.
 - **No raw data.** Ids, engine revisions and ISO timestamps never show. A time is on the person's own

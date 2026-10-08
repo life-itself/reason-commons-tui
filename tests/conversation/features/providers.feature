@@ -78,6 +78,15 @@ Feature: The consultant is a replaceable choice made outside the case
     And the case records that Claude Haiku 5.5 produced it
     And the consultant settings name claude-haiku-5-5 as the default Claude model
 
+  Scenario: Count what a Claude reply cost outside the case
+    Given an Anthropic server and an environment choosing it with an API key
+    And a case opened with the configured consultant, counting its usage
+    When David contributes to the empty case
+    Then a question is saved
+    And the usage log counts one Claude Haiku 5.5 reply of 12000 tokens in and 900 out, about $0.00165
+    And the case and its export hold no token counts or cost
+    And the usage log holds no words from the case, no case name, no path and no key
+
   Scenario: Consult a local model end to end
     Given a local LM Studio server and an environment choosing it
     And a case opened with the configured consultant

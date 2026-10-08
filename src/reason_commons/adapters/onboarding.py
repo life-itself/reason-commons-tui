@@ -273,8 +273,9 @@ async def run_setup(app, settings, first_run, checks=None):
                     hint = model_hint(model_id) or "Claude model"
                     title = display + ("  (recommended)" if model_id == recommended else "")
                     options.append((model_id, option_text(title, f"{hint}  ·  {model_id}")))
-                explanation = ("These are the models your key can use. Haiku 5.5 costs least and suits "
-                               "most replies; Sonnet reasons more deeply and costs more. You can change it later.")
+                explanation = ("These are the models your key can use. Haiku 5.5 costs least and suits most "
+                               "replies; in a goal you can send any one question to Sonnet for deeper reasoning. "
+                               "You can change it later.")
             else:
                 recommended = ids[0]
                 options = [(model_id, model_id) for model_id in ids]

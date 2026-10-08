@@ -17,6 +17,9 @@ import os
 import sys
 import textwrap
 
+from reason_commons.adapters.pricing import label, money, typical
+from reason_commons.adapters.usage import crossed
+
 TITLES = {"next": "Next step", "context": "Case context", "explain": "Explain this", "moves": "Other moves",
           "views": "Views", "backlog": "Backlog", "goal": "Goal", "tests": "Tests", "sources": "Your words",
           "history": "History", "help": "Help"}
@@ -39,8 +42,12 @@ class Control:
 class AccessibleWorkspace:
     """One case in the ordered presentation. ``write`` receives text to append; ``handle`` takes one key."""
 
-    def __init__(self, case, speaker, width=80, height=24, write=None, consultant="the consultant"):
+    def __init__(self, case, speaker, width=80, height=24, write=None, consultant="the consultant", usage=None,
+                 model=None):
         self.case, self.speaker, self.consultant = case, speaker, consultant
+        # The usage log session and the paid consultant's model (None when it costs nothing): each reply's cost
+        # is said once, and past the monthly budget Send asks to be activated again. Nothing is blocked.
+        self.usage, self.model = usage, model
         self.width, self.height = max(20, width), max(8, height)
         self.write = write or (lambda text: (sys.stdout.write(text), sys.stdout.flush()))
         self.view, self.origin, self.focus, self.pages, self.page = "next", None, 0, [], 0
@@ -334,14 +341,35 @@ class AccessibleWorkspace:
         target = {"current_question": "next", "trees": "tests"}.get(action["target"], action["target"])
         self.open(target if target in TITLES else "next")
 
+    def month(self):
+        """(this month's estimated spending, the monthly budget or None), from the usage log."""
+        summary = self.usage.summary()
+        return summary["month"]["usd"], summary["budget"]
+
+    def over_budget_words(self, spent, limit):
+        reply = self.usage.typical(self.model) or typical(self.model)
+        return (f"This month about {money(spent)} of your {money(limit)} budget, estimated."
+                + (f" This reply about {money(reply)}." if reply else ""))
+
     def send(self, intent):
         if not self.draft.strip() and intent == "answer":
             self.announce("Response is empty; nothing was sent.")
             return
+        spent = limit = None
+        if self.model and self.usage is not None:
+            spent, limit = self.month()
+            if limit and spent >= limit and self.pending != ("send", intent):
+                self.pending = ("send", intent)
+                self.announce(self.over_budget_words(spent, limit) + " Activate the same control again to send it; "
+                              "nothing is blocked, and Tab keeps your Response.")
+                return
+        self.pending = None
+        mark = self.usage.mark() if self.usage is not None else None
         target = self.workspace()["target"]
         self.announce(f"Asking {self.consultant}. Your Response is saved first.")
         result = self.case.submit(self.draft, self.speaker, target["base_revision"], target["response_target"],
                                   intent=intent)
+        cost = self.cost_lines(mark, spent)
         if result["status"] == "saved":
             self.draft, self.state, self.view, self.origin, self.focus = "", "saved", "next", None, 0
             self.checkpoint()
@@ -353,6 +381,34 @@ class AccessibleWorkspace:
             self.state = {"unavailable": "consultant unavailable", "rejected": "reply rejected",
                           "stale": "case changed", "not_saved": "not saved"}.get(result["status"], result["status"])
             self.announce(f"Not answered: {result.get('message') or result['status']}. Your Response is kept.")
+        for line in cost:
+            self.announce(line)
+
+    def cost_lines(self, mark, before):
+        """What a send just cost, and whether the month reached 80% or 100% of the budget: each said once, after
+        the reply's own announcement."""
+        if self.usage is None or mark is None:
+            return []
+        lines, paid = [], self.usage.since(mark)
+        if paid:
+            models = ", ".join(dict.fromkeys(label(e["model"]) for e in paid))
+            priced = [e["usd"] for e in paid if e["usd"] is not None]
+            if all(e["outcome"] == "no_reply" for e in paid):
+                lines.append(f"No reply came from {models}; the request may still be billed.")
+            elif len(priced) == len(paid):
+                lines.append(f"Cost: about {money(sum(priced))}, {models}, estimated.")
+            else:
+                lines.append(f"Cost: not known for {models}.")
+        if before is not None:
+            after, limit = self.month()
+            share = crossed(before, after, limit)
+            if share == 80:
+                lines.append(f"This month about {money(after)}: 80% of your {money(limit)} budget, estimated. "
+                             "Nothing is blocked.")
+            elif share == 100:
+                lines.append(f"This month about {money(after)}, past your {money(limit)} budget, estimated. "
+                             "Each send will ask first; nothing is blocked.")
+        return lines
 
     def decide(self, action, ref, confirmed=False):
         revision = self.case.inspect()["case"]["revision"]
@@ -392,6 +448,11 @@ class AccessibleWorkspace:
     def start(self):
         self.running = True
         self.show(replaces=False)
+        if self.model and self.usage is not None:
+            spent, limit = self.month()
+            if limit and spent >= limit:
+                self.announce(f"This month about {money(spent)}, past your {money(limit)} budget, estimated. "
+                              "Each send will ask first; nothing is blocked.")
 
     def handle(self, key):
         """One key, named ("tab", "enter", "pagedown"...) or a printable character."""
@@ -466,7 +527,7 @@ def _ready(descriptor):
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None):
     """Open (creating if needed) a case in the ordered presentation, in this terminal, without redrawing it."""
     from pathlib import Path
-    from reason_commons.bootstrap import configured_consultant, create_case, open_case
+    from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
     store = Path(os.path.expanduser(store)).resolve()
     provider = provider or os.environ.get("REASON_COMMONS_PROVIDER") or "guided"
     speaker = speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
@@ -474,9 +535,13 @@ def run(store, name=None, speaker=None, provider=None, model=None, base_url=None
         store.parent.mkdir(parents=True, exist_ok=True)
         create_case(store, name or store.name).close()
     size = os.get_terminal_size(sys.stdout.fileno()) if sys.stdout.isatty() else os.terminal_size((80, 24))
-    with open_case(store, consultant=configured_consultant(provider=provider, model=model, base_url=base_url)) as case:
+    usage = usage_session("accessible")
+    consultant = configured_consultant(provider=provider, model=model, base_url=base_url, usage=usage.record)
+    with open_case(store, consultant=consultant) as case:
         workspace = AccessibleWorkspace(case, speaker, size.columns, size.lines,
-                                        consultant={"guided": "the built-in guide"}.get(provider, provider))
+                                        consultant={"guided": "the built-in guide"}.get(provider, provider),
+                                        usage=usage,
+                                        model=getattr(consultant, "model", None) if provider == "anthropic" else None)
         workspace.start()
         for key in read_keys(sys.stdin):
             if not workspace.handle(key):

@@ -82,6 +82,12 @@ For a deliberate contribution, name the provider (or set `REASON_COMMONS_PROVIDE
 ```
 
 Run `reason-commons providers` first to confirm the settings without sending anything.
+With Anthropic the default model is `claude-haiku-5-5`; `--model claude-sonnet-5-5` sends
+that one contribution (or `retry`) to Sonnet for deeper reasoning, at about twelve times
+the cost. Each call is counted in the local usage log, never in the case;
+`reason-commons usage` sums it, and once this month reaches 80% of a budget
+(`REASON_COMMONS_MONTHLY_BUDGET_USD`) the command says so in one line on stderr, with its
+output and exit code unchanged (see [what it costs](providers.md#what-it-costs)).
 
 Use `--text-file -` for standard input. Default output presents the saved question
 and workspace; `--format markdown` includes diagrams and tables. `--json` exposes
@@ -163,7 +169,10 @@ Preserve existing connections for other projects. Provider, model, endpoint,
 timeout and credentials are settings outside case state, and the credential must
 reach the server process (for Anthropic, add `ANTHROPIC_API_KEY` to `env_vars`).
 See [choosing a consultant](providers.md) for a complete example and for
-[LM Studio configuration](lm-studio.md).
+[LM Studio configuration](lm-studio.md). The tools take no model, so an agent cannot
+choose a dearer one; with Anthropic, from 80% of a monthly budget the results of
+`consult`, `submit` and `retry` carry a `usage_notice` for the person, and nothing is
+blocked.
 
 Codex registration follows the official [MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)
 and [skill discovery](https://learn.chatgpt.com/docs/build-skills) documentation.
