@@ -179,6 +179,14 @@ screen over the case folders in `~/ReasonCommons`; it only lists (read-only
 composition (`--provider`, `REASON_COMMONS_PROVIDER`, default `guided`) and can
 be switched in the app by reopening the case with another adapter.
 
+For one reply with deeper reasoning, the workspace consults through a
+`ChosenConsultant`: the consultant in use, or for exactly one consultation a stand-in
+(Claude Sonnet, built once by the composition factory with an explicit model). The
+application reads the consultant's version after `propose` returns, so the stand-in stays
+until `consult` has returned and is then put away, whatever became of the reply; each
+applied request still records the version that produced it. Only a person asks for it;
+nothing escalates on its own, and the MCP tools take no model.
+
 What a reply proposes is drawn under the next question, marked proposed, with an
 **Accept all** button; the **Backlog** view lists waiting proposals and review flags
 in decision order and decides them (Enter for choices, `a` accept, `r` reject, `h`
@@ -293,7 +301,22 @@ secret value; the `providers` command projects it.
 
 Model, endpoint and credentials stay outside case state; only each applied
 request's consultant version is recorded, so a case can change consultants between
-contributions. Malformed or truncated output has a distinct rejected-response
+contributions.
+
+**What a paid consultant costs stays outside the case too.** `bootstrap.usage_session(entry)`
+gives each entry point (workspace, accessible presentation, `contribute`/`retry`, MCP,
+the provider check) a session of the local usage log (`adapters/usage.py`), and
+`configured_consultant(..., usage=session.record)` injects its `record` into the
+Anthropic adapter as a sink, which is told each billed request's model, outcome and
+token counts with its own values (MCP runs calls in parallel on one adapter). The log is
+one append-only JSON-lines file under the user's state folder, written under a lock in
+one write per line; it holds identifiers, counts and list-price estimates
+(`adapters/pricing.py`), never words, names, paths or keys. Nothing reaches the
+application, the case, its attempts or an export, and a failing sink never costs the
+reply. The monthly budget is an interface notice, not a case rule: the workspace asks once
+before a paid send past it, and the command line and MCP only say so; nothing is blocked
+and the application does not know of it. `configured_consultant()` still returns the bare
+adapters. Malformed or truncated output has a distinct rejected-response
 receipt. Transport and configuration failures keep the unavailable/retry
 behavior, and the application records a safe failure category
 (`configuration`, `http_error`, `timeout`, `connection` or `unknown`) with any

@@ -174,6 +174,7 @@ come from one of three consultants:
 | --- | --- | --- | --- |
 | What it does | Asks the loop's questions in a fixed order; never gives advice | Adapts its questions, notices what is missing, gives advice on request and grows the trees | The same as Claude, on your own hardware |
 | What you need | Nothing | An Anthropic API key | LM Studio with a chat model loaded |
+| What it costs | Nothing | Paid per reply: about $0.004 with Claude Haiku 5.5 (the default), $0.05 with Sonnet 5.5 for one reply with deeper reasoning; the footer, each reply's notice and `reason-commons usage` estimate it, with a soft monthly budget if you want one | Nothing beyond your hardware |
 | Does your goal leave your computer? | No | Yes: each consultation sends the goal's saved records to Anthropic | No |
 
 The workspace starts with the built-in guide. Choose another under F2 **Settings**

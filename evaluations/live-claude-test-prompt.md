@@ -39,6 +39,8 @@ carry on with the next step.
   means that path. Never touch `~/ReasonCommons` or any existing case.
 - Use the Anthropic consultant for every contribution: pass `--provider anthropic`.
   Keep the default model (`claude-haiku-5-5`) unless told otherwise.
+- Keep this run's usage log apart from yours: put
+  `REASON_COMMONS_USAGE_LOG=/tmp/rc-live/usage.jsonl` on every command, as you do the key.
 - Read results with `show CASE --view VIEW --format json` and `inspect CASE --json`.
   Judge the application by its JSON, never by the consultant's prose.
 - A contribution that fails (`rejected`, `unavailable`, `stale`) is a finding: record
@@ -222,6 +224,11 @@ Write `$RC/report.md` and print it. Include:
   agreement)?
 - The number of consultant calls (`reason-commons receipts` or the attempts in each
   case) and anything that cost more calls than expected.
+- What it cost: `REASON_COMMONS_USAGE_LOG=/tmp/rc-live/usage.jsonl .venv/bin/reason-commons usage --json`.
+  Check that it counts every billed call of the run (its replies plus any "no reply"
+  equal the consultant calls you counted), by model and by entry point, and that no
+  case under `$RC` holds a token count or a cost (`grep -r usd $RC --include=*.yaml`
+  finds nothing). Report its estimate; Anthropic's Console has the bill.
 - What you could not test and why.
 
 Do not delete `$RC`; print its path at the end.

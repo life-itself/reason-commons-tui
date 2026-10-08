@@ -44,6 +44,19 @@ When Claude is selected and you press **Send** (or choose a move marked "asks
 consultant"), your answer and the goal's saved records are sent to Anthropic.
 Browsing views, **Explain this** and help never send anything.
 
+## What Claude costs
+
+Claude is paid per reply: about $0.004 with Haiku 5.5. For a question that needs more,
+**Ctrl+P**, **Send with deeper reasoning (Sonnet 5.5)** sends that one answer to Claude
+Sonnet, which reasons more deeply for about $0.05; the next Send goes to Haiku again.
+The footer estimates what this session and this month cost, each reply's notice says
+what it cost, and **Ctrl+P**, **Consultant calls and cost** has the details. F2
+**Settings**, **Budget** sets a soft monthly budget: you are told at 80% and 100%, and
+past it each send asks first. Nothing is ever blocked. The amounts are estimates at list
+prices; your bill is in the [Anthropic Console](https://console.anthropic.com/).
+`reason-commons usage` prints the same from the command line. More in
+[what it costs](providers.md#what-it-costs).
+
 ## Use a local model with LM Studio
 
 Nothing leaves your computer with a local model.

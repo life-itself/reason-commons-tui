@@ -1,6 +1,6 @@
 # Plan: Haiku 5.5 by default, a one-reply Sonnet boost, and a usage/cost meter with a soft budget
 
-> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–6 done; 7 planned. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
+> Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–7 done; the live smoke is recorded in `docs/validation.md`. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
 > evaluation recorded in `docs/validation.md` ("Claude Haiku 5.5 as the consultant"). Line numbers are as of that
 > branch and will drift; search for the named functions.
 
@@ -242,7 +242,7 @@ class ChosenConsultant:   # adapters/tui.py
 - **MCP notices.** A `usage_notice` field in `consult`/`submit`/`retry` results at 80% or more. Nothing goes to stdout, which is the transport.
 - **Tests.** `tests/test_invocation.py` or a new `tests/test_cli_usage.py`; `tests/test_mcp_bridge.py`.
 
-### 7. Docs and screenshots
+### 7. Docs and screenshots — done (2026-10-08)
 **Docs**
 - `docs/providers.md`: the default; "Deeper reasoning for one reply"; a "What it costs" section (log location, privacy, `off`, budget, `usage`); the note that Haiku replies take longer.
 - `docs/tui.md`: commands, footer, budget row, and the new environment variables.
@@ -252,7 +252,8 @@ class ChosenConsultant:   # adapters/tui.py
 
 **Screenshots** (`scripts/render_screenshots.py`, with a temporary log and a fixed `usage.now`)
 - Re-render `setup-model`, `home-settings`, `actions-palette` and `consultant-unavailable`.
-- Add `usage-and-cost` and `footer-meter`.
+- Add `usage-and-cost` and `footer-meter`. (Textual's headless screenshots do not draw notices, so
+  `footer-meter` shows the footer; the docs quote the notice in words.)
 
 ## Critical files
 - `src/reason_commons/adapters/anthropic.py`, `tui.py`, `settings.py`, `onboarding.py`, `cli.py`, `mcp_server.py`,
@@ -284,4 +285,4 @@ class ChosenConsultant:   # adapters/tui.py
      - Open "Consultant calls and cost".
   4. `inspect --json` shows Haiku, Sonnet, Haiku versions in order.
   5. Record the results in `docs/validation.md`. A day later, compare the log with the Anthropic Console.
-- **Ship.** Commit and push each step to `claude/relaxed-rubin-9mij55`.
+- **Ship.** Commit and push each step (done on `claude/haiku-default-sonnet-boost-15ad85`).
