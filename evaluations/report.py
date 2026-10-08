@@ -15,6 +15,30 @@ def check(name, passed, evidence="", category="consultant"):
     return {"name": name, "status": "pass" if passed else "fail", "evidence": evidence, "category": category}
 
 
+def consultation_summary(runs):
+    """How the evaluated turns ended, why the others were not saved, what the adapter had to undo in how a
+    reply was passed, and what the turns cost in tokens and time.
+
+    Each turn is attempted once, so the share saved is the first-attempt validity of the replies."""
+    turns = [turn for run in runs for turn in run.get("turns", [])]
+    by_status, reasons, tokens, repairs = {}, {}, {}, {}
+    for turn in turns:
+        for repair in turn.get("repairs") or []:
+            repairs[repair] = repairs.get(repair, 0) + 1
+        status = turn["result"].get("status", "unknown")
+        by_status[status] = by_status.get(status, 0) + 1
+        if status != "saved":
+            reason = str(turn["result"].get("reason") or turn["result"].get("failure_category")
+                         or "no reason given")[:160]
+            reasons[reason] = reasons.get(reason, 0) + 1
+        for key, count in (turn.get("usage") or {}).items():
+            if type(count) is int:
+                tokens[key] = tokens.get(key, 0) + count
+    return {"turns": len(turns), "by_status": by_status, "not_saved_reasons": reasons, "transport_repairs": repairs,
+            "turns_with_usage": sum(bool(turn.get("usage")) for turn in turns), "tokens": tokens,
+            "seconds": round(sum(turn.get("elapsed_seconds", 0) for turn in turns), 1)}
+
+
 def write_json(path, value):
     path = Path(path)
     temp = path.with_suffix(path.suffix + ".tmp")
@@ -61,12 +85,15 @@ class Report:
                                             for category in CATEGORIES},
                                         "uncommitted_turns": sum(len(run.get("unjudgeable_turns", []))
                                                                  for run in self.value["runs"])}
+        self.value["consultations"] = consultation_summary(self.value["runs"])
         self.save()
 
     def save(self):
         write_json(self.directory / "report.json", self.value)
         lines = ["# Consultant evaluation", "", "This report is developer evidence, not a v1 release approval.", "",
                  "Configuration: `" + json.dumps(self.value["configuration"], ensure_ascii=False) + "`", ""]
+        if "consultations" in self.value:
+            lines += ["Consultations: `" + json.dumps(self.value["consultations"], ensure_ascii=False) + "`", ""]
         for run in self.value["runs"]:
             lines += ["## " + run["id"], "", "Case: " + str(run.get("case", "none")), ""]
             for item in run.get("checks", []):

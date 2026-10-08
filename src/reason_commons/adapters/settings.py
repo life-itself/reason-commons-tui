@@ -137,7 +137,7 @@ def model_hint(model_id):
     if "sonnet" in lowered:
         return "balanced; recommended for most people"
     if "haiku" in lowered:
-        return "fastest and cheapest; lighter reasoning"
+        return "cheapest; lighter reasoning, more replies to retry"
     if "fable" in lowered or "mythos" in lowered:
         return "top tier; highest cost"
     return ""

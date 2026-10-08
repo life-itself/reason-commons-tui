@@ -85,6 +85,14 @@ Neither is ever written into a case or an export.
 | Model | `REASON_COMMONS_ANTHROPIC_MODEL`, default `claude-sonnet-5-5` | `REASON_COMMONS_LM_STUDIO_MODEL`; if unset, used automatically only when the server advertises exactly one model |
 | Server URL | `REASON_COMMONS_ANTHROPIC_URL`, default `https://api.anthropic.com/v1` (HTTPS only; plain HTTP just for loopback testing) | `REASON_COMMONS_LM_STUDIO_URL`, default `http://127.0.0.1:1234/v1` |
 | Timeout (seconds) | `REASON_COMMONS_ANTHROPIC_TIMEOUT`, default 120 | `REASON_COMMONS_LM_STUDIO_TIMEOUT`, default 120 |
+| Output budget (tokens) | `REASON_COMMONS_ANTHROPIC_MAX_TOKENS`, default 16000; the model's thinking counts against it too | Fixed at 4096 |
+| Effort | `REASON_COMMONS_ANTHROPIC_EFFORT`: `low`, `medium`, `high`, `xhigh`, `max`, or `default` to send none. Unset, it is `high` where the model reports support for effort, and otherwise the model's own default | Not used |
+
+Any current Anthropic model works, including `claude-haiku-5-5` for lower cost
+(see [validation](validation.md) for how it has measured). The adapter asks the
+model what it supports before the first consultation: a model without effort
+levels, such as Claude Haiku 4.5, gets none, and an effort you chose that the
+model lacks is refused before anything is sent.
 
 Use a model ID the server actually serves. Both adapters check the model first,
 and require each answer to come from that same model, so a server cannot quietly
@@ -104,6 +112,7 @@ Provider: anthropic (chosen by REASON_COMMONS_PROVIDER)
 Model: claude-sonnet-5-5 (default)
 Endpoint: https://api.anthropic.com/v1
 Credential: ANTHROPIC_API_KEY not set (required)
+Output: up to 16000 tokens; effort high where the model supports it
 Status: not ready
   - ANTHROPIC_API_KEY is not set; export it in the environment that starts reason-commons
 Other providers: lm-studio, guided
@@ -149,7 +158,17 @@ can contain secrets. Read the stored receipt with
 
 Retry only when you decide to: `reason-commons retry /path/to/my-case REQUEST_ID`. A response
 the application rejects (malformed, out of profile) is reported as `rejected`,
-not `unavailable`, and also never publishes anything.
+not `unavailable`, and also never publishes anything. Its `reason` says why in the
+application's own words: a field or reference the domain refused, or for Anthropic
+that the reply stopped at the output budget (raise
+`REASON_COMMONS_ANTHROPIC_MAX_TOKENS`), was declined (`refusal`, with its category),
+or came back without a proposal. Before validation the Anthropic adapter undoes
+slips in how a model passes its proposal, none of which changes what the
+consultant decided: the proposal wrapped in an object with a single field (such as `input`), the
+next move or the updates sent as a string of JSON, the schema version or profile
+sent with quotation marks inside it, and a schema version, profile, request ID or
+revision left out (each can have only one value for that consultation; a wrong
+one is still refused). Everything else is validated exactly as it came.
 
 ## Using a provider from the skill (MCP)
 
