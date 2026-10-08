@@ -1,0 +1,406 @@
+# The guided tour: a winter at Harrowfield General, told in story pages and in the workspace itself.
+#
+# The person taking the tour plays Ruth Okonjo, the hospital's new Director of Patient Flow. The tour opens a
+# throwaway copy of the packaged Harrowfield goal (stories/harrowfield.yaml) on the Friday before the pilot,
+# walks through its six trees one question at a time, asks for the two decisions still waiting, and then runs
+# one real loop with the built-in guide. Each part: an opening page, the workspace with a strip that narrates
+# a few beats, and a closing page with one koan from "Thinking Processes as Koans" (David Joseph, 2026), after
+# the reader has seen what it points to.
+#
+# Beats: `say` is at most three lines at 80 columns. A `button` moves the view only when pressed: `view` opens
+# a view, `tree` a tree, `select` chooses a statement by its words. `until` says what the beat waits for:
+# a `view`, a `tree`, a `selected` statement (or `any`), or a pending proposal `decided`; while it waits,
+# Next still works. A beat whose `until` is met moves on to the next beat by itself, unless it has `done`
+# words to say; it never opens a page by itself. Every word on screen is checked by tests/test_tour.py.
+
+name: A winter at Harrowfield
+story: harrowfield
+player: Ruth Okonjo
+minutes: 15
+clock:
+  default: '2026-01-09T16:30:00+00:00'
+  monday: '2026-01-12T09:00:00+00:00'
+  day-three: '2026-01-15T08:45:00+00:00'
+
+# Example answer, for each question the guide asks during the tour: Ruth's words.
+examples:
+  test_change: "Step 7 on Ward 7: at 15:00 the registrar confirms tomorrow's likely discharges; the list goes to
+    pharmacy and transport by 16:00, and families are told."
+  test_forecast: "From the first week, the full kit (medicines, letter, transport) is ready by 08:00 for at least
+    8 in 10 of the next day's discharges."
+  test_review: Thursday, the third morning, at the 08:30 board round
+  test_stop: If any patient leaves without their medicines checked
+  action: "Today at 15:00 Dr Marsh's registrar confirms tomorrow's likely discharges and sends the list to
+    pharmacy and transport by 16:00; Joy tells the families."
+  observe: "Three mornings in: pharmacy had the list by 16:00 every day, but at 08:00 only 4 of 11 kits were
+    ready (36%). For the other 7, nobody had written the take-home prescriptions. No patient left without their
+    medicines checked, and no readmissions so far."
+  review: "Adjust. I forecast 8 in 10 and got 4 in 11, and the safeguards held. Pharmacy wasn't slow: the step
+    was missing a cause. Add 7a: at 15:00 the registrar also writes the take-home prescriptions for everyone on
+    the list."
+
+# The two proposals waiting in the goal, by the words of their statements.
+pending:
+  occupancy: Keep occupancy at 95% or more
+  pharmacy: Pharmacy starts on take-home medicines only once a discharge is final, so they queue through the
+    afternoon
+
+parts:
+- id: prologue
+  title: The hospital
+  pages:
+  - kicker: A guided tour of Reason Commons
+    heading: A winter at Harrowfield
+    text: |-
+      For about fifteen minutes you'll be Ruth Okonjo, asked to fix a hospital that is always full. On the way you'll meet the six questions Reason Commons is built on, make two decisions, and run one small loop yourself: a forecast, what really happened, and what you learn from the difference.
+
+      You don't need to know anything about hospitals, or about the method. Nothing you write here is kept. Leave whenever you like; the tour remembers which part you reached.
+    choices:
+    - [next, Begin, the story starts on a Monday in October]
+    - [contents, Contents, the nine parts; Part 8 is the loop]
+    - [leave, Not now, back to the start]
+  - kicker: Monday, 6 October
+    heading: Harrowfield General
+    text: |-
+      Last January, Alwyn Pryce, 84, came in with pneumonia. Once the doctors had decided to admit him, he waited 31 hours on a trolley in a corridor. On the second night he became confused, and fell. He survived; the regulator wrote to the board.
+
+      Harrowfield has 340 beds, and every one of them is always full. The board is about to spend £9.4 million on 24 more.
+
+      **You are Ruth Okonjo.** You start today as Director of Patient Flow, and the board wants your answer in 90 days: are more beds the right call?
+  - kicker: Your first week
+    heading: Everyone knows why
+    quotes:
+    - [Dr Samir Haddad, emergency department, "The wards won't take our patients."]
+    - [Joy Mensah, ward manager on Ward 7, "Ours can't go home till the evening, so we can't take anyone."]
+    - [Dr Helen Marsh, respiratory consultant, "Social care takes weeks to place people. That's the bottleneck."]
+    - [Graham Teller, finance director, "We're at 97%. We need more beds."]
+    - [The Director of Nursing, "", "We don't have enough nurses."]
+    after: |-
+      Five explanations, each sincere and each partly right; three campaigns built on them faded within weeks. You won't pick a side. You'll put everyone's reasons where all of them can read and argue with them, one plain question at a time. That is what Reason Commons is for.
+
+- id: workspace
+  title: Where things stand
+  pages:
+  - kicker: Friday, 9 January
+    heading: Three months later
+    text: |-
+      You spent the autumn on the wards, at the front door and in the bed meetings, asking six plain questions with the people who do the work. Their answers are in Reason Commons now, each in the words of whoever said it.
+
+      In December the board agreed to wait six months on the new ward and try a pilot first. It starts on Monday, on Ward 7. Two proposals still wait for your decision.
+
+      Before Monday, walk back through it, one question at a time. First, the screen you'll do it on.
+  how: true
+  beats:
+  - say: "This is Ruth's goal, from her first day: what Harrowfield is for, how she'll know it's getting better,
+      and what must not get worse. Open Goal to read it whole."
+    button: {label: Open Goal, view: goal}
+    until: {view: goal}
+  - say: "The line above is the loop: the goal is done (✓), a test with a forecast comes next (●). Now open
+      History: every step that brought the goal here, who said it and when."
+    button: {label: Open History, view: history}
+    until: {view: history}
+  - say: "Nine voices, every statement in its speaker's own words. Two proposals, Graham's and Joy's, still wait
+      in Backlog for your decision. You'll come to them."
+  closing:
+    intro: |-
+      High on a mountain pass, a monastery keeps an infirmary of twelve mats for travellers who fall ill crossing. The Abbot teaches; the Infirmarian judges who is sick and who is well; the Gatekeeper receives travellers; the Tenzo keeps the stores; a novice asks. Their stories are Harrowfield's, in fewer words, and one of them closes each part, starting now.
+    title: Full Mats
+    koan: |-
+      The Tenzo reported with pride: "For a hundred days, every mat in the infirmary has been full."
+
+      The Abbot asked, "And the traveller who slept at the gate last night: which mat was his?"
+    key: Full is a measure, not the goal. Ruth measures the wait, the traveller at the gate.
+    next: What must be true for us to reach the goal?
+
+- id: goal-tree
+  title: What must be true for us to reach the goal?
+  tree: goal
+  pages:
+  - kicker: Your first week · the Goal Tree
+    text: |-
+      Before anyone argued about beds, you asked what the hospital is for, and then what must be true for that.
+
+      Four things hold the goal up: patients reach the right bed when they need one, care is safe, the hospital pays its way, and staff can stay. Under them, twelve conditions, each from someone who knows that part of the hospital. Together they are the Goal Tree: read each line as "the goal needs this".
+
+      Notice what is not in it. Nothing says the hospital must be full.
+  beats:
+  - say: Open the Goal Tree. Ctrl+T opens the trees, and Goal Tree is under Trees on the left; or press the button.
+    button: {label: Open it, tree: goal}
+    until: {tree: goal}
+  - say: "Read down: each line needs the ones beneath it. Choose a line with ↑ and ↓; its details say what's
+      worth asking of it and whose words it is. Choose \"No one occupies a bed they no longer need\"."
+    button: {label: Show me, select: No one occupies a bed they no longer need}
+    until: {selected: No one occupies a bed they no longer need}
+  - say: "A bed that has stopped healing someone harms them, so this one condition serves access and quality
+      both. Graham Teller has sent one more condition. It waits in Backlog: open it."
+    button: {label: Open Backlog, view: backlog}
+    until: {view: backlog}
+  - say: "\"Keep occupancy at 95% or more.\" Must it be true for the goal? The hospital is paid for each patient
+      it treats, not each bed it fills. Choose it, then r rejects or a accepts; confirm it with its link."
+    until: {decided: occupancy}
+    done:
+      rejected: Rejected. Graham's words stay in History, so the argument isn't lost; the tree just doesn't rest
+        on them.
+      accepted: "Accepted. Ruth's team rejected it: full is a measure, not a condition. It's your tree, and
+        History can undo the decision."
+  closing:
+    title: Must
+    koan: |-
+      A novice said, "To care for the sick, the Infirmarian must see the sickest first."
+
+      The Abbot said, "Must?"
+
+      The novice thought, and said, "The sickest must be seen soon."
+
+      The Abbot said, "Now you have said something."
+    key: A need is not a way of meeting it. Ask "must it?" of every line in a Goal Tree.
+    next: Why are we not there yet?
+
+- id: current-reality
+  title: Why are we not there yet?
+  tree: current_reality
+  pages:
+  - kicker: Weeks two and three · the Current Reality Tree
+    text: |-
+      You spent them where things go wrong: the emergency department at night, the bed meetings, the wards at noon. Ten things go wrong, and each department owns a piece.
+
+      You asked of each one: what causes this? And what causes that? The answers became the Current Reality Tree. Read each line as "this happens because of what is beneath it".
+
+      This week you read the tree aloud on Ward 7, to the people it describes.
+  beats:
+  - say: Open the Current Reality Tree. Ctrl+N steps from one tree to the next; or press the button.
+    button: {label: Open it, tree: current_reality}
+    until: {tree: current_reality}
+  - say: "As you read it aloud, Joy Mensah stopped you: \"You've missed pharmacy.\" Her correction waits in
+      Backlog. Choose it and accept it (a), with its link: she knows this ward."
+    button: {label: Open Backlog, view: backlog}
+    until: {decided: pharmacy}
+    done:
+      accepted: Accepted, in Joy's words. A tree is checked by the people it describes.
+      rejected: "Rejected. Ruth accepted it: Joy saw what the tree had missed. History can undo the decision."
+  - say: Back in the tree, find the statement marked root cause · likely constraint, or press Show me.
+    button: {label: Show me, tree: current_reality, select: "Discharge is decided on the day, late in a
+        sickest-first round, and preparation to leave starts only after that decision"}
+    until: {selected: "Discharge is decided on the day, late in a sickest-first round, and preparation to leave
+        starts only after that decision"}
+  - say: "It leads to all 10 undesirable effects: ten complaints, one policy. And nobody is to blame; every cause
+      here is a policy or a habit. Fullness is an effect of how beds are released."
+  closing:
+    title: Ten Complaints
+    koan: |-
+      Ten monks brought the Abbot ten complaints: the crowded gate, the cancelled ceremony, the empty storeroom, the weak legs of the old travellers, the exhausted infirmary monks, the endless meetings, and four more.
+
+      The Abbot heard all ten, then asked one question: "When does a healed traveller learn that he may leave?"
+    key: Many complaints, one cause. A Current Reality Tree is drawn to find it.
+    next: If the cause is that plain, why has nobody fixed it?
+
+- id: cloud
+  title: What conflict keeps us stuck?
+  tree: conflict
+  pages:
+  - kicker: Week four · the Evaporating Cloud
+    text: |-
+      Harrowfield has tried to fix this three times. Each "discharge before noon" campaign pushed consultants to see the patients ready to leave first, and each faded within eight weeks as they drifted back to the sickest.
+
+      A fix that keeps fading isn't short of willpower. It is losing to something real. The Evaporating Cloud draws what: one shared objective, two true needs, and two actions that pull against each other.
+  beats:
+  - say: Open the Cloud.
+    button: {label: Open it, tree: conflict}
+    until: {tree: conflict}
+  - say: "Read down: the objective needs both needs, and each need requires an action. One consultant's morning
+      can't go first to the sickest and to the ready. Choose the right-hand action."
+    button: {label: Show me, select: Consultants round on the patients ready to leave first}
+    until: {selected: Consultants round on the patients ready to leave first}
+  - say: "Both needs are true, so neither side gives way. But assumption (3), under the boxes, is false: a
+      discharge can be decided the day before, on written criteria, and checked by a nurse."
+  closing:
+    title: Yesterday
+    koan: |-
+      The Infirmarian said, "If I go first to the sickest, the healed leave at dusk. If I go first to the healed, the sickest wait. Which shall I choose?"
+
+      The Abbot asked, "When did you know this man would be well?"
+
+      "Two days ago."
+
+      "Then why are you deciding it this morning?"
+    key: The conflict hid in an assumption about time. Move the decision, and it evaporates.
+    next: If we change this, will it work, and what could go wrong?
+
+- id: future-reality
+  title: If we change this, will it work, and what could go wrong?
+  tree: future_reality
+  pages:
+  - kicker: Week five · the Future Reality Tree
+    text: |-
+      On paper, deciding discharges a day early turns all ten problems around without a single new bed. On paper.
+
+      So you asked everyone what could go wrong, and found six ways. Each got a trim: a small extra change that stops it. One of the six would quietly undo everything.
+  beats:
+  - say: Open the Future Reality Tree.
+    button: {label: Open it, tree: future_reality}
+    until: {tree: future_reality}
+  - say: "Each change we make says what it leads to, benefits and harms together. Find \"Freed beds are
+      harvested as savings\", or press Show me."
+    button: {label: Show me, select: "Freed beds are harvested as savings: a ward closes and occupancy returns to
+        97%"}
+    until: {selected: "Freed beds are harvested as savings: a ward closes and occupancy returns to 97%"}
+  - say: "Finance sees empty beds at noon, closes a ward, and the hospital is full again. No one department can
+      see it coming, and it looks like prudence. Its trim: the board commits the freed beds first."
+  closing:
+    title: Empty at Noon
+    koan: |-
+      When the healed began leaving at dawn, mats lay empty at noon. The Tenzo said, "We have four mats too many. Let us sell them."
+
+      The Abbot took him to the gate. No one was waiting there.
+
+      "Which of the mats," the Abbot asked, "made this?"
+    key: The empty bed is the benefit. Harvest it, and the change undoes itself.
+    next: What stands in the way, and what comes first?
+
+- id: prerequisite
+  title: What stands in the way, and what comes first?
+  tree: prerequisite
+  pages:
+  - kicker: Week six · the Prerequisite Tree
+    text: |-
+      You asked every group the same question, "what will stop this working?", and wrote down every answer without arguing.
+
+      Ten objections came back: from finance, the wards, the medical director, the consultants, the nurses, the junior doctors, IT, pharmacy, the county and patient transport. Each names something that must exist first.
+  beats:
+  - say: Open the Prerequisite Tree.
+    button: {label: Open it, tree: prerequisite}
+    until: {tree: prerequisite}
+  - say: "Read the ladder from the bottom: what is lowest comes first. Under each step, the objection it
+      overcomes. Choose any objection and see whose words it is."
+    until: {selected: any}
+  - say: "Here an objection isn't resistance to manage. It's raw material: each one became a step. The order
+      comes from what leans on what: the board's decision and two volunteer wards first."
+  closing:
+    title: A Map
+    koan: |-
+      Every monk the novice consulted gave him a reason it could not be done. He returned to the Abbot downcast.
+
+      The Abbot said, "Excellent. You have come back with a map."
+    key: Objections aren't resistance. They are the map.
+    next: What exactly do we do next?
+
+- id: transition
+  title: What exactly do we do next?
+  tree: transition
+  pages:
+  - kicker: December · the Transition Tree
+    text: |-
+      The pilot is Ward 7: 28 respiratory beds, Dr Marsh's patients and Joy's nurses. Its aim is that at least 35% of patients go home before noon within eight weeks, with no rise in readmissions.
+
+      Ten small steps. Each says why it must change, what we'll do, and what we expect to see, in a way someone else could check.
+  beats:
+  - say: Open the Transition Tree.
+    button: {label: Open it, tree: transition}
+    until: {tree: transition}
+  - say: Find step 7, "Medicines, letters, transport and family must be ready before morning", or press Show me.
+    button: {label: Show me, select: "Medicines, letters, transport and family must be ready before morning"}
+    until: {selected: "Medicines, letters, transport and family must be ready before morning"}
+  - say: "Met by what we expect to see: full kits by 08:00 for 80% of next-day discharges. Produced by the
+      registrar's list at 15:00. What we expect to see is a forecast, and on Monday you test it."
+  closing:
+    title: What I Will See
+    koan: |-
+      The novice said, "Tomorrow I will speak with the Infirmarian."
+
+      The Abbot said, "And when you have spoken, what will I be able to see?"
+    key: Every action needs an effect someone else can see.
+    next: Monday, the first loop.
+
+- id: monday
+  title: Your first loop
+  clock: monday
+  pages:
+  - kicker: Monday, 12 January
+    text: |-
+      The trees say what might work. The loop finds out: one small change, a forecast written before anything happens, what actually happens, and an honest look at the difference.
+
+      You'll test step 7 on Ward 7. The guide asks one question at a time: answer as Ruth, in your own words, or press Example answer for hers. Each reply proposes what to record, and nothing enters the goal until you accept it.
+  loop:
+    test_change: Take step 7 from the Transition Tree. Write it in your own words, or press Example answer; then
+      Ctrl+S sends it to the guide.
+    test_forecast: "The question that matters most: what do you expect to happen? Write it before anything
+      happens, with a number. It's saved as your original forecast and never changes."
+    test_review: When will you look at the result? The check is the 08:30 board round on the third morning.
+    test_stop: What would make you stop early? Something your safeguards care about.
+    action: "Last, the very next action and when. For real you'd now quit and go and do it; everything is saved.
+      Here, time skips ahead."
+    waiting: "The guide has put it together, marked proposed. Nothing enters the goal until you accept it: press
+      Accept all."
+    until: action
+    done: The test and its action are in the goal; look at the loop line. Ward 7 starts this afternoon.
+  closing:
+    title: By Thursday
+    koan: |-
+      The novice said, "My tree promises a clear gate by spring."
+
+      The Abbot said, "What does it promise by Thursday?"
+    key: A forecast worth writing is one you can check soon.
+    next: Thursday morning.
+
+- id: day-three
+  title: Day three
+  clock: day-three
+  requires: action
+  pages:
+  - kicker: Thursday, 15 January
+    text: |-
+      08:30, the board round on Ward 7. Pharmacy has had the list by 16:00 every day, just as planned.
+
+      But only 4 of the 11 patients going home have their medicines ready. For the other 7, no doctor had written the take-home prescriptions. Pharmacy can't dispense what nobody has prescribed.
+
+      On the ward, people are already saying it: "Pharmacy is slow."
+  loop:
+    observe: Report what actually happened, apart from what you hoped. Example answer has Ruth's words.
+    review: "Here is what the loop is for: your original forecast, word for word, beside what happened. Was
+      pharmacy slow, or was the step missing something? Keep, adjust or drop?"
+    waiting: Proposed. Press Accept all to record it.
+    until: review
+    done: "Recorded: you adjusted the test, and step 7a is in the goal's words. Next ▶ takes you to where the
+      forecast and the result now sit side by side for good."
+  beats:
+  - say: Open Tests. Each test reads as a sealed prediction, its forecast saved first, then what was reported.
+    button: {label: Open Tests, view: tests}
+    until: {view: tests}
+  - say: "On day five, with step 7a, the check passed. Without a forecast written first, Thursday would have
+      looked like \"pharmacy being slow\", and the old story would have come back."
+  closing:
+    title: The Herbalist
+    koan: |-
+      On the third morning the herbs for the departing travellers were not ready, and the monks said, "The herbalist is slow."
+
+      The Abbot asked the novice, "Yesterday, what did you say would happen?"
+
+      "If the herbalist had the list by evening, then the herbs would be ready at dawn."
+
+      "Then it is not the herbalist who failed. It is your 'then'."
+    key: A missed forecast points at your reasoning, not at a person.
+    next: Twelve weeks later.
+
+- id: epilogue
+  title: Twelve weeks later
+  pages:
+  - kicker: April
+    heading: Twelve weeks later
+    text: |-
+      On the two pilot wards, discharges before noon rose from 11% to 38%. The wait for a bed in their specialties fell from 9 hours to 3.5, patients on the wrong ward from 9 a day to 2, and readmissions stayed within last year's range.
+
+      In week ten a finance paper proposed closing eight beds on Ward 12, "empty at noon". The board's December commitment stopped it, and Graham asked for the occupancy line in the board report to be replaced by waiting bed-days. The new ward is deferred.
+
+      The trouble hasn't gone; it has moved. The county has two assessors for the whole district. Ruth's next step isn't a new plan. It's the Goal Tree again, with the county at the table.
+  - kicker: At the pass
+    heading: Down the Mountain
+    koan: |-
+      By spring the gate was clear. Now the healed waited on their mats for the villagers below, who climbed the pass only twice a week to fetch them home.
+
+      The novice ran to the Abbot: "Master, the trouble has moved down the mountain!"
+
+      The Abbot said, "Good. Go down and ask the villagers what they are for."
+    choices:
+    - [own, Start my own goal, the guide asks what would count as better]
+    - [commons, Explore a real commons, "the Second Renaissance's reasoning, step by step"]
+    - [home, Back to start, ""]

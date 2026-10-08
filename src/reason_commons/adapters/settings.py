@@ -38,6 +38,15 @@ def settings_path():
     return Path(base) / "reason-commons" / "settings.yaml"
 
 
+def state_folder(environ=None):
+    """Where Reason Commons keeps what it remembers for you that is not a choice: ``$XDG_STATE_HOME/reason-commons``
+    (default ``~/.local/state/reason-commons``). Outside every goal, like the settings."""
+    environ = os.environ if environ is None else environ
+    state = environ.get("XDG_STATE_HOME") or ""
+    base = Path(state) if os.path.isabs(state) else Path(os.path.expanduser("~/.local/state"))
+    return base / "reason-commons"
+
+
 def _get(data, keys):
     for key in keys:
         if not isinstance(data, dict):

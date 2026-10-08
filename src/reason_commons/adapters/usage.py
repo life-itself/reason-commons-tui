@@ -22,6 +22,7 @@ import threading
 import uuid
 
 from reason_commons.adapters import pricing
+from reason_commons.adapters.settings import state_folder
 
 VERSION = 1
 LOG_VARIABLE = "REASON_COMMONS_USAGE_LOG"
@@ -43,9 +44,7 @@ def log_path(environ=os.environ):
         return None
     if value:
         return Path(os.path.expanduser(value))
-    state = environ.get("XDG_STATE_HOME") or ""
-    base = Path(state) if os.path.isabs(state) else Path(os.path.expanduser("~/.local/state"))
-    return base / "reason-commons" / "usage.jsonl"
+    return state_folder(environ) / "usage.jsonl"
 
 
 def parse_budget(value):
