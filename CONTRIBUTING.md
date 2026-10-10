@@ -41,6 +41,15 @@ built-in guide and fixed dates. After changing what the workspace shows, run
 `python3 scripts/render_screenshots.py` (PNG copies need Chromium and Pillow) and
 commit `docs/images/`. `docs/images/loop.svg` is drawn by hand.
 
+Every executed step of the specification and conversation features also has a
+picture, one per step, named by feature, scenario and step. Run
+`python3 scripts/capture_steps.py` to regenerate `docs/screenshots/`; each run
+replaces that folder. Its `MANIFEST.json` records where each picture came from (the
+live workspace, a fresh workspace on a copy of the case, or the accessible
+presentation's text) and lists the steps that have no step definition yet. The folder
+is git-ignored, since it is about 100 MB of generated pictures; regenerate it rather
+than commit it.
+
 ## Engine, utilities and agents
 
 The [architecture](ARCHITECTURE.md) explains the domain/application/adapter
