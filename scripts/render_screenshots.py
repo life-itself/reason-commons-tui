@@ -410,6 +410,8 @@ async def first_start(folder):
         await pilot.pause(0.2)
 
     async def to_consultant(app, pilot):
+        await pilot.press('f1')
+        await pilot.pause()
         await answer(app, pilot, key="setup")
         await answer(app, pilot, "Mira")
 

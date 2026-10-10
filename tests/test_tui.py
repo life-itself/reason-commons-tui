@@ -285,7 +285,9 @@ def test_goals_home_offers_the_example(tmp_path):
     async def run():
         app = GoalsApp(tmp_path)
         async with app.run_test(size=(80, 24)) as pilot:
-            goals = app.query_one("#goals")
+            await pilot.press("f1")
+            await pilot.pause()
+            goals = app.screen.query_one("#choices")
             goals.highlighted = goals.get_option_index("sample")
             await pilot.press("enter")
             await pilot.pause()
@@ -1700,7 +1702,7 @@ def test_the_budget_row_sets_and_clears_the_monthly_budget_and_keeps_it(tmp_path
             rows = app.screen.query_one("#settings-rows")
             ids = [option.id for option in rows.options]
             assert "none set" in str(rows.get_option("budget").prompt)
-            await pilot.press("down", "down", "enter")
+            await pilot.press(*(['down'] * ids.index('budget')), 'enter')
             await pilot.pause()
             await type_into(app, pilot, "$5.50")
             row = str(app.screen.query_one("#settings-rows").get_option("budget").prompt)
@@ -1716,7 +1718,7 @@ def test_the_budget_row_sets_and_clears_the_monthly_budget_and_keeps_it(tmp_path
             cleared = str(app.screen.query_one("#settings-rows").get_option("budget").prompt)
             return ids, row, saved, unreadable, cleared, Settings.load(settings.path).get("usage", "monthly_budget_usd")
     ids, row, saved, unreadable, cleared, after = asyncio.run(run())
-    assert ids == ["voice", "mode", "budget"]
+    assert ids == ["voice", "mode", "acceptance", "budget"]
     assert "$5.50 a month · ≈ $0.0017 so far" in row and saved == ("5.5", "5.5") and unreadable == "5.5"
     assert "none set" in cleared and after is None
 

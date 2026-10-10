@@ -1,0 +1,559 @@
+{
+  "project": "Reason Commons",
+  "protocol": "RC v1, recorded as entries №51–59",
+  "state": "Imported and verified. One recommendation pending (№64).",
+  "date": "2026-10-10",
+  "staging": "This file depicts the state the brief asks for. The builders' protocol entries (№51–59) and B1's verification and report (№62–63) were written to depict that state; they stand for the builders' own acts until the builders confirm or replace them.",
+  "authors": {
+    "B1": {"role": "Human expert in A1. Developing RC ('my intention is to develop a system'), so one of the builders.", "ai": false},
+    "BLD": {"role": "The builders of RC, collectively. Authors of A2 and of the protocol.", "ai": false},
+    "SQ": {"role": "AI questioner in A1, instructed to ask the questions that lead its counterpart to insights (A1 · T0).", "ai": true},
+    "RCA": {"role": "RC's assistant: wrote this import and makes recommendations.", "ai": true}
+  },
+  "sources": [
+    {
+      "id": "A1",
+      "title": "Socratic dialogue on Reason Commons",
+      "who": "B1 (human expert) and SQ (AI questioner)",
+      "note": "this conversation contains important insights meant to guide the development of a system called Reason Commons.  It is between an AI assistant and a human expert.",
+      "turns": [
+        {
+          "t": "T0",
+          "by": "instructions to SQ (author not stated)",
+          "text": "You are a socratic idea machine that deeply considers what you are told, then asks the perfect question or questions to lead your counterparts to more thoroughly consider their positions, their goals, the implications thereof, and so on.  You may pepper your questions with concise commentary, but it is always for the purpose of your counterparts being given a chance to come to develop essential insights."
+        },
+        {
+          "t": "T1",
+          "by": "SQ",
+          "text": "What belief, decision, or goal would you like to examine—and what makes it important to you now?",
+          "after": "Worked for 20s"
+        },
+        {
+          "t": "T2",
+          "by": "B1",
+          "text": "my intention is to develop a system that makes the theory of constraints easy to benefit from - such that a person, organization, or any agent or group thereof would be able to benefit from the theoretical insights a highly capable TOC consultant might be able to offer them - without hiring the consultant."
+        },
+        {
+          "t": "T3",
+          "by": "SQ",
+          "text": "Imagine one concrete person or organization benefiting from your system.\n\nWhat changes in their actual situation—and what would a highly capable TOC consultant have helped them see, decide, or do to make that change possible?"
+        },
+        {
+          "t": "T4",
+          "by": "B1",
+          "text": "what changes in their situation is that they are equipped to move in a direction that enables them to accomplish their goal more effectively.  the toc consultant would have helped them develop this insights by helping them understand that there are certain actions they could do that would be disproportionately helpful.  most who have complex goals to achieve do not have an adequate means of discovering what actions most address the bottleneck preventing progress."
+        },
+        {
+          "t": "T5",
+          "by": "SQ",
+          "text": "You’re locating the value in discovering where effort will make the greatest difference.\n\nSuppose someone already understands the basic TOC ideas but still cannot identify what to change in their own situation. What are they missing—and what does a capable consultant do to supply it?",
+          "after": "Worked for 55s"
+        },
+        {
+          "t": "T6",
+          "by": "B1",
+          "text": "understanding TOC is one thing, but applying it to a given situation is often complicated work that is contextual and unique to a situation.  it requires patience, discipline, and creativity.  typically, those who have goals to achieve are in live situations that make these qualities difficult to invoke.  in the real world, doing anything nontrivial with others to accomplish a goal can be stressful, conflict-prone, and confusing.  so the physiological state the goal seeker is in often seems to preclude them from thinking in a structured way as the TOC would have it.\n\nfurthermore, there is work that goes into analyzing and communicating the rationale for following a TOC based strategy.  the burden is placed, typically, on the very person or persons who are already burdened.  it's as if they are being asked, 'step what you are doing and draw this current reality tree'.  but in their opinion, what they are doing is essential - so the CRT must not be.\n\nthe capable consultant would help the goal seeker continue working on what matters to them, but help them come to insights about ways of approaching their work that could be better and get at what matters more effectively."
+        },
+        {
+          "t": "T7",
+          "by": "SQ",
+          "text": "A possible division of labor is emerging: the system carries much of the analysis and explanation; the goal seeker contributes knowledge of their situation and judgment.\n\nWhat must the goal seeker contribute that the system cannot supply for them—and how could eliciting that contribution itself help with the work already demanding their attention?"
+        },
+        {
+          "t": "T8",
+          "by": "B1",
+          "text": "the goal seeker, more than anything, make value judgments.  they know what matters, which goals are worth pursuing.  this materializes as the drive that leads them to use the system, prioritize certain work over other work, and so on.\n\neliciting the contribution should help the goal seeker arrive at insights that make their actions more aligned with their goals.\n\nfor example, in the novel the goal by goldratt, the consultant jonah mostly asked alex the factory manager a series of questions, and the latter was able to adjust his actions in order to improve the factory.  jonah put little to no effort to convincing alex to change the way he was working - he knew alex needed to arrive at these insights himself, and he gave alex the information that would help him do so."
+        },
+        {
+          "t": "T9",
+          "by": "SQ",
+          "text": "That suggests a distinction: the goal seeker judges what is worth pursuing; the system helps them investigate what will advance it.\n\nWhat understanding of the situation must the system develop to choose a useful next question—and what could the goal seeker say that would make the system revise that understanding?",
+          "after": "Worked for 1m 16s"
+        },
+        {
+          "t": "T10",
+          "by": "B1",
+          "text": "the system must develop an understanding of the goal seeker's world to some degree: a causal model of how things work, which actions might influence which outcomes, and so on.  but this presupposes a goal: a causal view of the world is useful insofar as certain outcomes are preferred.\n\nthe goal seeker has the most direct connection to this real world.  they can supply the knowledge that would invalidate the causal model that the system has developed in order to help them.  for example, the consulting system may propose some intervention and predict it will have a certain impact.  reality may contradict the model.  this would require a new version of the model."
+        },
+        {
+          "t": "T11",
+          "by": "SQ",
+          "text": "That gives the system a learning loop: the goal directs the causal model; the model supports an action and a prediction; observed outcomes inform revisions.\n\nWhat would tell the system that it understands enough to suggest a useful next action—and that another question would add less value than it costs the goal seeker?",
+          "after": "Worked for 1m 2s"
+        },
+        {
+          "t": "T12",
+          "by": "B1",
+          "text": "If I could give you a simple answer to these questions I would - but this is really the most difficult question to answer about this whole system so I will try to reason through it with the disclaimer that I may need to revisit and revise certain aspects of this answer throughout the course of our conversation.\n\nrecognizing this, it is important to realize we cannot give the deepest, most correct answer, off the bat, so we should try to approach such an answer by giving signs that a system might be able to recognize a useful next action - perhaps we will recognize some common characteristic from these signs.\n\nmost straightforwardly, one helpful next action might be an action that unambiguously moves throughput along.  for example, the goal seeker is one step from the finish line, and the next step is trivial to recommend.\n\nanother helpful action might be one that is taken, the outcome of which is uncertain, but the information gained from observing the action can be valuable for better understanding how to make progress.  for example, do X and you will understand if Y is your constraint.\n\nstill yet, there are actions that do not appear to be actions at all in one sense, because they consist mainly in reasoning, but actually are actions in the sense that they take time, resources, and so on, and doing them or not doing them impacts the bottom line/success.  for example, decide whether A causes B or B causes A.  Propose a need that a certain want is driven by.  And so on.\n\nThis last paragraph is quite important and subtle.  For a system as complex as the one we've been discussing, it is easy to forget that the system (we shall call it Reason Commons) is part of the system it models.\n\nFor example, suppose Alex from the Goal had access to Reason Commons.  The object of his analysis wouldn't be the factory.  It would be the factory with Reason Commons included.\n\nIain McGilchrist requently uses the metaphor of a painter who forgets to include himself in his own picture to describe the fatal flaw of modern Western scientific materialism.  As we design this system, we must avoid this error.\n\nThe practical consequences of not avoiding it are as follows:\n\nimagine that two decision makers in a system use reason commons to aid their understanding.  they are quite ambitious and curious, and generate large amounts of models, many hypotheses, and so on, on their quest to find the most useful next action to recommend for their system.\n\nLet's say the system is a hospital and throughput is patients satisfactorily cared for while the hospital stays solvent, workers are satisfied, etc.  Inventory may be patients waiting to be seen in the waiting room, for example.  Operating expenses includes salaries and so on.\n\nBut wait - operating expenses unequivocally ought to include the cost of reason commons!  Suppose it's an AI system and it consumes a huge amount of tokens - so the cost is by no means negligible.\n\nSuppose the modelers are in fact influential doctors or directors in the hospital. By racking up so much time in Reason Commons, they are doing less of what they'd typically do.  Justified?  Perhaps - but we can't know this unless we include RC in our assessment.\n\nIn their use of RC, the large amount of content (generated trees, hypotheses to consider, and so on) is a type of inventory.  If inventory is kept very small, it will interfere with their work minimally; if it is not recognized that RC itself is part of the system, then it may be overlooked as a source of inventory.\n\nThroughput for RC as a subsystem, simply speaking, may be recommendations of next actions that are the most impactful for progressing towards the goal.  But examined more closely, a definition of throughput should also include whether or not the recommendations are acted on; the users may wish to do what is recommended but not understand it due to ineffective UX - or there may be other explanations as to why the RC subsystem surfaces the correct actions to take but nonetheless doesn't increase throughput."
+        }
+      ]
+    },
+    {
+      "id": "A2",
+      "title": "Builders' brief",
+      "who": "The builders (BLD)",
+      "paragraphs": [
+        {
+          "p": "¶1",
+          "text": "imagine that the reason commons system itself is fully explicated such that records could be made by hand using said system."
+        },
+        {
+          "p": "¶2",
+          "text": "after using the record system by hand for a while, it is realized that the reason commons system is quite tedious to implement without the help of a special interface that helps users along.  it's almost like running a blockchain network where the calculations are done manually - or actually using homing pigeons to operate and internet network."
+        },
+        {
+          "p": "¶3",
+          "text": "therefore, the builders of reason commons decide to create an app that will enable them to continue making progress on all of their various projects (the foremost among which is Reason Commons itself)."
+        },
+        {
+          "p": "¶4",
+          "text": "This system must be the ultimate dogfood machine, as has already been discussed.  The must be able to use the Reason Commons interface they build in order to further Reason Commons (they'd already proved they could do this using the manual entry system)"
+        },
+        {
+          "p": "¶5",
+          "text": "One thing they determine quite early is that AI will be a highly valuable asset in this; they have many recorded artifacts that contain the necessary information to document the work that has been done so far - but they certainly wouldn't want to manually input it all into a system."
+        },
+        {
+          "p": "¶6",
+          "text": "Based on what I've described, there is a narrow range of acceptable systems that could satisfy these requirements, given that the system must be minimal."
+        }
+      ]
+    }
+  ],
+  "entries": [
+    {"n": 1, "kind": "ASK", "by": "SQ", "src": "A1 · T1",
+     "text": "What belief, decision, or goal would you like to examine, and what makes it important to you now?",
+     "quote": "What belief, decision, or goal would you like to examine—and what makes it important to you now?"},
+
+    {"n": 2, "kind": "VALUE", "by": "B1", "src": "A1 · T2", "tag": "root goal",
+     "text": "Make the theory of constraints easy to benefit from, so that a person, an organization, or any agent or group of them can benefit from the insights a highly capable TOC consultant might offer, without hiring the consultant.",
+     "quote": "a system that makes the theory of constraints easy to benefit from",
+     "refs": [["answers", 1]]},
+
+    {"n": 3, "kind": "ASK", "by": "SQ", "src": "A1 · T3",
+     "text": "Picture one concrete person or organization benefiting from the system. What changes in their actual situation, and what would a highly capable TOC consultant have helped them see, decide, or do to make that change possible?",
+     "quote": "Imagine one concrete person or organization benefiting from your system."},
+
+    {"n": 4, "kind": "CLAIM", "by": "B1", "src": "A1 · T4", "basis": "stated",
+     "text": "What changes is that the seeker is equipped to move in a direction that lets them accomplish their goal more effectively.",
+     "quote": "they are equipped to move in a direction that enables them to accomplish their goal more effectively",
+     "refs": [["answers", 3]]},
+
+    {"n": 5, "kind": "CLAIM", "by": "B1", "src": "A1 · T4", "basis": "stated",
+     "text": "The consultant's contribution is helping the seeker see that certain actions open to them would be disproportionately helpful.",
+     "quote": "certain actions they could do that would be disproportionately helpful",
+     "refs": [["answers", 3]]},
+
+    {"n": 6, "kind": "CLAIM", "by": "B1", "src": "A1 · T4", "basis": "stated",
+     "text": "Most people with complex goals have no adequate means of discovering which actions most address the bottleneck preventing progress.",
+     "quote": "do not have an adequate means of discovering what actions most address the bottleneck preventing progress",
+     "refs": [["answers", 3]]},
+
+    {"n": 7, "kind": "CLAIM", "by": "SQ", "src": "A1 · T5", "basis": "restated",
+     "text": "The value lies in discovering where effort will make the greatest difference.",
+     "quote": "You’re locating the value in discovering where effort will make the greatest difference.",
+     "refs": [["because", 5], ["because", 6]]},
+
+    {"n": 8, "kind": "ASK", "by": "SQ", "src": "A1 · T5",
+     "text": "Suppose someone already understands the basic TOC ideas but still can't identify what to change in their own situation. What are they missing, and what does a capable consultant do to supply it?",
+     "quote": "What are they missing—and what does a capable consultant do to supply it?"},
+
+    {"n": 9, "kind": "CLAIM", "by": "B1", "src": "A1 · T6", "basis": "stated",
+     "text": "Understanding TOC is one thing; applying it to a given situation is complicated work, contextual and unique to that situation, and it takes patience, discipline, and creativity.",
+     "quote": "applying it to a given situation is often complicated work that is contextual and unique to a situation",
+     "refs": [["answers", 8]]},
+
+    {"n": 10, "kind": "CLAIM", "by": "B1", "src": "A1 · T6", "basis": "stated",
+     "text": "Goal seekers work in live situations that are stressful, conflict-prone, and confusing. The physiological state this produces often seems to preclude the structured thinking TOC asks for.",
+     "quote": "the physiological state the goal seeker is in often seems to preclude them from thinking in a structured way",
+     "refs": [["answers", 8]]},
+
+    {"n": 11, "kind": "CLAIM", "by": "B1", "src": "A1 · T6", "basis": "stated",
+     "text": "The work of analyzing a TOC strategy and communicating its rationale typically falls on the people who are already burdened.",
+     "quote": "the burden is placed, typically, on the very person or persons who are already burdened",
+     "refs": [["answers", 8]]},
+
+    {"n": 12, "kind": "CLAIM", "by": "B1", "src": "A1 · T6", "basis": "stated",
+     "text": "It's as if they are told to stop what they're doing and draw a current reality tree. In their view what they're doing is essential, so the tree must not be.",
+     "quote": "but in their opinion, what they are doing is essential - so the CRT must not be",
+     "refs": [["because", 11]]},
+
+    {"n": 13, "kind": "CLAIM", "by": "B1", "src": "A1 · T6", "basis": "stated",
+     "text": "A capable consultant helps the seeker keep working on what matters to them while helping them reach insights about better ways to approach that work.",
+     "quote": "the capable consultant would help the goal seeker continue working on what matters to them",
+     "refs": [["answers", 8]]},
+
+    {"n": 14, "kind": "CLAIM", "by": "SQ", "src": "A1 · T7", "basis": "restated",
+     "text": "A possible division of labor is emerging: the system carries much of the analysis and explanation; the seeker contributes knowledge of their situation and judgment.",
+     "quote": "A possible division of labor is emerging: the system carries much of the analysis and explanation; the goal seeker contributes knowledge of their situation and judgment.",
+     "refs": [["because", 11], ["because", 13]]},
+
+    {"n": 15, "kind": "ASK", "by": "SQ", "src": "A1 · T7",
+     "text": "What must the seeker contribute that the system can't supply for them, and how could eliciting that contribution itself help with the work already demanding their attention?",
+     "quote": "how could eliciting that contribution itself help with the work already demanding their attention?"},
+
+    {"n": 16, "kind": "CLAIM", "by": "B1", "src": "A1 · T8", "basis": "stated",
+     "text": "Above all, the seeker makes value judgments: they know what matters and which goals are worth pursuing. This shows up as the drive that brings them to the system and in how they prioritize some work over other work.",
+     "quote": "the goal seeker, more than anything, make value judgments",
+     "refs": [["answers", 15]]},
+
+    {"n": 17, "kind": "VALUE", "by": "B1", "src": "A1 · T8", "tag": "design condition",
+     "text": "Eliciting the seeker's contribution should itself help them reach insights that bring their actions into line with their goals.",
+     "quote": "eliciting the contribution should help the goal seeker arrive at insights that make their actions more aligned with their goals",
+     "refs": [["answers", 15]]},
+
+    {"n": 18, "kind": "CLAIM", "by": "B1", "src": "A1 · T8", "basis": "analogy",
+     "text": "In Goldratt's novel The Goal, the consultant Jonah mostly asks the factory manager Alex questions, and Alex adjusts his actions to improve the factory. Jonah puts little to no effort into convincing him.",
+     "quote": "jonah put little to no effort to convincing alex to change the way he was working",
+     "refs": [["about", 17]]},
+
+    {"n": 19, "kind": "CLAIM", "by": "B1", "src": "A1 · T8", "basis": "stated",
+     "text": "The seeker has to arrive at the insights themselves; the consultant's part is to give them the information that helps them do so.",
+     "quote": "he knew alex needed to arrive at these insights himself, and he gave alex the information that would help him do so",
+     "refs": [["because", 18]]},
+
+    {"n": 20, "kind": "CLAIM", "by": "SQ", "src": "A1 · T9", "basis": "restated",
+     "text": "The seeker judges what is worth pursuing; the system helps them investigate what will advance it.",
+     "quote": "the goal seeker judges what is worth pursuing; the system helps them investigate what will advance it",
+     "refs": [["because", 16]]},
+
+    {"n": 21, "kind": "ASK", "by": "SQ", "src": "A1 · T9",
+     "text": "What understanding of the situation must the system develop to choose a useful next question, and what could the seeker say that would make the system revise that understanding?",
+     "quote": "What understanding of the situation must the system develop to choose a useful next question"},
+
+    {"n": 22, "kind": "CLAIM", "by": "B1", "src": "A1 · T10", "basis": "stated",
+     "text": "The system must develop some understanding of the seeker's world: a causal model of how things work and which actions might influence which outcomes.",
+     "quote": "a causal model of how things work, which actions might influence which outcomes",
+     "refs": [["answers", 21]]},
+
+    {"n": 23, "kind": "CLAIM", "by": "B1", "src": "A1 · T10", "basis": "stated",
+     "text": "A causal model presupposes a goal: a causal view of the world is useful insofar as certain outcomes are preferred.",
+     "quote": "a causal view of the world is useful insofar as certain outcomes are preferred",
+     "refs": [["answers", 21], ["refines", 22]]},
+
+    {"n": 24, "kind": "CLAIM", "by": "B1", "src": "A1 · T10", "basis": "stated",
+     "text": "The seeker has the most direct connection to the real world, so they can supply the knowledge that would invalidate the system's causal model.",
+     "quote": "they can supply the knowledge that would invalidate the causal model",
+     "refs": [["answers", 21]]},
+
+    {"n": 25, "kind": "CLAIM", "by": "B1", "src": "A1 · T10", "basis": "stated",
+     "text": "The system may propose an intervention and predict its impact. Reality may contradict the prediction, and that requires a new version of the model.",
+     "quote": "reality may contradict the model.  this would require a new version of the model",
+     "refs": [["answers", 21], ["because", 24]]},
+
+    {"n": 26, "kind": "CLAIM", "by": "SQ", "src": "A1 · T11", "basis": "restated",
+     "text": "A learning loop: the goal directs the causal model; the model supports an action and a prediction; observed outcomes inform revisions.",
+     "quote": "the goal directs the causal model; the model supports an action and a prediction; observed outcomes inform revisions",
+     "refs": [["because", 23], ["because", 25]]},
+
+    {"n": 27, "kind": "ASK", "by": "SQ", "src": "A1 · T11", "tag": "frontier",
+     "text": "What would tell the system that it understands enough to suggest a useful next action, and that another question would add less value than it costs the seeker?",
+     "quote": "that another question would add less value than it costs the goal seeker?"},
+
+    {"n": 28, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "basis": "stated",
+     "text": "№27 is the most difficult question about the whole system. Any answer given now is provisional and may be revised.",
+     "quote": "this is really the most difficult question to answer about this whole system",
+     "refs": [["about", 27]]},
+
+    {"n": 29, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "tag": "method", "basis": "stated",
+     "text": "Since the deepest answer can't be given at once, approach №27 through signs that a system might recognize a useful next action, and look for what the signs have in common.",
+     "quote": "approach such an answer by giving signs that a system might be able to recognize a useful next action",
+     "refs": [["about", 27]]},
+
+    {"n": 30, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "tag": "sign a", "basis": "stated",
+     "text": "A useful next action may simply move throughput along unambiguously. Example: the seeker is one step from the finish line and the step is trivial to recommend.",
+     "quote": "an action that unambiguously moves throughput along",
+     "refs": [["answers", 27]]},
+
+    {"n": 31, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "tag": "sign b", "basis": "stated",
+     "text": "A useful next action may have an uncertain outcome whose observation helps in understanding how to make progress. Example: do X and you will understand whether Y is your constraint.",
+     "quote": "do X and you will understand if Y is your constraint",
+     "refs": [["answers", 27]]},
+
+    {"n": 32, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "tag": "sign c", "basis": "stated",
+     "text": "Some actions consist mainly in reasoning, yet they are actions: they take time and resources, and doing them or not affects the bottom line. Examples: decide whether A causes B or B causes A; propose the need that drives a want.",
+     "quote": "they take time, resources, and so on, and doing them or not doing them impacts the bottom line",
+     "refs": [["answers", 27]]},
+
+    {"n": 33, "kind": "ASK", "by": "B1", "src": "A1 · T12",
+     "text": "What common characteristic do the three signs (№30–32) share?",
+     "quote": "perhaps we will recognize some common characteristic from these signs",
+     "note": "Implied in B1's sentence; written out as a question at import.",
+     "refs": [["about", 29]]},
+
+    {"n": 34, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "tag": "design principle", "basis": "stated",
+     "text": "RC is part of the system it models. If Alex had RC, the object of his analysis would be the factory with RC included. Leaving RC out is the error of McGilchrist's painter who forgets to include himself in his own picture, and the design must avoid it.",
+     "quote": "it is easy to forget that the system (we shall call it Reason Commons) is part of the system it models",
+     "refs": [["because", 32]]},
+
+    {"n": 35, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "basis": "hypothetical",
+     "text": "Hospital example. Throughput: patients satisfactorily cared for while the hospital stays solvent and its workers satisfied. Inventory: for example, patients waiting to be seen. Operating expense: salaries and the like. Two ambitious, curious decision makers use RC heavily, generating many models and hypotheses.",
+     "quote": "Let's say the system is a hospital and throughput is patients satisfactorily cared for",
+     "refs": [["about", 34]]},
+
+    {"n": 36, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "basis": "stated",
+     "text": "Operating expense must include RC's own cost. If RC is an AI system consuming a huge number of tokens, that cost is by no means negligible.",
+     "quote": "operating expenses unequivocally ought to include the cost of reason commons!",
+     "refs": [["because", 34], ["about", 35]]},
+
+    {"n": 37, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "basis": "stated",
+     "text": "If the modelers are influential doctors or directors, time they spend in RC is time not spent on what they would usually do. Whether that is justified can't be known unless RC is included in the assessment.",
+     "quote": "we can't know this unless we include RC in our assessment",
+     "refs": [["because", 34], ["about", 35]]},
+
+    {"n": 38, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "basis": "stated",
+     "text": "What RC generates (trees, hypotheses to consider, and so on) is inventory. Kept very small, it interferes with the work minimally. If RC isn't recognized as part of the system, it may be overlooked as a source of inventory.",
+     "quote": "the large amount of content (generated trees, hypotheses to consider, and so on) is a type of inventory",
+     "refs": [["because", 34]]},
+
+    {"n": 39, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "basis": "stated",
+     "text": "Simply put, RC's throughput is recommendations of the next actions most impactful for progress toward the goal. Examined more closely, it should include whether the recommendations are acted on.",
+     "quote": "a definition of throughput should also include whether or not the recommendations are acted on",
+     "refs": [["because", 34]]},
+
+    {"n": 40, "kind": "CLAIM", "by": "B1", "src": "A1 · T12", "basis": "stated",
+     "text": "RC can surface the right action and still not raise throughput: users may want to do what is recommended but not understand it because of ineffective UX, or there may be other reasons.",
+     "quote": "the users may wish to do what is recommended but not understand it due to ineffective UX",
+     "refs": [["refines", 39]]},
+
+    {"n": 41, "kind": "REPORT", "by": "BLD", "src": "A2 · ¶1",
+     "text": "The RC record system is explicated fully enough that records can be made by hand.",
+     "quote": "fully explicated such that records could be made by hand using said system"},
+
+    {"n": 42, "kind": "REPORT", "by": "BLD", "src": "A2 · ¶2",
+     "text": "After using the record system by hand for a while, the builders found it quite tedious without an interface that helps users along: like running a blockchain network with the calculations done by hand, or an internet network on homing pigeons.",
+     "quote": "quite tedious to implement without the help of a special interface that helps users along"},
+
+    {"n": 43, "kind": "VALUE", "by": "BLD", "src": "A2 · ¶3",
+     "text": "Keep making progress on all of the builders' projects, Reason Commons foremost.",
+     "quote": "continue making progress on all of their various projects (the foremost among which is Reason Commons itself)",
+     "refs": [["serves", 2]]},
+
+    {"n": 44, "kind": "PROPOSE", "by": "BLD", "src": "A2 · ¶3",
+     "text": "Build an app that lets the builders keep making progress on their projects.",
+     "quote": "the builders of reason commons decide to create an app that will enable them to continue making progress",
+     "pred": "With the app, the builders keep making progress on all their projects (expectation stated in ¶3).",
+     "refs": [["serves", 43], ["because", 42]]},
+
+    {"n": 45, "kind": "VALUE", "by": "BLD", "src": "A2 · ¶4", "tag": "necessary condition",
+     "text": "The app must be the ultimate dogfood machine: the builders must be able to further RC by using the RC interface they build.",
+     "quote": "able to use the Reason Commons interface they build in order to further Reason Commons",
+     "refs": [["serves", 43]]},
+
+    {"n": 46, "kind": "REPORT", "by": "BLD", "src": "A2 · ¶4",
+     "text": "With the hand-kept records, the builders had already used RC to further RC itself.",
+     "quote": "they'd already proved they could do this using the manual entry system",
+     "refs": [["about", 45]]},
+
+    {"n": 47, "kind": "CLAIM", "by": "BLD", "src": "A2 · ¶5", "basis": "stated",
+     "text": "AI will be a highly valuable asset here: the builders' many recorded artifacts contain the information needed to document the work done so far.",
+     "quote": "they have many recorded artifacts that contain the necessary information to document the work that has been done so far"},
+
+    {"n": 48, "kind": "PROPOSE", "by": "BLD", "src": "A2 · ¶5",
+     "text": "Have AI document the work so far from the recorded artifacts instead of entering it all by hand.",
+     "quote": "they certainly wouldn't want to manually input it all into a system",
+     "pred": "The work so far ends up documented from the artifacts without being entered by hand (expectation stated in ¶5).",
+     "note": "The decision is implied by ¶5; this import carries it out.",
+     "refs": [["because", 47], ["serves", 45]]},
+
+    {"n": 49, "kind": "VALUE", "by": "BLD", "src": "A2 · ¶6", "tag": "necessary condition",
+     "text": "The system must be minimal.",
+     "quote": "given that the system must be minimal",
+     "refs": [["serves", 43]]},
+
+    {"n": 50, "kind": "CLAIM", "by": "BLD", "src": "A2 · ¶6", "basis": "stated",
+     "text": "Given these requirements and minimality, only a narrow range of systems is acceptable.",
+     "quote": "there is a narrow range of acceptable systems that could satisfy these requirements",
+     "refs": [["about", 49]]},
+
+    {"n": 51, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "Every act is one numbered entry, written in order and never changed. To change an entry, add one that revises it; the old one stays. Anything here could be kept on paper. These rules are entries too, so changing them is an act like any other.",
+     "refs": [["because", 41], ["because", 25], ["serves", 45], ["serves", 49]]},
+
+    {"n": 52, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "Entries are of six kinds. VALUE: a goal, or a condition someone sets on pursuing it. CLAIM: something someone holds true. ASK: a question. PROPOSE: an action someone means to take or has taken. REPORT: what happened. STANCE: someone's judgment of other entries. An entry links only to earlier entries, by type: answers, because, serves, about, refines, revises, outcome.",
+     "refs": [["because", 26], ["serves", 49]]},
+
+    {"n": 53, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "Only people write VALUE entries. The AI may ask about values but never states them.",
+     "refs": [["because", 16], ["because", 20]]},
+
+    {"n": 54, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "An entry taken from an artifact names its span and quotes it exactly, and the artifact is kept with the ledger. Each such entry is marked for what it is: stated, restated by an AI, analogy, hypothetical, or inferred. An import adds no claims of its own.",
+     "refs": [["because", 24], ["because", 38], ["about", 48]]},
+
+    {"n": 55, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "Before an action is taken, its PROPOSE records what it is expected to do, a budget, and when the outcome will be checked. An ASK may do the same, since questions are acts. The outcome is a REPORT. When an outcome contradicts a prediction, the claims behind it are revised by new entries.",
+     "refs": [["because", 25], ["because", 26], ["because", 32]]},
+
+    {"n": 56, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "A STANCE says what it judges and on what basis: fidelity (the entry says what its source said), agree (the judge holds it), or rely (the judge will act on it). Verifying an import is a fidelity judgment. Agreement is recorded when an action needs it, not before.",
+     "refs": [["because", 24], ["because", 38]]},
+
+    {"n": 57, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "RC counts its own costs. Every act in the app, questions included, records its AI and human cost in their own units, never summed across units. Unknown is null; an estimate says est. and gives its basis.",
+     "refs": [["because", 36], ["because", 37], ["because", 32]]},
+
+    {"n": 58, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "RC's inventory is its open questions and unfinished actions. The app shows one recommended next act, with its sign (№30–32), reason and cost, and keeps the rest one step away. RC writes no entry that nobody is expected to act on.",
+     "refs": [["because", 38], ["because", 34]]},
+
+    {"n": 59, "kind": "VALUE", "by": "BLD", "src": "app · protocol v1", "date": "2026-10-10", "tag": "protocol",
+     "text": "RC's throughput is its recommendations acted on and, more fully, those whose outcomes advanced the goal. A recommendation counts when a REPORT records that it was acted on. When one isn't acted on, RC looks first at itself: how it explained the recommendation and how the app presented it.",
+     "refs": [["because", 39], ["because", 40]]},
+
+    {"n": 60, "kind": "REPORT", "by": "RCA", "src": "app", "date": "2026-10-10", "tag": "import",
+     "text": "Import run. Read A1 (the Socratic dialogue: SQ's instructions and 12 turns) and A2 (the builders' brief, 6 paragraphs), and kept both in this file. Wrote №1–50 from them: 33 CLAIM, 7 ASK, 5 VALUE, 3 REPORT, 2 PROPOSE. Every entry names its span and quotes it exactly. Four entries are SQ's restatements (№7, 14, 20, 26). One question was implied by B1 and is written out (№33). The import adds no claims of its own. Cost of the prior work: the transcript's \"Worked for\" lines, taken as SQ's processing time on the turn each follows, cover four of SQ's six turns (20 s, 55 s, 1 min 16 s, 1 min 2 s; 3 min 33 s in all). No other cost of the dialogue was recorded.",
+     "cost": {"ai": "not metered; est. at least ≈7k tokens (sources read once plus entries written once, characters ÷ 4; reasoning not counted)", "human": null},
+     "refs": [["about", 48]]},
+
+    {"n": 61, "kind": "REPORT", "by": "RCA", "src": "app", "date": "2026-10-10", "tag": "coverage gaps",
+     "text": "What the import could not cover. (1) The hand-kept ledger pages from the manual period were not among the artifacts, so №41, 42 and 46 rest on the builders' summary of that period. (2) The brief says dogfooding was already discussed; that discussion was not supplied. (3) The brief mentions the builders' other projects (№43) but describes none, so none were imported. (4) The dialogue records no human time, and SQ's time on only four of its six turns. (5) Who wrote SQ's instructions (A1 · T0) is not stated.",
+     "cost": {"ai": "included in №60", "human": null},
+     "refs": [["about", 60]]},
+
+    {"n": 62, "kind": "STANCE", "by": "B1", "src": "app", "date": "2026-10-10", "tag": "verification",
+     "basis": "Each quote checked against the source kept in this file, and each entry's text read against its span. Restatements (№7, 14, 20, 26) checked as what SQ said, not as what B1 holds. №33 checked as a fair reading of B1's own sentence. Agreement is not judged here (№56).",
+     "text": "Fidelity confirmed for №1–50.",
+     "on": {"from": 1, "to": 50},
+     "judge": "fidelity",
+     "verdict": "confirm",
+     "cost": {"human": null, "note": "not timed: the app does not yet time human acts"},
+     "refs": [["about", 60]]},
+
+    {"n": 63, "kind": "REPORT", "by": "B1", "src": "app", "date": "2026-10-10",
+     "text": "Outcome of №48: the work so far is in the ledger (№1–50) and none of it was typed by hand; my part was review (№62). The prediction held. How long the review took is unknown, because the app does not yet time human acts.",
+     "cost": {"human": null},
+     "refs": [["outcome", 48], ["because", 62]]},
+
+    {"n": 64, "kind": "ASK", "by": "RCA", "to": "B1", "src": "app", "date": "2026-10-10", "tag": "recommended next",
+     "text": "Where is project RC's constraint right now: the one thing that most limits progress on RC through RC? Candidates from the ledger: (a) the app, still being built (№44), so what it can't yet do limits what RC can do; (b) evidence: no RC recommendation has yet been acted on and its outcome observed (№39), so nothing yet shows whether RC helps; (c) the stopping question: RC can't yet tell when another question costs more than it adds (№27), so heavy use risks the inventory №38 warns about; (d) something outside RC, such as the other projects (№43) or your time. Pick one or name another, and say why.",
+     "pred": {"text": "(b). What the app most needs (a) and when to stop asking (c) both show up in observed cycles, and there have been none. Confidence: moderate.", "shown": "after B1 answers, so it doesn't steer the answer (№19)"},
+     "budget": {"human": "10 min", "ai": "est. ≈12k tokens (rereading the ledger once to place the answer, characters ÷ 4)"},
+     "review": "When B1 answers, RCA records a REPORT comparing the answer with its sealed prediction. If they differ, B1's reason revises RCA's picture of the project (№24, №25). The chosen candidate's first step (views.next.then) becomes the next recommendation.",
+     "cost": {"ai": null, "human": null, "note": "recorded when answered"},
+     "refs": [["about", 27], ["about", 1], ["because", 16], ["because", 24], ["because", 38], ["because", 39]]}
+  ],
+  "views": {
+    "protocol": [
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59
+    ],
+    "questions": [
+      {
+        "n": 1,
+        "status": "partly",
+        "note": "The goal was given (№2). What makes it important now was not addressed."
+      },
+      {
+        "n": 3,
+        "status": "partly",
+        "note": "Answered in general terms (№4–6). No concrete case was named: the hospital (№35) is hypothetical and Alex (№18) fictional."
+      },
+      {
+        "n": 8,
+        "status": "answered",
+        "note": "№9–13."
+      },
+      {
+        "n": 15,
+        "status": "partly",
+        "note": "First half answered (№16). Second half stated as an aim (№17), with no mechanism yet."
+      },
+      {
+        "n": 21,
+        "status": "answered",
+        "note": "№22–25."
+      },
+      {
+        "n": 27,
+        "status": "open",
+        "note": "First half: three candidate signs (№30–32), offered provisionally (№28). Second half, when to stop asking: a cost side (№36–38) and no value side yet."
+      },
+      {
+        "n": 33,
+        "status": "open",
+        "note": "Implied by B1 in T12; written out at import."
+      },
+      {
+        "n": 64,
+        "status": "pending",
+        "note": "Awaiting B1. Recommended next."
+      }
+    ],
+    "actions": [
+      {
+        "n": 44,
+        "status": "in progress",
+        "note": "This ledger is the app's first state."
+      },
+      {
+        "n": 48,
+        "status": "done",
+        "note": "Outcome №63: prediction held."
+      }
+    ],
+    "inventory": {
+      "open questions": [
+        1,
+        3,
+        15,
+        27,
+        33,
+        64
+      ],
+      "unfinished actions": [
+        44
+      ],
+      "note": "Five open questions come from the dialogue. RC has added one (№64)."
+    },
+    "next": {
+      "n": 64,
+      "sign": "c · reasoning act (№32)",
+      "why": [
+        "Each candidate leads to a different next action costing hours to days; this question costs about 10 minutes. When a plausible answer changes what happens next, a question is worth its cost (№36–38). That is offered as a first, provisional answer to the open half of №27; dispute it if it's wrong.",
+        "Naming the constraint is a judgment about what matters now (№16, the open half of №1), and it draws on knowledge only you have (№24).",
+        "Nothing waits on it: whichever candidate you pick, its first step is below and ready."
+      ],
+      "cost": "About 10 minutes of your time; AI est. ≈12k tokens (rereading the ledger once to place the answer, characters ÷ 4)",
+      "then": {
+        "a": {
+          "sign": "a · direct (№30)",
+          "step": "Have the app time each human act. Every human cost field in this ledger is null, so №36–37 can't yet be judged for RC itself.",
+          "expect": "The next 10 human acts carry measured time that no one entered.",
+          "budget": "Half a day of build time",
+          "review": "After the 10th timed act"
+        },
+        "b": {
+          "sign": "b · information (№31)",
+          "step": "Run one full cycle on a live decision in RC's own development: take the next decision you face on the app, let RC recommend, record the prediction, act, and report.",
+          "expect": "One recommendation acted on and its outcome reported: RC's first throughput under №39 and the first concrete case №3 asked for.",
+          "budget": "2 hours of your time over 7 days; stop and review if exceeded",
+          "review": "In 7 days, or when the outcome is in"
+        },
+        "c": {
+          "sign": "c · reasoning (№32)",
+          "step": "Answer №33: what do the three signs share? Use the answer as RC's stopping test on its next three questions.",
+          "expect": "The test changes the ranking of at least one of those questions. If it changes none, it isn't useful yet.",
+          "budget": "30 minutes",
+          "review": "After RC's next three questions"
+        },
+        "d": {
+          "sign": "a · direct (№30)",
+          "step": "Name the other project and its goal as a VALUE; RC imports its artifacts next.",
+          "expect": "RC holds every project's goal, so time spent in RC can be weighed against them (№37).",
+          "budget": "15 minutes",
+          "review": "When the import is verified"
+        }
+      },
+      "rerank": "To skip this question, record a STANCE disputing №64 and say what to do instead; RC re-ranks."
+    }
+  }
+}

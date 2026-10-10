@@ -95,6 +95,9 @@ def test_a_saved_claude_model_stays_after_the_default_changes():
 async def pick(app, pilot, key):
     """Activate the option with this id in the current dialog."""
     await pilot.pause()
+    if key == 'setup' and app.screen is app.screen_stack[0]:
+        await pilot.press('f1')
+        await pilot.pause()
     choices = (app.screen.query("#choices") or app.screen.query("#goals")).first()
     choices.highlighted = next(i for i, option in enumerate(choices.options) if option.id == key)
     await pilot.press("enter")
@@ -116,10 +119,10 @@ def test_first_start_offers_the_ways_to_begin(tmp_path):
         async with app.run_test(size=(80, 24)) as pilot:
             await pilot.pause()
             ids = [option.id for option in app.query_one("#goals").options]
-            assert ids == ["start", "setup", "tour", "sample"]
+            assert ids == ["commons", "start"]
             assert app.query_one("#goals").highlighted == 0
-            app.query_one("#goals").highlighted = 2
-            await pilot.press("enter")
+            await pilot.press("f1")
+            await pick(app, pilot, "tour")
             await pilot.pause()
         return app.return_value
     assert asyncio.run(run()) == TOUR
@@ -132,7 +135,7 @@ def test_start_saves_defaults_and_goes_straight_to_naming_the_goal(tmp_path):
         app = GoalsApp(tmp_path / "goals", settings=settings)
         async with app.run_test(size=(80, 24)) as pilot:
             await pilot.pause()
-            await pilot.press("enter")  # the first option, highlighted
+            await pick(app, pilot, "start")  # optional guided new goal
             await pilot.pause()
             await type_in(app, pilot, "Sleep better")
         return app.return_value
@@ -237,7 +240,7 @@ def test_escape_leaves_setup_without_saving(tmp_path):
             await pilot.press("escape")
             await pilot.pause()
             return [option.id for option in app.query_one("#goals").options]
-    assert asyncio.run(run())[0] == "start"  # still the first-start choices
+    assert asyncio.run(run())[0] == "commons"  # still the first-start choices
     assert not (tmp_path / "settings.yaml").exists()
 
 
@@ -354,7 +357,7 @@ def test_the_workspace_settings_has_no_you_row(tmp_path):
             await pilot.press("f2")
             await pilot.pause()
             return [option.id for option in app.screen.query_one("#settings-rows").options]
-    assert asyncio.run(run()) == ["voice", "mode", "budget"]
+    assert asyncio.run(run()) == ["voice", "mode", "acceptance", "budget"]
 
 
 def test_you_in_settings_is_also_there_on_first_start_and_a_click_on_theme_changes_nothing(tmp_path, monkeypatch):

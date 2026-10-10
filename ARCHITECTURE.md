@@ -355,3 +355,27 @@ Unsupported structures are clearly labeled archival prose, rather than new
 executable fields or invented domain types. Explicit legacy supersession does
 not supply enough history to reconstruct original application revisions; future
 contributions append snapshots through the ordinary boundary.
+
+## Reconstructed Reason Commons development
+
+`adapters/commons.py` creates a chronological reconstruction from the supplied
+conversation and hypothetical builders brief through `add_source`, `submit`,
+`accept` and `set_acceptance`. `adapters/commons/development.json` is curated
+proposal data, not a domain rule or recovered historical record. Ten stages retain
+the argument from TOC access through manual use, the implemented interface
+injection and adoption. Literal source words have their own attribution; each
+interpretation also cites the editor's narrative input for its stage.
+
+Native timestamps are import timestamps. The editor, not invented historical
+participants, records the adoption. The default demonstration uses automatic
+acceptance and retains the complete argument in the model. A review import keeps
+all proposals waiting; an explicitly adopted review variant records the editor's
+acceptances. The mode for future replies can be changed in F2 Settings or Commands.
+The TUI's Adopt import shortcut selects pending records introduced by the import's
+recorded adapter version and calls the existing `accept` capability.
+
+Home creates this version once or resumes it, preserving older cases. History,
+trees and source excerpts project native records. The offline guide preserves
+new contributions as literal notes and retains the provisional next recommendation;
+adaptive consulting still requires selecting an AI provider. No semantic capability
+was added or bypassed, and no model call constructs the demonstration.

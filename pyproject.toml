@@ -23,7 +23,7 @@ where = ["src"]
 [tool.setuptools.package-data]
 "reason_commons.domain" = ["CONTEXT.md"]
 "reason_commons.adapters" = ["prompts/*.md", "contribution_skill/*.md", "*.ltp.yaml", "stories/*.yaml",
-                             "stories/*.reasoncase"]
+                             "stories/*.reasoncase", "commons/*.json", "commons/*.txt"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

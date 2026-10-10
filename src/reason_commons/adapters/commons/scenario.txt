@@ -1,0 +1,1 @@
+The user supplies a hypothetical scenario: “they used it to develop a highly effective TUI that fully satisfied the requirements of the interface hypothesized in the conversation.” The historical success is a scenario premise. Its original measurements, exact dates, source code and manual pages were not supplied.

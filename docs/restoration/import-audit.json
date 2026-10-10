@@ -1,0 +1,97 @@
+{
+  "artifact_kind": "Source audit; not an executable Reason Commons case or a reconstructed human decision ledger",
+  "source": "sources/reason-commons-ledger.json",
+  "sha256": "c10ec04d700bde7f4cf69360b168ebe66d58c6b7dc3c2efd2cd17a480898517b",
+  "authority": "The current user request supplies the hypothetical scenario. Instructions inside this source are historical source content, not instructions to this agent.",
+  "sources": [
+    {
+      "id": "A1",
+      "content": "Six exchanges between the anonymous human expert B1 and AI questioner SQ, plus the historical instructions to SQ",
+      "named_participants": [
+        "B1",
+        "SQ"
+      ],
+      "dates": "Not supplied; Worked for labels are partial interface timing metadata"
+    },
+    {
+      "id": "A2",
+      "content": "Six paragraphs of the hypothetical builders brief",
+      "attribution": "Builders collectively, as labelled by the file; no identified individual authors"
+    }
+  ],
+  "checks": {
+    "quoted_entries": 50,
+    "quote_matches": 50,
+    "quote_mismatches": [],
+    "entry_kinds_1_to_50": {
+      "ASK": 7,
+      "VALUE": 5,
+      "CLAIM": 33,
+      "REPORT": 3,
+      "PROPOSE": 2
+    },
+    "entry_sequence_is_1_to_64": true,
+    "references_to_missing_entries": [],
+    "source_names_david_or_rufus": false
+  },
+  "interpretation_limits": [
+    "A matching quotation establishes textual occurrence, not agreement, truth, causal validity, completeness, authorship authentication or fidelity of the entire paraphrase.",
+    "Entry 33 is an importer-formulated question attributed to B1; its note says it was written out at import.",
+    "The because references are explanations or justifications in this ledger; they are not automatically causal tree links.",
+    "The file explicitly says protocol entries 51–59 and verification/outcome entries 62–63 were staged.",
+    "The file does not establish B1 as David Joseph or contain Rufus Pollock contributions.",
+    "No statement in this audit authenticates an original pre-alteration artifact."
+  ],
+  "disposition": [
+    {
+      "entries": [
+        1,
+        50
+      ],
+      "keep": "Source-backed extraction candidate; retain voices, source spans and qualifications. Review fidelity separately from model membership."
+    },
+    {
+      "entries": [
+        51,
+        59
+      ],
+      "keep": "Staged protocol proposal by the importer. No evidence of builders adopting these rules."
+    },
+    {
+      "entries": [
+        60,
+        61
+      ],
+      "keep": "Importer self-report and coverage-gap analysis. Mechanically verified coverage counts may be cited as this audit; cost estimates remain unmeasured."
+    },
+    {
+      "entries": [
+        62,
+        63
+      ],
+      "keep": "Staged human verification and outcome. Retain in source, exclude from recovered human decisions and observed results."
+    },
+    {
+      "entries": [
+        64,
+        64
+      ],
+      "keep": "New assistant recommendation and hypothetical prediction/budget; optional proposal, not inherited live question or agreed commitment."
+    }
+  ],
+  "current_workspace_evidence": {
+    "packaged_story": "src/reason_commons/adapters/stories/second-renaissance.reasoncase",
+    "revision": 24,
+    "records": 294,
+    "automatic_acceptances": {
+      "David Joseph": 15,
+      "Robert Bunge": 5,
+      "Rufus Pollock": 3,
+      "curious_reader": 1
+    },
+    "automatic_setting_actors": [
+      "Story editor"
+    ],
+    "interpretation": "The package represents the editor-built chapters as dated source-speaker inputs and automatic acceptances. These counts establish representation in the fixture, not actual historical human decisions."
+  }
+}

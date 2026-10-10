@@ -608,3 +608,22 @@ workspace meter, budget and boost, the accessible presentation, the command and 
 notices. They establish the integration with fake servers; the live smoke in
 [validation](validation.md) checks it once against Anthropic. Whether the meter helps
 people spend as they intend is not established.
+
+## Dogfood restoration
+
+The reconstructed RC development and simplified home/navigation are implemented
+in `adapters/commons.py` and the TUI. Five additional conversational scenarios
+cover honest import, free-form continuation, readable stage ordering, a pending
+review import, and changing future acceptance policy. Adapter checks cover
+literal attribution, collision-safe resume, portable round trips, F2 acceptance
+settings and adopting the import through the UI. The adopted demonstration retains
+59 claims, 56 links and ten development stages; its Backlog is empty because all
+119 proposed records were adopted. No historical participant approvals, dates or
+measured trial results are invented.
+
+This changes no scenario-local delivery tags or product-specification scenarios.
+It does not establish live consultant quality or participant usability. See
+[the working import](restoration/working-import.md) for sources and commands.
+
+The final restoration gate passed 476 pytest tests and all 28 conversational
+scenarios, alongside every required delivered specification case.

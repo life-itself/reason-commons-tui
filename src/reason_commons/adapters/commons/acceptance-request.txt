@@ -1,0 +1,1 @@
+something that does indeed need to be a feature of the app is the ability to set the app to automatically accept reasoning or to require the user to accept reasoning.
