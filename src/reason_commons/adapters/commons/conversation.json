@@ -1,0 +1,62 @@
+[
+  {
+    "id": "T1",
+    "speaker": "AI questioner",
+    "text": "What belief, decision, or goal would you like to examine—and what makes it important to you now?"
+  },
+  {
+    "id": "T2",
+    "speaker": "Human expert (name not supplied)",
+    "text": "my intention is to develop a system that makes the theory of constraints easy to benefit from - such that a person, organization, or any agent or group thereof would be able to benefit from the theoretical insights a highly capable TOC consultant might be able to offer them - without hiring the consultant."
+  },
+  {
+    "id": "T3",
+    "speaker": "AI questioner",
+    "text": "Imagine one concrete person or organization benefiting from your system.\n\nWhat changes in their actual situation—and what would a highly capable TOC consultant have helped them see, decide, or do to make that change possible?"
+  },
+  {
+    "id": "T4",
+    "speaker": "Human expert (name not supplied)",
+    "text": "what changes in their situation is that they are equipped to move in a direction that enables them to accomplish their goal more effectively.  the toc consultant would have helped them develop this insights by helping them understand that there are certain actions they could do that would be disproportionately helpful.  most who have complex goals to achieve do not have an adequate means of discovering what actions most address the bottleneck preventing progress."
+  },
+  {
+    "id": "T5",
+    "speaker": "AI questioner",
+    "text": "You’re locating the value in discovering where effort will make the greatest difference.\n\nSuppose someone already understands the basic TOC ideas but still cannot identify what to change in their own situation. What are they missing—and what does a capable consultant do to supply it?"
+  },
+  {
+    "id": "T6",
+    "speaker": "Human expert (name not supplied)",
+    "text": "understanding TOC is one thing, but applying it to a given situation is often complicated work that is contextual and unique to a situation.  it requires patience, discipline, and creativity.  typically, those who have goals to achieve are in live situations that make these qualities difficult to invoke.  in the real world, doing anything nontrivial with others to accomplish a goal can be stressful, conflict-prone, and confusing.  so the physiological state the goal seeker is in often seems to preclude them from thinking in a structured way as the TOC would have it.\n\nfurthermore, there is work that goes into analyzing and communicating the rationale for following a TOC based strategy.  the burden is placed, typically, on the very person or persons who are already burdened.  it's as if they are being asked, 'step what you are doing and draw this current reality tree'.  but in their opinion, what they are doing is essential - so the CRT must not be.\n\nthe capable consultant would help the goal seeker continue working on what matters to them, but help them come to insights about ways of approaching their work that could be better and get at what matters more effectively."
+  },
+  {
+    "id": "T7",
+    "speaker": "AI questioner",
+    "text": "A possible division of labor is emerging: the system carries much of the analysis and explanation; the goal seeker contributes knowledge of their situation and judgment.\n\nWhat must the goal seeker contribute that the system cannot supply for them—and how could eliciting that contribution itself help with the work already demanding their attention?"
+  },
+  {
+    "id": "T8",
+    "speaker": "Human expert (name not supplied)",
+    "text": "the goal seeker, more than anything, make value judgments.  they know what matters, which goals are worth pursuing.  this materializes as the drive that leads them to use the system, prioritize certain work over other work, and so on.\n\neliciting the contribution should help the goal seeker arrive at insights that make their actions more aligned with their goals.\n\nfor example, in the novel the goal by goldratt, the consultant jonah mostly asked alex the factory manager a series of questions, and the latter was able to adjust his actions in order to improve the factory.  jonah put little to no effort to convincing alex to change the way he was working - he knew alex needed to arrive at these insights himself, and he gave alex the information that would help him do so."
+  },
+  {
+    "id": "T9",
+    "speaker": "AI questioner",
+    "text": "That suggests a distinction: the goal seeker judges what is worth pursuing; the system helps them investigate what will advance it.\n\nWhat understanding of the situation must the system develop to choose a useful next question—and what could the goal seeker say that would make the system revise that understanding?"
+  },
+  {
+    "id": "T10",
+    "speaker": "Human expert (name not supplied)",
+    "text": "the system must develop an understanding of the goal seeker's world to some degree: a causal model of how things work, which actions might influence which outcomes, and so on.  but this presupposes a goal: a causal view of the world is useful insofar as certain outcomes are preferred.  the goal seeker has the most direct connection to this real world.  they can supply the knowledge that would invalidate the causal model that the system has developed in order to help them.  for example, the consulting system may propose some intervention and predict it will have a certain impact.  reality may contradict the model.  this would require a new version of the model."
+  },
+  {
+    "id": "T11",
+    "speaker": "AI questioner",
+    "text": "That gives the system a learning loop: the goal directs the causal model; the model supports an action and a prediction; observed outcomes inform revisions.\n\nWhat would tell the system that it understands enough to suggest a useful next action—and that another question would add less value than it costs the goal seeker?"
+  },
+  {
+    "id": "T12",
+    "speaker": "Human expert (name not supplied)",
+    "text": "If I could give you a simple answer to these questions I would - but this is really the most difficult question to answer about this whole system so I will try to reason through it with the disclaimer that I may need to revisit and revise certain aspects of this answer throughout the course of our conversation.\n\nrecognizing this, it is important to realize we cannot give the deepest, most correct answer, off the bat, so we should try to approach such an answer by giving signs that a system might be able to recognize a useful next action - perhaps we will recognize some common characteristic from these signs.\n\nmost straightforwardly, one helpful next action might be an action that unambiguously moves throughput along.  for example, the goal seeker is one step from the finish line, and the next step is trivial to recommend.\n\nanother helpful action might be one that is taken, the outcome of which is uncertain, but the information gained from observing the action can be valuable for better understanding how to make progress.  for example, do X and you will understand if Y is your constraint.\n\nstill yet, there are actions that do not appear to be actions at all in one sense, because they consist mainly in reasoning, but actually are actions in the sense that they take time, resources, and so on, and doing them or not doing them impacts the bottom line/success.  for example, decide whether A causes B or B causes A.  Propose a need that a certain want is driven by.  And so on.\n\nThis last paragraph is quite important and subtle.  For a system as complex as the one we've been discussing, it is easy to forget that the system (we shall call it Reason Commons) is part of the system it models.\n\nFor example, suppose Alex from the Goal had access to Reason Commons.  The object of his analysis wouldn't be the factory.  It would be the factory with Reason Commons included.\n\nIain McGilchrist requently uses the metaphor of a painter who forgets to include himself in his own picture to describe the fatal flaw of modern Western scientific materialism.  As we design this system, we must avoid this error.\n\nThe practical consequences of not avoiding it are as follows:\n\nimagine that two decision makers in a system use reason commons to aid their understanding.  they are quite ambitious and curious, and generate large amounts of models, many hypotheses, and so on, on their quest to find the most useful next action to recommend for their system.\n\nLet's say the system is a hospital and throughput is patients satisfactorily cared for while the hospital stays solvent, workers are satisfied, etc.  Inventory may be patients waiting to be seen in the waiting room, for example.  Operating expenses includes salaries and so on.\n\nBut wait - operating expenses unequivocally ought to include the cost of reason commons!  Suppose it's an AI system and it consumes a huge amount of tokens - so the cost is by no means negligible.\n\nSuppose the modelers are in fact influential doctors or directors in the hospital. By racking up so much time in Reason Commons, they are doing less of what they'd typically do.  Justified?  Perhaps - but we can't know this unless we include RC in our assessment.\n\nIn their use of RC, the large amount of content (generated trees, hypotheses to consider, and so on) is a type of inventory.  If inventory is kept very small, it will interfere with their work minimally; if it is not recognized that RC itself is part of the system, then it may be overlooked as a source of inventory.\n\nThroughput for RC as a subsystem, simply speaking, may be recommendations of next actions that are the most impactful for progressing towards the goal.  But examined more closely, a definition of throughput should also include whether or not the recommendations are acted on; the users may wish to do what is recommended but not understand it due to ineffective UX - or there may be other explanations as to why the RC subsystem surfaces the correct actions to take but nonetheless doesn't increase throughput."
+  }
+]

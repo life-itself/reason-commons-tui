@@ -44,11 +44,10 @@ def test_the_list_has_a_start_section_and_a_table_of_goals(tmp_path):
             await pilot.pause()
             options = app.query_one("#goals").options
             # Headings are not choices: the cursor skips them, so the first choice is the first goal.
-            assert [option.id for option in options if not option.disabled] == ["new", "sample", "tour", "0", "1", "2"]
+            assert [option.id for option in options if not option.disabled] == ["commons", "new", "0", "1", "2"]
             assert app.query_one("#goals").highlighted_option.id == "0"
             text = screen_text(app)
-            for wanted in ("START", "+ New goal", "Explore a real commons: the Second Renaissance",
-                           "Guided tour", "YOUR GOALS", "STAGE", "UPDATED"):
+            for wanted in ("START", "+ New goal", "Continue Reason Commons", "YOUR GOALS", "STAGE", "UPDATED"):
                 assert wanted in text, wanted
             # Settings and Theme are not rows any more, and the old "·"-separated, ISO-dated rows are gone.
             assert "Settings:" not in text and "Theme:" not in text and "2026-10-05" not in text
@@ -100,7 +99,7 @@ def test_the_footer_says_what_enter_does_and_what_is_set_now(tmp_path):
             assert "Open" in footer and "f1 Help" in footer and "^q Quit" in footer
             assert "David · offline guide · Chromatics, dark" in footer
             goals = app.query_one("#goals")
-            goals.highlighted = goals.get_option_index("tour")
+            goals.highlighted = goals.get_option_index("commons")
             await pilot.pause()
             assert "Choose" in next(line for line in screen_text(app).splitlines() if "f2 Settings" in line)
     asyncio.run(run())
@@ -128,7 +127,7 @@ def test_with_no_goals_the_list_is_only_the_ways_to_start(tmp_path):
             await pilot.pause()
             text = screen_text(app)
             assert "You have no goals yet" in text and "YOUR GOALS" not in text
-            assert app.query_one("#goals").highlighted_option.id == "new"
+            assert app.query_one("#goals").highlighted_option.id == "commons"
     asyncio.run(run())
 
 

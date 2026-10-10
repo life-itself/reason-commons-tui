@@ -10,6 +10,7 @@ persistence rules, and the application decides what a decision takes with it.
 
 from datetime import date
 import os
+import base64
 import re
 import tempfile
 import textwrap
@@ -115,7 +116,7 @@ REPLY_FROM = {"guided": "the guide's reply", "anthropic": "Claude's reply", "lm-
 LATER_PROFILE_ACTIONS = {"explore-causal-model": "Explore causal model", "record-position": "Record position",
                          "record-test-reliance": "Record test reliance", "restore-reasoning": "Restore reasoning"}
 # Proposal adapters that bring material in offline; their attempts are not consultant calls.
-OFFLINE_ADAPTERS = ("ltp-tree-import/", "story/")
+OFFLINE_ADAPTERS = ("ltp-tree-import/", "story/", "commons-import/")
 # Terminal width from which a chosen statement's details sit beside the trees; below it, Enter opens them.
 INSPECTOR_FROM, INSPECTOR_WIDTH = 120, 36
 # The most statements a reply may add to the trees and still be drawn under the next question; more (an import,
@@ -128,9 +129,9 @@ QUIET = 0.62
 HELP = """\
 ## The screen
 
-The loop line under the title shows where you are: ✓ done, ● now, ○ still to come, with the goal's measure
-on its right. The current question is below it, and the answer box sits right under the question.
-**Views** on the left lists everything else you can read; Enter opens one. The footer shows the keys that
+The current question and its answer box are the main task. A guided trial or a recorded test also shows
+the loop: ✓ done, ● now, ○ still to come. **Views** on the left offers the core destinations;
+Enter opens one. Other supporting views are available under **Commands**. The footer shows the keys that
 work where the keyboard is now; Tab reaches **Commands** and **Help** there like any other control.
 
 ## Keys and controls
@@ -141,6 +142,7 @@ Help covers the controls; **Explain this** covers the reasoning behind a questio
 | --- | --- |
 | Enter | New line in your answer (typing is always literal) |
 | Ctrl+S, or Tab to **Send** then Enter | Send your answer |
+| F2 | Settings, including automatic reasoning acceptance or requiring acceptance |
 | Tab / Shift+Tab | Move between controls |
 | Esc | Leave the editor to browse, your text kept; elsewhere, back to where you were before looking around |
 | Ctrl+T | Open the trees; press again to go back to the question and your draft |
@@ -930,6 +932,10 @@ class SettingsScreen(ModalScreen):
         if self.offer_setup:
             options.append(Option(Content.assemble("You      ", summary(self.app.settings),
                                                    ("   Enter changes", "$text-muted")), id="setup"))
+        acceptance = self.app.acceptance_mode()
+        if acceptance is not None:
+            label = 'Automatic' if acceptance == 'automatic' else 'Require acceptance'
+            options.append(Option(f'Reasoning    ◀ {label} ▶', id='acceptance'))
         options.append(Option(Content.assemble("Budget   ", self.app.budget_words(),
                                                ("   Enter changes", "$text-muted")), id="budget"))
         self.rows.clear_options()
@@ -941,9 +947,26 @@ class SettingsScreen(ModalScreen):
     def current(self):
         return self.rows.get_option_at_index(self.rows.highlighted or 0).id
 
+    @on(OptionList.OptionHighlighted, '#settings-rows')
+    def describe_setting(self, event):
+        voice, _ = themes.split_name(self.app.theme)
+        description = ('Automatic: later proposals enter the model. Require acceptance: later proposals '
+                       'wait in Backlog. Changing this does not decide existing proposals. Each change '
+                       'is recorded in History.' if event.option.id == 'acceptance'
+                       else themes.VOICES[voice].description)
+        self.query_one('#settings-about', Static).update('\n' + description)
+
     def action_step(self, direction):
         row = self.current()
         if row in ("setup", "budget"):
+            return
+        if row == 'acceptance':
+            mode = 'review' if self.app.acceptance_mode() == 'automatic' else 'automatic'
+            self.app.set_acceptance(mode)
+            self.show(self.rows.highlighted or 0)
+            self.query_one('#settings-about', Static).update(
+                'Automatic: later proposals enter the model. Require acceptance: later proposals wait in Backlog. '
+                'Changing this does not decide existing proposals. Each change is recorded in History.')
             return
         voice, mode = themes.split_name(self.app.theme)
         if row == "voice":
@@ -1146,6 +1169,10 @@ class ThemedApp(App):
 
     def action_settings(self):
         self.push_screen(SettingsScreen(self.can_set_up()), self.settings_closed)
+
+    def acceptance_mode(self):
+        """A case setting is available only in a writable case workspace."""
+        return None
 
     def can_set_up(self):
         """Whether Settings can also change your name and consultant: only where the home screen can ask."""
@@ -1451,6 +1478,14 @@ class ReasonCommonsApp(ThemedApp):
         and the six trees in the method's order, with ▸ beside the one on screen."""
         options = []
         for key, _ in VIEW_LABELS:
+            # Supporting views stay in Commands/Views; the sidebar follows actual case work.
+            records = (self.workspace_value or {}).get('records', [])
+            has_test = any(r['kind'] == 'test' for r in records)
+            if key in ('reasoning', 'context') and key != self.view_name and not has_test:
+                continue
+            kinds = {'tests': {'test'}, 'actions': {'test', 'action'}}.get(key)
+            if kinds and key != self.view_name and not any(r['kind'] in kinds for r in records):
+                continue
             options.append(Option(self.view_prompt(key), id=key))
             if key == "trees" and self.view_name == "trees" and self.has_trees():
                 shown = self.shown_tree()
@@ -1575,6 +1610,9 @@ class ReasonCommonsApp(ThemedApp):
             self.call_after_refresh(self.fit_reading)
 
     def hint_text(self):
+        question = (self.workspace_value or {}).get('question') or {}
+        if self.provider == 'guided' and question.get('data', {}).get('purpose') == 'continuation':
+            return 'Enter: new line · Send: save contribution · AI consultant in Commands'
         model = self.model_name()
         return (f"Enter: new line · Send: get {REPLY_FROM.get(self.provider, f'the reply of {self.provider}')}"
                 + (f" ({model})" if model else ""))
@@ -1636,9 +1674,12 @@ class ReasonCommonsApp(ThemedApp):
         line = Table.grid(expand=True)
         line.add_column(no_wrap=True, overflow="ellipsis")
         line.add_column(justify="right", no_wrap=True)
-        line.add_row(Text(w["case_name"], style="bold"),
-                     Text.assemble((f"{who} · " if who else "", muted),
-                                   (state, "bold" if self.answer_ready else muted)))
+        status = Text.assemble((f"{who} · " if who else "", muted),
+                               (state, "bold" if self.answer_ready else muted))
+        if self.terminal.width >= 100 and self.acceptance_mode() is not None:
+            mode = 'automatic' if self.acceptance_mode() == 'automatic' else 'require acceptance'
+            status.append(f' · Reasoning: {mode}', style=muted)
+        line.add_row(Text(w["case_name"], style="bold"), status)
         self.query_one("#status", Static).update(line)
 
     def send_to(self):
@@ -1677,7 +1718,9 @@ class ReasonCommonsApp(ThemedApp):
             self.fill_timeline(timeline)
         if self.view_name == "backlog":
             self.fill_backlog(backlog)
-        self.query_one("#accept-all").set_class(not self.reply_waiting(), "hidden")
+        imported = self.import_waiting()
+        self.query_one('#accept-all', Button).label = 'Adopt import' if imported else 'Accept all'
+        self.query_one("#accept-all").set_class(not self.reply_waiting() and not imported, "hidden")
         # The Views list names what waits in Backlog, so it changes with the case.
         views = self.query_one("#views", OptionList)
         if [str(o.prompt) for o in views.options] != [str(o.prompt) for o in self.view_options()]:
@@ -1716,7 +1759,9 @@ class ReasonCommonsApp(ThemedApp):
         leaving the person to wonder: "not set" in the warning colour."""
         w = self.workspace_value
         row = self.query_one("#loop-row")
-        row.display = not self.story
+        row.display = not self.story and (
+            (w['question'] or {}).get('data', {}).get('purpose', '').startswith('guided:')
+            or bool(w['comparisons']))
         looking_back = bool(w["historical"] or self.story)
         value = (((self.pinned_goal() or {}).get("data") or {}).get("measure") or "").strip()
         # The aside after Review gives way to a measure, which is worth more than it.
@@ -2070,6 +2115,12 @@ class ReasonCommonsApp(ThemedApp):
         title = dict(VIEW_LABELS)[view]
         lines = [f"## {title}", ""]
         if view == "history":
+            if self.reconstructed_development():
+                lines += ['This is the reconstructed development history from your prompt. '
+                          'Each stage shows why the next step was needed and what entered the model. '
+                          'The dates are import dates; historical dates were not supplied.', '',
+                          'Reconstruction and adoption: **RC reconstruction editor (AI)**. '
+                          'Original human and AI source words remain separately attributed.', '']
             lines.append("Every saved step, oldest first, and what entered the model. Enter opens one as it was; "
                          "u undoes a step's acceptance, after showing what goes with it.")
             return "\n".join(lines)
@@ -2086,7 +2137,19 @@ class ReasonCommonsApp(ThemedApp):
                 who = f"{md(source['speaker'])} · " if shared else ""
                 lines += [f"###### {who}{md(moment(source['timestamp']))}", "",
                           "> " + md(source["text"] or "(empty)").replace("\n", "  \n> "), ""]
-            return "\n".join(lines) if sources else "\n".join(lines + ["Nothing written yet."])
+            for source in w['sources'].values():
+                if 'content_base64' not in source:
+                    continue
+                lines += [f"###### {md(source.get('speaker', 'Unknown'))} · {md(source.get('name', 'Source'))}", ""]
+                # Literal text, never document instructions or executable markup.
+                content = base64.b64decode(source['content_base64'])
+                try:
+                    text = content.decode('utf-8')
+                except UnicodeDecodeError:
+                    lines += [f"Binary attachment: {len(content)} bytes retained locally.", ""]
+                else:
+                    lines += ["> " + md(text).replace("\n", "  \n> "), ""]
+            return "\n".join(lines) if len(lines) > 2 else "\n".join(lines + ["Nothing written yet."])
         if view == "trees":
             return self.trees_page()
         if view == "tests":
@@ -2400,12 +2463,43 @@ class ReasonCommonsApp(ThemedApp):
 
     @on(Button.Pressed, "#accept-all")
     def accept_all_pressed(self):
-        self.accept_reply()
+        if self.import_waiting():
+            self.adopt_import()
+        else:
+            self.accept_reply()
+
+    def import_waiting(self):
+        """Pending records introduced by the reconstruction, excluding later replies."""
+        if self.story or self.revision is not None or not self.workspace_value['proposals']:
+            return []
+        pending = self.workspace_value['proposals']
+        previous_records, previous_requests = set(), set()
+        imported = []
+        for snapshot in self.history()['snapshots']:
+            requests = set(snapshot['applied_requests'])
+            reconstruction = any((snapshot.get('adapter_versions') or {}).get(request) == 'commons-import/2'
+                                 for request in requests - previous_requests)
+            if reconstruction:
+                imported.extend(r['ref'] for r in snapshot['records']
+                                if r['ref'] not in previous_records and r['ref'] in pending)
+            previous_records = {r['ref'] for r in snapshot['records']}
+            previous_requests = requests
+        return imported
+
+    def adopt_import(self):
+        refs = self.import_waiting()
+        if refs:
+            self.perform('accept', refs)
 
     def accept_reply(self):
         waiting = self.reply_waiting()
         if waiting:
             self.perform("accept", [r["ref"] for r in waiting])
+
+    def acceptance_mode(self):
+        if self.workspace_value is not None and not self.story and self.revision is None:
+            return self.workspace_value['acceptance']
+        return None
 
     def set_acceptance(self, mode):
         result = self.case.set_acceptance(mode, self.speaker, self.workspace_value["revision"])
@@ -2576,8 +2670,13 @@ class ReasonCommonsApp(ThemedApp):
             elif source:
                 # A file's attribution says what it is ("Imported LTP document; …"), not who brought it in.
                 when = f", brought in {short_day(source['timestamp'])}" if source.get("timestamp") else ""
-                origins.append((f"From the file {source.get('name') or item['source_ref']}{when}",
-                                source.get("speaker")))
+                title = f"{source.get('speaker') or 'Unknown'} · {source.get('name') or item['source_ref']}{when}:"
+                try:
+                    text = base64.b64decode(source.get('content_base64', '')).decode('utf-8')
+                except UnicodeDecodeError:
+                    text = 'Binary source retained locally.'
+                text = ' '.join(text.split())
+                origins.append((title, textwrap.shorten(text, words, placeholder=' …') if words and text else text))
         return origins
 
     def statement_text(self, width, words=300):
@@ -2642,12 +2741,17 @@ class ReasonCommonsApp(ThemedApp):
         self.push_screen(StatementScreen(lambda width: self.statement_text(width, words=None)))
 
     # ----- looking back -------------------------------------------------
+    def reconstructed_development(self):
+        return any(str(version).startswith('commons-import/2')
+                   for version in (self.history()['snapshots'][-1].get('adapter_versions') or {}).values())
+
     def fill_timeline(self, timeline):
         """One row per saved step, in columns: the day (only where it changes), the time, who (only when
         more than one person has written), the step, and what it changed. A step that changed nothing is quiet."""
         entries = self.history()["entries"]
         names = {e["speaker"] for e in entries if e["speaker"]}
-        shared = len(names) > 1 or any(not same_person(name, self.speaker) for name in names)
+        shared = len(names) > 1 or (not self.reconstructed_development() and
+                                   any(not same_person(name, self.speaker) for name in names))
         rows = []
         for entry in entries:
             when, time = self.when_parts(entry)
@@ -2694,6 +2798,9 @@ class ReasonCommonsApp(ThemedApp):
         if not chapter and entry["request_id"] is None and entry["decisions"]:
             decision = entry["decisions"][0]
             return decision_words(decision).capitalize()
+        versions = self.history()['snapshots'][entry['revision']].get('adapter_versions') or {}
+        if versions.get(entry['request_id']) == 'commons-import/2':
+            return entry['decision'] or 'Reconstructed development'
         return chapter.get("title") or entry.get("answered") or entry["decision"] or "Saved"
 
     def moment_text(self):
@@ -3530,6 +3637,10 @@ class ReasonCommonsApp(ThemedApp):
             items.append(("Accept all the last reply proposed",
                           "Local: admits them to your model, with what they need; no consultant call",
                           self.accept_reply))
+        if self.import_waiting():
+            items.append(('Adopt imported reasoning',
+                          f'Local: accept {len(self.import_waiting())} imported proposals into your model; '
+                          'acceptance does not establish their truth', self.adopt_import))
         if not self.story and self.revision is None:
             if self.workspace_value["acceptance"] == "review":
                 items.append(("Accept proposals automatically",
@@ -3827,9 +3938,8 @@ class GoalsApp(ThemedApp):
     BINDINGS = [Binding("ctrl+q", "quit", "Quit", priority=True), Binding("f1", "help", "Help"),
                 Binding("f2", "settings", "Settings")]
     # The ways to start: id, the mark before it, its name, and a quieter note after it.
-    START = [("new", "+", "New goal", ""),
-             ("sample", "", "Explore a real commons: the Second Renaissance", ""),
-             ("tour", "", "Guided tour", " · practice goal, about 5 minutes")]
+    START = [("commons", "", "Continue Reason Commons", " · import prior work, then resume"),
+             ("new", "+", "New goal", "")]
 
     def __init__(self, root, list_goals=find_goals, create=None, settings=None, checks=None, start_new=False):
         super().__init__(settings)
@@ -3901,30 +4011,18 @@ class GoalsApp(ThemedApp):
         return Content.assemble(pointer, (sign, "b $accent") if sign else " ", " ", name, quiet(note))
 
     def show_options(self, keep=None):
-        loop = "goal → test with a forecast → action → observation → review"
         goals = self.query_one("#goals", OptionList)
         goals.clear_options()
         if self.first_run:
-            intro = ("[b]Welcome.[/b] Reason Commons helps you make progress on something that matters, one small "
-                     f"loop at a time: {loop}.\n\nHow would you like to start? Everything stays on this computer.")
-            options = [Option(option_label("Start my first goal",
-                                           f"The offline guide asks the questions; your answers are saved as "
-                                           f"{login_name() or 'Me'}. Change either later with F2 Settings."), id="start"),
-                       Option(option_label("Choose who asks the questions first",
-                                           "Your name, and the offline guide, Claude or a local model. About a "
-                                           "minute."), id="setup"),
-                       Option(option_label("Take the guided tour",
-                                           "Practise one whole loop with example answers. About 5 minutes; "
-                                           "nothing is kept."), id="tour"),
-                       Option(option_label("Explore a real commons",
-                                           "How the Second Renaissance's shared reasoning grew, step by step, "
-                                           "and the one action it says comes next."), id="sample")]
-            wanted, self._marked = "start", None
+            intro = "[b]Welcome.[/b] Continue the imported Reason Commons work, or start a goal of your own. Everything stays on this computer."
+            options = [Option(option_label("Continue Reason Commons", "Source-backed prior reasoning, ready for your next contribution."), id="commons"),
+                       Option(option_label("Start my first goal", "Use the offline guide. Name and consultant can be changed with F2 Settings."), id="start")]
+            wanted, self._marked = "commons", None
         else:
-            intro = f"Make progress on a goal that matters, one small loop at a time.\n[$text-muted]{loop}[/]"
+            intro = "Continue useful work. Open a goal, contribute, and revisit the reasoning when needed."
             if not self.goals:
                 intro += "\n\nYou have no goals yet. Start one below; it is saved as you go."
-            wanted = keep or ("0" if self.goals else "new")
+            wanted = keep or ("0" if self.goals else "commons")
             row = lambda key: Option(self.row(key, key == wanted), id=key)
             options = [Option(Content.assemble(("START", "b $text-muted")), disabled=True)]
             options += [row(item[0]) for item in self.START]
@@ -3973,7 +4071,13 @@ class GoalsApp(ThemedApp):
     @on(OptionList.OptionSelected, "#goals")
     def chosen(self, event):
         choice = event.option.id
-        if choice in (SAMPLE, TOUR):
+        if choice == 'commons':
+            from reason_commons.adapters.commons import continue_commons
+            try:
+                self.exit(continue_commons(self.root))
+            except Exception as exc:
+                self.notify(f'Could not open Reason Commons: {exc}', severity='error', timeout=8)
+        elif choice in (SAMPLE, TOUR):
             self.exit(choice)
         elif choice == "setup":
             self.setup(first_run=True)
@@ -4021,7 +4125,20 @@ class GoalsApp(ThemedApp):
         return path
 
     def action_help(self):
-        self.push_screen(HelpScreen())
+        def chosen(key):
+            if key == 'help':
+                self.push_screen(HelpScreen())
+            elif key == 'setup':
+                self.setup(first_run=self.first_run)
+            elif key in (SAMPLE, TOUR):
+                self.exit(key)
+        choices = [('help', 'Using the workspace'), (TOUR, 'Practice with the guided tour'),
+                   (SAMPLE, 'Explore an editorial example: Second Renaissance')]
+        if self.settings is not None:
+            choices.append(('setup', 'Choose your name and consultant'))
+        self.push_screen(ChoiceScreen('Help and examples',
+                         'Reason Commons keeps your words, model and history together. '
+                         'Examples are separate from your working goals.', choices), chosen)
 
     def can_set_up(self):
         return self.settings is not None

@@ -52,7 +52,8 @@ predictions are labeled; trace references say tests, addresses or implements.
 One screen is read in one order. Each rule below was a clarity defect before it became a rule
 (see the evaluator's findings behind it in [TUI-UX-PLAN.md](TUI-UX-PLAN.md#navigation-and-hierarchy-revision)).
 
-- **One spine.** The loop line is the only thing that says where you are in the loop. The Views list is
+- **One spine.** A recorded test or guided trial uses the loop line to say where you are.
+  A continuing reasoning conversation without a test shows its current question directly. The Views list is
   secondary: it names what else can be read, with ▸ beside the open view. The view's name is in the
   list and the page's heading, never also in the header.
 - **Heading, question, hint.** The heading is the strongest line, the question is plain type and an
@@ -172,3 +173,11 @@ canvases arrive in p3–p5; the TUI is not deferred. P2 also adds the Backlog, w
 operator accepts or rejects what replies propose and closes review flags, with Undo in
 History (S135–S150). Use S114–S150 alongside earlier integrity and reasoning gates. Authored snapshots
 and document checks do not prove a running TUI or measured usability.
+
+## Acceptance visibility
+
+Inside a writable case, F2 Settings exposes Reasoning: Automatic or Require
+acceptance. This projects the application's recorded acceptance setting. Changes
+affect future proposals; pending proposals retain their status. Imported development
+can be adopted through the same accept capability as an ordinary reply. History
+shows the adoption alongside the reasoning it admitted.

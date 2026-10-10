@@ -1,0 +1,1895 @@
+{
+  "version": "commons-import/2",
+  "editor": "RC reconstruction editor (AI)",
+  "chapters": [
+    {
+      "title": "Why TOC needs assistance",
+      "story": "The human expert begins with access to TOC insight, not a desire for a graph editor. The desired change is more effective progress on goals people value. The consultant helps discover the few actions that address the constraint. This gives RC its purpose and a way to judge its output.",
+      "sources": [
+        "T2",
+        "T4"
+      ],
+      "why": "The system is valuable when its reasoning improves actual progress. Producing more models is not the goal.",
+      "question": "What prevents people from discovering the actions that make the greatest difference?",
+      "updates": [
+        {
+          "operation": "record_goal",
+          "temporary_id": "goal",
+          "data": {
+            "statement": "Help people and groups advance goals they value through useful TOC reasoning.",
+            "scope": "Reason Commons, including its own development",
+            "measure": null,
+            "baseline": null,
+            "horizon": null,
+            "protections": [
+              "Preserve human value judgments and reality checks.",
+              "Support important ongoing work.",
+              "Keep consulting effort and reasoning inventory proportionate."
+            ]
+          },
+          "spans": [
+            "T2",
+            "T4"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "progress",
+          "data": {
+            "tree": "goal",
+            "role": "critical_success_factor",
+            "statement": "People make more effective progress toward goals they value.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T2",
+            "T4"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "constraint_actions",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Discover actions that address the constraint on progress.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T2",
+            "T4"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "carried_out",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Useful recommendations are understood and acted on.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "situated",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Apply TOC insight to the particular situation, rather than merely teach the theory.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_5",
+          "data": {
+            "tree": "goal",
+            "from_ref": "progress",
+            "to_ref": "goal",
+            "relation": "necessary_for",
+            "assumption": "RC is judged by its contribution to the participant’s goal."
+          },
+          "spans": [
+            "T2",
+            "T4"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_6",
+          "data": {
+            "tree": "goal",
+            "from_ref": "constraint_actions",
+            "to_ref": "progress",
+            "relation": "necessary_for",
+            "assumption": "Disproportionately useful actions matter more than indiscriminate effort."
+          },
+          "spans": [
+            "T2",
+            "T4"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_7",
+          "data": {
+            "tree": "goal",
+            "from_ref": "carried_out",
+            "to_ref": "progress",
+            "relation": "necessary_for",
+            "assumption": "An unused recommendation contributes no completed work."
+          },
+          "spans": [
+            "T2",
+            "T4"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_8",
+          "data": {
+            "tree": "goal",
+            "from_ref": "situated",
+            "to_ref": "constraint_actions",
+            "relation": "necessary_for",
+            "assumption": "A constraint depends on the actual situation."
+          },
+          "spans": [
+            "T2",
+            "T4"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Analysis competes with work",
+      "story": "Knowing TOC does not make applying it easy. The expert describes stress, conflict and confusion, while contextual reasoning demands patience, discipline and creativity. Drawing and explaining a tree adds work to the people already carrying the situation. The apparent refusal to analyze is understandable under this burden.",
+      "sources": [
+        "T5",
+        "T6"
+      ],
+      "why": "The obstacle is the cost and difficulty of applying reasoning during live work.",
+      "question": "How can analysis help people continue the work they consider essential?",
+      "updates": [
+        {
+          "operation": "record_claim",
+          "temporary_id": "missing_actions",
+          "data": {
+            "tree": "current_reality",
+            "role": "undesirable_effect",
+            "statement": "People with complex goals lack an adequate way to discover the most useful next action.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "live_stress",
+          "data": {
+            "tree": "current_reality",
+            "role": "root_cause",
+            "statement": "Live situations can be stressful, conflict-prone and confusing.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "capacity",
+          "data": {
+            "tree": "current_reality",
+            "role": "intermediate_cause",
+            "statement": "Stress makes patient, disciplined and creative reasoning difficult.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "contextual",
+          "data": {
+            "tree": "current_reality",
+            "role": "root_cause",
+            "statement": "Applying TOC requires analysis unique to the situation.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "tree_burden",
+          "data": {
+            "tree": "current_reality",
+            "role": "intermediate_cause",
+            "statement": "Preparing and explaining the reasoning adds work to already burdened people.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "interrupt",
+          "data": {
+            "tree": "current_reality",
+            "role": "undesirable_effect",
+            "statement": "Analysis appears to require stopping work participants regard as essential.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "postpone",
+          "data": {
+            "tree": "current_reality",
+            "role": "intermediate_cause",
+            "statement": "Participants postpone analysis to continue urgent work.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "theory_only",
+          "data": {
+            "tree": "current_reality",
+            "role": "undesirable_effect",
+            "statement": "Understanding TOC alone does not reveal the change needed here.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_17",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "live_stress",
+            "to_ref": "capacity",
+            "relation": "causes",
+            "assumption": "Stress competes with the capacities analysis requires."
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_18",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "capacity",
+            "to_ref": "missing_actions",
+            "relation": "contributes_to",
+            "assumption": "Harder contextual reasoning makes a useful next action harder to find."
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_19",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "contextual",
+            "to_ref": "tree_burden",
+            "relation": "contributes_to",
+            "assumption": "Someone must carry out and communicate the situated analysis."
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_20",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "tree_burden",
+            "to_ref": "interrupt",
+            "relation": "causes",
+            "assumption": "The effort is demanded of the same people doing the essential work."
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_21",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "interrupt",
+            "to_ref": "postpone",
+            "relation": "contributes_to",
+            "assumption": "The participants protect work they consider immediately necessary."
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_22",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "postpone",
+            "to_ref": "missing_actions",
+            "relation": "contributes_to",
+            "assumption": "Postponing analysis delays discovery of a better approach."
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_23",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "contextual",
+            "to_ref": "theory_only",
+            "relation": "causes",
+            "assumption": "General understanding leaves the situation-specific work undone."
+          },
+          "spans": [
+            "T5",
+            "T6"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Resolve the apparent conflict",
+      "story": "The expert’s Jonah example suggests a different division of labor. The participant judges what matters and knows the real situation. The consultant carries analysis and offers questions that let the participant arrive at insights. The conflict between doing essential work and understanding how to improve it need not be solved by persuading the participant to abandon that work.",
+      "sources": [
+        "T6",
+        "T7",
+        "T8"
+      ],
+      "why": "Assistance can make reflection part of advancing the work. This is the interface’s first conceptual injection.",
+      "question": "What must the participant supply, and what can the system carry?",
+      "updates": [
+        {
+          "operation": "record_claim",
+          "temporary_id": "cloud_goal",
+          "data": {
+            "tree": "conflict",
+            "role": "cloud_objective",
+            "statement": "Advance the goal effectively.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "work_need",
+          "data": {
+            "tree": "conflict",
+            "role": "cloud_requirement",
+            "statement": "Continue work the participant regards as essential.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "insight_need",
+          "data": {
+            "tree": "conflict",
+            "role": "cloud_requirement",
+            "statement": "Develop the understanding needed to improve that work.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "keep_working",
+          "data": {
+            "tree": "conflict",
+            "role": "cloud_prerequisite",
+            "statement": "Keep working instead of stopping to prepare a tree.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "stop_to_analyze",
+          "data": {
+            "tree": "conflict",
+            "role": "cloud_prerequisite",
+            "statement": "Stop ongoing work to prepare and communicate the analysis.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "assisted",
+          "data": {
+            "tree": "conflict",
+            "role": "injection",
+            "statement": "Let RC carry the analytical and clerical work while the participant contributes judgment and reality checks.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "socratic",
+          "data": {
+            "tree": "conflict",
+            "role": "injection",
+            "statement": "Ask questions that support the participant’s own insight rather than persuade them to accept a conclusion.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_31",
+          "data": {
+            "tree": "conflict",
+            "from_ref": "work_need",
+            "to_ref": "cloud_goal",
+            "relation": "necessary_for",
+            "assumption": "The ongoing work matters to the goal."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_32",
+          "data": {
+            "tree": "conflict",
+            "from_ref": "insight_need",
+            "to_ref": "cloud_goal",
+            "relation": "necessary_for",
+            "assumption": "The present approach may miss a disproportionately useful action."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_33",
+          "data": {
+            "tree": "conflict",
+            "from_ref": "keep_working",
+            "to_ref": "work_need",
+            "relation": "necessary_for",
+            "assumption": "The participant sees stopping as a threat to necessary work."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_34",
+          "data": {
+            "tree": "conflict",
+            "from_ref": "stop_to_analyze",
+            "to_ref": "insight_need",
+            "relation": "necessary_for",
+            "assumption": "The apparent conflict assumes analysis must interrupt the work."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_35",
+          "data": {
+            "tree": "conflict",
+            "from_ref": "keep_working",
+            "to_ref": "stop_to_analyze",
+            "relation": "conflicts_with",
+            "assumption": "The same limited attention cannot be fully devoted to both at once."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_36",
+          "data": {
+            "tree": "conflict",
+            "from_ref": "assisted",
+            "to_ref": "work_need",
+            "relation": "satisfies",
+            "assumption": "Assistance could let the participant continue useful work."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_37",
+          "data": {
+            "tree": "conflict",
+            "from_ref": "assisted",
+            "to_ref": "insight_need",
+            "relation": "satisfies",
+            "assumption": "The system could carry analysis without removing human judgment."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_38",
+          "data": {
+            "tree": "conflict",
+            "from_ref": "socratic",
+            "to_ref": "insight_need",
+            "relation": "contributes_to",
+            "assumption": "The participant can develop insight instead of merely complying."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "values",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "The participant decides which goals and outcomes are worth pursuing.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "insight_owned",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Questions help participants arrive at insights aligned with their own goals.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_41",
+          "data": {
+            "tree": "goal",
+            "from_ref": "values",
+            "to_ref": "progress",
+            "relation": "necessary_for",
+            "assumption": "A causal model is useful relative to preferred outcomes."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_42",
+          "data": {
+            "tree": "goal",
+            "from_ref": "insight_owned",
+            "to_ref": "carried_out",
+            "relation": "contributes_to",
+            "assumption": "Understanding why a move matters can make action more likely."
+          },
+          "spans": [
+            "T6",
+            "T7",
+            "T8"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Make the model revisable",
+      "story": "The system needs a goal-directed causal model: which interventions could influence which outcomes. Participants are the closest connection to reality and can invalidate that model. A prediction is not an observation. When an outcome contradicts a prediction, the reasoning must change rather than explain the contradiction away.",
+      "sources": [
+        "T9",
+        "T10",
+        "T11"
+      ],
+      "why": "Persistent reasoning should make explanations and revisions inspectable.",
+      "question": "What would contradict the model or its predicted effect?",
+      "updates": [
+        {
+          "operation": "record_claim",
+          "temporary_id": "model",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Maintain a causal understanding directed by the participant’s goal.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "reality_check",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Retain participant knowledge and outcomes that can contradict the model.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "revisable",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Revise causal reasoning when reality contradicts its predictions.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "traceable",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Keep the rationale and earlier formulations available for inspection.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_47",
+          "data": {
+            "tree": "goal",
+            "from_ref": "model",
+            "to_ref": "constraint_actions",
+            "relation": "necessary_for",
+            "assumption": "Selecting an intervention requires some understanding of its effects."
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_48",
+          "data": {
+            "tree": "goal",
+            "from_ref": "reality_check",
+            "to_ref": "revisable",
+            "relation": "necessary_for",
+            "assumption": "The system cannot substitute its prediction for contact with reality."
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_49",
+          "data": {
+            "tree": "goal",
+            "from_ref": "revisable",
+            "to_ref": "model",
+            "relation": "necessary_for",
+            "assumption": "An uncorrectable causal model can continue recommending the wrong move."
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_50",
+          "data": {
+            "tree": "goal",
+            "from_ref": "traceable",
+            "to_ref": "revisable",
+            "relation": "contributes_to",
+            "assumption": "Earlier reasoning lets participants see what changed and why."
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "predictions",
+          "data": {
+            "tree": "future_reality",
+            "role": "injection",
+            "statement": "Connect proposed interventions to their expected effects and revisit them against outcomes.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "learning",
+          "data": {
+            "tree": "future_reality",
+            "role": "desired_effect",
+            "statement": "Contradictory outcomes improve the causal understanding.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "effective_moves",
+          "data": {
+            "tree": "future_reality",
+            "role": "desired_effect",
+            "statement": "Updated reasoning helps identify more effective actions.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_54",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "predictions",
+            "to_ref": "learning",
+            "relation": "contributes_to",
+            "assumption": "A saved expectation makes contradictions visible."
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_55",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "learning",
+            "to_ref": "effective_moves",
+            "relation": "contributes_to",
+            "assumption": "Learning can change which intervention seems most useful."
+          },
+          "spans": [
+            "T9",
+            "T10",
+            "T11"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Count RC inside the system",
+      "story": "The expert refuses a single perfect rule for the next action. A move can directly advance throughput, reveal whether a hypothesized constraint matters, or perform useful reasoning. All consume resources. RC itself belongs in the model: token expense, participant time, opportunity cost and unused reasoning inventory can reduce the very progress RC is meant to improve. The hospital is an illustration, not project evidence.",
+      "sources": [
+        "T12"
+      ],
+      "why": "Consulting is an action with a cost. More reasoning is justified only by what it contributes.",
+      "question": "When is another question worth more than its cost?",
+      "updates": [
+        {
+          "operation": "record_claim",
+          "temporary_id": "cost_aware",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Include RC’s AI cost, participant time and displaced work in the assessment.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "inventory_small",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Keep unused models and hypotheses from overwhelming the work.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "bounded_question",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Ask when the information gained is worth the effort it requires.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_59",
+          "data": {
+            "tree": "goal",
+            "from_ref": "cost_aware",
+            "to_ref": "progress",
+            "relation": "necessary_for",
+            "assumption": "Consulting cost can offset its benefit."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_60",
+          "data": {
+            "tree": "goal",
+            "from_ref": "inventory_small",
+            "to_ref": "carried_out",
+            "relation": "necessary_for",
+            "assumption": "Reasoning inventory can obscure the action rather than help it."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_61",
+          "data": {
+            "tree": "goal",
+            "from_ref": "bounded_question",
+            "to_ref": "cost_aware",
+            "relation": "contributes_to",
+            "assumption": "Questions consume the same scarce resources as other actions."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "direct",
+          "data": {
+            "tree": "future_reality",
+            "role": "desired_effect",
+            "statement": "A useful move can directly advance progress toward the goal.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "learn_test",
+          "data": {
+            "tree": "future_reality",
+            "role": "desired_effect",
+            "statement": "An uncertain action can reveal whether a suspected constraint is real.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "reason_act",
+          "data": {
+            "tree": "future_reality",
+            "role": "desired_effect",
+            "statement": "A reasoning act can resolve an uncertainty that blocks useful action.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "token_cost",
+          "data": {
+            "tree": "future_reality",
+            "role": "undesirable_effect",
+            "statement": "AI use can consume a non-negligible amount of money.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "time_cost",
+          "data": {
+            "tree": "future_reality",
+            "role": "undesirable_effect",
+            "statement": "Time spent modeling displaces other valuable work.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "unused_inventory",
+          "data": {
+            "tree": "future_reality",
+            "role": "undesirable_effect",
+            "statement": "Generated models and hypotheses accumulate as unused inventory.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "no_execution",
+          "data": {
+            "tree": "future_reality",
+            "role": "undesirable_effect",
+            "statement": "A correct recommendation may still fail to improve throughput if it is not understood or acted on.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "self_account",
+          "data": {
+            "tree": "future_reality",
+            "role": "injection",
+            "statement": "Evaluate RC as part of the system, including its burden and actual uptake.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_70",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "self_account",
+            "to_ref": "token_cost",
+            "relation": "challenges",
+            "assumption": "Accounting for expense lets participants question whether the benefit warrants it."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_71",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "self_account",
+            "to_ref": "time_cost",
+            "relation": "challenges",
+            "assumption": "Time in RC has an opportunity cost."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_72",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "self_account",
+            "to_ref": "unused_inventory",
+            "relation": "challenges",
+            "assumption": "Visible inventory can be reduced when it no longer helps the work."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_73",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "unused_inventory",
+            "to_ref": "no_execution",
+            "relation": "contributes_to",
+            "assumption": "Too much reasoning can make the useful recommendation difficult to find."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_74",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "direct",
+            "to_ref": "effective_moves",
+            "relation": "contributes_to",
+            "assumption": "Direct progress is one sufficient reason to act."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_75",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "learn_test",
+            "to_ref": "learning",
+            "relation": "contributes_to",
+            "assumption": "An informative result can justify an uncertain action."
+          },
+          "spans": [
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_76",
+          "data": {
+            "tree": "future_reality",
+            "from_ref": "reason_act",
+            "to_ref": "effective_moves",
+            "relation": "contributes_to",
+            "assumption": "Resolving an important uncertainty can make the next action clearer."
+          },
+          "spans": [
+            "T12"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Use RC manually on RC",
+      "story": "In the stipulated pre-history, the manual record system already works: its builders use it to further RC. But keeping the record by hand is tedious. This is a concrete operating constraint in the dogfood system itself. Existing artifacts carry prior reasoning; re-entering them would reproduce that burden. The interface is a response to this constraint, not the origin of RC’s purpose.",
+      "sources": [
+        "brief"
+      ],
+      "why": "The need for an app arises from using the manual system on real development work.",
+      "question": "What must the interface remove while preserving the useful reasoning?",
+      "updates": [
+        {
+          "operation": "record_claim",
+          "temporary_id": "manual_works",
+          "data": {
+            "tree": "transition",
+            "role": "transition_existing_reality",
+            "statement": "The builders already used manual RC records to further Reason Commons.",
+            "basis": "participant_report"
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "manual_tedious",
+          "data": {
+            "tree": "current_reality",
+            "role": "root_cause",
+            "statement": "Maintaining the manual RC record is tedious without interface assistance.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "clerical",
+          "data": {
+            "tree": "current_reality",
+            "role": "intermediate_cause",
+            "statement": "Recording and re-entering prior reasoning consumes effort needed for development.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_80",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "manual_tedious",
+            "to_ref": "clerical",
+            "relation": "causes",
+            "assumption": "The record keeping is part of the work, not an external free service."
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_81",
+          "data": {
+            "tree": "current_reality",
+            "from_ref": "clerical",
+            "to_ref": "tree_burden",
+            "relation": "contributes_to",
+            "assumption": "Manual recording adds to the burden of preparing and communicating analysis."
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "dogfood",
+          "data": {
+            "tree": "prerequisite",
+            "role": "implementation_objective",
+            "statement": "Further Reason Commons through Reason Commons itself.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "record_obstacle",
+          "data": {
+            "tree": "prerequisite",
+            "role": "obstacle",
+            "statement": "Hand recording makes continued use needlessly tedious.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "prior_artifacts",
+          "data": {
+            "tree": "prerequisite",
+            "role": "obstacle",
+            "statement": "Much prior work exists in artifacts rather than entered records.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "assist_records",
+          "data": {
+            "tree": "prerequisite",
+            "role": "intermediate_objective",
+            "statement": "Provide interface assistance for keeping and inspecting RC records.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "ai_import",
+          "data": {
+            "tree": "prerequisite",
+            "role": "intermediate_objective",
+            "statement": "Use AI to reconstruct prior reasoning from existing artifacts.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_87",
+          "data": {
+            "tree": "prerequisite",
+            "from_ref": "assist_records",
+            "to_ref": "record_obstacle",
+            "relation": "overcomes",
+            "assumption": "Interface assistance can remove repeated clerical effort."
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_88",
+          "data": {
+            "tree": "prerequisite",
+            "from_ref": "ai_import",
+            "to_ref": "prior_artifacts",
+            "relation": "overcomes",
+            "assumption": "Extraction can carry the work without manual re-entry."
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_89",
+          "data": {
+            "tree": "prerequisite",
+            "from_ref": "assist_records",
+            "to_ref": "dogfood",
+            "relation": "necessary_for",
+            "assumption": "The builders need a practical way to keep using the record system."
+          },
+          "spans": [
+            "brief"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_90",
+          "data": {
+            "tree": "prerequisite",
+            "from_ref": "ai_import",
+            "to_ref": "dogfood",
+            "relation": "necessary_for",
+            "assumption": "Development should continue from the existing work rather than restart."
+          },
+          "spans": [
+            "brief"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Build the minimal interface",
+      "story": "The builders choose and implement the assisted interface. It should keep the human working on what matters, retain source words and causal reasoning, and help choose a next move. It must preserve earlier reasoning so that RC can be improved inside RC. The user stipulates an effective TUI was built; no dated engineering log, forecast or measured trial was supplied. This stage reconstructs the reason for that injection and its reported completion.",
+      "sources": [
+        "brief",
+        "scenario",
+        "T6",
+        "T12"
+      ],
+      "why": "The interface is the implemented injection into the manual RC process.",
+      "question": "Does the implemented interface remove clerical burden while preserving judgment and inspectable reasoning?",
+      "updates": [
+        {
+          "operation": "record_claim",
+          "temporary_id": "build_need",
+          "data": {
+            "tree": "transition",
+            "role": "transition_need",
+            "statement": "Make continued RC record keeping practical while preserving the reasoning.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "built",
+          "data": {
+            "tree": "transition",
+            "role": "transition_action",
+            "statement": "The minimal assisted interface was already built in the stipulated scenario.",
+            "basis": "participant_report"
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "expected_clerical",
+          "data": {
+            "tree": "transition",
+            "role": "transition_expected_effect",
+            "statement": "Interface assistance was expected to reduce clerical effort and enable continued useful work.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "success",
+          "data": {
+            "tree": "transition",
+            "role": "observation",
+            "statement": "The user stipulates that the earlier TUI effectively satisfied the interface requirements; measurements are not supplied.",
+            "basis": "participant_report"
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_95",
+          "data": {
+            "tree": "transition",
+            "from_ref": "manual_works",
+            "to_ref": "build_need",
+            "relation": "supports",
+            "assumption": "A useful manual system is worth making easier to operate."
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_96",
+          "data": {
+            "tree": "transition",
+            "from_ref": "build_need",
+            "to_ref": "built",
+            "relation": "requires",
+            "assumption": "Building the interface was the chosen response to the manual operating constraint."
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_97",
+          "data": {
+            "tree": "transition",
+            "from_ref": "built",
+            "to_ref": "expected_clerical",
+            "relation": "produces",
+            "assumption": "This was an anticipated benefit, not a recovered numerical forecast."
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_98",
+          "data": {
+            "tree": "transition",
+            "from_ref": "success",
+            "to_ref": "built",
+            "relation": "supports",
+            "assumption": "The completion and success are premises of the scenario."
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_99",
+          "data": {
+            "tree": "transition",
+            "from_ref": "built",
+            "to_ref": "assisted",
+            "relation": "implements",
+            "assumption": "The working interface realizes the earlier conceptual injection."
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "minimal",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "Keep the interface minimal enough to understand and use during important work.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "carry_analysis",
+          "data": {
+            "tree": "goal",
+            "role": "necessary_condition",
+            "statement": "The system helps choose the next useful move instead of demanding the participant already know it.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_102",
+          "data": {
+            "tree": "goal",
+            "from_ref": "minimal",
+            "to_ref": "carried_out",
+            "relation": "necessary_for",
+            "assumption": "Ineffective UX can prevent uptake even when the recommendation is sound."
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_103",
+          "data": {
+            "tree": "goal",
+            "from_ref": "carry_analysis",
+            "to_ref": "constraint_actions",
+            "relation": "necessary_for",
+            "assumption": "Discovering priorities is part of the consulting service being sought."
+          },
+          "spans": [
+            "brief",
+            "scenario",
+            "T6",
+            "T12"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Preserve development in the app",
+      "story": "A dogfood interface needs more than a store of source documents. It must preserve the path from purpose, through obstacles and conflict, to the implemented interface injection. The goal, trees, sources, earlier formulations and adoption decisions make that path inspectable. Participants must be able to challenge the interpretation, and choose automatic admission or explicit review. These are reconstructed design implications of persistence and minimal participation burden; no invented manual protocol is presented as a historical law.",
+      "sources": [
+        "brief",
+        "T8",
+        "T10",
+        "T12"
+      ],
+      "why": "An easy-to-decode account lets builders continue rather than repeat the development reasoning.",
+      "question": "What must survive the import so development can continue?",
+      "updates": [
+        {
+          "operation": "record_claim",
+          "temporary_id": "retain_sources",
+          "data": {
+            "tree": "prerequisite",
+            "role": "intermediate_objective",
+            "statement": "Retain literal source words separately from extracted interpretations.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "decode_history",
+          "data": {
+            "tree": "prerequisite",
+            "role": "intermediate_objective",
+            "statement": "Keep a readable sequence explaining how and why the interface was built.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "adoption_choice",
+          "data": {
+            "tree": "prerequisite",
+            "role": "intermediate_objective",
+            "statement": "Let participants choose automatic acceptance or require explicit acceptance of new reasoning.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "acceptance_request",
+            "T8"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "adopt_import",
+          "data": {
+            "tree": "prerequisite",
+            "role": "intermediate_objective",
+            "statement": "Review or automatically adopt the imported reconstruction into the working model.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_108",
+          "data": {
+            "tree": "prerequisite",
+            "from_ref": "retain_sources",
+            "to_ref": "traceable",
+            "relation": "enables",
+            "assumption": "Sources let participants challenge an interpretation."
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_109",
+          "data": {
+            "tree": "prerequisite",
+            "from_ref": "decode_history",
+            "to_ref": "dogfood",
+            "relation": "necessary_for",
+            "assumption": "Builders need to understand their existing reasoning to continue from it."
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_110",
+          "data": {
+            "tree": "prerequisite",
+            "from_ref": "adoption_choice",
+            "to_ref": "adopt_import",
+            "relation": "enables",
+            "assumption": "Different participants can choose how to admit new reasoning."
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_111",
+          "data": {
+            "tree": "prerequisite",
+            "from_ref": "adopt_import",
+            "to_ref": "dogfood",
+            "relation": "necessary_for",
+            "assumption": "An archive alone does not provide an adopted model to work from."
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "accepted_import",
+          "data": {
+            "tree": "transition",
+            "role": "transition_action",
+            "statement": "Import the prior artifacts, reconstruct their reasoning and adopt it into the app.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_claim",
+          "temporary_id": "continued",
+          "data": {
+            "tree": "transition",
+            "role": "transition_expected_effect",
+            "statement": "The builders can continue RC development from a legible model and its history.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_114",
+          "data": {
+            "tree": "transition",
+            "from_ref": "built",
+            "to_ref": "accepted_import",
+            "relation": "enables",
+            "assumption": "The interface makes the imported reasoning usable."
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        },
+        {
+          "operation": "record_link",
+          "temporary_id": "link_115",
+          "data": {
+            "tree": "transition",
+            "from_ref": "accepted_import",
+            "to_ref": "continued",
+            "relation": "produces",
+            "assumption": "Adoption supplies a working starting point instead of a fresh questionnaire."
+          },
+          "spans": [
+            "brief",
+            "T8",
+            "T10",
+            "T12"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Import and adopt prior reasoning",
+      "story": "This is the reconstructed import boundary. The development argument is now represented in the goal, six trees and linked stages, with the conversation and builders brief retained as sources. In the adopted demonstration every proposal enters the model, so Backlog is empty because the reasoning was accepted, not dismissed. The native dates record this reconstruction/import, not unknown historical dates. No old files or Git history were used to recover the account.",
+      "sources": [
+        "brief",
+        "scenario"
+      ],
+      "why": "The imported work is ready for the next contribution. Its historical completion is stipulated; interpretation remains open to challenge.",
+      "question": "The prior reasoning has been imported into a model ready for adoption and continued work.",
+      "updates": [
+        {
+          "operation": "record_note",
+          "temporary_id": "receipt",
+          "data": {
+            "text": "Prior development is imported and adopted. History explains the path from TOC access to manual RC, the interface injection and this import. Trees hold the reasoning; source words remain separately attributed. Empty Backlog means adopted reasoning, not discarded work.",
+            "basis": "participant_report"
+          },
+          "spans": [
+            "brief",
+            "scenario"
+          ]
+        },
+        {
+          "operation": "record_note",
+          "temporary_id": "provenance",
+          "data": {
+            "text": "This is an AI-authored reconstruction from the user’s conversation and hypothetical scenario. Stage ordering between the conversation, manual use and implementation is reconstructed. Original dates, manual pages, engineering choices and quantitative outcomes were not supplied. Source names have not been invented. Native timestamps are import timestamps; automatic decisions are the reconstruction editor’s acts.",
+            "basis": "participant_report"
+          },
+          "spans": [
+            "brief",
+            "scenario"
+          ]
+        },
+        {
+          "operation": "record_note",
+          "temporary_id": "open",
+          "data": {
+            "text": "Still unknown: the present operational constraint, numerical throughput and consulting cost, and whether the next recommendations will be understood, acted on and useful. The next move is a bounded dogfood exercise, not another request for the user to choose the priority.",
+            "basis": "hypothesis"
+          },
+          "spans": [
+            "brief",
+            "scenario"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Choose the first dogfood move",
+      "story": "The import leaves the development argument available. Its next uncertainty is practical: can the interface make that reasoning useful while its builders continue RC development? A focused reasoning action is to trace the manual-recording constraint through the implemented interface injection, its expected benefit and the conditions under which that benefit would fail. This first move is proposed by the reconstruction editor from the model, not chosen on behalf of the human’s values.",
+      "sources": [
+        "T12",
+        "brief"
+      ],
+      "why": "A legible record only helps throughput when builders can use it. Following one implemented decision tests the interface’s ability to support continued reasoning, while revealing where explanation or navigation is still missing.",
+      "question": "Next: trace why manual RC led to this interface, what the interface was meant to change, and what would make that change fail. Use that chain to identify the first improvement to RC itself.",
+      "updates": [],
+      "continue_work": true
+    }
+  ]
+}

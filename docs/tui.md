@@ -9,8 +9,8 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | --- | --- |
 | Top line | The goal's name on the left; on the right, your name and whether everything is saved (or *Asking …* while the consultant works, *Asking Claude (Sonnet 5.5)…* for a reply with deeper reasoning, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
 | Pinned lines | Your goal and safeguards, and the open **Action**, once a goal is in your model; a goal still waiting in **Backlog** shows as *proposed, not yet accepted*, and one with no measure yet as *provisional*. A long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result. A **Breach** (a reported result outside a bound recorded with its forecast) stays pinned here in every view. Commands, **Display: Expanded** repeats the goal's measure, baseline, horizon and scope, each safeguard and each test's boundaries here; **Display: Compact** (the default) turns it back. The choice is saved with your draft and changes nothing else |
-| Loop line | The spine of the screen: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
-| Views list | **VIEWS**, with ▸ beside the open one; **Backlog** says how many entries wait ("Backlog · 3"). While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
+| Loop line | Shown for the offline guided loop or a recorded test: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
+| Views list | Core destinations are Next step, Backlog, Goal, Trees, and Your words (including source attachments), plus History. Empty Tests and Loop actions stay in Commands → Views until relevant; Reasoning and Case context are available there too, and join the sidebar for test work. **VIEWS**, with ▸ beside the open one; **Backlog** says how many entries wait ("Backlog · 3"). While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
 | The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what the last reply proposes, marked *proposed* (see [deciding what enters your model](#deciding-what-enters-your-model)), then what the question builds on (at review: the original forecast beside the result) |
 | Answer box | Right under the page, so you answer next to the question. All typing is literal, including `?`, `q` and numbers. Its tag says who you answer as, with the built-in guide an example of the answer shows faintly while it is empty, and the line beside the buttons says what **Send** will bring back (with Claude, from which model: "Send: get Claude's reply (Haiku 5.5)"). It grows as you write, and when the page is long the page scrolls above it, so the box never leaves the screen. On any view other than **Next step** its tag also names the question it answers ("Answer as Mira · Choose a test"), and while it is empty it folds to one line so the view has the room; Tab or a click opens it, and a draft keeps it open |
 | Footer | The keys that work where the keyboard is, then **Commands**, then **Help** on the right. On a narrow terminal the hints say less, then the last ones go; **Commands** and **Help** always stay. With Claude, the space before **Help** estimates what this session and this month cost ("Haiku 5.5 · session ≈ $0.02 · month ≈ $1.40 of $5", or "…, over $5" past a budget); it says less as room runs out and is the first thing to go. With LM Studio it says *no charge*; with the built-in guide it says nothing until something was spent this month |
@@ -56,13 +56,41 @@ On the goals list: arrows choose, Enter opens, F1 shows help, F2 opens Settings,
 
 ## First start, settings and the tour
 
-The first time, `reason-commons` offers four ways to start: start a first goal
-straight away (the offline guide, with your login name), choose who asks the
-questions first, take the guided tour, or explore a real commons. Choosing
-first asks for your name (recorded with your answers), the consultant and, for
-Claude or LM Studio, checks the connection and lets you choose a model. Esc goes
-back a step; leaving setup changes nothing. F2 **Settings** on the home screen, then
-**You**, runs it again.
+The first time, `reason-commons` offers **Continue Reason Commons** and **Start my
+first goal**. Continuing imports the reconstructed RC development once into
+`~/ReasonCommons/reason-commons-development` (or the next unused suffix). Later
+openings resume it, preserving revisions and drafts. Older cases remain available.
+The opening recommends tracing the manual-recording constraint through the
+implemented interface and its expected benefit, to identify the first improvement.
+
+**History** contains ten stages: why TOC needs assistance, the analysis burden,
+the conflict and consulting injection, a revisable model, RC's own costs, manual
+use on RC, building the interface, preserving development, importing/adopting,
+and choosing a first dogfood move. Enter opens a stage with its rationale and
+model changes. Trees retain 59 claims and 56 relationships. Original source
+words and editor interpretation are separately attributed. Native dates record
+this import; the earlier dates and measured outcomes were not supplied.
+
+![Reconstructed development, with the stages and what entered the model](images/commons-history.png)
+
+The default demonstration adopts all imported reasoning automatically. Its empty
+Backlog means adopted reasoning. An import made for review retains the same
+proposals in **Backlog**; **Adopt import** accepts them through the ordinary decision
+capability. **F2 Settings**, **Reasoning**, switches between **Automatic** and
+**Require acceptance** with Left/Right. Changes affect future proposals, leaving
+older waiting proposals for you to decide.
+
+![The acceptance choice inside workspace Settings](images/commons-settings.png)
+
+**F1 Help** offers the guided tour, an editorial example, keys, and consultant
+setup. **F2 Settings**, then **You**, also opens name and consultant setup. The
+offline guide preserves contributions to the imported case as literal notes under
+the selected acceptance mode; it does not analyze them or force them into its trial questionnaire.
+Choose an AI consultant under Commands for adaptive analysis. The existing test
+workflow remains available for actual tests.
+
+![Imported RC work ready to continue](images/commons-next.png)
+
 
 The guided tour opens a practice goal with the built-in guide. A coaching strip
 explains each of the six steps; **Example answer** puts the tutorial's answer in
@@ -72,20 +100,21 @@ deleted afterwards.
 ## Screens
 
 A picture of each part of the workspace, drawn from Mira's example goal, a goal in
-progress or the real commons. `scripts/render_screenshots.py` regenerates them.
+progress or an editorial example. `scripts/render_screenshots.py` regenerates those
+examples; `scripts/render_commons.py` renders the imported RC working case.
 
 ### First start
 
 | | |
 | --- | --- |
-| ![The first screen: start a first goal, choose who asks, the tour or the real commons](images/first-start.png) | The ways to start, shown once |
+| ![The first screen: continue Reason Commons or start a first goal](images/first-start.png) | The ways to start, shown once |
 | ![Choosing who asks the questions](images/setup-consultant.png) | Setup: who asks the questions |
 | ![Choosing a Claude model](images/setup-model.png) | Setup: the models your key can use |
 | ![The guided tour, step 1](images/tour.png) | The guided tour's coaching strip and **Example answer** |
 
 ### The goals list
 
-The list has two sections: **Start** (**New goal**, the real commons, the guided tour) and
+The list has two sections: **Start** (**Continue Reason Commons**, **New goal**) and
 **Your goals**, a table of each goal's name, the stage it has reached and the day it last
 changed, with ▸ beside the highlighted row. The footer lists the keys and, on the right,
 what is set now: your name, who asks the questions and the theme. Settings are behind F2.
