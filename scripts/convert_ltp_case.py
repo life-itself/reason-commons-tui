@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert an LTP 1.0 source to a new native continuation case, offline."""
+"""Convert an LTP 1.0 source to a new native continuation commons, offline."""
 
 import argparse
 import json

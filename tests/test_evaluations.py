@@ -143,7 +143,7 @@ def test_the_replay_sends_each_turn_through_the_workspace_and_reproduces_the_run
     assert [t["sent_with"] for t in turns] == ["Send", "Send", "Ask for direct advice", "Send",
                                                "Ask for help planning an observation"]
     assert [bool(t["notes"]) for t in turns] == [False, False, False, True, False]
-    assert all({"Next step", "Case context"} <= {s["view"] for s in t["screens"]} for t in turns)
+    assert all({"Next step", "Commons context"} <= {s["view"] for s in t["screens"]} for t in turns)
     first = (tmp_path / "review" / turns[0]["before"]["file"]).read_text()
     assert "Late" in first and "deliveries," in first  # the answer as typed, before Send
     after = (tmp_path / "review" / turns[0]["screens"][0]["file"]).read_text()
@@ -172,6 +172,16 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     package = report.directory / "review-package"  # beside the report unless told otherwise
     assert page == package / "index.html"
     html = page.read_text()
+    # Recorded history and the accepted current model are different; older reply wording remains readable.
+    assert "<b>commons</b>" in html and "<b>conversation</b>" in html
+    assert "currently accepted reasoning" in html and "two names for the same thing" not in html
+    assert "Recording a proposal preserves it in the commons; accepting it admits it to the model" in html
+    from evaluations.plain_reply import words_in
+    glossary = dict(words_in([{"headline": "The case keeps earlier reasoning outside the model.", "lines": []}]))
+    assert "complete history across conversations" in glossary["commons"]
+    assert "called a case in older replies" in glossary["commons"]
+    assert "currently accepted reasoning" in glossary["the model"]
+    assert "without belonging to its current model" in glossary["the model"]
     data = json.loads(re.search(r'<script type="application/json" id="data">(.*?)</script>', html, re.S).group(1))
     assert data["template"] == review_template(report.directory / "report.json")
     case = data["cases"][0]
@@ -190,11 +200,11 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     given = {q["id"]: q.get("given", {}).get("answer") for q in case["questions"]}
     assert given == {"1.1": "cant", "1.2": "cant", "2.1": "cant", "2.2": "cant", "3.1": "cant", "3.2": "cant",
                      "3.3": "cant"}
-    # Every screen the page names is in its case's file, as the workspace's own SVG.
+    # Every screen the page names is in its commons' file, as the workspace's own SVG.
     screens = json.loads((package / case["file"]).read_text().split("] = ", 1)[1].rstrip(";\n"))
     keys = {s["key"] for t in case["turns"] for s in t["screens"]}
     assert keys == set(screens) and all(svg.lstrip().startswith("<svg") for svg in screens.values())
-    # The publish call: the case files, and each reviewer's record readable only by them and the owner.
+    # The publish call: the commons files, and each reviewer's record readable only by them and the owner.
     publish = json.loads((package / "publish.json").read_text())
     assert publish["files"] == {case["file"]: case["file"]} and publish["capabilities"] == CAPABILITIES
     assert {"path": "reviews/{self}", "read": "interact", "write": "interact"} in CAPABILITIES["db"]["rules"]

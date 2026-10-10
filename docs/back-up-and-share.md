@@ -5,7 +5,7 @@ per goal.
 
 ## Back up or share a goal
 
-In the workspace, press **Ctrl+P** and choose **Export case**. Reason Commons
+In the workspace, press **Ctrl+P** and choose **Export commons**. Reason Commons
 suggests a file next to the goal's folder, such as
 `~/ReasonCommons/first-practice-2026-11-09.reasoncase`; press Enter to write it.
 Use a new file name each time.

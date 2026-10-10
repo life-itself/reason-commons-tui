@@ -38,7 +38,7 @@ export REASON_COMMONS_LM_STUDIO_TIMEOUT='120'
 
 If your server requires authentication, provide `LM_STUDIO_API_TOKEN` in the
 process environment. The adapter sends a Bearer header. Tokens and server
-addresses are not serialized into cases or exports. Do not put tokens in URLs.
+addresses are not serialized into commons or exports. Do not put tokens in URLs.
 [LM Studio authentication](https://lmstudio.ai/docs/developer/core/authentication)
 is optional and controlled by your server settings.
 
@@ -59,12 +59,12 @@ with open_case("payments-case", consultant=consultant) as app:
 ```
 
 You can instead construct `LMStudioConsultant(model="served-id", base_url=...,
-timeout=..., max_tokens=..., temperature=...)` explicitly. Reopen the same case
+timeout=..., max_tokens=..., temperature=...)` explicitly. Reopen the same commons
 with a different adapter/model to switch models; committed records and forecasts
 remain unchanged. Model, adapter/prompt/schema versions and generation settings
 are recorded for each applied request.
 
-A received-but-uncommitted proposal is recovered from the case, even if you
+A received-but-uncommitted proposal is recovered from the commons, even if you
 reopen with another model. Its original adapter version is retained. To obtain
 a new model's evaluation, submit a new contribution against the current target.
 Do not treat changing models as permission to overwrite an original forecast.
@@ -89,13 +89,13 @@ retry uses the retained request identity.
 For a model/server that cannot support the requested structured schema, the
 request fails; choose a compatible model rather than weaken domain validation.
 Cold loading can take longer than an already-loaded generation. Set a longer
-timeout when appropriate. Requests/responses have size limits and large cases
+timeout when appropriate. Requests/responses have size limits and large commons
 may exceed a model's context window; no hidden truncation occurs.
 
 ## Developer verification
 
 The one-shot smoke harness submits a synthetic situation into a new disposable
-case; it is a development check, not an alternative interactive shell workflow:
+commons; it is a development check, not an alternative interactive shell workflow:
 
 ```sh
 PYTHONPATH=src python3 examples/lm_studio_smoke.py \
@@ -104,7 +104,7 @@ PYTHONPATH=src python3 examples/lm_studio_smoke.py \
 ```
 
 Use a fresh store destination. A successful run prints the committed proposal
-and provider version. On failure, inspect the retained case and LM Studio's
+and provider version. On failure, inspect the retained commons and LM Studio's
 developer logs. Offline inspect/history/export continue to work without a model.
 
 `python3 scripts/check_p0.py` includes local HTTP fixture tests for payload/schema,
@@ -120,11 +120,11 @@ with a tool-calling agent and records effects independently of the agent's prose
 Current Gemma evaluations expose semantic omissions and invalid references;
 this model/configuration has not passed the full v1 quality gate. The loaded
 context window reported by LM Studio can be smaller than a model's advertised
-maximum; the evidence records that distinction without truncating the case.
+maximum; the evidence records that distinction without truncating the commons.
 
 Initially verified on 2 October 2026 against the local `google/gemma-4-e4b` model: a synthetic
 situation produced a structured intervention, passed application/domain
-validation and was committed as revision 1. The disposable case is at
+validation and was committed as revision 1. The disposable commons is at
 `/tmp/reason-commons-lmstudio.Es6zle/case`; it can be inspected offline. The full
 gate passed 67 implementation tests, 23 specification regressions and all nine
 p0 acceptance scenarios. The packaged prompt/context were verified after

@@ -1,4 +1,4 @@
-"""Case utilities, one-shot skill invocations and the launcher for the terminal workspace."""
+"""Commons utilities, one-shot skill invocations and the launcher for the terminal workspace."""
 
 import argparse
 import json
@@ -75,14 +75,14 @@ def main(argv=None):
         workspace.add_argument("--accessible", action="store_true",
                                help="Ordered text without redrawing the screen, for screen readers (also used "
                                     "when TERM=dumb); the same controls and records")
-    new = commands.add_parser("new", help="Create a durable minimal case (p0)")
+    new = commands.add_parser("new", help="Create a durable minimal commons (p0)")
     new.add_argument("--store", required=True)
-    new.add_argument("--name", default="Untitled case")
+    new.add_argument("--name", default="Untitled commons")
     for name in ("inspect", "history"):
         item = commands.add_parser(name, help="Read stored records offline")
         item.add_argument("store")
         item.add_argument("--json", action="store_true")
-    show = commands.add_parser("show", help="Open or inspect the case workspace offline")
+    show = commands.add_parser("show", help="Open or inspect the commons workspace offline")
     show.add_argument("store")
     show.add_argument("--view", choices=VIEWS, default="next")
     show.add_argument("--revision", type=int)
@@ -109,7 +109,7 @@ def main(argv=None):
     providers.add_argument("--model", help="Model ID to check")
     providers.add_argument("--base-url", help="Server URL to check")
     providers.add_argument("--json", action="store_true")
-    contribution = commands.add_parser("contribute", help="Run the contribution skill once against an existing case")
+    contribution = commands.add_parser("contribute", help="Run the contribution skill once against an existing commons")
     contribution.add_argument("store")
     contribution.add_argument("--speaker", required=True, help="Declared participant attribution")
     text = contribution.add_mutually_exclusive_group(required=True)
@@ -119,7 +119,7 @@ def main(argv=None):
     contribution.add_argument("--observed", action="store_true", help="Explicitly declare supplied evidence as observed")
     contribution.add_argument("--intent", choices=sorted({"answer"} | CONSULT_INTENTS), default="answer")
     contribution.add_argument("--base-revision", type=int, help="Revision of the question being answered")
-    contribution.add_argument("--response-target", help="Exact displayed question reference, or none for an empty case")
+    contribution.add_argument("--response-target", help="Exact displayed question reference, or none for an empty commons")
     retry = commands.add_parser("retry", help="Explicitly retry an original retained request, once")
     retry.add_argument("store")
     retry.add_argument("request_id")
@@ -153,13 +153,14 @@ def main(argv=None):
     receipts = commands.add_parser("receipts", help="Inspect attempts for a retained request offline")
     receipts.add_argument("store")
     receipts.add_argument("request_id")
-    mcp = commands.add_parser("mcp", help="Serve case capabilities to a local MCP client over standard input/output")
-    mcp.add_argument("--case-root", required=True, help="Existing directory containing editable case folders")
+    mcp = commands.add_parser("mcp", help="Serve commons capabilities to a local MCP client over standard input/output")
+    mcp.add_argument("--commons-root", "--case-root", dest="case_root", metavar="FOLDER", required=True,
+                     help="Existing directory containing editable commons folders (--case-root is a legacy alias)")
     mcp.add_argument("--provider", choices=list(PROVIDERS), help="Consultant provider; otherwise REASON_COMMONS_PROVIDER or lm-studio")
     mcp.add_argument("--model", help="Selected provider's model ID")
     mcp.add_argument("--base-url", help="Selected provider's URL")
     mcp.add_argument("--allow-acceptance-setting", action="store_true",
-                     help="Let the client switch cases to automatic acceptance; off unless you grant it")
+                     help="Let the client switch commons to automatic acceptance; off unless you grant it")
     args = parser.parse_args(argv)
     try:
         if args.command is None and not (sys.stdin.isatty() and sys.stdout.isatty()):

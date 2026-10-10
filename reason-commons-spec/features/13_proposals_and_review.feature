@@ -3,7 +3,7 @@ Feature: Decide what enters the model
   The consultant drafts what the operator's words could mean; the operator decides
   what enters the model. The goal, the six trees and the tests are one model, and
   every change the consultant proposes to any part of it waits in the backlog with
-  its source until the operator accepts it, unless the operator has set the case to
+  its source until the operator accepts it, unless the operator has set the commons to
   accept proposals automatically. The backlog lists proposals in the order they are
   best decided. A change asks for review of whatever explicitly cites what it
   changed, and every acceptance can be undone. Accepting admits a statement into the
@@ -11,7 +11,7 @@ Feature: Decide what enters the model
 
   @S135 @p2 @v1 @automated
   Scenario: Hold a reply's proposals in the backlog by default
-    Given a case whose goal is "A clear next step after open evenings"
+    Given a commons whose goal is "A clear next step after open evenings"
     When the operator says "Newcomers do not know the next step, because we never offer one"
     And the consultant proposes a symptom, a cause and a causes link citing that input
     Then the consultant's next question becomes the live question
@@ -35,7 +35,7 @@ Feature: Decide what enters the model
     Then the operator is shown that the link, which needs the cause, is rejected with it
     When the operator confirms
     Then the cause and the link leave the backlog and the symptom still waits
-    And the case history keeps both rejected proposals with the operator's decision
+    And the commons history keeps both rejected proposals with the operator's decision
     And neither can be accepted later
 
   @S138 @p2 @v1 @automated
@@ -51,7 +51,7 @@ Feature: Decide what enters the model
 
   @S139 @p2 @v1 @automated
   Scenario: Accept proposals automatically when the operator has chosen to
-    Given a case set to accept proposals automatically
+    Given a commons set to accept proposals automatically
     When the consultant proposes a symptom, a cause and a causes link citing the operator's words
     Then the revision that publishes the next question also adds all three to the Current Reality Tree
     And it records that they were accepted automatically under the operator's setting
@@ -59,8 +59,8 @@ Feature: Decide what enters the model
 
   @S140 @p2 @v1 @automated
   Scenario: Only the operator changes how proposals are accepted
-    Given a case that holds proposals for review, with two proposals waiting
-    When the operator sets the case to accept proposals automatically
+    Given a commons that holds proposals for review, with two proposals waiting
+    When the operator sets the commons to accept proposals automatically
     Then a revision records the operator's choice without a consultant call
     And the two proposals already waiting still wait
     And a consultant reply that tries to change the setting is rejected before commit
@@ -73,7 +73,7 @@ Feature: Decide what enters the model
     Then the operator is shown that the link leaves the tree with it and the waiting proposal is closed
     When the operator confirms
     Then a new revision removes the cause and its link from the tree and keeps the later symptom
-    And the case history keeps the operator's words, the proposals, their acceptance and the undo
+    And the commons history keeps the operator's words, the proposals, their acceptance and the undo
     And the undo is final: it cannot be undone and the cause does not return to the backlog
 
   @S142 @p2 @v1 @automated
@@ -98,12 +98,12 @@ Feature: Decide what enters the model
 
   @S144 @p2 @v1 @automated
   Scenario: Keep one goal at the top of the Goal Tree
-    Given a case whose goal is "At least 90% of orders on time by October 30"
+    Given a commons whose goal is "At least 90% of orders on time by October 30"
     When the consultant proposes a critical success factor that the goal requires and the operator accepts it
-    Then the Goal Tree shows the case's goal at its top with the factor beneath it
+    Then the Goal Tree shows the commons' goal at its top with the factor beneath it
     And the Goal view and the Goal Tree show the same goal
     When the consultant proposes a second goal that is not a new version of the current one
-    Then the proposal is rejected before commit because a case has one goal
+    Then the proposal is rejected before commit because a commons has one goal
 
   @S145 @p2 @v1 @automated
   Scenario: Use a statement from another tree in a link
@@ -137,21 +137,21 @@ Feature: Decide what enters the model
     And nothing changes until the operator confirms
     When the operator confirms
     Then a new revision removes the cause and its link from the tree and the test's flag waits in the backlog
-    And in a case set to accept proposals automatically, the same withdrawal waits for the operator
+    And in a commons set to accept proposals automatically, the same withdrawal waits for the operator
 
   @S149 @p2 @v1 @automated
-  Scenario: Cite only words the case has taken in
+  Scenario: Cite only words the commons has taken in
     Given an answer the operator sent became stale before the consultant replied to it
     When the operator sends another answer
     Then the consultant's request does not carry the stale answer
-    And a reply whose proposal cites the stale answer is rejected before commit, leaving the case unchanged
+    And a reply whose proposal cites the stale answer is rejected before commit, leaving the commons unchanged
     And the stale answer stays retained with its source, so the operator can send it again
 
   @S150 @p2 @v1 @automated
   Scenario: Revise a test's forecast only before its first result
     Given an accepted test forecasting "6 of 30" and an accepted action that carries it out
     When the operator accepts a new version of the test forecasting "8 of 30"
-    Then the Tests view shows one test with the new forecast, and the case history keeps the earlier one
+    Then the Tests view shows one test with the new forecast, and the commons history keeps the earlier one
     And the action is flagged for review because it was planned for the earlier version
     When a result is reported for the test and accepted
     Then a further new version of the test is rejected before commit, so the forecast stays as it was before the result

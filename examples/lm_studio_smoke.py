@@ -11,7 +11,7 @@ from reason_commons.bootstrap import create_case
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--store", required=True, help="New disposable case directory")
+    parser.add_argument("--store", required=True, help="New disposable commons directory")
     parser.add_argument("--model", help="Served chat model ID (overrides environment)")
     parser.add_argument("--base-url", help="Server URL (overrides environment)")
     args = parser.parse_args()

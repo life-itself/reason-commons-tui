@@ -1,4 +1,4 @@
-"""What each saved revision changed, read from the case's own history.
+"""What each saved revision changed, read from the commons' own history.
 
 Display only: every entry is counted from records the engine saved, and the
 words and speaker come from the retained input that produced the revision.
@@ -20,7 +20,7 @@ def revision_changes(snapshots, sources):
     What changed is what entered the model: a reply's proposals count when they are
     accepted, in the revision that accepted them (the reply's own under automatic
     acceptance). A revision that only records a decision has no words of its own; its
-    entry names who decided and what. Cases recorded before proposals needed acceptance
+    entry names who decided and what. Commons recorded before proposals needed acceptance
     count every record in the revision that published it.
     """
     entries, seen, applied, decided, previous = [], set(), set(), 0, None

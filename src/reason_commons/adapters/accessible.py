@@ -20,7 +20,7 @@ import textwrap
 from reason_commons.adapters.pricing import label, money, typical
 from reason_commons.adapters.usage import crossed
 
-TITLES = {"next": "Next step", "context": "Case context", "explain": "Explain this", "moves": "Other moves",
+TITLES = {"next": "Next step", "context": "Commons context", "explain": "Explain this", "moves": "Other moves",
           "views": "Views", "backlog": "Backlog", "goal": "Goal", "tests": "Tests", "sources": "Your words",
           "history": "History", "help": "Help"}
 LISTED_VIEWS = ("next", "backlog", "goal", "tests", "sources", "history", "context")
@@ -40,7 +40,7 @@ class Control:
 
 
 class AccessibleWorkspace:
-    """One case in the ordered presentation. ``write`` receives text to append; ``handle`` takes one key."""
+    """One commons in the ordered presentation. ``write`` receives text to append; ``handle`` takes one key."""
 
     def __init__(self, case, speaker, width=80, height=24, write=None, consultant="the consultant", usage=None,
                  model=None):
@@ -175,7 +175,7 @@ class AccessibleWorkspace:
             if field.startswith("forecast."):
                 _, index, name = field.split(".")
                 field = f"forecast {int(index) + 1} {name}"
-            unknown.setdefault(item["ref"] or "the case", []).append(field)
+            unknown.setdefault(item["ref"] or "the commons", []).append(field)
         if unknown:
             lines.append("Uncertain: " + "; ".join(f"{ref}: {', '.join(fields)}" for ref, fields in unknown.items()) + ".")
         for comparison in (c for c in w["comparisons"] if c["observations"]):
@@ -194,7 +194,7 @@ class AccessibleWorkspace:
 
     def lines_context(self):
         w = self.workspace()
-        lines = [f"Case context, complete. Local: nothing is sent.",
+        lines = [f"Commons context, complete. Local: nothing is sent.",
                  f"Saved at revision {w['revision']}. Proposals are "
                  + ("accepted automatically." if w.get("acceptance") == "automatic" else "held for you.")]
         lines += self.attention(w)
@@ -310,7 +310,7 @@ class AccessibleWorkspace:
                             lambda: self.open("explain")),
                     Control("Other moves", "local list", "other moves, each saying whether it asks the consultant",
                             lambda: self.open("moves")),
-                    Control("Case context", "local", "the complete current context; no consultant call",
+                    Control("Commons context", "local", "the complete current context; no consultant call",
                             lambda: self.open("context"))]
         reply = w.get("reply") or {}
         if any(r["status"] == "proposed" for r in reply.get("records") or []):
@@ -379,7 +379,7 @@ class AccessibleWorkspace:
                                              if waiting > 0 else ""))
         else:
             self.state = {"unavailable": "consultant unavailable", "rejected": "reply rejected",
-                          "stale": "case changed", "not_saved": "not saved"}.get(result["status"], result["status"])
+                          "stale": "commons changed", "not_saved": "not saved"}.get(result["status"], result["status"])
             self.announce(f"Not answered: {result.get('message') or result['status']}. Your Response is kept.")
         for line in cost:
             self.announce(line)
@@ -525,7 +525,7 @@ def _ready(descriptor):
 
 
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None):
-    """Open (creating if needed) a case in the ordered presentation, in this terminal, without redrawing it."""
+    """Open (creating if needed) a commons in the ordered presentation, in this terminal, without redrawing it."""
     from pathlib import Path
     from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
     store = Path(os.path.expanduser(store)).resolve()

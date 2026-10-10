@@ -24,7 +24,7 @@ repository.
 
 | Part | State |
 | --- | --- |
-| p0 durable case engine | Implemented: revisions, YAML storage, export/import, retry, consultant ports, CLI, MCP |
+| p0 durable commons engine | Implemented: revisions, YAML storage, export/import, retry, consultant ports, CLI, MCP |
 | Terminal workspace (TUI) | First personal-use slice of p1: `reason-commons tui`, built with Textual |
 | Built-in guide | Offline consultant (`guided`) that walks the loop without a model or key |
 | Real commons | The Second Renaissance story (`adapters/stories/second-renaissance.yaml`), built one revision per chapter by `scripts/build_story.py` into the packaged `.reasoncase`; History becomes a steppable timeline for every goal |
@@ -45,7 +45,7 @@ Every executed step of the specification and conversation features also has a
 picture, one per step, named by feature, scenario and step. Run
 `python3 scripts/capture_steps.py` to regenerate `docs/screenshots/`; each run
 replaces that folder. Its `MANIFEST.json` records where each picture came from (the
-live workspace, a fresh workspace on a copy of the case, or the accessible
+live workspace, a fresh workspace on a copy of the commons, or the accessible
 presentation's text) and lists the steps that have no step definition yet. The folder
 is git-ignored, since it is about 100 MB of generated pictures; regenerate it rather
 than commit it.
@@ -66,7 +66,7 @@ reason-commons export /tmp/payments-case /tmp/payments.reasoncase
 reason-commons import /tmp/payments.reasoncase --store /tmp/payments-handoff
 ```
 
-Use a new destination for each case or export. Without installation, prefix
+Use a new destination for each commons or export. Without installation, prefix
 utilities with `PYTHONPATH=src python3 -m reason_commons`. Python 3.9+ and a local
 POSIX filesystem are supported. The application API accepts an injected
 consultant; the deterministic acceptance suite requires no provider or key.

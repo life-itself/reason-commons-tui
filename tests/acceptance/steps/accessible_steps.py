@@ -1,6 +1,6 @@
 """Executable definitions for the accessible ordered presentation (S49).
 
-The case is built through the application use cases; the presentation is driven with the keys a person
+The commons is built through the application use cases; the presentation is driven with the keys a person
 presses, and what it appends is read as a screen reader would receive it.
 """
 
@@ -86,14 +86,14 @@ def goal_with_question(context):
     assert "Protect: Overtime at most 20 hours per week" in text
 
 
-@then("the Case context control exposes complete current context locally")
+@then("the Commons context control exposes complete current context locally")
 def case_context(context):
     mark = len(context.output)
     controls = [c.label for c in context.presentation.controls()]
-    press(context, *["tab"] * ((controls.index("Case context") - context.presentation.focus) % len(controls)))
+    press(context, *["tab"] * ((controls.index("Commons context") - context.presentation.focus) % len(controls)))
     press(context, "enter")
     text = read_section(context, mark)  # the whole context, a page at a time
-    assert "== Case context (replaces the view above) ==" in text
+    assert "== Commons context (replaces the view above) ==" in text
     for words in (f"Saved at revision {context.revision_before}", "Goal G1@1: 90% of orders delivered on time",
                   "Horizon: October 30", "Protect: Overtime at most 20 hours per week",
                   "Test P1@1: Freeze each day's plan by 9:00 with two urgent slots", "Answering: What do you make"):
@@ -125,4 +125,4 @@ def no_colour(context):
     assert "\x1b[" not in text  # no colour or cursor codes at all
     plain = " ".join(text.split())
     assert "NEXT: Review the pilot" in plain and "Attention: BREACH." in plain and "Not known yet:" in plain
-    assert "Send, asks the consultant" in plain and "Case context, local" in plain
+    assert "Send, asks the consultant" in plain and "Commons context, local" in plain

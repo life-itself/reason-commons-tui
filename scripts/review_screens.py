@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build a review package: each case's workspace screens as its operator saw them, beside the rubric.
+"""Build a review package: each commons' workspace screens as its operator saw them, beside the rubric.
 
 Every run of a completed semantic evaluation is replayed through the real workspace with its recorded replies (no
-model is called) and refused unless the replay reproduces the recorded case. The package goes beside the report:
+model is called) and refused unless the replay reproduces the recorded commons. The package goes beside the report:
 
     python3 scripts/review_screens.py .evaluation-runs/RUN/report.json
 

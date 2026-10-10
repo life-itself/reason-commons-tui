@@ -167,7 +167,7 @@ class GuidedConsultant:
                         "protections": protections}
                 goals = membership.goals(proposing=True)
                 if goals:
-                    data["replaces"] = goals[-1]  # a case has one goal: a different one is its new version
+                    data["replaces"] = goals[-1]  # a commons has one goal: a different one is its new version
                 updates.append({"operation": "record_goal", "temporary_id": "goal", "data": data,
                                 "source_refs": self._refs(statement, measure, request_id)})
                 context["goal"] = "goal"
@@ -228,7 +228,7 @@ class GuidedConsultant:
                               change=change, after_review=step == "review" and bool(answer))
 
     def _step(self, current, records):
-        """Return (step, inferred). The empty case's welcome question asks for the goal."""
+        """Return (step, inferred). The empty commons' welcome question asks for the goal."""
         if current is None and not records:
             return "goal", False
         purpose = (current or {}).get("data", {}).get("purpose", "")

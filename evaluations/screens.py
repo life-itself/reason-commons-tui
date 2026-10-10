@@ -1,13 +1,13 @@
 """Replay a semantic run through the real workspace and keep the screens its operator would have seen.
 
-A run's report holds every reply the consultant gave, and its case holds every input with its speaker, intent,
-declarations and time. Replaying them builds the same case again, but the evaluated turns go through the Textual
+A run's report holds every reply the consultant gave, and its commons holds every input with its speaker, intent,
+declarations and time. Replaying them builds the same commons again, but the evaluated turns go through the Textual
 workspace: the turn's words are put in the answer box and sent the way a person sends them (Send, or the Other
 moves entry for a turn that asked for advice or an observation), and a stand-in consultant returns the recorded
 reply instead of calling a model. What the workspace shows as each reply lands, the changes it names included,
 is exported as SVG.
 
-Nothing is judged here. The replay refuses to produce screens unless it reproduces the recorded case exactly:
+Nothing is judged here. The replay refuses to produce screens unless it reproduces the recorded commons exactly:
 the same request identities, the same replies and the same revisions. Setup inputs go through the application
 use cases, as the run's own setup did, and are not drawn.
 """
@@ -62,14 +62,14 @@ class ReplayConsultant:
 
 
 def recorded_case(report_directory, run_id):
-    """The run's own case: its folder, or the archive exported when the run ended."""
+    """The run's own commons: its folder, or the archive exported when the run ended."""
     folder = Path(report_directory) / run_id
     if folder.is_dir():
         return folder
     archive = folder.with_name(run_id + ".reasoncase")
     if archive.exists():
         return archive
-    raise ReplayMismatch(f"{run_id}: neither the case folder nor its .reasoncase is beside the report")
+    raise ReplayMismatch(f"{run_id}: neither the commons folder nor its .reasoncase is beside the report")
 
 
 def attempts_of(receipts):
@@ -83,7 +83,7 @@ def attempts_of(receipts):
 
 
 def comparable(value):
-    """A case's history without what differs between any two copies: its identity and wall-clock times."""
+    """A commons' history without what differs between any two copies: its identity and wall-clock times."""
     if isinstance(value, dict):
         return {k: comparable(v) for k, v in value.items() if k not in {"case_id", "timestamp"}}
     if isinstance(value, list):
@@ -92,7 +92,7 @@ def comparable(value):
 
 
 def read_run(report_directory, run):
-    """The recorded case's inputs, replies and history, checked against the report's own turns."""
+    """The recorded commons' inputs, replies and history, checked against the report's own turns."""
     with open_case(str(recorded_case(report_directory, run["id"])), writable=False) as case:
         history = case.history()["revisions"]
         sources = case.sources()["sources"]
@@ -102,9 +102,9 @@ def read_run(report_directory, run):
     for turn, request in zip(run["turns"], evaluated):
         source = sources.get(request) if request else None
         if not source or source["text"] != turn["text"] or source["speaker"] != turn["speaker"]:
-            raise ReplayMismatch(f"{run['id']} turn {turn['number']}: the case's input is not the report's")
+            raise ReplayMismatch(f"{run['id']} turn {turn['number']}: the commons' input is not the report's")
         if attempts_of(turn.get("receipts") or {"attempts": []}) != attempts[request]:
-            raise ReplayMismatch(f"{run['id']} turn {turn['number']}: the case's replies are not the report's")
+            raise ReplayMismatch(f"{run['id']} turn {turn['number']}: the commons' replies are not the report's")
     return history, inputs, attempts, evaluated
 
 
@@ -160,8 +160,8 @@ async def views(app, pilot, directory, prefix):
     await pilot.resize_terminal(*SIZES["wide"])
     await pilot.pause(0.3)
     workspace = app.case.workspace(view="trees")
-    wanted = [("context", "Case context")]
-    # The Goal Tree always holds the case's goal; the view is worth drawing once anything else is in the trees.
+    wanted = [("context", "Commons context")]
+    # The Goal Tree always holds the commons' goal; the view is worth drawing once anything else is in the trees.
     if any(tree["claims"] for tree in workspace["trees"] if tree["tree"] != "goal") or any(
             len(tree["claims"]) > 1 for tree in workspace["trees"] if tree["tree"] == "goal"):
         wanted.insert(0, ("trees", "Trees"))
@@ -210,7 +210,7 @@ async def drive(path, provider, clock, consultant, turns, directory):
 
 
 def replay_run(report_directory, run, provider, work, directory):
-    """Rebuild the run's case in ``work`` and write its screens to ``directory``; return what each turn shows."""
+    """Rebuild the run's commons in ``work`` and write its screens to ``directory``; return what each turn shows."""
     history, inputs, attempts, evaluated = read_run(report_directory, run)
     first = history[0]
     actor = next((d["actor"] for d in first.get("decisions", []) if d["action"] == "acceptance"), None)
@@ -234,7 +234,7 @@ def replay_run(report_directory, run, provider, work, directory):
     screens = asyncio.run(drive(path, provider, clock, consultant, turns, directory))
     with open_case(str(path), writable=False) as replayed:
         if comparable(replayed.history()["revisions"]) != comparable(history):
-            raise ReplayMismatch(f"{run['id']}: the replay did not reproduce the recorded case")
+            raise ReplayMismatch(f"{run['id']}: the replay did not reproduce the recorded commons")
         sent = sorted((s for s in replayed.sources()["sources"].values() if "request_id" in s),
                       key=lambda s: s["request_id"])
     # Each input as the run retained it: the same words, speaker, target, intent, declarations and time.

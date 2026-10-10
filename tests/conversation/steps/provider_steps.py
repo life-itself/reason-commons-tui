@@ -19,7 +19,7 @@ LITERAL = "We keep missing deliveries.\nSecond line, exactly as typed."
 
 
 class ProviderFailure(Exception):
-    """Carries a safe category and a message that must never reach case state."""
+    """Carries a safe category and a message that must never reach commons state."""
 
     def __init__(self, category, status=None):
         super().__init__(f"provider said: key {SECRET} was refused")
@@ -135,14 +135,14 @@ def rejected(context):
     assert "lm-studio" in str(context.error) and "anthropic" in str(context.error)
 
 
-# ---- Opening a case with a consultant ------------------------------------
+# ---- Opening a commons with a consultant ------------------------------------
 
-@given("a case opened with the configured consultant")
+@given("a commons opened with the configured consultant")
 def configured_case(context):
     reopen_with(context, configured_consultant())
 
 
-@given("a case opened with the configured consultant, counting its usage")
+@given("a commons opened with the configured consultant, counting its usage")
 def counted_case(context):
     context.usage = usage_session("cli")
     reopen_with(context, configured_consultant(usage=context.usage.record))
@@ -153,12 +153,12 @@ def failing(context, category):
     context.failing = FailingConsultant(category)
 
 
-@given("a case opened with that consultant")
+@given("a commons opened with that consultant")
 def failing_case(context):
     reopen_with(context, context.failing)
 
 
-@when("David contributes to the empty case")
+@when("David contributes to the empty commons")
 def contribute_empty(context):
     context.result = context.app.submit(LITERAL, "David", 0, None)
 
@@ -186,7 +186,7 @@ def no_revision(context):
     assert context.app.inspect()["case"]["revision"] == 0
 
 
-@then("the case can still be read offline")
+@then("the commons can still be read offline")
 def offline(context):
     with open_case(context.path, writable=False) as reader:
         assert reader.workspace()["revision"] == 0 and reader.receipts(context.result["request_id"])["attempts"]
@@ -199,7 +199,7 @@ def told(context, check):
         assert check in rendered[form].lower(), rendered[form]
 
 
-@then("the secret appears nowhere in the saved case")
+@then("the secret appears nowhere in the saved commons")
 def no_secret(context):
     rendered = workspace_output(context.app.workspace(), result=context.result, speaker="David")["rendered"]
     assert SECRET.encode() not in saved_text(context)
@@ -208,7 +208,7 @@ def no_secret(context):
 
 # ---- Switching consultants -----------------------------------------------
 
-@given('a case consulted by "{name}"')
+@given('a commons consulted by "{name}"')
 def consulted_by(context, name):
     context.consultant.version = f"fixture/{name}"
     context.consultant.responses.append(bounded_case)
@@ -217,7 +217,7 @@ def consulted_by(context, name):
     context.history_before = context.app.history()["revisions"]
 
 
-@when('the case is reopened with the consultant "{name}"')
+@when('the commons is reopened with the consultant "{name}"')
 def reopen_second(context, name):
     context.app.close()
     context.second = ScriptedConsultant()
@@ -265,7 +265,7 @@ def question_saved(context):
     assert context.app.workspace()["question"] is not None
 
 
-@then("the API key is not stored in the case or its export")
+@then("the API key is not stored in the commons or its export")
 def key_not_stored(context):
     sent = [headers for _, _, headers, _ in context.server.requests]
     assert sent and all(h.get("X-Api-Key") == SECRET for h in sent)
@@ -284,7 +284,7 @@ def haiku_default_settings(context):
     assert "Model: claude-haiku-5-5 (default)" in render_provider_settings(settings)
 
 
-@then("the case records that Claude Haiku 5.5 produced it")
+@then("the commons records that Claude Haiku 5.5 produced it")
 def haiku_recorded(context):
     sent = [payload["model"] for method, path, _, payload in context.server.requests if path == "/v1/messages"]
     assert sent == ["claude-haiku-5-5"], sent
@@ -302,7 +302,7 @@ def usage_counted(context, sent, received, usd):
     assert entry["case_id"] == context.app.inspect()["case"]["case_id"]
 
 
-@then("the case and its export hold no token counts or cost")
+@then("the commons and its export hold no token counts or cost")
 def case_holds_no_usage(context):
     bundle = context.path.parent / "handoff.reasoncase"
     context.app.export(str(bundle))
@@ -313,7 +313,7 @@ def case_holds_no_usage(context):
             assert marker not in held, marker
 
 
-@then("the usage log holds no words from the case, no case name, no path and no key")
+@then("the usage log holds no words from the commons, no commons name, no path and no key")
 def log_holds_nothing_private(context):
     raw = context.usage_log.read_text(encoding="utf-8")
     assert tuple(json.loads(raw.splitlines()[0])) == KEYS
@@ -321,14 +321,14 @@ def log_holds_nothing_private(context):
         assert private not in raw, private
 
 
-@then("the case records that LM Studio produced it")
+@then("the commons records that LM Studio produced it")
 def lm_recorded(context):
     assert context.app.inspect()["case"]["adapter_versions"]["in000001"].startswith("lm-studio/")
 
 
 # ---- Experimental agent runner -------------------------------------------
 
-@given("an empty case store")
+@given("an empty commons store")
 def empty_store(context):
     context.app.close()
     with open_case(context.path, writable=False) as reader:
@@ -345,7 +345,7 @@ def runner_rejected(context):
     assert context.command.returncode == 1 and "requires lm-studio" in context.command.stderr
 
 
-@then("nothing was retained in the case")
+@then("nothing was retained in the commons")
 def nothing_retained(context):
     with open_case(context.path, writable=False) as reader:
         assert reader.workspace()["pending_requests"] == [] and reader.workspace()["revision"] == 0

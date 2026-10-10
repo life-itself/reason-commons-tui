@@ -31,15 +31,15 @@ was not saved, the transport slips the adapter undid, and tokens and seconds.
 `evaluate_semantic.py` runs every fixture in `evaluations/fixtures.py` (or `--case
 NAME`, repeatable) once per repetition, each generation attempted once. The
 fixtures cover the twelve `@semantic` p2 scenarios (S01, S02, S06, S30, S34, S35,
-S36 with one case per outline row, S52, S102, S104, S105, S122); authored setups
+S36 with one fixture per outline row, S52, S102, S104, S105, S122); authored setups
 are seeded through the application. Two more carry the live procedure's
 open-evenings conversation, which asks for the largest replies: its trees (a cause
-and an Evaporating Cloud, S128) and its test-result loop (S131, S34, S36). Each case is created with automatic acceptance,
+and an Evaporating Cloud, S128) and its test-result loop (S131, S34, S36). Each commons is created with automatic acceptance,
 recorded as Sam's setting, so a turn builds on the last; every proposal and its
 membership stays in the evidence.
 
 Use a new output path. The live harness uses synthetic contributions, creates
-disposable durable cases, and leaves the server running. It makes no downloads
+disposable durable commons, and leaves the server running. It makes no downloads
 and sends nothing to a hosted fallback. It reads the optional API token from
 the environment; tokens are not written into evidence. `--suite semantic`,
 `agent` or `recovery` runs one part, and `--case` selects a semantic fixture.
@@ -76,8 +76,8 @@ not storage, shell or file tools. Every requested call, including blocked calls,
 is recorded. Evaluation checks inspect → retain → consult, literal multiline
 text and declared speaker, failed-retention stopping, no automatic retry,
 explicit retry identity and published effects. Host permissions protect the
-case, but a blocked request remains a failed agent evaluation. Finishing a chat
-or claiming success cannot publish a case revision.
+commons, but a blocked request remains a failed agent evaluation. Finishing a chat
+or claiming success cannot publish a commons revision.
 
 Recovery probes use real local HTTP responses. One additional test injects a
 storage commit fault *after* a real received proposal; restart must apply that
@@ -110,7 +110,7 @@ five real first-time participants and assistive-technology testing.
 
 ### Reviewing replies with people who have no background
 
-Reviewers judge each case from the assistant's replies, in plain words, with the
+Reviewers judge each conversation from the system's replies, in plain words, with the
 workspace's own screens beside them, on a page they open by link:
 
 ```sh
@@ -179,12 +179,12 @@ anthropic`, `evaluate_semantic.py` uses Claude Haiku 5.5 unless `--model` says
 otherwise.
 
 `evaluations/screens.py` replays every run through the real workspace. It
-rebuilds the case from the run's own inputs and the replies recorded in the
+rebuilds the commons from the run's own inputs and the replies recorded in the
 report. Each evaluated turn's words are put in the answer box and sent as a
 person sends them: Send, or the Other moves entry for a turn that asked for
 advice or an observation. A turn by another participant is sent from a workspace
 opened as them, and every step carries its recorded time. The screens are
-exported as each reply lands: Next step at 120×40 and 80×24, Case context, and
+exported as each reply lands: Next step at 120×40 and 80×24, Commons context, and
 Trees or Backlog when they hold anything. The first turn also shows the question
 with the answer typed in. The replay refuses to produce screens unless it
 reproduces the recorded inputs, replies and revisions exactly.
@@ -196,7 +196,7 @@ The page carries no machine check, earlier review, scenario ID or score. Every
 Two fixture turns cannot be typed into the workspace as written. The workspace
 has no control for declaring an owner or observed evidence, so the ownership
 turns of `goal_action_review` and `evenings_loop` are sent the way the command
-line sends them, and the page says the person formally stated being in charge. The evaluation cases accept proposals automatically,
+line sends them, and the page says the person formally stated being in charge. The evaluation commons accept proposals automatically,
 so their screens show that setting, not the default of holding proposals in the
 Backlog.
 
@@ -222,11 +222,11 @@ Evidence is retained in these workspace directories:
 The refined skill's eight cases complete the required capability traces and
 effects; seven also finish with a valid final explanation. The other run ends
 with an empty model reply after correctly stopping on failed retention. This is
-recorded as a failed agent response, not a saved case or a silently repeated
+recorded as a failed agent response, not a saved commons or a silently repeated
 consultation.
 
 The initial measured run reproduced the earlier semantic gap and additionally
-used an input identity as a case-context formulation reference. The application
+used an input identity as a commons-context formulation reference. The application
 rejected the whole proposal, retaining input and the prior state. Subsequent
 prompt changes ask about success and protections, explicitly account for
 contributions as sourced records, and separate source/formulation namespaces.
@@ -254,7 +254,7 @@ note text, measurement/value and review assessment. Optional baseline, scope and
 remain unknown. A captured real negative proposal is checked through application
 use cases, demonstrating all-or-nothing rejection while retaining the input.
 The earlier synthetic trace preserves the defect as historical evidence; it is
-not a valid current-format handoff. No production case was used in these tests.
+not a valid current-format handoff. No production commons was used in these tests.
 
 Live Gemma results still vary. Some valid proposals omit a provisional goal,
 prospective pilot, action or review, while describing those concepts in prose.
@@ -270,7 +270,7 @@ its data profile name `p2` does not imply that the later phase is delivered.
 
 ## Usable skill entry points — 3 October 2026
 
-[Skill usage](skill-use.md) now covers real-case contribution/retry commands,
+[Skill usage](skill-use.md) now covers real-commons contribution/retry commands,
 offline receipts, an optional bounded local model agent, and a project-scoped
 Codex MCP connection. The single procedure resource ships in the wheel and is
 discovered through repository symlinks; an isolated wheel installation verified
@@ -304,7 +304,7 @@ Because the orchestration model can still change tool arguments, the normal
 command defaults to the existing deterministic procedure driver. `--runner
 agent` is an explicit experimental selection; no failure silently switches
 runners or repeats semantic requests. Application publication status and agent
-completion are reported independently. This delivers the own-case skill entry
+completion are reported independently. This delivers the own-commons skill entry
 point, not the unfinished TUI or a passed v1 semantic quality gate.
 
 
@@ -354,7 +354,7 @@ and participant/assistive-technology release gates remain outstanding.
 The updated wheel also built in an isolated build environment and passed an
 installed-package check outside the checkout: the shared workspace, renderers,
 MCP schemas and packaged conversational skill are available. The official-SDK
-client read `my-case` through the actual stdio server and confirmed every case
+client read `my-case` through the actual stdio server and confirmed every commons
 file's SHA-256 remained unchanged (`own-case-read-check.json`).
 
 
@@ -377,7 +377,7 @@ source/provenance preservation, historical qualifications, unknowns, immutable
 continuation, portability, focused reads and rejection boundaries. The actual
 Rufus–David source produced a validated native baseline; a disposable portable
 copy accepted a follow-up with an authored consultant, preserving revision 1.
-Live consultation on the full imported case requires adequate model context: the
+Live consultation on the full imported commons requires adequate model context: the
 local Gemma was loaded at 8,192 tokens during conversion. No model inference or
 model reconfiguration was used to convert it.
 
@@ -385,8 +385,8 @@ model reconfiguration was used to convert it.
 ## Live trees check with Anthropic (2026-10-05)
 
 A billed run of `claude-sonnet-5-5` through `reason_commons.bootstrap` in a temporary
-case (not under `~/ReasonCommons`), seven provider calls in all. No key, request body
-or provider response is recorded here; the case text below is the four synthetic
+commons (not under `~/ReasonCommons`), seven provider calls in all. No key, request body
+or provider response is recorded here; the commons text below is the four synthetic
 messages sent as "Sam".
 
 **First smoke: `rejected`.** `scripts/check_anthropic.py --smoke` made a successful
@@ -469,11 +469,11 @@ tree is empty although a provisional goal was recorded; the Prerequisite tree is
 empty. The drawing therefore shows six disconnected fragments, not one argument,
 and the freeze → stable plan → fewer interruptions chain Sam implied is not
 drawn. One run of four short messages; this is not a measure of consulting quality
-across cases, and a different run may record or link differently.
+across commons, and a different run may record or link differently.
 
 ## Live check of withdrawals, citations and test versions (2026-10-07)
 
-A billed run through the CLI and `reason_commons.bootstrap` in a temporary case
+A billed run through the CLI and `reason_commons.bootstrap` in a temporary commons
 (`/tmp/rc-live3`, not under `~/ReasonCommons`), messages sent as "David". No key,
 request body or provider response is recorded here. The symptom, cause and link were
 brought in with a local LTP import (no provider call), so the calls went to the rules
@@ -490,7 +490,7 @@ default) then made nine calls, all `saved` on the first attempt.
 |---|---|---|
 | Test versions (S150) | Asked to change the forecast before the start, Claude proposed `P1@2` replacing `P1@1`. After acceptance the Tests view showed one test (8 of 30), history kept 6 of 30, and the action was flagged (`new_version`). The reported result and its review cited `P1@2`. Asked to change the forecast after the result, Claude recorded only a note and said the forecast "has to stay as it was", offering a new test instead. | Pass (the domain refusal was not needed) |
 | Withdrawal (S148) | Claude proposed `X1@1` withdrawing the cause. `decide accept X1@1` returned `confirm` with `leaves: [L1@1]` and changed nothing; with `--confirm` the cause and its link left the tree. Under automatic acceptance, a new cause and its link entered automatically; the withdrawal of that cause (`X2@1`) waited in the backlog while its note was accepted. | Pass |
-| Citations (S149) | An answer was held, a different answer moved the case on, and the held answer came back `stale` with no call. The next request (asking for advice) was not sent the stale answer, no record cites it, and the advice did not use its wording. (In the run before the fix, the same sequence put the stale answer's words into the model.) | Pass |
+| Citations (S149) | An answer was held, a different answer moved the commons on, and the held answer came back `stale` with no call. The next request (asking for advice) was not sent the stale answer, no record cites it, and the advice did not use its wording. (In the run before the fix, the same sequence put the stale answer's words into the model.) | Pass |
 
 ## Semantic scenarios with Claude (2026-10-07)
 
@@ -501,14 +501,14 @@ report SHA-256 beginning `cba484d0ddf398df`): 16 fixtures covering the twelve
 once. No key, request body or provider response is recorded here.
 
 Machine checks: 285 passed, 5 failed. Two failures are a harness error: the
-guardrail case's pilot-review check was also applied to its second turn, which
+guardrail commons' pilot-review check was also applied to its second turn, which
 asks a question and needs no new review (turn 1's review passes in both
 repetitions); the check now applies only to the reporting turn. The other three
 come from one reply: in `attributed_correction-2`, Claude's third reply put a
 `decision` field at the top level of the proposal, and the application rejected
 it before commit, so that turn has nothing to judge. Every other reply was saved.
 
-A review page shows each case's turns, records and next move beside its
+A review page shows each commons' turns, records and next move beside its
 criteria; its decisions are turned into `review.json` and checked with
 `scripts/review_evaluation.py`.
 
@@ -554,7 +554,7 @@ The same billed command, now 20 fixtures twice
 beginning `556517ca34f50a18`): 40 cases, 52 turns, each attempted once. Machine
 checks: 318 passed, 4 failed, all from one reply. In `goal_action_review-1`,
 Claude's first reply put the next move's fields at the top level of the
-proposal; the application rejected it before commit and the case stopped, so
+proposal; the application rejected it before commit and the commons stopped, so
 its seven criteria have nothing to judge. Every other reply was saved.
 
 A rough signal, not a judgement: under prompt 6, 16 of 45 next moves asked more
@@ -630,7 +630,7 @@ refuses this contract's 45 optional and 68 union-typed fields (limits 24 and
 The same billed command (`.evaluation-runs/2026-10-07-semantic-sonnet-prompt8/`,
 report SHA-256 beginning `25a49052da1552eb`): 40 cases, each reply attempted
 once. Machine checks: 332 passed, 6 failed, all from two rejected replies, each
-the only evaluated reply of its case: in `attributed_correction-1` the next
+the only evaluated reply of its commons: in `attributed_correction-1` the next
 move carried a field it does not have (`purpose_note`), and in
 `blaming_question-1` the next move's fields were beside the intervention
 object. Their six criteria have nothing to judge.
@@ -639,7 +639,7 @@ Mechanical signals, not judgements: no record or next move uses a gendered
 pronoun, and no next move asks more than one question (48 ask one, 4 none).
 The rejected replies did not fall: one in 44 under prompt 6, one in 52 under
 prompt 7, two here. Each attempt is made once by design, so a rejected reply
-costs its case; in use, the operator retries the retained input. The 138
+costs its commons; in use, the operator retries the retained input. The 138
 rubric criteria wait for review on their own page.
 
 ## Claude Haiku 5.5 as the consultant (2026-10-08)
@@ -793,7 +793,7 @@ here, and the key was found in none of the run's files. All data is synthetic.
    `in000002` Sonnet, `in000003` Haiku.
 5. The log then held five billed requests, ≈ $0.096 (Haiku 3, ≈ $0.0086; Sonnet 2,
    ≈ $0.087; provider check 2, workspace 3), no unreadable line, and only its own
-   keys; it held no words of the case or its name. Neither the case's files nor its
+   keys; it held no words of the commons or its name. Neither the commons' files nor its
    `.reasoncase` export held a token count or a cost.
 
 Not yet done: comparing the log with the Anthropic Console a day later, as the plan

@@ -52,7 +52,7 @@ def test_name_collision_is_preserved_and_import_round_trips(tmp_path):
     from reason_commons.bootstrap import create_case, import_case
     collision = tmp_path / 'goals' / 'reason-commons'
     collision.parent.mkdir()
-    with create_case(collision, 'My unrelated case') as app:
+    with create_case(collision, 'My unrelated commons') as app:
         original = app.inspect()['case']
     path = continue_commons(collision.parent)
     assert path != collision

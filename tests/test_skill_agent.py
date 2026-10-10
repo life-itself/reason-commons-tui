@@ -156,7 +156,7 @@ def test_tool_loop_is_bounded(tmp_path):
 def test_agent_can_project_open_and_resume_without_submission_or_consultation(tmp_path):
     provider = NoteConsultant()
     with create_case(tmp_path / "case", consultant=provider) as app:
-        model = ToolModel([call("workspace", {"view": "next"}), done("Start this case")])
+        model = ToolModel([call("workspace", {"view": "next"}), done("Start this commons")])
         host = ContributionToolHost(app)
         result = LMStudioSkillAgent(model, "procedure", "context").run(host, {"operation": "open"})
         assert result["status"] == "completed" and provider.calls == 0
@@ -170,7 +170,7 @@ def test_bound_reply_target_cannot_be_changed_by_agent(tmp_path):
     provider = NoteConsultant()
     with create_case(tmp_path / "case", consultant=provider) as app:
         displayed = app.workspace()["target"]
-        app.submit("Someone else advances the case", "Sam", **displayed)
+        app.submit("Someone else advances the commons", "Sam", **displayed)
         host = ContributionToolHost(app, text="My original reply", speaker="David", target=displayed)
         current = app.workspace()["target"]
         rejected = host.invoke("retain_input", {"text": "My original reply", "speaker": "David", **current})

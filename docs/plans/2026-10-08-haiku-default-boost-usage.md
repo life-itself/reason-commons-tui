@@ -25,7 +25,7 @@ Decided with the user:
 - **Coverage:** meter every entry point (workspace, accessible, CLI `contribute`/`retry`, MCP) into one local log, and add a `reason-commons usage` command.
 
 **Constraints**
-- **Nothing in the case.** Usage and cost must never enter a case: everything in `attempts/` is exported in `.reasoncase` (`filesystem.py:393-421`).
+- **Nothing in the commons.** Usage and cost must never enter a commons: everything in `attempts/` is exported in `.reasoncase` (`filesystem.py:393-421`).
 - **Application untouched.** The application layer and `CaseCapabilities` don't change; the parity test stays green.
 - **Type checks kept.** `configured_consultant()` must keep returning the bare adapter types (`test_anthropic.py:197`, `provider_steps.py:84,102`, `cli.py:235`).
 - **Product spec unchanged.** No edits to the `.feature` files in `reason-commons-spec/`. New scenarios go in `tests/conversation/features/providers.feature`, which we own.
@@ -78,7 +78,7 @@ The blind AI pre-screen of `semantic-haiku55-adapter4` (150 pass, 8 fail, 4 can'
 - **Permissions.** Folder 0700, file 0600.
 - **Writes.** Append-only JSON lines: one `flock` and one `O_APPEND` write per line, so the workspace, CLI and MCP processes never interleave.
 - **Entry fields.** `v, at (UTC), entry, session, case_id, request_id, provider, model, outcome (proposal|max_tokens|refusal|no_proposal|other_model|no_reply), tokens{input,output,cache_write,cache_write_1h,cache_read}, usd, prices`.
-- **Never stored.** Prompts, case text, the case name, paths or keys.
+- **Never stored.** Prompts, commons text, the commons name, paths or keys.
 - **Reading.** Skips and counts corrupt lines and a partial last line. Read on open and after each reply, cached by file size and modification time.
 - **Session.** `UsageLog.session(entry)` gives `record(event)` (the sink: prices, appends, keeps a copy under a lock, never raises; a write error is kept), `last_for(request_id)`, and `summary(now, case_id)`: this reply, this session, this goal, today and this month by model.
 - **Calendar.** Day and month use local time. `now()` is injectable for tests and screenshots.
@@ -110,7 +110,7 @@ The blind AI pre-screen of `semantic-haiku55-adapter4` (150 pass, 8 fail, 4 can'
 - New `tests/test_pricing.py`: the 100,000 / 100,001 boundary, cache rates, exact decimals (the fake server's 12,000 in / 900 out is $0.00165 on Haiku and $0.033 on Sonnet), unknown models, overrides.
 - New `tests/test_usage.py`: path precedence and `off`; file modes; corrupt and partial lines; 4 processes × 200 writes; local-midnight and month-end summaries; `crossed()` firing once; a read-only folder never raising; only allowed keys, with no contribution text or key.
 - `tests/test_anthropic.py`: sink calls for each outcome; nothing logged for 4xx/5xx; a raising sink still returns the proposal.
-- New `providers.feature` scenario: "Count what a Claude reply cost outside the case". The case and its export have no tokens or cost, and the log has no words or key.
+- New `providers.feature` scenario: "Count what a Claude reply cost outside the commons". The commons and its export have no tokens or cost, and the log has no words or key.
 
 ### 4. Workspace meter, usage screen, soft budget — done (2026-10-08)
 **Wiring**
@@ -191,7 +191,7 @@ class ChosenConsultant:   # adapters/tui.py
     def propose(self, request): return self.current.propose(request)
 ```
 
-- The case opens with `self.chosen`. `switch_provider` replaces `chosen`.
+- The commons opens with `self.chosen`. `switch_provider` replaces `chosen`.
 - `action_import_trees` (`tui.py:3302`) reopens with the same instance instead of calling the factory again.
 - The `run()` factory becomes `lambda chosen, model=None: configured_consultant(..., model=model or cli_model, usage=session.record)`. Existing one-argument test lambdas still work.
 
@@ -247,7 +247,7 @@ class ChosenConsultant:   # adapters/tui.py
 - `docs/providers.md`: the default; "Deeper reasoning for one reply"; a "What it costs" section (log location, privacy, `off`, budget, `usage`); the note that Haiku replies take longer.
 - `docs/tui.md`: commands, footer, budget row, and the new environment variables.
 - `docs/use-a-model.md`, `docs/skill-use.md`, and a "What it costs" row in the README consultant table.
-- `ARCHITECTURE.md`: usage stays outside the case through an injected sink; the one-reply stand-in; the budget is an interface notice, not a case rule.
+- `ARCHITECTURE.md`: usage stays outside the commons through an injected sink; the one-reply stand-in; the budget is an interface notice, not a commons rule.
 - `evaluations/live-claude-test-prompt.md`: set `REASON_COMMONS_USAGE_LOG`, and check that `reason-commons usage` counts the run.
 
 **Screenshots** (`scripts/render_screenshots.py`, with a temporary log and a fixed `usage.now`)

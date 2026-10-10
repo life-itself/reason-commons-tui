@@ -4,7 +4,7 @@ How we develop (method, workflow, testing, recipes) is in
 `docs/development/README.md`.
 
 Read `ARCHITECTURE.md` and the owning `src/reason_commons/domain/CONTEXT.md`
-before changing case behavior. The existing specification and its scenario-local
+before changing commons behavior. The existing specification and its scenario-local
 delivery tags define scope. P0 is implemented; a personal-use TUI slice exists. Of p1, 31 of 32
 scenarios are delivered (the gate lists which); of p2, the trees-in-conversation scenarios
 (S128–S134), deciding what enters the model (S135–S150), the loop's records (S32, S37,

@@ -3,7 +3,7 @@
 The built-in guide asks the loop's questions in a fixed order and keeps your exact
 words. It works offline and never gives advice. An AI consultant adapts its
 questions, notices what is missing and can give direct advice through **Other
-moves**. Your case keeps going from where it is when you switch.
+moves**. Your commons keeps going from where it is when you switch.
 
 ## The easy way: setup
 

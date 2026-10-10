@@ -4,9 +4,9 @@
 does: keys, Tab and Enter. Behave steps are synchronous and Textual's test pilot is
 async, so the app lives in one long-lived task on its own event loop and each step
 hands it a job. Outcomes are read at the application boundary (the consultant's
-calls, the case's revisions and retained inputs) and from what is on screen.
+calls, the commons' revisions and retained inputs) and from what is on screen.
 
-``build_forge`` makes the Forge case of the navigation scenarios through the
+``build_forge`` makes the Forge commons of the navigation scenarios through the
 application use cases: eight consultant replies and two tree imports, which call no
 consultant, give revision 10 with the current question "Choose a test".
 """
@@ -29,7 +29,7 @@ PROVIDER = "fixture"
 
 
 class Workspace:
-    """The persistent workspace on a case folder, with a counting fixture consultant."""
+    """The persistent workspace on a commons folder, with a counting fixture consultant."""
 
     def __init__(self, path, consultant, size=(120, 40), speaker=SPEAKER):
         self.path, self.consultant, self.size = path, consultant, size
@@ -114,7 +114,7 @@ class Workspace:
         return not self.task.done() and self.read(lambda app: app.is_running)
 
     def case(self, function):
-        """Read the case through the workspace's own application session."""
+        """Read the commons through the workspace's own application session."""
         return self.read(lambda app: function(app.case))
 
     def close(self):
@@ -228,10 +228,10 @@ FORGE_TREES = {
 
 
 def build_forge(path, consultant, replies=FORGE_REPLIES, trees=FORGE_TREES):
-    """The Forge case at revision 10: after the given number of consultant replies, a tree import
-    follows the replies named in ``trees``. Every step goes through a use case. Sam created the case to
+    """The Forge commons at revision 10: after the given number of consultant replies, a tree import
+    follows the replies named in ``trees``. Every step goes through a use case. Sam created the commons to
     accept proposals automatically, so each reply's records are in the model in the reply's own revision
-    and the case's history keeps the numbers the navigation scenarios name."""
+    and the commons' history keeps the numbers the navigation scenarios name."""
     create_case(path, "Forge", acceptance="automatic", actor=SPEAKER).close()
     consultant.responses.extend(build for _, build in replies)
     for index, (words, _) in enumerate(replies, start=1):

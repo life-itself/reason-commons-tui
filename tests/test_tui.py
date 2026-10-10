@@ -1096,7 +1096,7 @@ def imported_trees(tmp_path):
     from importlib.resources import files
     from reason_commons.adapters.ltp_trees import import_trees
     path = tmp_path / "case"
-    # These tests are about reading the trees, so the case accepts what it brings in as it arrives.
+    # These tests are about reading the trees, so the commons accepts what it brings in as it arrives.
     create_case(path, "Imported", acceptance="automatic", actor="David").close()
     import_trees(path, str(files("reason_commons.adapters").joinpath("sample-trees.ltp.yaml")), "David")
     return path

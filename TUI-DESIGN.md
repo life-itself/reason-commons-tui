@@ -74,7 +74,7 @@ One screen is read in one order. Each rule below was a clarity defect before it 
 - **Cost is said where it is spent.** With a paid consultant, the footer's right end estimates what this
   session and this month cost (the first thing to go when the bar is short), a reply's notice says what it
   cost, and Commands › *Consultant calls and cost* has the rest, from the usage log kept outside every goal,
-  never from the case. Past a monthly budget each send asks once; nothing is blocked and "Not now" keeps the
+  never from the commons. Past a monthly budget each send asks once; nothing is blocked and "Not now" keeps the
   answer in the box. The amounts are words: no colour marks them, least of all the warning colour.
 - **One word, one meaning.** *Commands* is everything you can do (Ctrl+P). *Loop actions* is the view of
   the plan's actions. *Action* is a step of the loop.
@@ -176,7 +176,7 @@ and document checks do not prove a running TUI or measured usability.
 
 ## Acceptance visibility
 
-Inside a writable case, F2 Settings exposes Reasoning: Automatic or Require
+Inside a writable commons, F2 Settings exposes Reasoning: Automatic or Require
 acceptance. This projects the application's recorded acceptance setting. Changes
 affect future proposals; pending proposals retain their status. Imported development
 can be adopted through the same accept capability as an ordinary reply. History

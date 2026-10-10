@@ -86,7 +86,7 @@ SCENARIOS = (
         "Nonimplementation is not a contradicted prediction; unknown comparability is inconclusive.",
         "The original forecast is preserved and the next move resolves the missing implementation/evidence.",
     ), seed=True),
-    # S36, one case per outline row, each against the unchanged authored pilot.
+    # S36, one commons per outline row, each against the unchanged authored pilot.
     Scenario("classify_supported", ("S36",), (
         Turn("The queue ran every working day as planned for the two weeks. Measured the same way as the "
              "forecast: 42 of 50 pilot orders due were on time, and 19 of 20 urgent requests were acknowledged "

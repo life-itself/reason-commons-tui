@@ -10,7 +10,7 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 | Top line | The goal's name on the left; on the right, your name and whether everything is saved (or *Asking …* while the consultant works, *Asking Claude (Sonnet 5.5)…* for a reply with deeper reasoning, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
 | Pinned lines | Your goal and safeguards, and the open **Action**, once a goal is in your model; a goal still waiting in **Backlog** shows as *proposed, not yet accepted*, and one with no measure yet as *provisional*. A long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result. A **Breach** (a reported result outside a bound recorded with its forecast) stays pinned here in every view. Commands, **Display: Expanded** repeats the goal's measure, baseline, horizon and scope, each safeguard and each test's boundaries here; **Display: Compact** (the default) turns it back. The choice is saved with your draft and changes nothing else |
 | Loop line | Shown for the offline guided loop or a recorded test: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
-| Views list | Core destinations are Next step, Backlog, Goal, Trees, and Your words (including source attachments), plus History. Empty Tests and Loop actions stay in Commands → Views until relevant; Reasoning and Case context are available there too, and join the sidebar for test work. **VIEWS**, with ▸ beside the open one; **Backlog** says how many entries wait ("Backlog · 3"). While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
+| Views list | Core destinations are Next step, Backlog, Goal, Trees, and Your words (including source attachments), plus History. Empty Tests and Loop actions stay in Commands → Views until relevant; Reasoning and Commons context are available there too, and join the sidebar for test work. **VIEWS**, with ▸ beside the open one; **Backlog** says how many entries wait ("Backlog · 3"). While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
 | The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what the last reply proposes, marked *proposed* (see [deciding what enters your model](#deciding-what-enters-your-model)), then what the question builds on (at review: the original forecast beside the result) |
 | Answer box | Right under the page, so you answer next to the question. All typing is literal, including `?`, `q` and numbers. Its tag says who you answer as, with the built-in guide an example of the answer shows faintly while it is empty, and the line beside the buttons says what **Send** will bring back (with Claude, from which model: "Send: get Claude's reply (Haiku 5.5)"). It grows as you write, and when the page is long the page scrolls above it, so the box never leaves the screen. On any view other than **Next step** its tag also names the question it answers ("Answer as Mira · Choose a test"), and while it is empty it folds to one line so the view has the room; Tab or a click opens it, and a draft keeps it open |
 | Footer | The keys that work where the keyboard is, then **Commands**, then **Help** on the right. On a narrow terminal the hints say less, then the last ones go; **Commands** and **Help** always stay. With Claude, the space before **Help** estimates what this session and this month cost ("Haiku 5.5 · session ≈ $0.02 · month ≈ $1.40 of $5", or "…, over $5" past a budget); it says less as room runs out and is the first thing to go. With LM Studio it says *no charge*; with the built-in guide it says nothing until something was spent this month |
@@ -59,7 +59,7 @@ On the goals list: arrows choose, Enter opens, F1 shows help, F2 opens Settings,
 The first time, `reason-commons` offers **Continue Reason Commons** and **Start my
 first goal**. Continuing imports the reconstructed RC development once into
 `~/ReasonCommons/reason-commons-development` (or the next unused suffix). Later
-openings resume it, preserving revisions and drafts. Older cases remain available.
+openings resume it, preserving revisions and drafts. Older commons remain available.
 The opening recommends tracing the manual-recording constraint through the
 implemented interface and its expected benefit, to identify the first improvement.
 
@@ -84,7 +84,7 @@ older waiting proposals for you to decide.
 
 **F1 Help** offers the guided tour, an editorial example, keys, and consultant
 setup. **F2 Settings**, then **You**, also opens name and consultant setup. The
-offline guide preserves contributions to the imported case as literal notes under
+offline guide preserves contributions to the imported commons as literal notes under
 the selected acceptance mode; it does not analyze them or force them into its trial questionnaire.
 Choose an AI consultant under Commands for adaptive analysis. The existing test
 workflow remains available for actual tests.
@@ -101,7 +101,7 @@ deleted afterwards.
 
 A picture of each part of the workspace, drawn from Mira's example goal, a goal in
 progress or an editorial example. `scripts/render_screenshots.py` regenerates those
-examples; `scripts/render_commons.py` renders the imported RC working case.
+examples; `scripts/render_commons.py` renders the imported RC working commons.
 
 ### First start
 
@@ -260,7 +260,7 @@ that would ask again, first asks: **Send this one** or **Not now**. Nothing is b
 
 | Command | Screenshot |
 | --- | --- |
-| Export case | ![Export case](images/export-case.png) |
+| Export commons | ![Export commons](images/export-case.png) |
 | Export trees | ![Export trees](images/export-trees.png) |
 | Import trees | ![Import trees](images/import-trees.png) |
 
@@ -279,7 +279,7 @@ Browsing views never calls the consultant.
 | Reasoning | What is still open first, then the loop's records, then how many statements each tree holds |
 | Your words | Your answers, exactly as written, each with when you wrote it on your own clock (and who, when more than one person has written) |
 | History | Every saved step, oldest first, one row each: when, the question it answered or the decision taken, and what entered the model (and who, once more than one person has written); Enter opens that moment, **u** undoes what it accepted |
-| Case context | Everything the current question rests on, in full: the revision it is saved at, the whole goal with each safeguard, each test's scope, period, stop condition and review date, what you are answering, and what waits (proposals, reviews, unanswered answers). Local; nothing is sent |
+| Commons context | Everything the current question rests on, in full: the revision it is saved at, the whole goal with each safeguard, each test's scope, period, stop condition and review date, what you are answering, and what waits (proposals, reviews, unanswered answers). Local; nothing is sent |
 
 With the built-in guide, an empty answer skips an optional question (measure,
 safeguards, review date, stop condition).
@@ -475,14 +475,14 @@ for scripts and AI agents are listed by `reason-commons --help`.
 `reason-commons tui FOLDER --accessible` (and `resume --accessible`) opens the same
 goal as ordered text that is appended, never redrawn, for a screen reader or a
 terminal that cannot redraw; it is also used when `TERM=dumb`. Each view begins with
-the case, who is answering and whether it is saved, then the view and the control
+the commons, who is answering and whether it is saved, then the view and the control
 with focus; then any breach, the decision and question with the goal and its
 safeguards, what is uncertain, the test review, what the last reply proposes, your
 draft, and the controls, each with its role and consequence. Tab and Shift+Tab move
 between controls and say which has focus; Enter or Space activates one; in Response
 every key is typed literally, Enter adds a line, and only **Send** asks the
 consultant. Page Down and Page Up page a long view ("Page 1 of 3"); Esc returns with
-your draft kept. **Case context**, **Explain this**, **Views**, **Backlog** (Accept,
+your draft kept. **Commons context**, **Explain this**, **Views**, **Backlog** (Accept,
 Reject and Still holds, with a decision that takes more listed first) and **Help**
 are local. A new view is announced as replacing the one above, so scrollback is not
 mistaken for what is current. Nothing depends on colour. With Claude, each reply's cost

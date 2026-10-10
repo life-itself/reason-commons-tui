@@ -233,9 +233,11 @@ def plain_reply(records, names, source_of, consultant):
 
 # Words the system uses in its own replies, explained where a reply uses them.
 GLOSSARY = (
-    (r"\bthe case\b", "case", "everything the system has recorded in this conversation (it also calls this the "
-                             "model)"),
-    (r"\bthe model\b", "the model", "everything the system has recorded in this conversation (not the AI model)"),
+    (r"\b(?:commons|the case)\b", "commons", "the persistent workspace containing the goal, contributions, sources, "
+     "reasoning, decisions and complete history across conversations (called a case in older replies)"),
+    (r"\bthe model\b", "the model", "the currently accepted reasoning used to guide the work; pending, rejected, "
+     "undone and earlier reasoning stays recorded in the commons without belonging to its current model "
+     "(not the AI model)"),
     (r"\b(next|later|this|the|one) moves?\b", "move", "the system's next question or suggested step"),
     (r"\battributed\b", "attributed", "marked with who said it"),
     (r"\bprovisional\b", "provisional", "a first draft, not settled"),

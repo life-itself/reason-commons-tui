@@ -1,6 +1,6 @@
-"""One local, append-only log of what each paid consultant request cost, kept outside every case.
+"""One local, append-only log of what each paid consultant request cost, kept outside every commons.
 
-The log holds token counts and estimates only: never a prompt, case text, a case's name, a path or
+The log holds token counts and estimates only: never a prompt, commons text, a commons' name, a path or
 a key. It lives in ``$REASON_COMMONS_USAGE_LOG`` (a path, or ``off``), else
 ``$XDG_STATE_HOME/reason-commons/usage.jsonl``, else ``~/.local/state/reason-commons/usage.jsonl``,
 readable only by you. Each line is one request, appended under a lock in a single write, so the
@@ -8,7 +8,7 @@ workspace, the command line and the MCP server can share it. Costs are estimates
 (``pricing``); the Anthropic Console is the authority on what was billed.
 
 The composition root hands a session's ``record`` to the consultant as its usage sink; the
-application and the case never see it. A monthly budget is a notice for people, not a rule: nothing
+application and the commons never see it. A monthly budget is a notice for people, not a rule: nothing
 here blocks a request.
 """
 

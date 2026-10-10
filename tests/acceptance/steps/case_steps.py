@@ -17,7 +17,7 @@ def new_app(context):
     context.apps.append(context.app)
 
 
-@given("a saved case with a current question, attributed notes, a bounded test, and an answer draft")
+@given("a saved commons with a current question, attributed notes, a bounded test, and an answer draft")
 def saved_with_draft(context):
     new_app(context)
     seed(context.app, context.provider)
@@ -25,7 +25,7 @@ def saved_with_draft(context):
     context.before = context.app.inspect()
 
 
-@when("the participant quits and resumes the same case in a new process")
+@when("the participant quits and resumes the same commons in a new process")
 def resume_process(context):
     context.calls = len(context.provider.calls)
     context.app.close()
@@ -94,7 +94,7 @@ def saved_after_commit(context):
     assert cli_json("inspect", context.path, "--json")["case"] == context.app.inspect()["case"]
 
 
-@given("a saved case containing interventions, sources, attributed notes, a goal, and a bounded test")
+@given("a saved commons containing interventions, sources, attributed notes, a goal, and a bounded test")
 def saved_portable(context):
     new_app(context)
     source = context.app.add_source("pilot.csv", b"measure,value\ndelivery,80%\n", "Sam")
@@ -134,7 +134,7 @@ def no_conversation(context):
     assert cli_json("inspect", context.imported_path, "--json") == context.before
 
 
-@then("the imported case opens without a consultant call")
+@then("the imported commons opens without a consultant call")
 def no_import_call(context):
     assert len(context.provider.calls) == context.calls
 
@@ -212,7 +212,7 @@ def invalid_response(context):
         assert context.result["status"] == "rejected"
 
 
-@then("no intervention or case update is committed")
+@then("no intervention or commons update is committed")
 def rejected_atomic(context):
     assert context.app.inspect() == context.before
 
@@ -229,7 +229,7 @@ def recovery(context):
     assert context.result["message"] and "reevaluate_current_revision" in context.result["recovery_actions"]
 
 
-@given("the case store cannot complete a durable write")
+@given("the commons store cannot complete a durable write")
 def failing_store(context):
     new_app(context)
     context.faults.fail("retain")
@@ -266,7 +266,7 @@ def stale_base(context):
     input_at14(context)
 
 
-@given("a reply to another input has advanced the case to revision 15 with a new question")
+@given("a reply to another input has advanced the commons to revision 15 with a new question")
 def advanced15(context):
     assert submit(context.app)["status"] == "saved"
     context.advanced = context.app.inspect()

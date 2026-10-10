@@ -67,7 +67,7 @@ Do not guess. Stop and ask the user when:
 - two authoritative sources disagree;
 - a domain-significant operation has no place on `CaseCapabilities`;
 - the change would add a second bounded context or an outward dependency;
-- the work would make a provider call, spend money, or touch anyone's real case data
+- the work would make a provider call, spend money, or touch anyone's real commons data
   beyond a disposable fixture;
 - you cannot make the gate pass without weakening a test or hiding a failure.
 
@@ -76,8 +76,8 @@ Do not guess. Stop and ask the user when:
 - **Small, whole changes.** One behavior per commit, with its scenario, steps, code,
   tests and documents together. Commit only when asked.
 - **Never edit what you did not read.** Read the file and its neighbors first.
-- **Disposable cases.** Experiments use temporary stores. Do not write into a
-  participant's case root, and never store credentials in a case or an export.
+- **Disposable commons.** Experiments use temporary stores. Do not write into a
+  participant's commons root, and never store credentials in a commons or an export.
 - **Leave scope honest.** P0 is implemented; p1 and p2 are partly delivered, and the
   gate prints which p1 scenarios are still outstanding. Do not describe planned
   behavior as delivered.

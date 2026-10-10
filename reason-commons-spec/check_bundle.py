@@ -17,7 +17,7 @@ MODES = {'@automated', '@semantic', '@usability'}
 SCOPING = MODES | {'@v1', '@later'}
 JOBS = {f'{i:02}' for i in range(1, 18)}
 # Local decisions a v1 session may record: admitting proposals into the model and
-# the case's acceptance setting. Stances (wording, belief, reliance) arrive in p4.
+# the commons' acceptance setting. Stances (wording, belief, reliance) arrive in p4.
 V1_DECISIONS = {'membership', 'acceptance'}
 
 
@@ -209,7 +209,7 @@ def validate_tui_ledger(text, config):
     commits = [int(x) for x in re.findall(r'^EVENT (?:start|local|semantic in\d{3}) r(\d{4})\b', text, re.M)]
     if commits != list(range(revisions+1)):
         errors.append(f'revision sequence differs: {commits}')
-    # A decision names exact record versions; only the acceptance setting targets the case.
+    # A decision names exact record versions; only the acceptance setting targets the commons.
     if len(local) != revisions-calls or any(
             x[1] != 'case' if x[2] == 'acceptance' else '@' not in x[1] for x in local):
         errors.append('structured decision count or exact-version target differs')

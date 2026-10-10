@@ -6,7 +6,7 @@ reader that cannot use alternate-screen redrawing. This is a presentation of
 the same workspace, with the same records, explicit submission, attribution,
 version validation and recovery. It has no command prompt or phrase parser.
 
-Use a stable reading order: case/save/actor/view/focus, urgent status, decision,
+Use a stable reading order: commons/save/actor/view/focus, urgent status, decision,
 complete question and relevant context, what the last reply proposes (each
 record with its source, under "Proposed, not yet in the model"), reasoning as
 relation sentences or an aligned table, local evidence/actions, Response, Send,
@@ -15,7 +15,7 @@ what it waits for, and its Accept, Reject, Still holds and Undo controls are the
 same labeled controls as in the spatial TUI.
 Describe each control by label, role, consequence and current focus. Announce
 focus changes and important new status once. Never announce each animation or
-reprint the entire case on every keystroke. Append an explicit replacement section
+reprint the entire commons on every keystroke. Append an explicit replacement section
 on meaningful view changes; identify superseded sections so scrollback is not
 mistaken for current state. An optional Repeat current view control is local.
 

@@ -1,9 +1,9 @@
 # P0 delivered slice
 
-The first natural phase is the existing **Durable minimal case** increment,
+The first natural phase is the existing **Durable minimal commons** increment,
 selected by `@p0 and @automated`, not the full v1 release. Its complete slice runs
 from an attributed contribution through retained input, a consultant port,
-validated records and a durable published case, then through restart and portable
+validated records and a durable published commons, then through restart and portable
 handoff. Offline utilities and a skill capability adapter enter the application.
 
 The [architecture](../ARCHITECTURE.md) applies the expert's refined distinction:
@@ -68,7 +68,7 @@ P0 has only automated-tagged scenarios. P1/p2 and the v1 release gates remain
 explicitly incomplete. A synchronous application boundary is ready for a future
 TUI worker, but the persistent TUI does not ship here. The conversational skill described below is now available.
 
-On 3 October, the [own-case skill entry point](skill-use.md) added one-shot
+On 3 October, the [own-commons skill entry point](skill-use.md) added one-shot
 contribution/retry commands, offline receipts and an optional stdio MCP bridge
 for Codex. The complete gate now passes 129 implementation tests with the SDK,
 23 specification regressions and the same nine p0 scenarios. Real LM Studio
@@ -123,10 +123,10 @@ actions and replies bound to the displayed target. CLI `show` reads the same
 workspace offline; contribution/retry now present it after the result. The complete
 gate passes 147 implementation tests, the 23 specification regressions, the
 original nine p0 scenarios and seven added conversation scenarios. Two actual
-Gemma turns saved and reopened in a synthetic case; reference diagrams rendered
+Gemma turns saved and reopened in a synthetic commons; reference diagrams rendered
 in a browser. See [usage](skill-use.md) and [validation evidence](validation.md).
 This fixes the missing chat presentation and continuation for the implemented
-case semantics; it does not declare the future TUI or graph profiles delivered.
+commons semantics; it does not declare the future TUI or graph profiles delivered.
 
 
 The offline LTP continuation conversion adds a source-bound adapter and script
@@ -134,7 +134,7 @@ using existing application operations, with exact source retention, explicit
 archival qualifications and portable ID mapping. It publishes an imported
 baseline without fabricating original application history, graph edges,
 formulation versions or participant commitments. A disposable copy of the actual
-converted case continued at revision 2 with revision 1 unchanged. The full gate
+converted commons continued at revision 2 with revision 1 unchanged. The full gate
 now passes 159 implementation tests, 23 specification regressions, the original
 nine p0 scenarios and seven conversation scenarios. Native formulation
 supersession and later graph profiles remain separate domain capabilities.
@@ -143,7 +143,7 @@ supersession and later graph profiles remain separate domain capabilities.
 
 A personal-use slice of p1 now ships as `reason-commons tui` (Textual,
 now a core dependency), described in [tui.md](tui.md). It reads `workspace`/`inspect`
-and changes the case only through `retain_input`, `consult`, `retry`, `export` and
+and changes the commons only through `retain_input`, `consult`, `retry`, `export` and
 `checkpoint`. A deterministic `GuidedConsultant` (provider `guided`) implements the
 consultant port offline; the application validates its proposals like any other.
 Adapter tests (`tests/test_tui.py`, `tests/test_guided.py`) cover sending, draft
@@ -151,7 +151,7 @@ restore, local browsing without calls, and retained-input retry. The p1 scenario
 set (80×24 specimens, accessible mode, speaker switching, usability evidence) is
 not yet delivered and no p1 scenario is claimed.
 
-A goals home screen follows: plain `reason-commons` in a terminal lists the case
+A goals home screen follows: plain `reason-commons` in a terminal lists the commons
 folders under `~/ReasonCommons` (or `REASON_COMMONS_HOME`) and starts new ones with
 `create_case`, reading each through read-only `open_case`/`inspect`. Without a
 terminal it still prints help. The header shows "Saved"; revisions stay in History.
@@ -215,7 +215,7 @@ pass. Joint premise groups, rival routes, dependent review and boxed canvases
 remain p3–p5 work. The remaining p1/p2 scenarios are not yet delivered.
 
 Since 7 October 2026 (below) the trees work differently in three ways this section
-predates: a link may use a statement from another tree, the case's goal is the Goal
+predates: a link may use a statement from another tree, the commons' goal is the Goal
 Tree's top statement instead of a second copy among the claims, and rewording records
 a new version of the same statement (`C3@2`). S128–S133 were amended to say that what
 the consultant proposes waits for the operator.
@@ -315,7 +315,7 @@ restored out-of-profile action).
 
 The steps are interface acceptance: they drive the Textual app headlessly by keys
 (`tests/acceptance/workspace.py`), read outcomes at the application boundary and on
-screen, and build the Forge case through use cases (eight consultant replies, two
+screen, and build the Forge commons through use cases (eight consultant replies, two
 tree imports). See the [testing strategy](development/testing-strategy.md#interface-acceptance-p1).
 No specification text changed.
 
@@ -352,7 +352,7 @@ Six more p1 scenarios followed, bringing p1 to 28 of 32. Other moves, Actions
 - **Inspect evidence** in Other moves shows the saved words and files the current
   question rests on, locally (S55).
 - **A menu belongs to its question.** It is bound to the question and revision it
-  opened on. If a reply moves the case on while it is open, choosing does nothing:
+  opened on. If a reply moves the commons on while it is open, choosing does nothing:
   the menu shows a notice and the current choices, and a new choice is needed (S63).
   Other moves therefore stays available while a reply is pending; its local items
   work, and a move that asks the consultant is refused until the reply is in.
@@ -363,7 +363,7 @@ Six more p1 scenarios followed, bringing p1 to 28 of 32. Other moves, Actions
   nothing is sent and the draft stays (S107).
 
 Still outstanding in p1: S49 (the accessible ordered presentation), S68 (Compact
-display and a Case context control), S69 (a breach kept visible while browsing) and
+display and a Commons context control), S69 (a breach kept visible while browsing) and
 S73 (the participant study).
 
 ## Navigation and hierarchy redesign (5 October 2026)
@@ -412,7 +412,7 @@ S07, S40, S43, S46, S52, S108 and S128–S133, and the dated decision in
   model, readiness, the backlog's order, what a decision takes with it and review
   flags. `Snapshot.decide` records accept, reject, undo, still holds and the setting as
   revisions of their own; ancestry validation accepts exactly one explicit decision in
-  such a revision, and a reply may carry only its own automatic acceptance. A case has
+  such a revision, and a reply may carry only its own automatic acceptance. A commons has
   one goal (a new one is `G1@2`), a claim may not take the goal role, a link belongs to
   the tree of at least one of its statements, and a new wording keeps the statement's
   identity. Only a newer question makes a pending reply stale.
@@ -424,7 +424,7 @@ S07, S40, S43, S46, S52, S108 and S128–S133, and the dated decision in
   and comparisons show the model only. Consultants receive a `model` summary with
   open reviews, and a `review_flags` consult intent asks about them.
 - **Adapters.** The built-in guide, the LTP importer (the file's goal is proposed as
-  the case's goal or its new version; links across trees are kept), the story builder
+  the commons' goal or its new version; links across trees are kept), the story builder
   (created with automatic acceptance by its editor, so each chapter is still one
   revision) and the finished example (its organiser accepts each reply, and rejects
   the trees file's goal to keep her own) were brought under the new rules. The
@@ -439,11 +439,11 @@ S07, S40, S43, S46, S52, S108 and S128–S133, and the dated decision in
 
 `scripts/check_p0.py` runs every scenario of `13_proposals_and_review.feature`
 (S135–S150) and fails unless all pass. `tests/test_membership.py` covers the domain's
-negative cases, forged decisions, ancestry and a case recorded by the previous release
+negative cases, forged decisions, ancestry and a commons recorded by the previous release
 (`tests/fixtures/recorded-before-proposals.reasoncase`), which opens with everything
 in the model. Three deliberate breaks (no prerequisites on accept, flags never
 closing, no automatic acceptance) each failed feature 13. Tests that are about
-drawing or reading rather than deciding create their cases with automatic acceptance,
+drawing or reading rather than deciding create their commons with automatic acceptance,
 which is a recorded choice; the Forge fixture of the p1 navigation scenarios does the
 same, so its Background still holds.
 
@@ -466,10 +466,10 @@ change raises) and scenarios S148–S150 in `13_proposals_and_review.feature`.
   and ask for confirmation when there are any, and automatic acceptance leaves such
   a withdrawal waiting. The TUI dialog lists them under "Leaves your trees with it".
 - **Citations (S149).** A later reply could cite an answer that went stale and was
-  never applied, bringing its words into the case through another request. A reply
+  never applied, bringing its words into the commons through another request. A reply
   may now cite only the answer it replies to, answers already applied and supplied
   sources (`Snapshot.apply`), and the consultant is no longer sent stale answers.
-  The rule governs new replies only, so cases that already hold such a citation
+  The rule governs new replies only, so commons that already hold such a citation
   open unchanged.
 - **Test versions (S150).** A test can be given a new version (`P1@2` replaces
   `P1@1`) until a result for it is in the model; from then on a further version is
@@ -487,7 +487,7 @@ produce valid proposals reliably (see [validation](validation.md)).
 
 ## The loop's records (p2 scenarios S32, S37, S95, S101, 7 October 2026)
 
-Toward finishing v1, the case engine scenarios of the goal-action-review loop:
+Toward finishing v1, the commons engine scenarios of the goal-action-review loop:
 
 - **A pilot reviewable later (S32).** A test may record the pilot's own `baseline`, its
   `dose` and an `alternative_explanation`. The workspace's comparisons carry ten
@@ -498,7 +498,7 @@ Toward finishing v1, the case engine scenarios of the goal-action-review loop:
   recorded is `None`, shown as "unknown" in text and listed under "Not recorded yet"
   in the Tests view.
 - **A review date is a date (S37).** It reads "Review October 19; no reminder
-  scheduled", and nothing is scheduled, sent or written outside the case.
+  scheduled", and nothing is scheduled, sent or written outside the commons.
 - **A test's goal changed (S95).** The existing review flag is also projected as
   `test_reviews`, shown at the next test decision ("Review needed: …").
 - **Completing an action (S101).** An action may take new versions (`A1@2`) and
@@ -521,7 +521,7 @@ Five deliberate breaks, one per rule above, each failed the scenario written for
   each safeguard; the question's context gives the pilot's baseline and period; an
   estimate stays worded as one. The status line keeps its redesign (see the dated note
   in `reason-commons-spec/delivery-phases.md`): the focused pane is framed, and the new
-  **Case context** view (last in Views) gives the revision with the complete goal, the
+  **Commons context** view (last in Views) gives the revision with the complete goal, the
   tests' boundaries, the response target and what waits. It is a workspace view
   (`context`), local, with no consultant call.
 - **The decision and the goal it serves (S93).** A question's purpose shows under its
@@ -547,7 +547,7 @@ Seven deliberate breaks each failed a scenario, two after their steps were tight
   safeguard and each test's boundaries in the band (its label column widened so
   "Baseline" is not cut). In Compact the page does not repeat what the band shows, and
   the review's "System goal" line appears only once a result exists, so a routine
-  Tests view does not repeat the goal. Case context gives the complete context.
+  Tests view does not repeat the goal. Commons context gives the complete context.
 - **A breach while browsing (S69).** The pinned breach stays visible in History, Your
   words and behind Other moves, at either density.
 - **Leave and return (S94).** Already held: History and Esc bring back the question,
@@ -560,9 +560,9 @@ which S94 does not exercise; two breaks of the Esc path were caught instead).
 ## The accessible ordered presentation (p1 scenario S49, 7 October 2026)
 
 `reason-commons tui FOLDER --accessible` (or `TERM=dumb`) opens
-`adapters/accessible.py`: the same case through the same application use cases, as
+`adapters/accessible.py`: the same commons through the same application use cases, as
 ordered text appended to the terminal without redrawing, as
-`reason-commons-spec/accessibility.md` describes. Each view starts with the case,
+`reason-commons-spec/accessibility.md` describes. Each view starts with the commons,
 the declared speaker and save state, then the view and the focused control in
 words (the redesign's frame cannot be seen in text); then any breach, the decision
 and question with the goal and safeguards, what is uncertain (grouped by record),
@@ -571,14 +571,14 @@ controls. Lines wrap to the terminal's width, a long view is paged ("Page 1 of 6
 Page Down: more."), a new view says it replaces the one above, and no colour or
 cursor code is written. Tab and Shift+Tab announce each control's label, role and
 consequence; Response is literal and only Send submits; Esc returns with the draft
-kept; Case context, Explain this, Views, Backlog (Accept, Reject, Still holds, with
+kept; Commons context, Explain this, Views, Backlog (Accept, Reject, Still holds, with
 a decision that takes more listed and confirmed by activating it again), Help and
 Save and quit are local, and the draft is checkpointed like the TUI's.
 
 S49 runs at 40 by 16; `tests/test_accessible.py` covers literal input and single
 submission, local navigation with Esc, backlog decisions through the use cases, plain
 wrapped output and the draft kept across sessions. Five deliberate breaks (no
-wrapping, no paging, focus not named, the revision missing from Case context, colour
+wrapping, no paging, focus not named, the revision missing from Commons context, colour
 codes) each failed S49. Not done: assistive-technology users have not tried it; the
 participant gate in `reason-commons-spec/delivery-phases.md` asks for that.
 
@@ -597,8 +597,8 @@ specification changed, nor the application layer or `CaseCapabilities`.
   The workspace says it in the footer, in each reply's notice and in Commands ›
   Consultant calls and cost; `reason-commons usage` prints it. A soft monthly budget is
   said at 80% and 100%, and past it each workspace send asks once; nothing is blocked.
-  Conversation scenario: "Count what a Claude reply cost outside the case" (no tokens
-  or cost in the case or its export, no words or key in the log).
+  Conversation scenario: "Count what a Claude reply cost outside the commons" (no tokens
+  or cost in the commons or its export, no words or key in the log).
 - **One reply with deeper reasoning.** On request only, one answer goes to Sonnet 5.5
   and the next Send to Haiku again; never automatically, and not through MCP.
 
@@ -627,3 +627,25 @@ It does not establish live consultant quality or participant usability. See
 
 The final restoration gate passed 476 pytest tests and all 28 conversational
 scenarios, alongside every required delivered specification case.
+
+## Commons terminology and review clarity
+
+The persistent workspace is now called a **commons** in the TUI, ordered
+presentation, CLI help, consulting guidance, domain glossary, specifications and
+user guides. A **conversation** is an exchange within it. Its **model** contains
+accepted current reasoning; pending, rejected, undone and earlier reasoning
+remains recorded in the commons without belonging to its current model.
+
+The evaluation review page introduces these separately and explains older
+replies' use of “case” without rewriting the recorded reply. It retains PR #38's
+plain questions, attribution, turn-specific facts and answer polarity handling.
+The MCP launcher accepts `--commons-root`; `--case-root` remains an alias, and
+existing API keys, tool names and `.reasoncase` archives remain compatible.
+Scenario identities, delivery tags and acceptance behavior are unchanged.
+
+The complete gate passed 476 pytest tests, all required delivered specification
+scenarios and all 28 conversational scenarios. The 150 product scenario
+identities, delivery tags and 186 expanded cases were compared with the prior
+version. The reconstructed import, attributed source files and portable archive
+were verified unchanged byte for byte. Screenshots were refreshed in disposable
+commons, and the export and view-picker labels were visually checked.

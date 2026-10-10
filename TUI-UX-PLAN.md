@@ -42,7 +42,7 @@ footer lists only what works.
 
 Where it meets the specification: S114 asks that the focused control stay visible, which the
 frame does. S04, S49 and S68 asked for focus and the revision in the header; on 7 October David
-chose this design, and their wording now has the frame mark focus and Case context give the
+chose this design, and their wording now has the frame mark focus and Commons context give the
 revision (S49's text presentation names the focused control in words); S07 and S119 call the list of every action **Actions**, which is now
 **Commands** on screen, and their steps map one to the other. Neither scenario's text was changed.
 
@@ -145,7 +145,7 @@ Only the TUI does not.
 
 ## What the running code shows
 
-These were checked by running the app headlessly against the sample case, not
+These were checked by running the app headlessly against the sample commons, not
 taken from the screenshots alone.
 
 | # | Symptom | Cause in code | Contract it misses |
@@ -257,9 +257,9 @@ This is an adapter-only change; no record shape changes.
   band; it now appears where it matters (1a, 1b).
 - Truncation always ends in "…", and the Goal view always holds the full text.
 - When the body is showing the safeguards (review), the band shows Goal only.
-- An empty case shows one muted line: "No goal yet".
+- An empty commons shows one muted line: "No goal yet".
 
-The mockups below use the sample case's real records and nothing else.
+The mockups below use the sample commons' real records and nothing else.
 
 #### Forecast step at 80×24
 
@@ -371,7 +371,7 @@ screen only once PR 2 frees the rows.
 
 | Change | Detail | Contract |
 |---|---|---|
-| Header | One quiet line with no reverse video: case · speaker · save state · view, with **Focus: \<control\>** on the right. The consultant name moves to where its consequence is, the Send subtitle ("Send asks Claude"). While the consultant works, "Asking Claude…" replaces "Saved". | S114 |
+| Header | One quiet line with no reverse video: commons · speaker · save state · view, with **Focus: \<control\>** on the right. The consultant name moves to where its consequence is, the Send subtitle ("Send asks Claude"). While the consultant works, "Asking Claude…" replaces "Saved". | S114 |
 | Loop line | ✓ done, ● current, ○ to come. The reverse block and arrows go. | S03 |
 | Decision label | Small and muted, with no underline and no link colour (override `#content MarkdownH2`). The prompt becomes the only bold, high-contrast text. | S03 |
 | Destinations | Keep the list at 100 columns and wider, without a border, 14 columns, muted, with the current view marked ▌. Hide the **Views** button while the list is visible; show it when the list is hidden. | S114, S117, TUI-DESIGN 12–16 cols |
@@ -404,7 +404,7 @@ Row budget:
 - **No repeated question.** The name dialog asks "Name this goal (a few
   words)". The first workspace question uses that name as its heading and asks
   "What would count as better? Describe it in your own words." The TUI draws
-  this empty-case text itself ([L381](src/reason_commons/adapters/tui.py#L381)),
+  this empty-commons text itself ([L381](src/reason_commons/adapters/tui.py#L381)),
   so no consultant change is needed.
 - **The diagram moves out of the work surface.** The three-box loop diagram
   moves into Explain this for the first question and into Help, as frame M01's

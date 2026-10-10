@@ -7,7 +7,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
   @S114 @p1 @v1 @automated
   Scenario: Launch the persistent workspace by default
     Given interactive terminal input and output at 120 columns by 40 rows
-    When the operator launches a new case without a presentation flag
+    When the operator launches a new commons without a presentation flag
     Then the full-screen workspace shows the question, response editor, destinations and footer
     And save status, declared operator and focused control remain visible
     And no tour or command syntax is required to answer or leave
@@ -27,7 +27,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     When the operator opens Explain this and a stored source then returns with Esc
     Then the originating view, selection, semantic scroll anchor and draft caret are restored
     And the live response target remains "Choose a test"
-    And no case revision or consultant call is created
+    And no commons revision or consultant call is created
 
   @S117 @p1 @v1 @automated
   Scenario: Keep the first-release workspace usable at minimum terminal size

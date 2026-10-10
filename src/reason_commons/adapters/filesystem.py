@@ -121,10 +121,10 @@ class FileCaseStore:
         self._writable = writable
         try:
             if not self.root.is_dir() or self.root.is_symlink():
-                raise StoreError("Case store must be a regular directory")
+                raise StoreError("Commons store must be a regular directory")
             for directory in ("revisions", "inputs", "attempts", "sources"):
                 if not (self.root / directory).is_dir() or (self.root / directory).is_symlink():
-                    raise StoreError("Invalid case directory")
+                    raise StoreError("Invalid commons directory")
             if writable:
                 lock_path = self.root / "writer.lock"
                 if lock_path.is_symlink():
@@ -133,7 +133,7 @@ class FileCaseStore:
                 try:
                     fcntl.flock(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 except BlockingIOError as exc:
-                    raise WriterBusy("Another process is editing this case") from exc
+                    raise WriterBusy("Another process is editing this commons") from exc
             self.validate()
         except Exception:
             self.close()
@@ -143,11 +143,11 @@ class FileCaseStore:
     def create(cls, root, initial: Snapshot):
         root = Path(root)
         initial.validate({})
-        # Reserve a new directory exclusively; never overwrite an existing case.
+        # Reserve a new directory exclusively; never overwrite an existing commons.
         try:
             root.mkdir(mode=0o700)
         except OSError as exc:
-            raise StoreError("New case destination must not exist and its parent must be writable") from exc
+            raise StoreError("New commons destination must not exist and its parent must be writable") from exc
         try:
             for name in ("revisions", "inputs", "attempts", "sources"):
                 (root / name).mkdir(mode=0o700)
@@ -231,7 +231,7 @@ class FileCaseStore:
             sources = self.sources()
             validate_ancestry(history, sources)
             manifest = self._manifest()
-            require(all(s.value["case_id"] == manifest["case_id"] for s in history), "Case identity mismatch")
+            require(all(s.value["case_id"] == manifest["case_id"] for s in history), "Commons identity mismatch")
             for source in sources.values():
                 if "request_id" in source:
                     base = next((s for s in history if s.revision == source["base_revision"]), None)
@@ -247,7 +247,7 @@ class FileCaseStore:
                 require(value.get("request_id") in sources and type(value.get("attempt")) is int,
                         "Attempt has an unknown input")
         except (InvalidCase, TypeError, KeyError, AttributeError) as exc:
-            raise StoreError("Invalid case schema or references") from exc
+            raise StoreError("Invalid commons schema or references") from exc
 
     def retain(self, value):
         self._editing()
@@ -357,7 +357,7 @@ class FileCaseStore:
         self._editing()
         manifest = self._manifest()
         if manifest["current_revision"] != expected_revision:
-            raise StaleWork("Case advanced before publication")
+            raise StaleWork("Commons advanced before publication")
         validate_ancestry(self.history() + [snapshot], self.sources())
         # Persist reservations before writing a candidate snapshot. Export/import
         # preserves these even when a crash leaves an unpublished candidate.
@@ -465,7 +465,7 @@ def extract_bundle(archive_path, staging):
 
 
 class ArchiveCaseStore(FileCaseStore):
-    """Read-only archive view; no editable case is imported and no lock is created."""
+    """Read-only archive view; no editable commons is imported and no lock is created."""
 
     def __init__(self, archive_path):
         self._temporary = tempfile.TemporaryDirectory(prefix="reason-inspect-")

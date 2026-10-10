@@ -39,7 +39,8 @@ CONSULTANT = "the system"
 CAPABILITIES = {"db": {"rules": [{"path": "reviews", "read": "owner", "write": "owner"},
                                  {"path": "reviews/{self}", "read": "interact", "write": "interact"}]},
                 "user": {}, "downloads": True}
-SCREEN_LABELS = {"Next step, answer typed": "Before sending", "Case context": "Everything the system has recorded",
+SCREEN_LABELS = {"Next step, answer typed": "Before sending", "Commons context": "Context for the current question",
+                 "Case context": "Context for the current question",
                  "Trees": "The diagrams", "Backlog": "Waiting for approval"}
 # Only a message that was not simply typed and sent says how it was sent.
 HOW = {"another_question": "{speaker} pressed the button that asks the system for a different question."}
@@ -189,7 +190,7 @@ def build_review_package(report_path, output=None, provider=None, only=None):
         "file_path": "index.html", "files": {case["file"]: case["file"] for case in data["cases"]},
         "capabilities": CAPABILITIES, "icon": "checklist",
         "description": f"Answer {count} yes/no questions about an AI assistant's replies across "
-                       f"{len(data['cases'])} short cases; answers save as you go.",
+                       f"{len(data['cases'])} short conversations; answers save as you go.",
         "report_sha256": data["template"]["report_sha256"]}, indent=2) + "\n", encoding="utf-8")
     return output / "index.html"
 
@@ -381,8 +382,12 @@ textarea.missing { border-color: var(--no); }
       <details class="words">
         <summary>Words the system uses in its replies (they are also explained under each reply that uses them)</summary>
         <ul>
-          <li><b>case</b>, <b>the model</b>: two names for the same thing, everything the system has recorded in
-          this conversation (not the AI model)</li>
+          <li><b>commons</b>: the persistent workspace containing the goal, contributions, sources, reasoning,
+          decisions and complete history. It continues across conversations. Older replies call it a case.</li>
+          <li><b>conversation</b>: an exchange of messages and replies within a commons.</li>
+          <li><b>the model</b>: the currently accepted reasoning used to guide the work (not the AI model).
+          Pending, rejected, undone and earlier reasoning stays recorded in the commons without belonging to its
+          current model.</li>
           <li><b>move</b>: the system's next question or suggested step</li>
           <li><b>attributed</b>: marked with who said it</li>
           <li><b>provisional</b>: a first draft, not settled</li>
@@ -401,6 +406,9 @@ textarea.missing { border-color: var(--no); }
           <li><b>decision authority</b>: who is allowed to decide</li>
         </ul>
       </details>
+      <p>Recording a proposal preserves it in the commons; accepting it admits it to the model. A commons can
+      accept proposals automatically or require the user's acceptance. These evaluation conversations use
+      automatic acceptance; that setting records admission, not proof that the reasoning is true.</p>
       <div>
         <p class="label">How to answer each question</p>
         <p>Each question has four answers to choose from:</p>
@@ -818,7 +826,7 @@ document.getElementById("file").addEventListener("change", async event => {
   if (!file) return;
   let value = null;
   try { value = JSON.parse(await file.text()); } catch (e) { /* reported below */ }
-  if (!restore(value)) { status("That file isn't a saved review of these cases.", true); return; }
+  if (!restore(value)) { status("That file isn't a saved review of these conversations.", true); return; }
   changed({});
   showMe();
   show(shown);

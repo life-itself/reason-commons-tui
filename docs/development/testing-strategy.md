@@ -32,7 +32,7 @@ so keep them few, retain their evidence, and never make them part of the gate.
 - **Byte-level behavior is an adapter test**: file formats, process locks, crash
   boundaries, wire protocols, redirects and exit codes are asserted there, not in
   Gherkin.
-- **Isolation.** Each scenario gets its own temporary case. Anything global, such as
+- **Isolation.** Each scenario gets its own temporary commons. Anything global, such as
   environment variables, is cleared and restored in `environment.py`.
 
 ### Interface acceptance (p1)
@@ -42,7 +42,7 @@ typing, Esc, resizing. Their steps drive the real Textual app headlessly through
 `tests/acceptance/workspace.py`, pressing keys as a person would, and never call
 widget methods to cause an effect. They read outcomes at the application boundary
 (the fixture consultant's calls, revisions, retained inputs and receipts) and from
-what is on screen. Fixtures are still built through use cases: the Forge case of
+what is on screen. Fixtures are still built through use cases: the Forge commons of
 the navigation scenarios is eight consultant replies and two tree imports.
 
 Behave steps are synchronous and Textual's pilot is async, so the app runs in one
@@ -77,7 +77,7 @@ questions from application tests. Keep them in separate suites.
 
 - Assert **effects and decisions**, not prose. Check which capabilities were called,
   in what order, which forbidden ones were not, what was retained, and the resulting
-  case state. Never assert the model's wording.
+  commons state. Never assert the model's wording.
 - Example assertions: `retain_input` precedes `consult`; no capability outside the
   invocation's authorization was reached; a blocked request is recorded; the saved
   result, not the agent's claim, decides success.

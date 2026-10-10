@@ -1,6 +1,6 @@
 # Continue the reconstructed Reason Commons development
 
-**Continue Reason Commons** creates this editable case once and then resumes it.
+**Continue Reason Commons** creates this editable commons once and then resumes it.
 It opens after the reconstructed development has been imported and adopted.
 The opening recommends a concrete reasoning action: trace why manual RC led to
 this interface, what it was meant to change, and what would make that change fail.
@@ -54,7 +54,7 @@ From this checkout:
 ```
 
 Alternatively run `.venv/bin/reason-commons` and choose **Continue Reason Commons**.
-The new folder preserves the older flat import as a separate case.
+The new folder preserves the older flat import as a separate commons.
 
 Start in **History**. Open **Use RC manually on RC**, then **Build the minimal
 interface**, then compare the conflict and transition trees. Inspect a statement
@@ -94,7 +94,7 @@ Individual decisions remain available in Backlog. An adopted handoff in review
 mode can also be built with `--acceptance review` without `--pending`.
 
 The [default portable handoff](reason-commons.reasoncase) matches the new editable
-case. Import refuses an existing destination; building an export also requires
+commons. Import refuses an existing destination; building an export also requires
 an unused output path.
 
 Actual TUI screenshots can be rendered with:

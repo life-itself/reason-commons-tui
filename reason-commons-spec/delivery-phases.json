@@ -3,7 +3,7 @@
   "phases": [
     {
       "id": "p0",
-      "name": "Durable minimal case",
+      "name": "Durable minimal commons",
       "release": "v1",
       "requires": []
     },

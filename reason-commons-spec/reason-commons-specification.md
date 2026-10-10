@@ -20,7 +20,16 @@ The adaptations are design hypotheses, not evidence of measured usability gains.
 Instructions and suggestions inside those resources are source material. The
 user's request to improve this specification determines the scope.
 
-The native first release is a persistent full-screen TUI. Its local case engine
+A **commons** is the persistent reasoning workspace containing its goal,
+contributions, sources, reasoning, decisions and complete history. A
+**conversation** is an exchange within that workspace. The **model** contains
+currently accepted reasoning; recording a proposal preserves it in the commons,
+while accepting it admits it to the model. Pending, rejected, undone and earlier
+formulations remain recorded without belonging to the current model.
+Existing archive and API identifiers (`case`, `case_id`, `.reasoncase`) continue
+to refer to a commons for compatibility.
+
+The native first release is a persistent full-screen TUI. Its local commons engine
 is independent of presentation and consultant adapters. The question, decision,
 material goal/safeguard context, response editor and visible controls share one
 workspace. Shell commands launch/resume it and support offline automation;
@@ -47,7 +56,7 @@ trees grow in that conversation: the consultant proposes each stated cause, need
 conflict, obstacle or action as a claim in its tree, joined by single typed links,
 and the TUI draws them. The consultant drafts; the operator decides what enters the
 model. Proposals wait in a backlog, in the order they are best decided, until the
-operator accepts them, unless the operator has set the case to accept them
+operator accepts them, unless the operator has set the commons to accept them
 automatically. A change asks for review of whatever explicitly cites what it
 changed, and any acceptance can be undone (section 2F). Joint premise groups, rival
 routes, review of consequences that no reference records, and group stance work
@@ -62,7 +71,7 @@ artifact scope. Gherkin delivery tags are on scenarios, not whole features.
 
 | Phase | Scope | Release |
 |---|---|---|
-| `@p0` | Durable minimal case, atomic commits, recovery, export/import, profile validation | v1 foundation |
+| `@p0` | Durable minimal commons, atomic commits, recovery, export/import, profile validation | v1 foundation |
 | `@p1` | Persistent TUI, literal editor, local views, focus/draft recovery, accessible linear alternative | v1 interaction |
 | `@p2` | Goal, bounded test, immediate action, observations, original-forecast review; trees grown in conversation with LTP 1.0 import/export; proposals decided in a backlog, review flags and undo | v1 complete loop |
 | `@p3` | Joint premise groups and rival routes, WIP integration, comparisons, goal connections, correction receipts and review records | Later causal release |
@@ -70,7 +79,7 @@ artifact scope. Gherkin delivery tags are on scenarios, not whole features.
 | `@p5` | Full Goal/Future/Prerequisite/Transition views, negative branches, cross-tool reviews | Later full-tools release |
 
 V1 ships only p0-p2. Later phases build cumulatively and preserve earlier
-contracts. A development phase is not a sequence users must follow in a case.
+contracts. A development phase is not a sequence users must follow in a commons.
 The consultant may discuss causes, conflicts, or obstacles in plain language
 in v1 and propose what the participant states for the trees. Recording is never a
 prerequisite: an empty or partial tree is normal, and no tree gates a test.
@@ -83,13 +92,13 @@ bounded tests with forecasts; immediate actions; and observations/reviews.
 It also records tree claims (tree, role, statement, basis), single typed links
 with an optional assumption, retractions, and new versions that reword a claim
 while keeping its links. A link belongs to one tree and may use a statement from
-another, such as a Future Reality link from the Cloud's injection. The case has
+another, such as a Future Reality link from the Cloud's injection. The commons has
 one goal, and it is the Goal Tree's top statement: there is no second copy of it
 among the tree claims. A test may name the tree claim it carries out. The
 vocabulary is LTP 1.0 from the reasoncommons guide, so trees import from and
 export to `.ltp.yaml` files. Imports go through the ordinary retained-input path
 and wait in the backlog like any proposal; a file's Goal Tree goal is proposed as
-the case's goal, or as a new version of it. What the trees cannot hold (joint
+the commons' goal, or as a new version of it. What the trees cannot hold (joint
 premises, assessments) is kept as labelled notes. It stores unknowns rather than
 manufacturing completeness. It distinguishes completed work, observed effects,
 supported predictions, and goal attainment. Every record the consultant proposes
@@ -102,13 +111,13 @@ V1 controls are Send, Explain this, Other moves, Backlog, Goal, Trees, Tests,
 Actions and History, plus source and current-test inspection. Accept and Reject
 act on a selected proposal or on everything one reply proposed; Undo acts on an
 accepted change; Still holds closes a review flag; Actions changes whether the
-case accepts proposals automatically. The visible Views/Actions
+commons accepts proposals automatically. The visible Views/Actions
 controls provide navigation, export, retry, Help and Save and quit. They are
 keyboard reachable without command syntax. Display only capabilities enabled
-by the case profile. V1 uses one declared operator; structured speaker switching,
+by the commons profile. V1 uses one declared operator; structured speaker switching,
 positions and the tree-specific reasoning checks arrive in their tagged phases.
 
-The Actions list and Help contain only operations enabled by the case profile.
+The Actions list and Help contain only operations enabled by the commons profile.
 There is no interactive colon-command parser, phrase router, command field or
 REPL fallback in any presentation. Profile validation rejects unavailable actions
 and schema patches before commit, preserves drafts, and explains the limitation.
@@ -136,7 +145,7 @@ particular organizational intervention will succeed.
 | ID | When... | I / we want to... | So that... | Observable acceptance signal |
 |---|---|---|---|---|
 | J01 | We have several problems but an unclear common purpose | Name the system, goal, horizon, measure, and conditions we must protect | We can judge an improvement in the whole system | Proposed goals, unknown measures, and each person's position are explicit |
-| J02 | We return, change views, or hand over facilitation | See the few facts and statuses that change the current question | We need not reconstruct the case from memory | Compact status on views; consequential context beside the question; full context on request |
+| J02 | We return, change views, or hand over facilitation | See the few facts and statuses that change the current question | We need not reconstruct the commons from memory | Compact status on views; consequential context beside the question; full context on request |
 | J03 | We are stuck or overwhelmed | Make one useful reasoning move with feedback | We can progress and practice the actual skill | One primary prompt; the group can correct a link, supply a condition, or choose a test |
 | J04 | A question is unclear, feels accusatory, or we need direct help | Change the intervention or coaching style | We can participate without performing a prescribed discovery ritual | Corrections affect the next question; direct advice is available when requested |
 | J05 | We need another route or want to browse | Inspect succinct alternatives and navigate predictably | We retain agency without unnecessary model calls | Options say whether they open a view or ask the consultant; shortcuts have stable meanings |
@@ -148,7 +157,7 @@ particular organizational intervention will succeed.
 | J11 | A remedy meets resistance or may cause harm | Represent legitimate needs, test necessity assumptions, and examine adverse effects | We can design a change that protects what matters | A faithful conflict or negative branch produces a specific question, prevention, or acknowledged tradeoff |
 | J12 | We are ready to act | Define a bounded test, prerequisites, owner, prediction, and stopping conditions | We know what to do and can learn from it | A prospective prediction and executable next action are saved before results |
 | J13 | Results arrive | Compare them with the original prediction and decide what changes next | We learn without rewriting the past | Delivery, guardrails, fidelity, comparability, alternatives, and the next decision are reviewed |
-| J14 | We must stop, resume, inspect history, or transfer the case | Preserve a portable record independent of a provider conversation | Work survives interruption and can be inherited | A fresh offline process restores the case, cursor, draft, sources, dissent, and forecasts |
+| J14 | We must stop, resume, inspect history, or transfer the commons | Preserve a portable record independent of a provider conversation | Work survives interruption and can be inherited | A fresh offline process restores the commons, cursor, draft, sources, dissent, and forecasts |
 | J15 | The provider, parser, or storage fails | Understand what was retained and recover without duplicate work | We can trust the apparatus | Failure receipts distinguish retained input, pending reasoning, and committed revisions |
 | J16 | We use a narrow terminal, a screen reader, multiline notes, or unfamiliar commands | Understand the interface and control what is submitted | The interaction supports our thinking rather than consuming it | Visible local actions, numeric answers, text equivalents, wrapping, and draft preservation |
 | J17 | The consultant interprets what we said | Decide what enters our model, in the order the decisions depend on each other, and undo what we later doubt | Our model holds only reasoning we admitted, and we see what a change puts in question | Proposals wait with their source unless we chose automatic acceptance; the backlog orders them; a change flags what cites it; every acceptance can be undone |
@@ -156,7 +165,7 @@ particular organizational intervention will succeed.
 There are two outcome families to evaluate. Organizational outcomes are the
 group's chosen goal measures and protected conditions. Capability outcomes are
 whether participants can make a similar reasoning move later with less help,
-including identifying a condition or counterexample on a new case. Reply count,
+including identifying a condition or counterexample on a new commons. Reply count,
 agreement with the consultant, the number of accepted proposals, and an empty WIP
 list or backlog are not success measures.
 
@@ -193,7 +202,7 @@ not a failure to cooperate.
 
 ### B. Persistent context is selected, not exhaustive
 
-Each rendered view begins with case, committed revision, save status, declared
+Each rendered view begins with commons, committed revision, save status, declared
 speaker, and focus in one short line (wrapping when needed). Local receipts
 need not reprint it. Never use a checkmark alone to communicate durability.
 The view title identifies browsing; historical views also show their as-of
@@ -201,20 +210,20 @@ revision and the live response target. Pending work has a separate label.
 
 The persistent workspace uses compact pinned context. Show the complete goal, horizon,
 protected conditions, and active test boundaries on startup/resume, whenever
-those fields change, and through the visible Goal and Case context controls. The current
+those fields change, and through the visible Goal and Commons context controls. The current
 question must also repeat any condition, baseline, target, or uncertainty that materially changes its answer,
-even if it was displayed earlier. A saved case with an unknown goal displays
+even if it was displayed earlier. A saved commons with an unknown goal displays
 "goal provisional" or "goal unknown" until the goal is defined.
 
 Unresolved breaches and storage/provider failures take precedence over routine
 focus in every affected view: name the breached condition and current value,
-or distinguish retained input from uncommitted reasoning. Case context also
+or distinguish retained input from uncommitted reasoning. Commons context also
 shows full model/WIP status, attribution, response target, pending inputs,
 waiting proposals and open review flags.
 Actions > Display > Expanded repeats this context; Compact is the default. Both are persisted cursor
 preferences, with no reasoning revision or consultant call. Display density cannot hide an active breach.
 
-Context is physically pinned in the default TUI: case/save/actor/view/focus
+Context is physically pinned in the default TUI: commons/save/actor/view/focus
 header, a short goal/safeguard band, and footer controls. Expand the task region
 for complete diagrams and inspection; auxiliary panes collapse before decisive
 premises. Navigation restores draft, caret, selected object, semantic scroll
@@ -277,7 +286,7 @@ question requires more. Expanded views label excerpts as partial. AND means join
 conditions, not two independently sufficient arrows. Feedback and delays must
 be explicit. A Cloud uses necessity relationships, not causal arrows disguised
 as a conflict diagram. An unresolved tradeoff or discriminating experiment can
-be a successful endpoint; every case need not produce a complete suite of trees.
+be a successful endpoint; every commons need not produce a complete suite of trees.
 
 ### E. A group has positions, not a single synthetic mind
 
@@ -296,26 +305,26 @@ by this facilitated-group increment.
 
 ### F. The consultant drafts; the operator decides what enters the model
 
-The case keeps three things apart: what the operator said, what the consultant
+The commons keeps three things apart: what the operator said, what the consultant
 proposes it means, and what the operator has admitted into their model. Raw input
 is retained first and stays available with its source. The consultant then drafts
 candidate reasoning from it: goal changes, notes, tests, actions, observations,
 reviews, tree statements, links, new wordings and withdrawals. Each proposal cites
 the words it came from and may carry the consultant's confidence that it represents
 them faithfully. A proposal may cite only the answer it replies to, answers the
-case has already taken in, and sources the operator supplied; an answer that became
-stale before its reply was published is not part of the case, so the consultant is
+commons has already taken in, and sources the operator supplied; an answer that became
+stale before its reply was published is not part of the commons, so the consultant is
 not shown it and no later reply may cite it. The operator can send it again.
 Drafting is automatic; entry into the model is a decision.
 
 The goal, the six trees and the tests are one model, not separate concerns. The
-case has one goal; it is the Goal Tree's top statement, and every change to it is
+commons has one goal; it is the Goal Tree's top statement, and every change to it is
 a new version of that goal. A test carries out a tree statement and serves the
 goal; a link may use a statement from another tree, which stays one statement in
 both. The backlog therefore holds every proposed change to the model, whatever
 part it touches, and one set of rules decides them.
 
-**Acceptance setting.** Each case says how proposals enter the model. *Hold
+**Acceptance setting.** Each commons says how proposals enter the model. *Hold
 proposals for review* is the default: proposals wait in the backlog while the
 conversation continues. *Accept proposals automatically* delegates acceptance to
 the application: a reply's proposals that are ready (below) enter the model in the
@@ -330,7 +339,7 @@ recorded decisions show how well that confidence predicts the operator's own.
 
 **Accept and reject.** A proposal is *ready* when everything it cites is in the
 model. Accepting one also accepts the waiting proposals it needs, and rejecting one
-also rejects the waiting proposals that need it; in both cases the operator sees
+also rejects the waiting proposals that need it; in both commons the operator sees
 the full list before confirming. Everything one reply proposed can be accepted in
 one action, so admission never becomes a confirmation ritual; individual proposals
 can still be inspected, rejected or left waiting. Acceptance is atomic: one local
@@ -391,7 +400,7 @@ whole earlier state.
 **Timing and earlier cases.** Accepting, rejecting, undoing or changing the setting
 while the consultant is working does not make its reply stale; the reply's
 proposals are checked against the model as it stands when they arrive. Only a
-newer consultant question makes a pending reply stale. Cases recorded before this
+newer consultant question makes a pending reply stale. Commons recorded before this
 contract open unchanged: everything already in them is in the model, and their
 history reads as it did.
 
@@ -406,14 +415,14 @@ reading order, not the domain actions or submission model.
 
 At rest, the workspace answers six questions: where am I, what are we deciding,
 what deserves attention, what is uncertain, what can I do next, and what is saved?
-Pin case, saved revision, declared operator, view and focus; show the current
+Pin commons, saved revision, declared operator, view and focus; show the current
 goal and consequential safeguard context. Give the main task most of the canvas.
 A current question has a human title, decision purpose and prominent prompt.
 Stable internal intervention IDs belong in audit/details, not titles, counters,
 response prompts or first-use instruction.
 
 The first screen offers a literal Response editor, Send, How this works and Open
-a saved case. Explain this and Other moves remain reachable as work develops.
+a saved commons. Explain this and Other moves remain reachable as work develops.
 No walkthrough, assent, prescribed answer or TOC vocabulary lesson gates action.
 
 | Visible path | What it does | Boundary |
@@ -434,7 +443,7 @@ No walkthrough, assent, prescribed answer or TOC vocabulary lesson gates action.
 | Selected test > Record decision (p4+) | Records willingness to run that exact bounded version | Local; never inferred belief |
 | Actions > Capture report / Add relationship (p3+) | Saves literal material or a fully specified human hypothesis | Local reasoning update |
 | Actions > Ask for direct advice / Another question | Requests the displayed stored intent | Asks consultant; one request |
-| Actions > Export / Save and quit / Retry retained input | Operates on the selected case or retained request | Consequence labeled; retry asks consultant only if needed |
+| Actions > Export / Save and quit / Retry retained input | Operates on the selected commons or retained request | Consequence labeled; retry asks consultant only if needed |
 
 Destinations are not stages. A user can inspect sources, revisit a goal, enter a
 counterexample, request direct help or stop with uncertainty still open. Actions
@@ -468,7 +477,7 @@ required knowledge. Identical labels receive disambiguating scope/version text.
 Focused object, inspected revision and live response target are distinct.
 Browsing History does not retarget Send or restore old reasoning. A historical
 question is read-only; Actions > Answer this earlier question explicitly selects
-it while interpreting the response against current case state. Restore reasoning
+it while interpreting the response against current commons state. Restore reasoning
 is a separately labeled action that previews its source revision and appends a
 new revision; it cannot rewind allocation or audit history. Undo reverses one
 accepted change (section 2F) and is a different action.
@@ -523,9 +532,9 @@ reason-commons --help
 reason-commons --version
 reason-commons new NAME --store PATH [--speaker NAME] [--accessible]
 reason-commons resume PATH [--accessible] [--density compact|expanded]
-reason-commons inspect CASE [--offline] [--json] [--no-color]
-reason-commons history CASE [--json] [--no-color]
-reason-commons export CASE --output PATH [--force]
+reason-commons inspect COMMONS [--offline] [--json] [--no-color]
+reason-commons history COMMONS [--json] [--no-color]
+reason-commons export COMMONS --output PATH [--force]
 reason-commons import BUNDLE --store PATH
 ```
 
@@ -534,7 +543,7 @@ without alternate-screen redrawing, using the same visible labeled actions and
 literal editor; [accessibility.md](accessibility.md) defines that presentation.
 `TERM=dumb` offers it. No alternate shell-session or REPL grammar defines user
 work. `--no-color` preserves layout and all text/symbol statuses.
-`inspect`, `history`, `export` and `import` are local utilities; CASE is a store
+`inspect`, `history`, `export` and `import` are local utilities; COMMONS is a store
 directory or `.reasoncase` archive. Inspection does not import implicitly.
 Import creates a new store and refuses an existing destination.
 
@@ -551,16 +560,16 @@ existing destination and requires the explicitly labeled Replace export action.
 
 ## 4. State, model invocation, and portability
 
-### The authoritative case
+### The authoritative commons
 
-The case store, rather than provider conversation memory, is authoritative.
+The commons store, rather than provider conversation memory, is authoritative.
 From p0, a user-chosen writable filesystem directory is the external store:
 external to the running process and the skill. Users can back it up or place it
 on durable storage. A cloud backend is an adapter, not a prerequisite.
 
 ```text
 forge-case/
-  manifest.yaml                 schema/case identity and current revision
+  manifest.yaml                 schema/commons identity and current revision
   revisions/000001.yaml          complete committed snapshot
   revisions/000002.yaml          next snapshot; never replaces 000001
   ...
@@ -575,7 +584,7 @@ The cumulative p5 schema below is not the minimal v1 schema. V1 includes only
 the records listed in section 0; later fields arrive with their phases.
 
 Every successful reasoning transaction creates a complete YAML snapshot with
-schema version, case ID, revision ID, parent ID, timestamp and timezone, sources,
+schema version, commons ID, revision ID, parent ID, timestamp and timezone, sources,
 goal, measurements, propositions, relationships, WIP, hypotheses, stances,
 interventions/options, tests/predictions/outcomes, proposals and the decisions on
 them, review flags, the acceptance setting, and consequential events. A human
@@ -585,7 +594,7 @@ intervention. A navigation operation does neither. A semantic response may creat
 intervention with no graph change. Revision and intervention numbers are independent.
 Snapshots also record applied request IDs and consultant-method/adapter
 versions so recovery and later evaluation do not depend on a receipt alone.
-IDs are allocated monotonically within a case and never reused. Restoring old
+IDs are allocated monotonically within a commons and never reused. Restoring old
 reasoning does not rewind the allocation ledger, applied-request ledger,
 source archive, or audit history.
 
@@ -614,7 +623,7 @@ files tamper-proof. The mutable manifest points to the last complete revision.
 Snapshots plus events are exported together. The portable `.reasoncase` format
 is a ZIP container with the manifest, complete revision ancestry, inputs,
 receipts, referenced sources, and cursor. Credentials and provider secrets are
-not part of a case. Import verifies schema, references, and hashes before use.
+not part of a commons. Import verifies schema, references, and hashes before use.
 
 ### Commit protocol
 
@@ -735,7 +744,7 @@ one action, and nothing asks again for a commitment already supplied.
 ## 5. Gherkin and traceability
 
 The thirteen `.feature` files below are acceptance specifications, with examples
-expanding some outlines into multiple cases. Counts are in the bundle README.
+expanding some outlines into multiple commons. Counts are in the bundle README.
 They are not implemented tests. Step definitions and provider adapters remain
 to be built. Deterministic scenarios should run against a fake consultant with
 an observable call counter. Semantic fixtures should assert invariants and be
@@ -752,7 +761,7 @@ all failure branches. Every scenario still needs its own fixture and release gat
 | J07–J08, J10 | 03 model and WIP | S14–S23 | S04–S08; R01–R02 | Conditions, evidence, corrections and retained reports |
 | J09, J11 | 04 group and conflict | S24–S29 | S07; S09 | Independent position fields and both legitimate needs |
 | J10–J13 | 05 experiments and review | S30–S38 | M03–M07; S10–S22 | Prospective forecast, preparation, breach and follow-up |
-| J14–J15 | 06 persistence and recovery | S39–S48 | M04 resume; S18 | Saved target/draft, portable case and exact retry |
+| J14–J15 | 06 persistence and recovery | S39–S48 | M04 resume; S18 | Saved target/draft, portable commons and exact retry |
 | J03, J15–J16 | 07 accessibility and evaluation | S49–S53 | M01–M07; S23–S24 | Reflow, equivalent relations and deliberate submission |
 | J02, J05–J06, J09, J14–J16 | 08 human interface | S54–S73 | S05A–S07; S18 | Focused menus, explicit targets and actor-bound forms |
 | J03, J07, J10–J13, J16 | 09 visual reasoning | S74–S89 | S05–S05B; S09–S17 | Complete typed logic and decision-sized canvas |
@@ -1095,12 +1104,12 @@ or a validated rating scale. Test fixes with new participants.
 
 Separately test reasoning quality on all seven representations: trace the relation,
 state its decisive condition, challenge an unsupported claim, and predict or plan
-for a new case. Score mechanism, condition, alternatives, and decision implication,
+for a new commons. Score mechanism, condition, alternatives, and decision implication,
 accepting legitimate corrections. Test aided use separately from unaided retrieval
 or delayed transfer. Record displayed scope, supplied versus generated content,
 repairs, and meaningful revisions. Compare matched fragments or views on distinct
 cases with order counterbalanced where practical; do not compare four presentations
-of the same case as independent learning trials.
+of the same commons as independent learning trials.
 
 Measure goal attainment, implementation fidelity, and guardrail results separately
 from learning, confidence, and satisfaction. Reduced reference-recovery effort is
@@ -1280,12 +1289,12 @@ Feature: Help a group make its next reasoning move
   feedback, and a useful next question or recommendation.
 
   Background:
-    Given a writable case store
+    Given a writable commons store
     And an available consultant adapter
 
   @S01 @p2 @v1 @semantic
   Scenario: Begin with a situation rather than a TOC questionnaire
-    Given a new case with no agreed goal
+    Given a new commons with no agreed goal
     When Sam submits "Late deliveries, changing priorities, overtime, and falling morale"
     Then the input is preserved with Sam's declared attribution
     And one prominent question asks what meaningful progress would look like and what must be protected
@@ -1313,10 +1322,10 @@ Feature: Help a group make its next reasoning move
   @S04 @p2 @v1 @automated
   Scenario: Keep the information that changes the answer beside the question
     Given the current question concerns a pilot that may increase overtime
-    And the case protects "Overtime at most 20 hours per week"
+    And the commons protects "Overtime at most 20 hours per week"
     When the pilot workspace is rendered
     Then the consequential goal and protected condition appear beside the question
-    And compact status shows save status, the focused control is framed, and Case context gives the revision
+    And compact status shows save status, the focused control is framed, and Commons context gives the revision
     And an estimate is not relabeled as a measurement
     And the pilot workspace shows the relevant baseline and period
 
@@ -1349,7 +1358,7 @@ Feature: Navigate without asking the consultant to think
 
   Background:
     Given the persistent TUI workspace is active
-    And case "forge" at revision 10 with current question "Choose a test"
+    And commons "forge" at revision 10 with current question "Choose a test"
     And History contains the earlier questions "Define success" and "Inspect the baseline"
     And the consultant call counter is 8
 
@@ -1684,14 +1693,14 @@ Feature: Turn a defensible next move into learning
 
 ```gherkin
 @J14 @J15
-Feature: Preserve the case across sessions and failures
+Feature: Preserve the commons across sessions and failures
   Successful reasoning transactions produce complete immutable-by-policy YAML
   revisions. Navigation and drafts use a separate resumable cursor checkpoint.
 
   @S39 @p0 @v1 @automated
   Scenario: Resume without reconstructing the consultation
-    Given a saved case with a current question, attributed notes, a bounded test, and an answer draft
-    When the participant quits and resumes the same case in a new process
+    Given a saved commons with a current question, attributed notes, a bounded test, and an answer draft
+    When the participant quits and resumes the same commons in a new process
     Then the same reasoning revision, response target, view cursor, and draft are restored
     And the goal, notes, test, and last prediction are unchanged
     And resumption makes no consultant call
@@ -1710,7 +1719,7 @@ Feature: Preserve the case across sessions and failures
     Given revision 14 is current and revision 3 exists
     When Sam selects revision 3 in History and opens it
     Then revision 3 is displayed as historical and read-only
-    And the case remains at revision 14
+    And the commons remains at revision 14
     When Sam activates Restore reasoning, reviews source revision 3 and activates Append restored reasoning
     Then a new revision 15 reproduces revision 3's reasoning state
     And it records both revision 14 as parent and revision 3 as restored source
@@ -1718,12 +1727,12 @@ Feature: Preserve the case across sessions and failures
 
   @S42 @p0 @v1 @automated
   Scenario: Export a portable handoff independent of provider conversation memory
-    Given a saved case containing interventions, sources, attributed notes, a goal, and a bounded test
+    Given a saved commons containing interventions, sources, attributed notes, a goal, and a bounded test
     When Sam exports a ".reasoncase" bundle and imports it into a fresh process
     Then stable identifiers and revision ancestry are preserved
     And all referenced source records and the original prediction can be inspected offline
     And no hidden provider conversation is required
-    And the imported case opens without a consultant call
+    And the imported commons opens without a consultant call
 
   @S43 @p0 @v1 @automated
   Scenario: Recover from a provider failure without losing or duplicating input
@@ -1739,13 +1748,13 @@ Feature: Preserve the case across sessions and failures
   Scenario: Reject an invalid response without applying a partial update
     Given a stored semantic input and current revision 14
     When the adapter returns an unknown goal reference or an ownership claim without cited explicit input
-    Then no intervention or case update is committed
+    Then no intervention or commons update is committed
     And the input and failure receipt remain available
     And a local recovery message explains the next available action
 
   @S45 @p0 @v1 @automated
-  Scenario: A save failure never looks like a saved case
-    Given the case store cannot complete a durable write
+  Scenario: A save failure never looks like a saved commons
+    Given the commons store cannot complete a durable write
     When the participant submits an answer
     Then "not saved" is visible
     And no consultant call begins if the raw input cannot first be retained
@@ -1755,7 +1764,7 @@ Feature: Preserve the case across sessions and failures
   @S46 @p0 @v1 @automated
   Scenario: Detect stale work instead of silently overwriting another update
     Given an adapter request was based on revision 14
-    And a reply to another input has advanced the case to revision 15 with a new question
+    And a reply to another input has advanced the commons to revision 15 with a new question
     When that adapter response arrives
     Then it is not applied to revision 15
     And the receipt offers a re-evaluation against the current revision
@@ -1763,7 +1772,7 @@ Feature: Preserve the case across sessions and failures
 
   @S47 @p1 @v1 @automated
   Scenario: Keep offline navigation useful
-    Given a saved case and an unavailable consultant adapter
+    Given a saved commons and an unavailable consultant adapter
     When Sam opens options, rationale, history, or the bounded test
     Then every stored view works without the adapter
     And semantic work is clearly pending until an adapter is available
@@ -1788,7 +1797,7 @@ Feature: Make the interface legible and the consultant evaluable
     When a test review is rendered
     Then compact status shows save status and names the focused control
     And the question shows its consequential goal and protected condition
-    And the Case context control exposes complete current context locally
+    And the Commons context control exposes complete current context locally
     And lines wrap without horizontal scrolling
     And additional content is explicitly paged
     And "NEXT", uncertainty, and control labels do not depend on color
@@ -1810,7 +1819,7 @@ Feature: Make the interface legible and the consultant evaluable
 
   @S52 @p2 @v1 @semantic
   Scenario Outline: Evaluate realistic semantic input by invariants rather than exact prose
-    Given a documented case fixture and a live question
+    Given a documented commons fixture and a live question
     When the participant submits "<input>"
     Then all contributed information is accounted for in the receipt
     And no unsupported causal certainty, identity verification, or group assent is invented
@@ -1829,7 +1838,7 @@ Feature: Make the interface legible and the consultant evaluable
   @S53 @p3 @later @automated
   Scenario: Measure useful progress without rewarding agreement
     Given a group corrects two causal links and completes a pilot review
-    When the case progress view is opened
+    When the commons progress view is opened
     Then it reports the corrections, evidence obtained, decisions, and reviewed predictions
     And it does not score agreement, reply count, or WIP depletion as success
     And learning measures require an actual reasoning task or later unaided performance
@@ -1877,7 +1886,7 @@ Feature: Make rigorous local work discoverable through workspace controls
     Given Other moves filter owns focus and none of its labels contains "5"
     When Sam types "5" and presses Enter
     Then no item is activated and No matches appears with Clear filter and Back
-    And no consultant request, case update or revision is created
+    And no consultant request, commons update or revision is created
     And the response draft is retained
 
   @S58 @p1 @v1 @automated
@@ -1924,7 +1933,7 @@ Feature: Make rigorous local work discoverable through workspace controls
   @S63 @p1 @v1 @automated
   Scenario: Reject a stale menu before applying a decision
     Given Other moves is bound to "Choose a test" at revision 10
-    And the case advances to revision 11 with a different current question
+    And the commons advances to revision 11 with a different current question
     When Sam activates the old selected item
     Then the old choice is not dispatched against either question
     And current choices are redisplayed with a stale-menu notice
@@ -1964,10 +1973,10 @@ Feature: Make rigorous local work discoverable through workspace controls
   Scenario: Compress routine context and repeat consequential changes
     Given Compact display and an unchanged goal and protections
     When Sam opens Explain this and returns to the current question
-    Then the pinned header shows case, save status and speaker, and the focused control is framed
+    Then the pinned header shows commons, save status and speaker, and the focused control is framed
     And complete unchanged context is not duplicated inside each view
     And the goal and consequential safeguard band remain pinned
-    When the goal changes or Sam activates Goal or Case context
+    When the goal changes or Sam activates Goal or Commons context
     Then complete goal, horizon, protections, test boundaries, response target and revision appear
     And requesting context makes no consultant call
 
@@ -1981,7 +1990,7 @@ Feature: Make rigorous local work discoverable through workspace controls
   @S70 @p1 @v1 @automated
   Scenario: Revalidate a restored menu before activation
     Given a checkpoint contains Other moves, focus, display preference, operator and draft
-    When a fresh process resumes the case
+    When a fresh process resumes the commons
     Then it restores and validates the menu bindings
     And it shows complete startup context and labeled choices before accepting activation
     And no reasoning revision or consultant call occurs
@@ -1996,7 +2005,7 @@ Feature: Make rigorous local work discoverable through workspace controls
 
   @S72 @p1 @v1 @automated
   Scenario Outline: Keep offline shell utilities free of interactive furniture
-    Given a saved valid case and unavailable provider
+    Given a saved valid commons and unavailable provider
     When the shell command "<command>" is invoked
     Then it exits 0 without a provider call
     And stdout contains only "<output>"
@@ -2185,15 +2194,15 @@ Feature: Connect reasoning to goal progress within the delivered scope
 
   @S91 @p5 @later @automated
   Scenario: Preserve every delivered reasoning type in a portable handoff
-    Given a full-tools case with traceability, reviews, stances, and all six models
-    When the operator exports and imports the case offline
+    Given a full-tools commons with traceability, reviews, stances, and all six models
+    When the operator exports and imports the commons offline
     Then exact versions and every typed relationship remain inspectable
     And review needs, open questions, observation criteria, and cursor are retained
     And no provider conversation is required
 
   @S92 @p3 @later @automated
   Scenario: Keep structured causal navigation useful offline
-    Given a causal-profile case and an unavailable consultant
+    Given a causal-profile commons and an unavailable consultant
     When the operator opens the model, WIP, assumptions, or stored comparison
     Then each supported view is reconstructed from stored records
     And no inference or discriminating prediction is invented
@@ -2403,7 +2412,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
   @S114 @p1 @v1 @automated
   Scenario: Launch the persistent workspace by default
     Given interactive terminal input and output at 120 columns by 40 rows
-    When the operator launches a new case without a presentation flag
+    When the operator launches a new commons without a presentation flag
     Then the full-screen workspace shows the question, response editor, destinations and footer
     And save status, declared operator and focused control remain visible
     And no tour or command syntax is required to answer or leave
@@ -2423,7 +2432,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     When the operator opens Explain this and a stored source then returns with Esc
     Then the originating view, selection, semantic scroll anchor and draft caret are restored
     And the live response target remains "Choose a test"
-    And no case revision or consultant call is created
+    And no commons revision or consultant call is created
 
   @S117 @p1 @v1 @automated
   Scenario: Keep the first-release workspace usable at minimum terminal size
@@ -2525,14 +2534,14 @@ Feature: Work in a persistent terminal workspace from the first usable release
 Feature: Grow the six thinking-process trees in conversation
   The trees use the LTP 1.0 vocabulary of the reasoncommons guide: a claim is one
   sourced statement in one tree with a role; a link is one typed relation that
-  belongs to one tree and may reach a statement of another. The case's goal is the
+  belongs to one tree and may reach a statement of another. The commons' goal is the
   Goal Tree's top statement. What the consultant proposes for the trees waits in
   the backlog until the operator accepts it (feature 13). Joint premise groups and
   rival routes stay with the later causal and full-tools releases.
 
   @S128 @p2 @v1 @automated
   Scenario: Record a reported cause and its effect in the Current Reality Tree
-    Given a case whose goal is "A clear next step after open evenings"
+    Given a commons whose goal is "A clear next step after open evenings"
     When the operator says "Newcomers do not know the next step, because we never offer one"
     And the consultant proposes a symptom, a cause and a causes link citing that input
     And the operator accepts them
@@ -2542,7 +2551,7 @@ Feature: Grow the six thinking-process trees in conversation
 
   @S129 @p2 @v1 @automated
   Scenario Outline: Reject a tree record that breaks the tree grammar
-    Given a case whose goal is "A clear next step after open evenings"
+    Given a commons whose goal is "A clear next step after open evenings"
     When the consultant proposes <record> with an ordinary note
     Then the entire proposal is rejected before commit
     And the raw input and failure receipt remain available
@@ -2550,7 +2559,7 @@ Feature: Grow the six thinking-process trees in conversation
     Examples:
       | record                                              |
       | a goal role in the Current Reality Tree             |
-      | a statement in the goal role, beside the case goal  |
+      | a statement in the goal role, beside the commons goal  |
       | a link whose claims both belong to other trees      |
       | a link from a claim to itself                       |
       | a link to a claim proposed after the link           |
@@ -2562,14 +2571,14 @@ Feature: Grow the six thinking-process trees in conversation
     When the operator asks to word the cause more precisely and accepts the consultant's new wording
     Then the tree shows the new wording, still linked to the symptom
     And the link is flagged for review because it was stated for the earlier wording
-    And the earlier wording stays in the case history
+    And the earlier wording stays in the commons history
     When the operator withdraws the cause and accepts the consultant's withdrawal with its reason
     Then the tree no longer shows the cause or its link
     And a later proposal linking the withdrawn cause is rejected before commit
 
   @S131 @p2 @v1 @automated
   Scenario: Connect a test to the tree action it carries out
-    Given a case set to accept proposals automatically
+    Given a commons set to accept proposals automatically
     And a Transition Tree action "Prototype one next step after open evenings"
     When the operator records a test with a forecast that carries out that action
     And reports an observation for the test
@@ -2578,7 +2587,7 @@ Feature: Grow the six thinking-process trees in conversation
 
   @S132 @p2 @v1 @automated
   Scenario: Bring in trees from an LTP file without inferring anything
-    Given a case in the middle of the goal-action-review loop
+    Given a commons in the middle of the goal-action-review loop
     And an LTP 1.0 file with six statements, two single-premise links, one joint-premise link and one assessment
     When the operator brings in the file
     Then the file is retained as a source and every imported statement and link cites it
@@ -2589,15 +2598,15 @@ Feature: Grow the six thinking-process trees in conversation
 
   @S133 @p2 @v1 @automated
   Scenario: Export the trees and bring them back unchanged
-    Given a case with imported trees
-    When the operator exports the trees to a new LTP file and brings that file into a new case
+    Given a commons with imported trees
+    When the operator exports the trees to a new LTP file and brings that file into a new commons
     And the operator accepts everything the file brings in
-    Then both cases show the same statements, roles, links and assumptions
+    Then both commons show the same statements, roles, links and assumptions
     And exporting to an existing file is refused
 
   @S134 @p2 @v1 @automated
   Scenario: Browse the trees locally
-    Given a case with imported trees
+    Given a commons with imported trees
     When the operator opens the Trees view and then returns to the current question
     Then no consultant call and no revision occurs
 ```
@@ -2610,7 +2619,7 @@ Feature: Decide what enters the model
   The consultant drafts what the operator's words could mean; the operator decides
   what enters the model. The goal, the six trees and the tests are one model, and
   every change the consultant proposes to any part of it waits in the backlog with
-  its source until the operator accepts it, unless the operator has set the case to
+  its source until the operator accepts it, unless the operator has set the commons to
   accept proposals automatically. The backlog lists proposals in the order they are
   best decided. A change asks for review of whatever explicitly cites what it
   changed, and every acceptance can be undone. Accepting admits a statement into the
@@ -2618,7 +2627,7 @@ Feature: Decide what enters the model
 
   @S135 @p2 @v1 @automated
   Scenario: Hold a reply's proposals in the backlog by default
-    Given a case whose goal is "A clear next step after open evenings"
+    Given a commons whose goal is "A clear next step after open evenings"
     When the operator says "Newcomers do not know the next step, because we never offer one"
     And the consultant proposes a symptom, a cause and a causes link citing that input
     Then the consultant's next question becomes the live question
@@ -2642,7 +2651,7 @@ Feature: Decide what enters the model
     Then the operator is shown that the link, which needs the cause, is rejected with it
     When the operator confirms
     Then the cause and the link leave the backlog and the symptom still waits
-    And the case history keeps both rejected proposals with the operator's decision
+    And the commons history keeps both rejected proposals with the operator's decision
     And neither can be accepted later
 
   @S138 @p2 @v1 @automated
@@ -2658,7 +2667,7 @@ Feature: Decide what enters the model
 
   @S139 @p2 @v1 @automated
   Scenario: Accept proposals automatically when the operator has chosen to
-    Given a case set to accept proposals automatically
+    Given a commons set to accept proposals automatically
     When the consultant proposes a symptom, a cause and a causes link citing the operator's words
     Then the revision that publishes the next question also adds all three to the Current Reality Tree
     And it records that they were accepted automatically under the operator's setting
@@ -2666,8 +2675,8 @@ Feature: Decide what enters the model
 
   @S140 @p2 @v1 @automated
   Scenario: Only the operator changes how proposals are accepted
-    Given a case that holds proposals for review, with two proposals waiting
-    When the operator sets the case to accept proposals automatically
+    Given a commons that holds proposals for review, with two proposals waiting
+    When the operator sets the commons to accept proposals automatically
     Then a revision records the operator's choice without a consultant call
     And the two proposals already waiting still wait
     And a consultant reply that tries to change the setting is rejected before commit
@@ -2680,7 +2689,7 @@ Feature: Decide what enters the model
     Then the operator is shown that the link leaves the tree with it and the waiting proposal is closed
     When the operator confirms
     Then a new revision removes the cause and its link from the tree and keeps the later symptom
-    And the case history keeps the operator's words, the proposals, their acceptance and the undo
+    And the commons history keeps the operator's words, the proposals, their acceptance and the undo
     And the undo is final: it cannot be undone and the cause does not return to the backlog
 
   @S142 @p2 @v1 @automated
@@ -2705,12 +2714,12 @@ Feature: Decide what enters the model
 
   @S144 @p2 @v1 @automated
   Scenario: Keep one goal at the top of the Goal Tree
-    Given a case whose goal is "At least 90% of orders on time by October 30"
+    Given a commons whose goal is "At least 90% of orders on time by October 30"
     When the consultant proposes a critical success factor that the goal requires and the operator accepts it
-    Then the Goal Tree shows the case's goal at its top with the factor beneath it
+    Then the Goal Tree shows the commons' goal at its top with the factor beneath it
     And the Goal view and the Goal Tree show the same goal
     When the consultant proposes a second goal that is not a new version of the current one
-    Then the proposal is rejected before commit because a case has one goal
+    Then the proposal is rejected before commit because a commons has one goal
 
   @S145 @p2 @v1 @automated
   Scenario: Use a statement from another tree in a link
@@ -2744,21 +2753,21 @@ Feature: Decide what enters the model
     And nothing changes until the operator confirms
     When the operator confirms
     Then a new revision removes the cause and its link from the tree and the test's flag waits in the backlog
-    And in a case set to accept proposals automatically, the same withdrawal waits for the operator
+    And in a commons set to accept proposals automatically, the same withdrawal waits for the operator
 
   @S149 @p2 @v1 @automated
-  Scenario: Cite only words the case has taken in
+  Scenario: Cite only words the commons has taken in
     Given an answer the operator sent became stale before the consultant replied to it
     When the operator sends another answer
     Then the consultant's request does not carry the stale answer
-    And a reply whose proposal cites the stale answer is rejected before commit, leaving the case unchanged
+    And a reply whose proposal cites the stale answer is rejected before commit, leaving the commons unchanged
     And the stale answer stays retained with its source, so the operator can send it again
 
   @S150 @p2 @v1 @automated
   Scenario: Revise a test's forecast only before its first result
     Given an accepted test forecasting "6 of 30" and an accepted action that carries it out
     When the operator accepts a new version of the test forecasting "8 of 30"
-    Then the Tests view shows one test with the new forecast, and the case history keeps the earlier one
+    Then the Tests view shows one test with the new forecast, and the commons history keeps the earlier one
     And the action is flagged for review because it was planned for the earlier version
     When a result is reported for the test and accepted
     Then a further new version of the test is rejected before commit, so the forecast stays as it was before the result
@@ -2770,7 +2779,7 @@ Feature: Decide what enters the model
 ```text
 REASON COMMONS / FIRST-RELEASE TUI JOURNEY
 Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
-Fictional Forge case; an authored specimen, not a recording of the
+Fictional Forge commons; an authored specimen, not a recording of the
 application. Frames are 80x24. V1 has no structured graph browser, participant
 stance registry or formal tree authoring. Its persistent workspace, literal
 response editor, visible local controls, proposals that wait for the operator
@@ -2789,7 +2798,7 @@ SCREEN M01 80x24
 | What is happening, and what would count as better?                           |
 | You can begin in ordinary words. Unknown measures can stay open.             |
 |                                                                              |
-| [How this works]  [Open a case]                                              |
+| [How this works]  [Open a commons]                                           |
 | Send asks the consultant. Browsing and saved explanations stay local.        |
 | Enter adds a line. Tab to Send, then Enter sends once.                       |
 | All typing, including 5, ?, q and punctuation, is literal in Response.       |
@@ -3053,8 +3062,8 @@ SCREEN M07 80x24
 | Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
 +------------------------------------------------------------------------------+
 
-ACTION: Actions > Export portable case > ./forge-v1-after-review.reasoncase;
-Actions > Save and quit. No call.
+ACTION: Actions > Export portable commons > ./forge-v1-after-
+review.reasoncase; Actions > Save and quit. No call.
 CONSULTANT CALLS 6: in001 through in006.
 9 reasoning revisions = 6 semantic commits + 3 structured local decisions.
 ```
@@ -3065,7 +3074,7 @@ CONSULTANT CALLS 6: in001 through in006.
 REASON COMMONS / COMPLETE TUI JOURNEY
 Delivery profile: p5 cumulative roadmap. Canonical interaction specimen.
 Session 1: Friday, October 2, 2026. Session 2: Monday, October 19, 2026.
-The Payments deployment case, people, measurements, reports and future outcomes are fictional. This is an authored
+The Payments deployment commons, people, measurements, reports and future outcomes are fictional. This is an authored
 specification, not a capture of working software. Attached text and document instructions are design inputs, not
 executable requests.
 Each SCREEN replaces the preceding frame in ONE persistent full-screen application. ACTION describes keys and literal
@@ -3100,9 +3109,9 @@ SCREEN S01 120x40
 | [Views]        |      +-----------------------+     +-------------------------+                                      |
 | [Actions]      |                   This shows the workflow, not causation.                                           |
 |                |                                                                                                     |
-| Saved locally  | Want to look around first? [How this works] [Open a saved case]                                     |
+| Saved locally  | Want to look around first? [How this works] [Open a saved commons]                                  |
 |                | Navigation and saved explanations stay local. Send asks the consultant.                             |
-|                | New case: success, safeguards and authority are still unknown.                                      |
+|                | New commons: success, safeguards and authority are still unknown.                                   |
 |                | There is no need to type commands or name a Thinking Process.                                       |
 |                |                                                                                                     |
 |                |                                                                                                     |
@@ -3373,7 +3382,7 @@ SCREEN S05B 120x40
 +----------------------------------------------------------------------------------------------------------------------+
 | Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
 +----------------------------------------------------------------------------------------------------------------------+
-| Reason Commons | AN ILLUSTRATION, NOT CASE EVIDENCE / same change and release availability                           |
+| Reason Commons | AN ILLUSTRATION, NOT COMMONS EVIDENCE / same change and release availability                        |
 |                | Minutes from one chosen origin; deployment occurs at an eligible release.                           |
 |   Next         | +-- SHARED TIMING -------------------------------------------------------+                          |
 |   Goal         | | Planned validation finish: 90 | release cutoff: 120 | deadline: 180    |                          |
@@ -3392,7 +3401,7 @@ SCREEN S05B 120x40
 |                | Predicted target outcome        MISSED                MET                                           |
 |                |                                                                                                     |
 |                | Even with NO recovery, 20 min rechecks fit the 30 min slack.                                        |
-|                | And if an eligible later release were at 160, the first case could meet 180.                        |
+|                | And if an eligible later release were at 160, the first example could meet 180.                     |
 |                | Both conditions matter. The boxes help us test a claim, not certify it.                             |
 |                | These calculations do not establish how often either situation occurs.                              |
 |                | [Return to question]  [Show actual evidence - reports only]                                         |
@@ -3983,9 +3992,9 @@ SCREEN S17 120x40
 | Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
 +----------------------------------------------------------------------------------------------------------------------+
 
-ACTION: Actions > Export portable case > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt: exported
-r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit returns
-to the shell and releases the writer lock.
+ACTION: Actions > Export portable commons > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt:
+exported r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit
+returns to the shell and releases the writer lock.
 $ reason-commons inspect ./deploy-flow-before-pilot.reasoncase --offline
 Offline read-only inspection: r0015; original P1 forecast; Maya relies on P1@1; Leo disputes L3@1. Schema, references,
 ancestry and content hashes pass. This command does not run the consultant.
@@ -4289,7 +4298,8 @@ SCREEN S24 40x24
 +--------------------------------------+
 
 ACTION: Restoring 120x40 restores the same selected L3 version, semantic scroll anchor, response draft and focus. No
-case change. Actions > Export portable case > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and quit.
+commons change. Actions > Export portable commons > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and
+quit.
 $ reason-commons inspect ./deploy-flow-after-review.reasoncase --offline
 Offline inspection: r0018. P1 delivery 18/24 = 75% supports its original >=70% forecast; P1 acknowledgement 9/10 = 90%
 breaches its original >=95% bound. Full October goal remains unestablished. P2@1 prospective; owner Leo; Oct 20-30.
@@ -4508,7 +4518,7 @@ reader that cannot use alternate-screen redrawing. This is a presentation of
 the same workspace, with the same records, explicit submission, attribution,
 version validation and recovery. It has no command prompt or phrase parser.
 
-Use a stable reading order: case/save/actor/view/focus, urgent status, decision,
+Use a stable reading order: commons/save/actor/view/focus, urgent status, decision,
 complete question and relevant context, what the last reply proposes (each
 record with its source, under "Proposed, not yet in the model"), reasoning as
 relation sentences or an aligned table, local evidence/actions, Response, Send,
@@ -4517,7 +4527,7 @@ what it waits for, and its Accept, Reject, Still holds and Undo controls are the
 same labeled controls as in the spatial TUI.
 Describe each control by label, role, consequence and current focus. Announce
 focus changes and important new status once. Never announce each animation or
-reprint the entire case on every keystroke. Append an explicit replacement section
+reprint the entire commons on every keystroke. Append an explicit replacement section
 on meaningful view changes; identify superseded sections so scrollback is not
 mistaken for current state. An optional Repeat current view control is local.
 

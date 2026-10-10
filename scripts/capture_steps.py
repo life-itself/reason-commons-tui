@@ -8,8 +8,8 @@ environments as the gate, and after each step that executes saves what the parti
   so focus, typed text and open panes are as the step left them;
 - an accessible-presentation step is captured as the text the presentation has written so far, in a terminal of the
   size the scenario gives;
-- any other step is captured from a fresh workspace opened on a copy of the case as it stands after the step, so
-  the case itself is never locked or changed by the capture.
+- any other step is captured from a fresh workspace opened on a copy of the commons as it stands after the step, so
+  the commons itself is never locked or changed by the capture.
 
 Steps without a step definition are not run by behave, so they have no picture; they are listed in the manifest.
 
@@ -51,7 +51,7 @@ MARKER = "MANIFEST.json"
 
 
 class Refusing:
-    """The consultant a capture opens with: showing a case must never ask Claude a question."""
+    """The consultant a capture opens with: showing a commons must never ask Claude a question."""
     version = "capture/refusing"
 
     def propose(self, request):
@@ -141,7 +141,7 @@ def definition_module(step, registry):
 
 
 def fresh(path):
-    """The workspace as a participant would open it now, on a copy of the case so nothing is locked or changed."""
+    """The workspace as a participant would open it now, on a copy of the commons so nothing is locked or changed."""
     from tests.acceptance.workspace import Workspace
     with tempfile.TemporaryDirectory() as folder:
         copy = Path(folder) / "case"

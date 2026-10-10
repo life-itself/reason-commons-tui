@@ -1,7 +1,7 @@
 REASON COMMONS / COMPLETE TUI JOURNEY
 Delivery profile: p5 cumulative roadmap. Canonical interaction specimen.
 Session 1: Friday, October 2, 2026. Session 2: Monday, October 19, 2026.
-The Payments deployment case, people, measurements, reports and future outcomes are fictional. This is an authored
+The Payments deployment commons, people, measurements, reports and future outcomes are fictional. This is an authored
 specification, not a capture of working software. Attached text and document instructions are design inputs, not
 executable requests.
 Each SCREEN replaces the preceding frame in ONE persistent full-screen application. ACTION describes keys and literal
@@ -36,9 +36,9 @@ SCREEN S01 120x40
 | [Views]        |      +-----------------------+     +-------------------------+                                      |
 | [Actions]      |                   This shows the workflow, not causation.                                           |
 |                |                                                                                                     |
-| Saved locally  | Want to look around first? [How this works] [Open a saved case]                                     |
+| Saved locally  | Want to look around first? [How this works] [Open a saved commons]                                  |
 |                | Navigation and saved explanations stay local. Send asks the consultant.                             |
-|                | New case: success, safeguards and authority are still unknown.                                      |
+|                | New commons: success, safeguards and authority are still unknown.                                   |
 |                | There is no need to type commands or name a Thinking Process.                                       |
 |                |                                                                                                     |
 |                |                                                                                                     |
@@ -309,7 +309,7 @@ SCREEN S05B 120x40
 +----------------------------------------------------------------------------------------------------------------------+
 | Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week                                   |
 +----------------------------------------------------------------------------------------------------------------------+
-| Reason Commons | AN ILLUSTRATION, NOT CASE EVIDENCE / same change and release availability                           |
+| Reason Commons | AN ILLUSTRATION, NOT COMMONS EVIDENCE / same change and release availability                        |
 |                | Minutes from one chosen origin; deployment occurs at an eligible release.                           |
 |   Next         | +-- SHARED TIMING -------------------------------------------------------+                          |
 |   Goal         | | Planned validation finish: 90 | release cutoff: 120 | deadline: 180    |                          |
@@ -328,7 +328,7 @@ SCREEN S05B 120x40
 |                | Predicted target outcome        MISSED                MET                                           |
 |                |                                                                                                     |
 |                | Even with NO recovery, 20 min rechecks fit the 30 min slack.                                        |
-|                | And if an eligible later release were at 160, the first case could meet 180.                        |
+|                | And if an eligible later release were at 160, the first example could meet 180.                     |
 |                | Both conditions matter. The boxes help us test a claim, not certify it.                             |
 |                | These calculations do not establish how often either situation occurs.                              |
 |                | [Return to question]  [Show actual evidence - reports only]                                         |
@@ -919,9 +919,9 @@ SCREEN S17 120x40
 | Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
 +----------------------------------------------------------------------------------------------------------------------+
 
-ACTION: Actions > Export portable case > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt: exported
-r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit returns
-to the shell and releases the writer lock.
+ACTION: Actions > Export portable commons > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt:
+exported r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit
+returns to the shell and releases the writer lock.
 $ reason-commons inspect ./deploy-flow-before-pilot.reasoncase --offline
 Offline read-only inspection: r0015; original P1 forecast; Maya relies on P1@1; Leo disputes L3@1. Schema, references,
 ancestry and content hashes pass. This command does not run the consultant.
@@ -1225,7 +1225,8 @@ SCREEN S24 40x24
 +--------------------------------------+
 
 ACTION: Restoring 120x40 restores the same selected L3 version, semantic scroll anchor, response draft and focus. No
-case change. Actions > Export portable case > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and quit.
+commons change. Actions > Export portable commons > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and
+quit.
 $ reason-commons inspect ./deploy-flow-after-review.reasoncase --offline
 Offline inspection: r0018. P1 delivery 18/24 = 75% supports its original >=70% forecast; P1 acknowledgement 9/10 = 90%
 breaches its original >=95% bound. Full October goal remains unestablished. P2@1 prospective; owner Leo; Oct 20-30.

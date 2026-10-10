@@ -1,2 +1,2 @@
-"""Pure case rules. No files, providers, skills, or UI dependencies."""
+"""Pure commons rules. No files, providers, skills, or UI dependencies."""
 

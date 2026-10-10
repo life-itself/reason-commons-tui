@@ -36,7 +36,7 @@ reason-commons
 There is no Python setup to manage. To update later, run `uv tool upgrade reason-commons`.
 
 The first time, choose **Continue Reason Commons** to import the prior RC work into
-an editable case, or **Start my first goal** for your own work. The RC case retains
+an editable commons, or **Start my first goal** for your own work. The RC commons retains
 the supplied conversation and its attribution, substantial trees, and ten readable
 stages explaining why manual RC led to the implemented interface. History records
 its adoption, so an empty Backlog accompanies reasoning that is in the model.
@@ -44,7 +44,7 @@ The pre-history is explicitly reconstructed from your prompt; historical dates,
 engineering logs and measurements are not invented.
 
 Tours, consultant setup and the Second Renaissance editorial example are under
-**F1 Help**. **F2 Settings** changes your preferences and, inside a case, how reasoning is accepted.
+**F1 Help**. **F2 Settings** changes your preferences and, inside a commons, how reasoning is accepted.
 
 ![The first screen offers Continue Reason Commons or Start my first goal](docs/images/first-start.png)
 
@@ -56,6 +56,13 @@ question; you answer in ordinary words. Enter adds a line, **Ctrl+S** sends,
 type, including an unsent draft, and you come back to where you were.
 
 ## How it works
+
+A **commons** keeps a goal, contributions, sources, reasoning, decisions and
+history across conversations. Its **model** is the accepted reasoning currently
+used to guide the work. Recording a proposal preserves it in the commons;
+acceptance admits it to the model, either explicitly or under your automatic
+acceptance setting. Earlier wording and rejected or undone reasoning remain in
+History.
 
 ### Six questions, six trees
 
@@ -148,7 +155,7 @@ Every acceptance can be undone from **History**, and an undo is final. If you tr
 consultant, **F2 Settings**, **Reasoning**, **Automatic** lets later proposals in as
 they arrive. **Require acceptance** keeps them in Backlog. Older waiting proposals
 still need a decision. The imported RC demonstration starts in Automatic mode;
-new personal cases require acceptance. Commands offers the same choices.
+new personal commons require acceptance. Commands offers the same choices.
 
 ![Backlog: a proposed new goal marked decide first, then a proposed cause and the link that waits for it, then a Transition Tree action; beside the list, the chosen entry in full with the words it came from](docs/images/backlog.png)
 

@@ -1,6 +1,6 @@
 # Reason Commons conversations
 
-The skill is a conversational case interface. Codex presents the saved question,
+The skill is a conversational commons interface. Codex presents the saved question,
 context, uncertainty, forecast comparisons and recorded diagrams, and accepts
 participant replies in ordinary language. The application owns the reasoning,
 attribution, exact targets and persistence. The chosen consultant, a local model
@@ -12,9 +12,9 @@ consultation only after an explicit contribution or consultant move.
 Start a fresh Codex chat in this repository to load the updated MCP tool catalog.
 If tools are missing, restart the app. Invoke:
 
-> Use $reason-commons-contribute on case my-case as David. Resume our conversation.
+> Use $reason-commons-contribute on commons my-case as David. Resume our conversation.
 
-This reads the existing case and presents its saved question. It does not resubmit
+This reads the existing commons and presents its saved question. It does not resubmit
 your earlier contribution. Answer the question in your own words. You can also ask:
 
 - “Explain why you're asking that.” — shows the saved rationale locally.
@@ -36,12 +36,12 @@ model until you accept them. The skill never accepts on your behalf and never tu
 on automatic acceptance; the MCP server refuses that unless you start it with
 `--allow-acceptance-setting`.
 
-The skill remembers the active case, declared participant and displayed question
+The skill remembers the active commons, declared participant and displayed question
 through the chat. A reply keeps that exact target; if another contribution
-advances the case, the new question is shown before reconsidering the reply.
-Reopening reads the durable case rather than relying on hidden model memory.
+advances the commons, the new question is shown before reconsidering the reply.
+Reopening reads the durable commons rather than relying on hidden model memory.
 Input is literal, attributed and retained before inference. It is never an
-instruction to edit case files. Failures display actual save status and retained
+instruction to edit commons files. Failures display actual save status and retained
 input; retry needs an explicit request and preserves the original identity.
 
 Your existing `my-case` has revision 1, your contribution and the saved question
@@ -65,7 +65,7 @@ Views are `next`, `explain`, `goal`, `trees`, `reasoning`, `tests`, `actions`,
 `history` and `sources`. `--revision N` freezes an earlier published revision. `--select REF`
 opens an exact saved item and its referenced context. `--format json` returns
 presentation data and text/Markdown/Mermaid renderings. Inspection requires no
-model connection and does not change case state.
+model connection and does not change commons state.
 
 For a deliberate contribution, name the provider (or set `REASON_COMMONS_PROVIDER`):
 
@@ -84,7 +84,7 @@ For a deliberate contribution, name the provider (or set `REASON_COMMONS_PROVIDE
 Run `reason-commons providers` first to confirm the settings without sending anything.
 With Anthropic the default model is `claude-haiku-5-5`; `--model claude-sonnet-5-5` sends
 that one contribution (or `retry`) to Sonnet for deeper reasoning, at about twelve times
-the cost. Each call is counted in the local usage log, never in the case;
+the cost. Each call is counted in the local usage log, never in the commons;
 `reason-commons usage` sums it, and once this month reaches 80% of a budget
 (`REASON_COMMONS_MONTHLY_BUDGET_USD`) the command says so in one line on stderr, with its
 output and exit code unchanged (see [what it costs](providers.md#what-it-costs)).
@@ -130,7 +130,7 @@ The MCP `workspace` tool and CLI `show` use identical renderings. `consult`,
 `submit` and `retry` return a receipt plus the newly read workspace, so clients
 can present the next turn without inventing a question or interpreting an agent's
 success claim. Each MCP call closes its session; idle clients hold no writer lock.
-All case tools take a direct folder name under the configured root; portable
+All commons tools take a direct folder name under the configured root; portable
 exports go into its reserved `exports` directory.
 
 Diagrams show **explicit saved record references**, such as a test's goal, an
@@ -142,14 +142,14 @@ obstacles or plans; the renderer never manufactures them from notes, and the
 `backlog` view lists what waits. Joint causes and rival
 explanations remain later work. The TUI is described in [tui.md](tui.md); the
 remaining p1/p2 release gates are separate work. This
-change delivers the conversation interface for the implemented case semantics.
+change delivers the conversation interface for the implemented commons semantics.
 
 ## Installation and configuration
 
 The repository's `.agents/skills/reason-commons-contribute` symlink discovers the
 single packaged skill. This machine uses `.venv` with Python 3.12 and the existing
 project `.codex/config.toml` connection `reason-commons`, configured for
-`google/gemma-4-e4b`, a 300-second tool timeout and case root:
+`google/gemma-4-e4b`, a 300-second tool timeout and commons root:
 
 `/Users/davidjoseph/github/reason-commons-cli/.reason-commons/cases`
 
@@ -160,13 +160,16 @@ MCP SDK needs Python 3.10+:
 python3.12 -m venv .venv
 .venv/bin/python -m pip install -e '.[test,mcp]'
 mkdir -p .reason-commons/cases
-.venv/bin/reason-commons new --store .reason-commons/cases/my-case --name 'My case'
+.venv/bin/reason-commons new --store .reason-commons/cases/my-case --name 'My commons'
 ```
 
 Register a connection to `/absolute/path/to/.venv/bin/python -m reason_commons mcp
---case-root /absolute/path/to/cases --provider PROVIDER [--model YOUR_MODEL_ID]`.
+--commons-root /absolute/path/to/commons --provider PROVIDER [--model YOUR_MODEL_ID]`.
+
+The older `--case-root` option remains an alias. Existing tool arguments such as
+`case` and saved `.reasoncase` files continue to identify the same commons.
 Preserve existing connections for other projects. Provider, model, endpoint,
-timeout and credentials are settings outside case state, and the credential must
+timeout and credentials are settings outside commons state, and the credential must
 reach the server process (for Anthropic, add `ANTHROPIC_API_KEY` to `env_vars`).
 See [choosing a consultant](providers.md) for a complete example and for
 [LM Studio configuration](lm-studio.md). The tools take no model, so an agent cannot

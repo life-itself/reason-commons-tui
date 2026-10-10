@@ -131,7 +131,7 @@ class ContinuationProposal:
     def propose(self, request):
         self.calls += 1
         require(self.calls == 1 and request["case"]["revision"] == 0 and not request["case"]["records"],
-                "Conversion applies once to a fresh case")
+                "Conversion applies once to a fresh commons")
         source = request["sources"][self.source_ref]
         require(sha256(base64.b64decode(source["content_base64"], validate=True)).hexdigest() == self.source_hash,
                 "Conversion source changed")
@@ -206,7 +206,7 @@ class ContinuationProposal:
 
 
 def convert_ltp(source, destination, bundle, *, speaker, request_text):
-    """Create a new native case and portable bundle through public use cases."""
+    """Create a new native commons and portable bundle through public use cases."""
     source, destination, bundle = Path(source), Path(destination), Path(bundle)
     content = source.read_bytes()
     value = read_ltp(content)

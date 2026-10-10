@@ -1,4 +1,4 @@
-"""One authorized skill invocation over an already composed case session."""
+"""One authorized skill invocation over an already composed commons session."""
 
 from copy import deepcopy
 from importlib.resources import files

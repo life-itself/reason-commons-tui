@@ -72,7 +72,7 @@ def test_import_into_a_fresh_case_draws_the_trees_and_keeps_what_they_cannot_hol
     notes = [r["data"]["text"] for r in records if r["kind"] == "note"]
     assert any("r3" in n and "several premises" in n for n in notes)
     assert any("as1" in n and "not one reached here" in n for n in notes)
-    # The file's goal is the case's goal, at the top of its Goal Tree, recorded once; every claim cites the file.
+    # The file's goal is the commons' goal, at the top of its Goal Tree, recorded once; every claim cites the file.
     assert [r["data"]["statement"] for r in records if r["kind"] == "goal"] == ["Committed work is delivered within two weeks."]
     assert not any(r["kind"] == "claim" and r["data"]["role"] == "goal" for r in records)
     goal_tree = trees["goal"]
@@ -98,7 +98,7 @@ def test_import_mid_loop_keeps_the_current_question(tmp_path, source):
         # The guide carries on from the same step.
         app.submit("Days from commitment to delivery", "David", **app.workspace()["target"])
         assert app.workspace()["question"]["data"]["purpose"] == "guided:goal_protect"
-        # The file's goal is proposed as the case's goal; the guide has recorded none of its own yet.
+        # The file's goal is proposed as the commons' goal; the guide has recorded none of its own yet.
         goals = [r for r in app.inspect()["case"]["records"] if r["kind"] == "goal"]
         assert [g["data"]["statement"] for g in goals] == ["Committed work is delivered within two weeks."]
 

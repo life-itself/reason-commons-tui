@@ -1,4 +1,4 @@
-"""The case aggregate and the explicit v1 record/proposal contract.
+"""The commons aggregate and the explicit v1 record/proposal contract.
 
 A consultant reply publishes its next question and adds its updates as proposals;
 the operator's decisions (``decide``) put proposals into the model. Membership,
@@ -26,7 +26,7 @@ PREFIXES = {"goal": "G", "note": "N", "test": "P", "action": "A",
             "claim": "C", "link": "L", "retraction": "X"}
 # A small closed registry: generic notes cannot smuggle executable graph fields.
 FIELDS = {
-    # A goal is the Goal Tree's top statement; a case has one, and changes it by new versions.
+    # A goal is the Goal Tree's top statement; a commons has one, and changes it by new versions.
     "goal": {"statement", "scope", "horizon", "measure", "baseline", "protections", "replaces"},
     "note": {"text", "basis"},
     # A test can take new versions until a result for it is in the model; then its forecast is fixed.
@@ -91,7 +91,7 @@ ENUM_FIELDS = {"basis": {"hypothesis", "participant_report", "observed"},
                "expected_state_attainment": {"unknown", "pending", "met", "not_met"}}
 VIEW_TARGETS = {"goal", "history", "sources", "current_question", "trees"}
 CONSULT_INTENTS = {"another_question", "direct_advice", "explain_observation", "review_flags"}
-# How a case admits proposals: held for the operator's review (the default), or accepted
+# How a commons admits proposals: held for the operator's review (the default), or accepted
 # automatically under the operator's own setting.
 ACCEPTANCE = {"review", "automatic"}
 DECISION_ACTIONS = {"accept", "reject", "undo", "still_holds", "acceptance"}
@@ -187,7 +187,7 @@ def tree_of(record: dict):
 
 def validate_tree_record(record: dict, records: Mapping[str, dict], earlier: set,
                          withdrawn: set, replaced: set) -> None:
-    """Records published before the case kept decisions: they cite only earlier, current claims."""
+    """Records published before the commons kept decisions: they cite only earlier, current claims."""
     data, kind = record["data"], record["kind"]
     current = lambda ref: ref in earlier and ref not in withdrawn and ref not in replaced
     if kind == "claim" and data.get("replaces") is not None:
@@ -216,7 +216,7 @@ def validate_proposed_record(record: dict, records: Mapping[str, dict], earlier:
         if isinstance(target, str):
             require(target in earlier, f"{record['ref']} cites {target}, which is not an earlier record")
     if kind == "claim":
-        require(data["role"] != "goal", "The case's goal is the Goal Tree's top statement; propose a goal, "
+        require(data["role"] != "goal", "The commons' goal is the Goal Tree's top statement; propose a goal, "
                                         "not a statement in the goal role")
     if data.get("replaces") is not None:
         old = records[data["replaces"]]
@@ -256,7 +256,7 @@ def validate_input(value: dict) -> None:
 
 @dataclass(frozen=True)
 class Snapshot:
-    """One whole case revision; callers receive copies via to_dict."""
+    """One whole commons revision; callers receive copies via to_dict."""
 
     value: Dict[str, Any]
 
@@ -278,9 +278,9 @@ class Snapshot:
     @classmethod
     def initial(cls, case_id: str, name: str, timestamp: str, timezone: str,
                 acceptance: str = "review", actor: str = None):
-        """An empty case. Holding proposals for review is the default; whoever creates a case
+        """An empty commons. Holding proposals for review is the default; whoever creates a commons
         may choose automatic acceptance instead, and that choice is recorded as its first decision."""
-        text(name, "case name")
+        text(name, "commons name")
         require(acceptance in ACCEPTANCE, "Choose review or automatic acceptance")
         decisions = []
         if acceptance != "review":
@@ -298,7 +298,7 @@ class Snapshot:
         keys = {"schema_version", "delivery_profile", "case_id", "name", "revision", "parent", "timestamp",
                 "timezone", "records", "current_intervention", "applied_requests", "source_input_refs",
                 "counters", "adapter_versions"}
-        # A case recorded before decisions existed has neither field; everything in it is in the model.
+        # A commons recorded before decisions existed has neither field; everything in it is in the model.
         shape(self.value, keys | {"membership", "decisions"},
               keys | ({"membership", "decisions"} if "membership" in self.value or "decisions" in self.value
                       else set()), "snapshot")
@@ -496,14 +496,14 @@ class Snapshot:
             if "confidence" in update:
                 # Kept with the proposal; it decides nothing.
                 new_records[-1]["confidence"] = update["confidence"]
-        # A reply cites the answer it replies to, answers the case already took in, and supplied
-        # sources. An answer that went stale before its reply was published is not part of the case.
+        # A reply cites the answer it replies to, answers the commons already took in, and supplied
+        # sources. An answer that went stale before its reply was published is not part of the commons.
         taken_in = set(self.value["applied_requests"]) | {input_record["request_id"]}
         for record in new_records:
             for source in record["source_refs"] if isinstance(record["source_refs"], list) else []:
                 require(not (isinstance(source, str) and "request_id" in sources.get(source, {}))
                         or source in taken_in,
-                        f"{record['ref']} cites {source}, an answer the case has not taken in; a reply may cite "
+                        f"{record['ref']} cites {source}, an answer the commons has not taken in; a reply may cite "
                         "only the answer it replies to, answers already taken in, and supplied sources")
 
         def resolve_data(data):
@@ -588,7 +588,7 @@ class Snapshot:
             decision.update(refs=refs, about=[{"ref": f["cites"], "now": f["now"] or "gone"} for f in flags])
         elif action == "acceptance":
             require(value in ACCEPTANCE, "Choose review or automatic acceptance")
-            require(value != membership.acceptance, f"The case already uses {value} acceptance")
+            require(value != membership.acceptance, f"The commons already uses {value} acceptance")
             decision.update(refs=[], value=value)
         else:
             raise InvalidCase("Unknown decision")

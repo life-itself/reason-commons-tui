@@ -152,7 +152,7 @@ def symptom_waits(context):
     assert waiting(context) == ["C1@1"]
 
 
-@then("the case history keeps both rejected proposals with the operator's decision")
+@then("the commons history keeps both rejected proposals with the operator's decision")
 def rejection_kept(context):
     refs = {r["ref"] for r in context.app.inspect()["case"]["records"]}
     assert {"C2@1", "L1@1"} <= refs
@@ -260,7 +260,7 @@ def undo_automatic(context):
 
 # S140 Only the operator changes how proposals are accepted.
 
-@given("a case that holds proposals for review, with two proposals waiting")
+@given("a commons that holds proposals for review, with two proposals waiting")
 def two_waiting(context):
     case_with_goal(context, "A clear next step after open evenings")
     reply(context, claim("temp_ude", "Newcomers do not know the next step"),
@@ -270,7 +270,7 @@ def two_waiting(context):
     context.calls = len(context.provider.calls)
 
 
-@when("the operator sets the case to accept proposals automatically")
+@when("the operator sets the commons to accept proposals automatically")
 def set_automatic(context):
     context.result = context.app.set_acceptance("automatic", SPEAKER, revision(context))
     assert context.result["status"] == "saved"
@@ -340,7 +340,7 @@ def undone(context):
     assert waiting(context) == ["C4@1"]
 
 
-@then("the case history keeps the operator's words, the proposals, their acceptance and the undo")
+@then("the commons history keeps the operator's words, the proposals, their acceptance and the undo")
 def history_kept(context):
     case = context.app.inspect()["case"]
     assert {"C2@1", "L1@1", "L2@1"} <= {r["ref"] for r in case["records"]}
@@ -479,7 +479,7 @@ def factor(context):
              link("temp_l", "temp_csf", "G1@1", tree="goal", relation="necessary_for"))
 
 
-@then("the Goal Tree shows the case's goal at its top with the factor beneath it")
+@then("the Goal Tree shows the commons' goal at its top with the factor beneath it")
 def goal_on_top(context):
     goal_tree = tree(context, "goal")
     assert goal_tree["claims"][0]["ref"] == "G1@1" and goal_tree["claims"][0]["role"] == "goal"
@@ -503,7 +503,7 @@ def second_goal(context):
     context.result = submit(context.app, "And a second goal")
 
 
-@then("the proposal is rejected before commit because a case has one goal")
+@then("the proposal is rejected before commit because a commons has one goal")
 def one_goal(context):
     assert context.result["status"] == "rejected" and "already has a goal" in context.result["reason"]
     assert context.app.inspect()["case"] == context.before["case"]
@@ -681,7 +681,7 @@ def withdrawn_with_link(context):
     assert list(reviews(context)) == ["P1@1"]
 
 
-@then("in a case set to accept proposals automatically, the same withdrawal waits for the operator")
+@then("in a commons set to accept proposals automatically, the same withdrawal waits for the operator")
 def automatic_withdrawal_waits(context):
     context.automatic = True
     context.path = context.path.with_name("automatic-case")
@@ -692,7 +692,7 @@ def automatic_withdrawal_waits(context):
     assert not any(d["mode"] == "automatic" and "X1@1" in d["refs"] for d in decisions(context))
 
 
-# S149 Cite only words the case has taken in.
+# S149 Cite only words the commons has taken in.
 
 @given("an answer the operator sent became stale before the consultant replied to it")
 def stale_answer(context):
@@ -714,7 +714,7 @@ def request_without_stale(context):
     assert request["input"]["request_id"] in request["sources"]
 
 
-@then("a reply whose proposal cites the stale answer is rejected before commit, leaving the case unchanged")
+@then("a reply whose proposal cites the stale answer is rejected before commit, leaving the commons unchanged")
 def citing_stale_rejected(context):
     before = context.app.inspect()
     def cites_stale(request):
@@ -757,7 +757,7 @@ def new_test_version(context, expected):
     assert accepted(context, test_record("temp_p", expected, replaces="P1@1")) == ["P1@2"]
 
 
-@then("the Tests view shows one test with the new forecast, and the case history keeps the earlier one")
+@then("the Tests view shows one test with the new forecast, and the commons history keeps the earlier one")
 def one_test(context):
     assert forecasts(context) == [("P1@2", "8 of 30")]
     records = {r["ref"]: r for r in context.app.inspect()["case"]["records"]}

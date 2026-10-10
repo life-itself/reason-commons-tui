@@ -6,7 +6,7 @@ How to work on this code (method, workflow, testing, recipes) is in
 The refined conversation fits Reason Commons directly: the app must preserve
 reasoning correctly even if a skill is removed or a consultant misbehaves.
 The first completed increment is **p0**, as selected by the existing delivery
-manifest: all nine durable-case scenarios. V1 still ships after p2.
+manifest: all nine durable commons scenarios. V1 still ships after p2.
 
 ```mermaid
 flowchart TD
@@ -17,7 +17,7 @@ flowchart TD
   Agent[Agent using procedure] --> Skill[Skill adapter]
   Skill --> App
   BDD[Original p0 Gherkin steps] --> App
-  App --> Domain[Reasoning Case aggregate]
+  App --> Domain[Reasoning Commons aggregate]
   App --> Ports[Storage / consultant / clock ports]
   Ports --> FS[POSIX YAML and ZIP adapter]
   Ports --> Provider[Replaceable consultant]
@@ -25,7 +25,7 @@ flowchart TD
   Provider --> Anth[Anthropic adapter]
 ```
 
-There is one bounded context, [Reasoning Case](src/reason_commons/domain/CONTEXT.md).
+There is one bounded context, [Reasoning Commons](src/reason_commons/domain/CONTEXT.md).
 Storage and consulting are capabilities, not invented business contexts.
 A context map with artificial edges would add ceremony without defining a real
 boundary. Add another context and a published contract when independent domain
@@ -39,7 +39,7 @@ ownership actually emerges.
 | Application contract | `application/ports.py`, `application/service.py` | Retention, consultation, retry, inspection, cursor and portability |
 | Procedures | `skills/reason-commons-contribute/SKILL.md` | How an agent chooses and sequences capabilities |
 | Adapters | `adapters/` | Storage, offline CLI and a replaceable procedure driver |
-| Composition | `bootstrap.py` | Choose adapters, including the consultant provider; create/open/import a case |
+| Composition | `bootstrap.py` | Choose adapters, including the consultant provider; create/open/import a commons |
 
 The domain imports only the standard library. The application imports the domain
 and defines outbound protocols; it never imports an adapter or skill. Interfaces
@@ -143,10 +143,10 @@ validated against the model as it then stands. Ancestry validation allows two ki
 revision: one that applies exactly one request (and at most its own automatic
 acceptance), and one that records exactly one explicit decision and nothing else.
 
-Cases recorded before proposals needed acceptance have neither field. Every record in
+Commons recorded before proposals needed acceptance have neither field. Every record in
 them is in the model, and the first revision written under this contract sets
 `proposals_from` to the number of records already there. `tests/fixtures/` holds such
-a case, built by the previous release, and `tests/test_membership.py` opens it.
+a commons, built by the previous release, and `tests/test_membership.py` opens it.
 
 ## Shared conversation projection
 
@@ -170,14 +170,14 @@ The TUI reuses the projection and supplies its own layout and controls.
 
 ## Terminal workspace
 
-`reason-commons tui <folder>` creates or resumes a case and opens a Textual app
+`reason-commons tui <folder>` creates or resumes a commons and opens a Textual app
 (Textual is a core dependency). Consultant calls run in a worker thread so browsing
 stays responsive; navigation never consults. Drafts, caret and view are saved
-with `checkpoint`. `resume` refuses to create a case. Plain `reason-commons` first shows a goals home
-screen over the case folders in `~/ReasonCommons`; it only lists (read-only
+with `checkpoint`. `resume` refuses to create a commons. Plain `reason-commons` first shows a goals home
+screen over the commons folders in `~/ReasonCommons`; it only lists (read-only
 `inspect`) and creates (`create_case`) cases, then opens the chosen one. The consultant is chosen at
 composition (`--provider`, `REASON_COMMONS_PROVIDER`, default `guided`) and can
-be switched in the app by reopening the case with another adapter.
+be switched in the app by reopening the commons with another adapter.
 
 For one reply with deeper reasoning, the workspace consults through a
 `ChosenConsultant`: the consultant in use, or for exactly one consultation a stand-in
@@ -201,7 +201,7 @@ asks the v1 loop's questions in order, proposes literal participant wording as
 goal, test, action, observation and review records, and infers no measures,
 ownership, evidence or outcomes. Its proposals go through the same validation
 and wait for the operator as a model's do; it follows what is in the model or
-still waiting, and a goal it proposes when the case has one is a new version of
+still waiting, and a goal it proposes when the commons has one is a new version of
 it. When another consultant asked the last question, it continues from the
 recorded state, keeping the answer as a note when it starts a new goal or test.
 
@@ -216,14 +216,14 @@ can coexist with a writer because published snapshots never change.
 Inputs, supplied sources and attempt receipts are independently hashed,
 append-only YAML records. Provider exceptions retain a category rather than
 potentially secret exception text. Provider credentials are not stored.
-The entire case and sources are explicitly supplied to the provider, with a `model`
+The entire commons and sources are explicitly supplied to the provider, with a `model`
 summary (what is in the model, what waits, what was rejected or undone, and open
 review flags); no hidden conversation is needed. The received proposal and provider version are retained
 before validation/publication, so interrupted commits retry without another call.
 The snapshot's applied-request ledger remains authoritative if receipt writing
 fails after publication. Retry of an invalid proposal starts a fresh attempt;
 retry of a stale input requires a new, explicit evaluation against the new base.
-A stale input is not part of the case: the consultant is sent only applied inputs,
+A stale input is not part of the commons: the consultant is sent only applied inputs,
 the input it answers and supplied attachments, and a reply that cites any other
 input is rejected before commit.
 
@@ -238,7 +238,7 @@ receipts, supplied sources and cursor. Import validates hashes, schema,
 references, ancestry and member paths before creating an exclusively reserved
 destination. It refuses existing destinations, duplicate entries, symlinks,
 path traversal and oversized archives. Inspecting a bundle uses a temporary
-read-only view and creates neither an editable case nor a writer lock.
+read-only view and creates neither an editable commons nor a writer lock.
 
 The adapter targets local POSIX filesystems, tested on macOS. It does not provide
 multi-host locking, Windows support or synchronized-folder merge semantics.
@@ -265,7 +265,7 @@ archives returned by the public export capability.
 
 Application acceptance uses a deterministic consultant fixture, with no LLM.
 Separate skill tests record capability calls, ordering, forbidden access,
-retention failures and resulting case state. The deterministic workflow driver
+retention failures and resulting commons state. The deterministic workflow driver
 is a baseline; `LMStudioSkillAgent` also executes the actual procedure with a
 real tool-calling model. Its bounded host exposes only capabilities authorized
 for that invocation and records blocked requests as well as successful calls.
@@ -273,7 +273,7 @@ It cannot touch a repository or turn generated prose into a saved revision.
 The live evaluator isolates procedure behavior with an authored downstream
 consultant, then evaluates real semantic consulting and recovery separately.
 
-`invocation.py` binds that same host to a real, selected case and consultant for
+`invocation.py` binds that same host to a real, selected commons and consultant for
 the `contribute`/`retry` commands. It reports application results independently
 of model prose or agent-loop completion. The default procedure runner uses the
 existing fixed-sequence driver. An explicitly selected agent runner executes the
@@ -282,8 +282,8 @@ packaged resource, linked from `skills/` and `.agents/skills/` so evaluations,
 wheels and Codex use the same file.
 
 `mcp_server.py` uses the optional official SDK for stdio transport, exposing the
-published case capabilities to a client such as Codex. The bridge opens one
-application session per call under a configured case root; it adds no persistence
+published commons capabilities to a client such as Codex. The bridge opens one
+application session per call under a configured commons root; it adds no persistence
 or consulting rules. Domain validation, exact bases/targets and writer exclusion
 remain in the existing layers. Its `context` read projects the owning artifacts,
 rather than copying domain truth into the procedure. See [skill usage](docs/skill-use.md).
@@ -299,11 +299,11 @@ fallback between them, and an unknown name is rejected. `bootstrap.provider_sett
 reports the resolved choice and its readiness offline, without a request or a
 secret value; the `providers` command projects it.
 
-Model, endpoint and credentials stay outside case state; only each applied
-request's consultant version is recorded, so a case can change consultants between
+Model, endpoint and credentials stay outside commons state; only each applied
+request's consultant version is recorded, so a commons can change consultants between
 contributions.
 
-**What a paid consultant costs stays outside the case too.** `bootstrap.usage_session(entry)`
+**What a paid consultant costs stays outside the commons too.** `bootstrap.usage_session(entry)`
 gives each entry point (workspace, accessible presentation, `contribute`/`retry`, MCP,
 the provider check) a session of the local usage log (`adapters/usage.py`), and
 `configured_consultant(..., usage=session.record)` injects its `record` into the
@@ -312,8 +312,8 @@ token counts with its own values (MCP runs calls in parallel on one adapter). Th
 one append-only JSON-lines file under the user's state folder, written under a lock in
 one write per line; it holds identifiers, counts and list-price estimates
 (`adapters/pricing.py`), never words, names, paths or keys. Nothing reaches the
-application, the case, its attempts or an export, and a failing sink never costs the
-reply. The monthly budget is an interface notice, not a case rule: the workspace asks once
+application, the commons, its attempts or an export, and a failing sink never costs the
+reply. The monthly budget is an interface notice, not a commons rule: the workspace asks once
 before a paid send past it, and the command line and MCP only say so; nothing is blocked
 and the application does not know of it. `configured_consultant()` still returns the bare
 adapters. Malformed or truncated output has a distinct rejected-response
@@ -374,7 +374,7 @@ acceptances. The mode for future replies can be changed in F2 Settings or Comman
 The TUI's Adopt import shortcut selects pending records introduced by the import's
 recorded adapter version and calls the existing `accept` capability.
 
-Home creates this version once or resumes it, preserving older cases. History,
+Home creates this version once or resumes it, preserving older commons. History,
 trees and source excerpts project native records. The offline guide preserves
 new contributions as literal notes and retains the provisional next recommendation;
 adaptive consulting still requires selecting an AI provider. No semantic capability

@@ -1,8 +1,8 @@
 """What is in the model, what waits for a decision, and what needs review.
 
-A case's records hold everything the consultant proposed. Membership is derived
+A commons' records hold everything the consultant proposed. Membership is derived
 from the snapshot's decisions: a proposal enters the model when it is accepted and
-leaves it if that acceptance is undone. Records published before the case kept
+leaves it if that acceptance is undone. Records published before the commons kept
 decisions (``membership.proposals_from``) are in the model by definition.
 
 Nothing here infers meaning. Order, readiness, closures and review flags follow
@@ -141,7 +141,7 @@ class Membership:
         if record["kind"] == "goal" and not record["data"].get("replaces"):
             others = [g for g in self.goals(proposing) if g != ref and g not in together]
             if others:
-                return "blocked", (f"the case already has a goal ({others[-1]}); a different goal is a "
+                return "blocked", (f"the commons already has a goal ({others[-1]}); a different goal is a "
                                    "new version of it")
         if proposing or not waits:
             return None
@@ -232,7 +232,7 @@ class Membership:
     def flags(self):
         """Open review flags: a record in the model that cites a record which has since changed.
 
-        Only explicit references raise a flag, and only changes made since the case kept
+        Only explicit references raise a flag, and only changes made since the commons kept
         decisions. A flag closes when the flagged record changes or leaves the model, or
         when the operator says it still holds against the record as it now stands.
         """
@@ -264,7 +264,7 @@ class Membership:
                 else:
                     continue
                 if by in self.index and self.index[by] < self.start:
-                    continue  # changed before the case kept decisions
+                    continue  # changed before the commons kept decisions
                 if (target, now or "gone") in affirmed.get(ref, set()):
                     continue
                 flags.append({"ref": ref, "cites": target, "field": field, "change": change, "by": by,

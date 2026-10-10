@@ -1,4 +1,4 @@
-"""The MCP adapter preserves application results and explicit case boundaries."""
+"""The MCP adapter preserves application results and explicit commons boundaries."""
 
 import base64
 
@@ -27,7 +27,7 @@ def test_bridge_covers_semantic_capabilities_and_opens_no_idle_writer(tmp_path):
     with open_case(tmp_path / "payments") as app:
         assert app.sources()["sources"][request_id]["text"] == "5\n:options"
         assert app.inspect()["case"]["revision"] == 1
-    assert "Reasoning Case" in bridge.invoke("context", {})["domain"]
+    assert "Reasoning Commons" in bridge.invoke("context", {})["domain"]
 
 
 @pytest.mark.parametrize("case", ["../outside", "/tmp/outside", ".", "nested/case", "exports/../case", "exports"])

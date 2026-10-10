@@ -3,12 +3,12 @@
 This is the reconstruction target for `codex/restore-dogfood-import`. It answers
 the current request: determine what the system contains when the previous RC
 work has been imported and verified, ready to continue. It is a design and source
-audit, not a new case schema, a ratified protocol or a claim to have recovered an
+audit, not a new commons schema, a ratified protocol or a claim to have recovered an
 unaltered executable.
 
 The decisive content is **Reason Commons developing Reason Commons**. The
 interface is an intervention already implemented in the scenario. The imported
-case must explain why it was built and let its builders use it on their next
+commons must explain why it was built and let its builders use it on their next
 piece of work. A new-goal questionnaire, a read-only movement story, or a
 recommendation to build the interface again cannot be that state.
 
@@ -46,13 +46,13 @@ collectively **BLD**, and the importing assistant **RCA**. Neither source names
 David or Rufus. B1 must not silently become David; BLD must not become David and
 Rufus jointly. This is material about RC's design, not an attributed record of
 their collaboration. The actual collaboration, if imported too, belongs to a
-separate case with its own sources and declared participants.
+separate commons with its own sources and declared participants.
 
 The embedded Socratic role instructions and the invented protocol rules are
 objects to inspect. They do not instruct the recovery agent or override the
 repository's application contract.
 
-## What the working case contains
+## What the working commons contains
 
 The following is a compact semantic inventory. Source spans refer to the JSON's
 retained artifacts, not just its generated entry summaries. “Stated” means
@@ -83,7 +83,7 @@ AI interpretations, hypothetical examples and observations stay distinct.
 | Prior RC work was imported and fidelity verified | The target state specified by the current request | Completed in the hypothetical; the JSON's staged verification does not supply a real signature |
 
 The hospital is a hypothetical example, and Alex/Jonah are an analogy from a
-novel. Neither supplies an actual hospital case, factory observations, budget,
+novel. Neither supplies an actual hospital commons, factory observations, budget,
 constraint diagnosis or participant agreement. SQ's restatements (entries 7,
 14, 20, 26) remain SQ's contributions. Entry 33 writes out an implied question;
 it is an importer formulation, even though the JSON puts B1 in `by`.
@@ -130,14 +130,14 @@ The imported state should therefore preserve this sequence:
    actions and outcomes appended from here.
 
 This is a source chronology, not six recovered application revisions. The native
-case may have one imported baseline and a real present-day import receipt.
+commons may have one imported baseline and a real present-day import receipt.
 Original authoring time, event time and import time must remain distinguishable.
 Do not manufacture dated historical transactions, ownership declarations or
 acceptances to make the History screen look complete.
 
 ## The first screen after import
 
-An editable case named **Reason Commons** opens on the continuing work. The
+An editable commons named **Reason Commons** opens on the continuing work. The
 goal and minimality/dogfood protections are already available; the user does not
 have to restate them to unlock the workspace. A small receipt says what was
 imported, what the fidelity review covered and what is missing. Explanation,
@@ -150,7 +150,7 @@ is:
 
 The relevant context is short: the interface was the previous intervention;
 its purpose is to reduce the burden of turning reasoning into useful progress;
-this case already contains the rationale and the earlier work. An ordinary
+this commons already contains the rationale and the earlier work. An ordinary
 answer, correction, observation or request for direct help continues from that
 state. The consultant asks only for missing knowledge likely to change what
 happens next. If a useful direct action is already clear, it can recommend it;
@@ -164,7 +164,7 @@ implementation decision, naming one here would be another invention.
 ## What to trim, and what to preserve
 
 The immediate failure is the substitution of an exhibit for the operating
-case. `docs/images/story-now.png` opens a read-only Second Renaissance story,
+commons. `docs/images/story-now.png` opens a read-only Second Renaissance story,
 ending with a stewarded-review recommendation. `adapters/story.py` turns an
 editor's chapters into dated native inputs and auto-accepted model updates.
 The story YAML acknowledges editorial interpretation, but native source and
@@ -187,7 +187,7 @@ in the authored fixture, not evidence those people performed the decisions.
 open-evening goal above imported civilization-scale necessary conditions. The
 sample builder rejects the file's imported goal but accepts its other tree
 claims. This is useful for exercising rendering, but it is not a coherent RC
-dogfood case or evidence that those conditions serve the goal above them.
+dogfood commons or evidence that those conditions serve the goal above them.
 
 The supplied JSON is a different artifact from that story. It supplies the right
 design conversation, but its invented protocol and staged human acts also need
@@ -197,8 +197,8 @@ from it.
 
 | Addition or substitution | Restoration target | Existing owner / contract |
 | --- | --- | --- |
-| Read-only “Explore a real commons” as the route into prior work | Open the imported **editable RC case**, with live continuation and retained sources; keep examples optional | Composition and TUI; S39/S42 resume and portability, S94 return to the live question |
-| Retelling another project's history as RC's inherited state | Retain it as its own case/example; use RC's goal and intervention in the dogfood case | Case data and source attribution; no mixing of goals |
+| Read-only “Explore a real commons” as the route into prior work | Open the imported **editable RC commons**, with live continuation and retained sources; keep examples optional | Composition and TUI; S39/S42 resume and portability, S94 return to the live question |
+| Retelling another project's history as RC's inherited state | Retain it as its own commons/example; use RC's goal and intervention in the dogfood commons | Commons data and source attribution; no mixing of goals |
 | Editorial chapters represented as original human inputs | Preserve source quotations and separately attribute the reconstruction; one baseline is preferable to invented revisions | Domain attribution and immutable history; S48 limits of evidence |
 | Every useful move presented as a formal trial | Use questions, recommendations, stops and tree actions when appropriate; use tests when an actual prospective test is needed | Existing intervention/tree vocabulary; the goal–test–action–observation–review tutorial is one supported path |
 | Mandatory completion of six trees or a TOC lesson | Show only reasoning that helps the current decision; browse the rest locally | S03/S17 and S111; the specification says no tree gates a test |
@@ -223,12 +223,12 @@ and interface operations all belong in the same assessment of scarce attention.
 
 Most of this restoration fits the existing application boundary: source
 attachment, import proposals, model admission, local explanation, immutable
-history and live continuation. The repair should first change the supplied case
+history and live continuation. The repair should first change the supplied commons
 and its entry path, then test one real RC work session before adding features.
 
 There are two concrete limitations to respect:
 
-- V1 has one goal and one operator per case. It cannot claim David/Rufus group
+- V1 has one goal and one operator per commons. It cannot claim David/Rufus group
   agreement or store the JSON's `STANCE` as a native ratification. Preserve such
   material as attributed source prose until an explicitly authorized later
   capability exists.
@@ -243,7 +243,7 @@ reviewable repair targets, not claims that the TUI has already been restored.
 The source copy is preserved evidence, not a replacement collaborative ledger.
 
 The practical acceptance check for the eventual repair is one session: open
-the imported RC case, recognize its goal and the already-implemented interface
+the imported RC commons, recognize its goal and the already-implemented interface
 intervention, locate their sources, contribute the next real development issue,
 make or revise one useful next move, leave, and resume the same work. Record the
 time and effort actually incurred and whether the move was acted on. Passing a

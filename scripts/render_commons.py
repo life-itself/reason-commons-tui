@@ -60,7 +60,7 @@ def main():
                 to_png(browser, svg)
             finally:
                 svg.with_suffix('.html').unlink(missing_ok=True)
-    print('Rendered imported working case in docs/images')
+    print('Rendered imported working commons in docs/images')
 
 
 if __name__ == '__main__':

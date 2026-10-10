@@ -3,8 +3,8 @@ Feature: One persistent reasoning conversation across skill and local interfaces
   A participant works with the application's saved state.
   Local views explain and project it; only deliberate contributions consult.
 
-  Scenario: Open an empty case without inference
-    Given a new case
+  Scenario: Open an empty commons without inference
+    Given a new commons
     When I open the next workspace
     Then the formal goal is unknown and no question has been invented
     And no consultation has occurred
@@ -18,7 +18,7 @@ Feature: One persistent reasoning conversation across skill and local interfaces
 
   Scenario: Resume and explain locally
     Given a saved question
-    When I reopen the case and inspect explanation, sources and history
+    When I reopen the commons and inspect explanation, sources and history
     Then the stored rationale and original attributed text are available
     And the saved revision and consultant count are unchanged
 

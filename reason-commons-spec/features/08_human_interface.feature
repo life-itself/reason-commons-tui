@@ -37,7 +37,7 @@ Feature: Make rigorous local work discoverable through workspace controls
     Given Other moves filter owns focus and none of its labels contains "5"
     When Sam types "5" and presses Enter
     Then no item is activated and No matches appears with Clear filter and Back
-    And no consultant request, case update or revision is created
+    And no consultant request, commons update or revision is created
     And the response draft is retained
 
   @S58 @p1 @v1 @automated
@@ -84,7 +84,7 @@ Feature: Make rigorous local work discoverable through workspace controls
   @S63 @p1 @v1 @automated
   Scenario: Reject a stale menu before applying a decision
     Given Other moves is bound to "Choose a test" at revision 10
-    And the case advances to revision 11 with a different current question
+    And the commons advances to revision 11 with a different current question
     When Sam activates the old selected item
     Then the old choice is not dispatched against either question
     And current choices are redisplayed with a stale-menu notice
@@ -124,10 +124,10 @@ Feature: Make rigorous local work discoverable through workspace controls
   Scenario: Compress routine context and repeat consequential changes
     Given Compact display and an unchanged goal and protections
     When Sam opens Explain this and returns to the current question
-    Then the pinned header shows case, save status and speaker, and the focused control is framed
+    Then the pinned header shows commons, save status and speaker, and the focused control is framed
     And complete unchanged context is not duplicated inside each view
     And the goal and consequential safeguard band remain pinned
-    When the goal changes or Sam activates Goal or Case context
+    When the goal changes or Sam activates Goal or Commons context
     Then complete goal, horizon, protections, test boundaries, response target and revision appear
     And requesting context makes no consultant call
 
@@ -141,7 +141,7 @@ Feature: Make rigorous local work discoverable through workspace controls
   @S70 @p1 @v1 @automated
   Scenario: Revalidate a restored menu before activation
     Given a checkpoint contains Other moves, focus, display preference, operator and draft
-    When a fresh process resumes the case
+    When a fresh process resumes the commons
     Then it restores and validates the menu bindings
     And it shows complete startup context and labeled choices before accepting activation
     And no reasoning revision or consultant call occurs
@@ -156,7 +156,7 @@ Feature: Make rigorous local work discoverable through workspace controls
 
   @S72 @p1 @v1 @automated
   Scenario Outline: Keep offline shell utilities free of interactive furniture
-    Given a saved valid case and unavailable provider
+    Given a saved valid commons and unavailable provider
     When the shell command "<command>" is invoked
     Then it exits 0 without a provider call
     And stdout contains only "<output>"

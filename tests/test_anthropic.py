@@ -1,4 +1,4 @@
-"""Native Anthropic protocol, provider selection and durable case integration."""
+"""Native Anthropic protocol, provider selection and durable commons integration."""
 
 import asyncio
 from copy import deepcopy
@@ -45,7 +45,7 @@ def test_native_consultation_sends_complete_context_and_persists_without_secret(
     assert payload["model"] == DEFAULT_MODEL
     assert payload["tool_choice"] == {"type": "auto", "disable_parallel_tool_use": True}
     assert payload["stream"] is False
-    assert "Reasoning Case" in payload["system"]
+    assert "Reasoning Commons" in payload["system"]
     request = json.loads(payload["messages"][0]["content"])
     assert source in request["sources"] and "in000001" in request["sources"]
     assert request["case"]["revision"] == 0

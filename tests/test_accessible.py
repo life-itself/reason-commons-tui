@@ -47,7 +47,7 @@ def test_navigation_is_local_and_esc_returns_with_the_draft(tmp_path):
     for key in "five":
         workspace.handle(key)
     revision = case.inspect()["case"]["revision"]
-    for label in ("Explain this", "Case context", "Views", "Help"):
+    for label in ("Explain this", "Commons context", "Views", "Help"):
         focus_on(workspace, label)
         workspace.handle("enter")
         assert workspace.view != "next"

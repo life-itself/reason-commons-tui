@@ -41,15 +41,15 @@ boolean filters follow the [official Cucumber reference](https://cucumber.io/doc
 
 | Phase | Build and validate | Incremental exit gate |
 |---|---|---|
-| p0 Durable minimal case | Goal/note/intervention/test/action/observation schema; immutable ancestry; preserved inputs; atomic publication; idempotent retry; stale response rejection; one writer; portable export/import; profile validation | Restart and round-trip reproduce the supported records and original forecast offline. Failed writes and invalid/out-of-profile proposals commit nothing. No provider call follows failed input retention. |
-| p1 Persistent TUI | Event loop; pinned case/goal/task/footer; literal multiline editor; keyboard controls; local inspection; async completion notices; focus/draft restoration; 80×24; linear alternative; profile-aware Actions | Default launch opens the workspace. Tab/arrows/Enter/Esc complete ordinary work without commands. Input is literal; navigation makes zero calls; pending output does not steal focus. Resize, resume and failure preserve draft and target. |
-| p2 Complete v1 loop | Goal/baseline/protections; public decision purpose; attributed corrections; bounded forecast; immediate action and authority; effect observation; prospective review; next decision; tree claims, single links (which may reach another tree), new versions and retraction drawn in a Trees view, with the case's one goal at the Goal Tree's top; LTP 1.0 import/export; proposals decided in an ordered backlog, the acceptance setting, review flags on explicit references, and undo | The v1 session is reproducible with a fake adapter; a real adapter preserves semantic invariants; no proposal enters the model without the operator's acceptance or their automatic-acceptance setting, and every acceptance can be undone; first-time users complete and explain the goal–action–review loop. |
+| p0 Durable minimal commons | Goal/note/intervention/test/action/observation schema; immutable ancestry; preserved inputs; atomic publication; idempotent retry; stale response rejection; one writer; portable export/import; profile validation | Restart and round-trip reproduce the supported records and original forecast offline. Failed writes and invalid/out-of-profile proposals commit nothing. No provider call follows failed input retention. |
+| p1 Persistent TUI | Event loop; pinned commons/goal/task/footer; literal multiline editor; keyboard controls; local inspection; async completion notices; focus/draft restoration; 80×24; linear alternative; profile-aware Actions | Default launch opens the workspace. Tab/arrows/Enter/Esc complete ordinary work without commands. Input is literal; navigation makes zero calls; pending output does not steal focus. Resize, resume and failure preserve draft and target. |
+| p2 Complete v1 loop | Goal/baseline/protections; public decision purpose; attributed corrections; bounded forecast; immediate action and authority; effect observation; prospective review; next decision; tree claims, single links (which may reach another tree), new versions and retraction drawn in a Trees view, with the commons' one goal at the Goal Tree's top; LTP 1.0 import/export; proposals decided in an ordered backlog, the acceptance setting, review flags on explicit references, and undo | The v1 session is reproducible with a fake adapter; a real adapter preserves semantic invariants; no proposal enters the model without the operator's acceptance or their automatic-acceptance setting, and every acceptance can be undone; first-time users complete and explain the goal–action–review loop. |
 | p3 Causal release | Joint premise (ALL) groups and rival routes in the CRT, WIP integration, assumptions, evidence detail, comparisons, feedback episodes, goal-connection and revision-review views; optional coaching/density settings and structured authoring forms | New causal scenarios and p0-p2 regressions pass. Users preserve joint premises, challenge a mechanism, distinguish alternatives, and notice changed-premise reviews. |
 | p4 Facilitated group release | Exact-version representation/belief/reliance; declared speaker switching; scoped Cloud; reported versus direct attribution | New group scenarios and p0-p3 regressions pass. No silence, reported opinion, or willingness to test becomes invented belief or consensus. |
 | p5 Full-tools release | Goal hierarchy, FRT and negative branches, PRT criteria/dependencies, TT rationale/contingencies, shared requirements, cross-tool traceability and review | New full-tool scenarios and p0-p4 regressions pass. Users trace the goal connection, review adverse paths, distinguish necessary states from sufficient action plans, and choose a changed-case action. |
 
 All increments need their selected automated, semantic, and participant checks.
-P0 fixtures exercise the case engine through a test driver; they do not require
+P0 fixtures exercise the commons engine through a test driver; they do not require
 the p1 TUI. Later phases can reuse those records without depending on another
 scenario's execution. Shared Background steps use only capabilities available
 by the earliest selected scenario in that feature.
@@ -152,7 +152,7 @@ become user-facing stationery objects. No graph/group requirement moves into v1.
 The consultant drafts; the operator decides what enters the model. Before this
 decision a valid consultant reply was published straight into the trees. Now
 every update a reply proposes, to any part of the model, waits in a backlog with
-its source until the operator accepts it, unless the operator has set the case to
+its source until the operator accepts it, unless the operator has set the commons to
 accept proposals automatically; holding them for review is the default. The
 backlog orders proposals by what they cite and then by method, with a new goal
 marked to be decided first. An accepted change flags whatever explicitly cites
@@ -160,7 +160,7 @@ what it changed, so a consequence cascades one reviewed step at a time, and ever
 acceptance can be undone, finally, by an appended revision. Section 2F of the
 specification states the contract; feature 13 (S135–S147) specifies it.
 
-Three related changes make one model rather than parallel records: the case's
+Three related changes make one model rather than parallel records: the commons'
 goal is the Goal Tree's top statement and changes by new versions; a link may use
 a statement from another tree; and LTP imports wait in the backlog like any other
 proposal. These move bounded parts of p3 (membership, review on explicit
@@ -174,7 +174,7 @@ Later the same day, after a live run against Claude, three rules were added to
 that contract (S148–S150). Accepting a withdrawal names the links it takes out of
 the trees and waits for the operator's confirmation, also under automatic
 acceptance. A reply cites only the answer it replies to, answers already taken
-in and supplied sources, so an answer that went stale stays out of the case. A
+in and supplied sources, so an answer that went stale stays out of the commons. A
 test can be given a new version until its first result is in the model; from
 then on its forecast is fixed. A result reported before a test's stated start is
 not refused, because those dates are the participant's free text.
@@ -182,7 +182,7 @@ not refused, because those dates are the participant's free text.
 Also on 7 October, the status line kept its redesign (the goal's name, who is
 answering and whether it is saved), with focus shown by a heavy frame round the
 focused pane. S04, S49 and S68 were reworded to match: the focused control is
-framed, or named in words in the accessible text presentation, and Case context
+framed, or named in words in the accessible text presentation, and Commons context
 gives the revision with the rest of the complete context. Their other steps are
 unchanged. The authored specimen frames, which print the revision and focus in
 their header line, are illustrations and were left as they are.

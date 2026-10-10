@@ -1,7 +1,7 @@
 """Persistent terminal workspace (first usable slice of p1) built with Textual.
 
 The TUI is a projection over ``CaseApplication``: it reads ``workspace`` and
-``inspect``, and changes the case only through ``retain_input``, ``consult``,
+``inspect``, and changes the commons only through ``retain_input``, ``consult``,
 ``retry``, the operator's decisions (``accept``, ``reject``, ``undo``,
 ``still_holds``, ``set_acceptance``), ``export`` and ``checkpoint``. It owns
 layout, focus, the editor and which view is shown; it defines no reasoning or
@@ -59,7 +59,7 @@ TREE_NAV = {"all": "All six", "goal": "Goal Tree", "current_reality": "Current R
             "future_reality": "Future Reality", "prerequisite": "Prerequisite", "transition": "Transition"}
 VIEW_LABELS = [("next", "Next step"), ("backlog", "Backlog"), ("goal", "Goal"), ("trees", "Trees"), ("tests", "Tests"),
                ("actions", "Loop actions"), ("reasoning", "Reasoning"), ("sources", "Your words"),
-               ("history", "History"), ("context", "Case context")]
+               ("history", "History"), ("context", "Commons context")]
 LOOP = [("goal", "Goal"), ("test", "Test + forecast"), ("action", "Action"), ("observe", "Observe"),
         ("review", "Review")]
 GUIDED_STAGE = {"goal": "goal", "goal_measure": "goal", "goal_protect": "goal", "test_change": "test",
@@ -134,6 +134,11 @@ the loop: ✓ done, ● now, ○ still to come. **Views** on the left offers the
 Enter opens one. Other supporting views are available under **Commands**. The footer shows the keys that
 work where the keyboard is now; Tab reaches **Commands** and **Help** there like any other control.
 
+A **commons** keeps your goal, contributions, sources, reasoning and history across conversations.
+Its **model** contains the currently accepted reasoning. Proposals waiting in **Backlog** and earlier
+or rejected reasoning stay recorded without entering the current model. **F2 Settings** chooses
+automatic acceptance or requiring your acceptance for future proposals.
+
 ## Keys and controls
 
 Help covers the controls; **Explain this** covers the reasoning behind a question.
@@ -168,7 +173,7 @@ You work through one small loop, as often as you like:
 4. **Observation**: what actually happened. Doing the work is not the same as it working.
 5. **Review**: compare the result with the original forecast, then keep, adjust or drop the change.
 
-Everything is saved in the case folder as you go. Closing the app keeps your draft.
+Everything is saved in the commons folder as you go. Closing the app keeps your draft.
 
 ## The trees
 
@@ -638,7 +643,7 @@ class MenuScreen(ModalScreen):
     The filter has focus: printable keys narrow the items, arrows choose, Enter activates the
     chosen item. With nothing matching, Enter activates nothing and the menu says so, offering
     Clear filter and Back. It returns (item, binding), or None for Back or Esc; the workspace
-    checks the binding before acting, so a menu left open while the case moved on cannot act
+    checks the binding before acting, so a menu left open while the commons moved on cannot act
     on a question it was not opened for."""
 
     BINDINGS = [Binding("escape", "dismiss", "Back"), Binding("down", "move(1)", show=False),
@@ -784,7 +789,7 @@ class TextScreen(ModalScreen):
 
 class CallsScreen(ModalScreen):
     """How often the consultant was asked, counted from the saved attempt receipts, and with a usage log, what
-    paid replies cost: estimates from the log kept outside every goal, never from the case."""
+    paid replies cost: estimates from the log kept outside every goal, never from the commons."""
 
     BINDINGS = [Binding("escape,enter", "dismiss", "Back")]
 
@@ -846,7 +851,7 @@ class BudgetScreen(ModalScreen):
 
 class ExportScreen(PathScreen):
     def __init__(self, default):
-        super().__init__("Export a portable copy of this case (.reasoncase)", default,
+        super().__init__("Export a portable copy of this commons (.reasoncase)", default,
                          "Enter exports. Use a new file name. Esc cancels.")
 
 
@@ -1171,7 +1176,7 @@ class ThemedApp(App):
         self.push_screen(SettingsScreen(self.can_set_up()), self.settings_closed)
 
     def acceptance_mode(self):
-        """A case setting is available only in a writable case workspace."""
+        """A commons setting is available only in a writable commons workspace."""
         return None
 
     def can_set_up(self):
@@ -1398,7 +1403,7 @@ class ReasonCommonsApp(ThemedApp):
         # None while looking at the live goal; otherwise the past revision on screen.
         self.revision, self._history = None, None
         self._open, self._consultant_factory = open_application, consultant_factory
-        # The consultant in use, and what the case consults: the same, or for one reply a stand-in with deeper
+        # The consultant in use, and what the commons consults: the same, or for one reply a stand-in with deeper
         # reasoning, built once per model (``stand_in``). ``_asking`` names that model while it answers.
         self.consultant = consultant_factory(provider)
         self.chosen = ChosenConsultant(self.consultant)
@@ -1478,7 +1483,7 @@ class ReasonCommonsApp(ThemedApp):
         and the six trees in the method's order, with ▸ beside the one on screen."""
         options = []
         for key, _ in VIEW_LABELS:
-            # Supporting views stay in Commands/Views; the sidebar follows actual case work.
+            # Supporting views stay in Commands/Views; the sidebar follows actual commons work.
             records = (self.workspace_value or {}).get('records', [])
             has_test = any(r['kind'] == 'test' for r in records)
             if key in ('reasoning', 'context') and key != self.view_name and not has_test:
@@ -1721,7 +1726,7 @@ class ReasonCommonsApp(ThemedApp):
         imported = self.import_waiting()
         self.query_one('#accept-all', Button).label = 'Adopt import' if imported else 'Accept all'
         self.query_one("#accept-all").set_class(not self.reply_waiting() and not imported, "hidden")
-        # The Views list names what waits in Backlog, so it changes with the case.
+        # The Views list names what waits in Backlog, so it changes with the commons.
         views = self.query_one("#views", OptionList)
         if [str(o.prompt) for o in views.options] != [str(o.prompt) for o in self.view_options()]:
             self.refresh_views()
@@ -2163,12 +2168,12 @@ class ReasonCommonsApp(ThemedApp):
         return "\n".join(lines)
 
     def context_page(self):
-        """Everything the live question rests on, complete and in one place: where the case is saved, the goal
+        """Everything the live question rests on, complete and in one place: where the commons is saved, the goal
         with all its fields, the tests in the model and their boundaries, what is being answered, what waits
         and any breach. Local; nothing is sent."""
         w = self.workspace_value
         state = "read-only" if self.story or self.revision is not None else "saved"
-        lines = ["## Case context", "", "Everything the current question rests on, in full. Local: nothing is sent.",
+        lines = ["## Commons context", "", "Everything the current question rests on, in full. Local: nothing is sent.",
                  "", f"**{md(w['case_name'])}** · {state} at revision {w['revision']} · answering as "
                  f"{md(self.speaker)} · proposals are {'accepted automatically' if w.get('acceptance') == 'automatic' else 'held for you'}",
                  ""]
@@ -3179,7 +3184,7 @@ class ReasonCommonsApp(ThemedApp):
 
     def spend_check(self, go, model=None):
         """Past the monthly budget, a send to a paid consultant asks once first. Nothing is blocked: "Not now"
-        sends nothing and keeps the answer in the box. The budget is a notice, not a rule of the case."""
+        sends nothing and keeps the answer in the box. The budget is a notice, not a rule of the commons."""
         summary = self.refresh_meter() if self.provider == "anthropic" else None
         limit = summary["budget"] if summary else None
         if not limit or summary["month"]["usd"] < limit:
@@ -3545,7 +3550,7 @@ class ReasonCommonsApp(ThemedApp):
                         + grown + proposed + cost)
         elif result.get("input_retained"):
             if sent:
-                editor.clear()  # the words are retained in the case; Retry reuses them
+                editor.clear()  # the words are retained in the commons; Retry reuses them
             deeper_retry = self.boost()
             elsewhere = (f" Retry with {pricing.label(deeper_retry)} is in Commands." if deeper_retry
                          and self.terminal.width < 100 else "")
@@ -3667,7 +3672,7 @@ class ReasonCommonsApp(ThemedApp):
         items += [("Consultant calls and cost",
                    "Local: how often the consultant was asked, and what Claude's replies cost, as estimated",
                    self.action_consultant_calls),
-                  ("Export case", "Local: write a portable .reasoncase copy", self.action_export),
+                  ("Export commons", "Local: write a portable .reasoncase copy", self.action_export),
                   ("Import trees", "Local: bring in trees from an .ltp.yaml file; asks no consultant",
                    self.action_import_trees),
                   ("Export trees", "Local: write the trees to an .ltp.yaml file", self.action_export_trees)]
@@ -3873,7 +3878,7 @@ def goals_home():
 
 
 def find_goals(root):
-    """Case folders directly under root, most recently changed first. Unreadable folders are skipped."""
+    """Commons folders directly under root, most recently changed first. Unreadable folders are skipped."""
     from reason_commons.bootstrap import open_case
     goals = []
     for path in sorted(Path(root).iterdir()) if Path(root).is_dir() else []:
@@ -4273,7 +4278,7 @@ def run_tour(speaker=None):
 
 
 def run(store, name=None, speaker=None, provider=None, model=None, base_url=None, tour=False, story=None):
-    """Create the case if the folder does not exist yet, then open the workspace."""
+    """Create the commons if the folder does not exist yet, then open the workspace."""
     cli_model = model
     from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
     settings = Settings.load()

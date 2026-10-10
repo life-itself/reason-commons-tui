@@ -104,7 +104,7 @@ def build_commons(destination, acceptance='automatic', adopted=True):
 
 
 def continue_commons(root):
-    """Resume this reconstruction or create a new case without replacing earlier work."""
+    """Resume this reconstruction or create a new commons without replacing earlier work."""
     from reason_commons.bootstrap import open_case
     root = Path(root)
     if root.exists():
