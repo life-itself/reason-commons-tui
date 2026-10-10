@@ -2,7 +2,7 @@
 
 An estimate only: Anthropic bills from its own records, and the Anthropic Console is the
 authority on what was charged. Prices are dollars per million tokens, as Decimals, so sums
-are exact. Nothing here reads or writes a case.
+are exact. Nothing here reads or writes a commons.
 """
 
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation

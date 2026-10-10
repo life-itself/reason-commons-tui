@@ -46,7 +46,7 @@ class CaseApplication:
 
     Interfaces project state and invoke these use cases; they own no reasoning,
     consulting or persistence rules. Skills share the semantic capability surface.
-    The application never trusts a skill to enforce case rules. Failed input
+    The application never trusts a skill to enforce commons rules. Failed input
     retention leaves a copy in this session so an adapter can keep its editor.
     """
 
@@ -86,7 +86,7 @@ class CaseApplication:
         if revision is not None:
             snapshot = next((s for s in snapshots if s.revision == revision and s.revision <= current.revision), None)
             if snapshot is None:
-                raise InvalidCase("Revision is not in this case's published history")
+                raise InvalidCase("Revision is not in the published history of this commons")
         sources = self._store.sources()
         pending = []
         for value in sources.values():
@@ -196,7 +196,7 @@ class CaseApplication:
                 return self._failure(request_id, "not_saved", "not saved; input retained; request did not start",
                                      ["retry_retained_input"], persist=False)
             try:
-                # Only words the case took in, this answer and supplied sources: a stale answer is not shown.
+                # Only words the commons took in, this answer and supplied sources: a stale answer is not shown.
                 taken_in = set(current.value["applied_requests"]) | {request_id}
                 sources = {ref: source for ref, source in self._store.sources().items()
                            if "request_id" not in source or ref in taken_in}
@@ -277,7 +277,7 @@ class CaseApplication:
     def _decide(self, action, refs, speaker, base_revision, confirmed, value=None):
         current = self._store.current()
         if type(base_revision) is not int or base_revision != current.revision:
-            return {"status": "stale", "message": "The case has changed; look at the decision again",
+            return {"status": "stale", "message": "The commons has changed; look at the decision again",
                     "recovery_actions": ["review_again"]}
         if not isinstance(refs, list) or not all(isinstance(r, str) for r in refs):
             return {"status": "rejected", "message": "Name the records as a list"}
@@ -299,7 +299,7 @@ class CaseApplication:
         try:
             self._store.commit(snapshot, current.revision)
         except StaleWork:
-            return {"status": "stale", "message": "The case has changed; look at the decision again",
+            return {"status": "stale", "message": "The commons has changed; look at the decision again",
                     "recovery_actions": ["review_again"]}
         except StoreError:
             return {"status": "not_saved", "message": "not saved; nothing was changed",

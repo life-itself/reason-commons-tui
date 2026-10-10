@@ -1,14 +1,14 @@
 # Reason Commons
 
-**See a hard problem whole, as connected trees, then change it one honest test at a time.**
+**Find the next useful move, with reasoning you can inspect and revise.**
 
-![The Trees view showing a Current Reality Tree: the symptom "the group is busy while durable-adoption throughput remains low" at the top, and below it each cause reads as a sentence led by "because" or "partly because", with its role after it and the assumption behind the link under a dotted rule; a chain of symptoms runs down one spine instead of drifting right, the root cause at its foot says it leads to all 6 undesirable effects, and the six trees are listed under Trees on the left](docs/images/trees-current-reality.png)
+![The imported Reason Commons conflict: continuing important work while developing useful analysis, with the assisted interface as the injection](docs/images/commons-conflict.png)
 
 Reason Commons is a calm terminal workspace for reasoning about change: what you are
 aiming for, what is really in the way, which conflict keeps you stuck and what to
 try next. It lays that reasoning out as the six connected trees of the **Logical
-Thinking Process** (from the Theory of Constraints), then turns the next action
-into a small test: you write down what you expect **before** you act, and compare
+Thinking Process** (from the Theory of Constraints), can support a next action
+with a small test: you write down what you expect **before** you act, and compare
 it with what happened. Every statement keeps who said it and how it was worded,
 and everything lives in a plain folder you own.
 
@@ -35,17 +35,20 @@ reason-commons
 
 There is no Python setup to manage. To update later, run `uv tool upgrade reason-commons`.
 
-The first time, you choose how to begin:
+The first time, choose **Continue Reason Commons** to import the prior RC work into
+an editable commons, or **Start my first goal** for your own work. The RC commons retains
+the supplied conversation and its attribution, substantial trees, and ten readable
+stages explaining why manual RC led to the implemented interface. History records
+its adoption, so an empty Backlog accompanies reasoning that is in the model.
+The pre-history is explicitly reconstructed from your prompt; historical dates,
+engineering logs and measurements are not invented.
 
-- **Start my first goal**: the offline guide asks the questions, straight away.
-- **Choose who asks the questions first**: your name, then the offline guide,
-  Claude or a local model. About a minute.
-- **Take the guided tour**: practise one whole loop with example answers. Nothing
-  is kept.
-- **Explore a real commons**: read how one movement's shared reasoning grew, step
-  by step, and the action it says comes next.
+Tours, consultant setup and the Second Renaissance editorial example are under
+**F1 Help**. **F2 Settings** changes your preferences and, inside a commons, how reasoning is accepted.
 
-![The first screen offers four ways to start: start my first goal with the offline guide, choose who asks the questions first, take the guided tour, or explore a real commons](docs/images/first-start.png)
+![The first screen offers Continue Reason Commons or Start my first goal](docs/images/first-start.png)
+
+![Imported Reason Commons work, ready for the next contribution](docs/images/commons-next.png)
 
 After that, `reason-commons` opens a list of your goals. A goal opens on one
 question; you answer in ordinary words. Enter adds a line, **Ctrl+S** sends,
@@ -54,10 +57,17 @@ type, including an unsent draft, and you come back to where you were.
 
 ## How it works
 
+A **commons** keeps a goal, contributions, sources, reasoning, decisions and
+history across conversations. Its **model** is the accepted reasoning currently
+used to guide the work. Recording a proposal preserves it in the commons;
+acceptance admits it to the model, either explicitly or under your automatic
+acceptance setting. Earlier wording and rejected or undone reasoning remain in
+History.
+
 ### Six questions, six trees
 
-Every real change has to answer six questions. Each tree answers one, and each
-connects to the next.
+The six trees organize different questions when that detail helps the work.
+They grow as needed and can remain partial.
 
 | Question | Tree |
 | --- | --- |
@@ -142,8 +152,10 @@ Accepting puts a statement in your model; it does not make it true.
 When you accept a change to something, whatever cites it is flagged for review, with
 the change that raised the flag, so a consequence reaches one step further each time.
 Every acceptance can be undone from **History**, and an undo is final. If you trust the
-consultant, **Ctrl+P**, **Accept proposals automatically** lets replies' proposals in as
-they arrive, still marked and still undoable.
+consultant, **F2 Settings**, **Reasoning**, **Automatic** lets later proposals in as
+they arrive. **Require acceptance** keeps them in Backlog. Older waiting proposals
+still need a decision. The imported RC demonstration starts in Automatic mode;
+new personal commons require acceptance. Commands offers the same choices.
 
 ![Backlog: a proposed new goal marked decide first, then a proposed cause and the link that waits for it, then a Transition Tree action; beside the list, the chosen entry in full with the words it came from](docs/images/backlog.png)
 

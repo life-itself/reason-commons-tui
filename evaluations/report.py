@@ -95,7 +95,7 @@ class Report:
         if "consultations" in self.value:
             lines += ["Consultations: `" + json.dumps(self.value["consultations"], ensure_ascii=False) + "`", ""]
         for run in self.value["runs"]:
-            lines += ["## " + run["id"], "", "Case: " + str(run.get("case", "none")), ""]
+            lines += ["## " + run["id"], "", "Commons: " + str(run.get("case", "none")), ""]
             for item in run.get("checks", []):
                 lines += ["- " + item["status"].upper() + ": " + item["name"] + " — " + str(item["evidence"])]
             lines += [""]

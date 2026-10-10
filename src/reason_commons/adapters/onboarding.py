@@ -2,7 +2,7 @@
 
 Setup records only personal settings (name, consultant, model) outside every goal.
 The tour runs the ordinary workspace on a throwaway practice goal with the built-in
-guide; its coaching text lives here and changes nothing in the case.
+guide; its coaching text lives here and changes nothing in the commons.
 """
 
 import asyncio

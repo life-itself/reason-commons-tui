@@ -140,9 +140,9 @@ class AnthropicConsultant:
         self.model, self.timeout, self.max_tokens, self.effort = model, timeout, max_tokens, effort
         self.base_url = urlunsplit((parts.scheme, parts.netloc, "/v1", "", ""))
         self._api_key, self._resolved_model, self._sent_effort = api_key, None, None
-        # Token counts and transport repairs of the last reply, for evaluation evidence; never part of the case.
+        # Token counts and transport repairs of the last reply, for evaluation evidence; never part of the commons.
         self.last_usage, self.last_repairs = None, []
-        # Told what each request cost, as it happens (the composition root's usage sink); never part of the case.
+        # Told what each request cost, as it happens (the composition root's usage sink); never part of the commons.
         # Calls can run in parallel on one consultant, so each is reported with its own values.
         self.usage = usage
         self._opener = build_opener(ProxyHandler({}), NoRedirect())
@@ -233,7 +233,7 @@ class AnthropicConsultant:
             raise AnthropicError("Set ANTHROPIC_API_KEY before consulting")
         body = None if payload is None else json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
         if body is not None and len(body) > MAX_REQUEST_BYTES:
-            raise AnthropicError("Complete case exceeds request size limit; context was not truncated")
+            raise AnthropicError("Complete commons exceeds request size limit; context was not truncated")
         request = Request(self.base_url + path, data=body, headers={
             "Content-Type": "application/json", "Accept": "application/json",
             "x-api-key": self._api_key, "anthropic-version": "2023-06-01"})
@@ -302,7 +302,7 @@ class AnthropicConsultant:
                    "messages": [{"role": "user", "content": json.dumps(request, ensure_ascii=False, allow_nan=False)}],
                    "stream": False,
                    "tools": [{"name": "submit_proposal", "description":
-                       "Return the complete reasoning proposal using the supplied case and sources. "
+                       "Return the complete reasoning proposal using the supplied commons and sources. "
                        "This tool returns data for validation; it does not save or execute anything.",
                        "input_schema": request_schema(request)}],
                    "tool_choice": {"type": "auto", "disable_parallel_tool_use": True}}
@@ -311,7 +311,7 @@ class AnthropicConsultant:
         return payload
 
     def count_tokens(self, request):
-        """Count the complete consulting prompt without inference or case writes."""
+        """Count the complete consulting prompt without inference or commons writes."""
         payload = self._payload(request)
         for key in ("max_tokens", "stream", "output_config"):
             payload.pop(key, None)

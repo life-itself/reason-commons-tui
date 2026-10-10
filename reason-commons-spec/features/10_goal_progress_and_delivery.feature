@@ -5,15 +5,15 @@ Feature: Connect reasoning to goal progress within the delivered scope
 
   @S91 @p5 @later @automated
   Scenario: Preserve every delivered reasoning type in a portable handoff
-    Given a full-tools case with traceability, reviews, stances, and all six models
-    When the operator exports and imports the case offline
+    Given a full-tools commons with traceability, reviews, stances, and all six models
+    When the operator exports and imports the commons offline
     Then exact versions and every typed relationship remain inspectable
     And review needs, open questions, observation criteria, and cursor are retained
     And no provider conversation is required
 
   @S92 @p3 @later @automated
   Scenario: Keep structured causal navigation useful offline
-    Given a causal-profile case and an unavailable consultant
+    Given a causal-profile commons and an unavailable consultant
     When the operator opens the model, WIP, assumptions, or stored comparison
     Then each supported view is reconstructed from stored records
     And no inference or discriminating prediction is invented

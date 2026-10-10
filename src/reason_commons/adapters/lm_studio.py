@@ -1,6 +1,6 @@
 """LM Studio's local HTTP API implements the replaceable Consultant port.
 
-No hosted fallback, implicit provider retries, credentials in case state, or
+No hosted fallback, implicit provider retries, credentials in commons state, or
 provider-specific behavior in the application/domain.
 """
 
@@ -62,7 +62,7 @@ class LMStudioConsultant:
 
     @classmethod
     def from_env(cls, model: Optional[str] = None, base_url: Optional[str] = None):
-        """Runtime configuration only; tokens and endpoints never enter case files."""
+        """Runtime configuration only; tokens and endpoints never enter commons files."""
         return cls(model=model if model is not None else os.environ.get("REASON_COMMONS_LM_STUDIO_MODEL") or None,
                    base_url=base_url if base_url is not None else os.environ.get("REASON_COMMONS_LM_STUDIO_URL", "http://127.0.0.1:1234/v1"),
                    api_key=os.environ.get("LM_STUDIO_API_TOKEN") or None,
@@ -90,7 +90,7 @@ class LMStudioConsultant:
     def _request(self, path, payload=None, native=False):
         content = None if payload is None else json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
         if content is not None and len(content) > MAX_REQUEST_BYTES:
-            raise LMStudioError("Complete case exceeds request size limit; context was not truncated")
+            raise LMStudioError("Complete commons exceeds request size limit; context was not truncated")
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         if self._api_key:
             headers["Authorization"] = "Bearer " + self._api_key
@@ -126,7 +126,7 @@ class LMStudioConsultant:
     def chat_completion(self, payload):
         """HTTP capability shared with the separate skill agent adapter.
 
-        This does not apply a case proposal or expose persistence. Each consumer
+        This does not apply a commons proposal or expose persistence. Each consumer
         validates its own response contract; no automatic generation retry.
         """
         self._resolve_model()

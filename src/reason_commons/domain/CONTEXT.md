@@ -1,4 +1,4 @@
-# Reasoning Case
+# Reasoning Commons
 
 This is the sole bounded context in the first increment. It owns the durable
 record of a consultation, independently of a consultant's conversation memory.
@@ -8,13 +8,14 @@ that contract onto executable code; it does not change acceptance scope.
 
 | Term | Meaning and owner |
 |---|---|
-| Case | One named reasoning workspace and its complete history. The aggregate root. |
+| Commons | One named reasoning workspace containing its goal, contributions, sources, reasoning, decisions and complete history. It persists across conversations. The aggregate root. |
+| Conversation | An exchange of participant contributions and consulting replies within a commons. It develops the commons; it is not the whole workspace or its model. |
 | Revision | A complete snapshot, published only after validation and durable writes. A consulting revision applies one reply: its next question and its proposals. A decision revision records one decision of the operator's and nothing else. |
 | Intervention | The consultant's stored next question, recommendation, or justified stop. An internal record, not a numbered user-facing document. |
 | Response target | The exact intervention the participant is answering, together with its base revision. |
 | Input | Literal participant text, declared speaker, target, intent and any explicit structured declarations. Retained before any provider call. |
-| Source | A retained input or supplied attachment. Interpretation cites sources; it does not replace them. A reply cites only the input it answers, inputs already applied and supplied attachments; an input that went stale before its reply was published is not part of the case, and the consultant is not shown it. |
-| Goal | A sourced statement of success, with scope, horizon, measure, baseline and protections. Missing values stay unknown. A case has one goal; it is the Goal Tree's top statement, and a different or reworded goal is a new version of it (`G1@2` replaces `G1@1`). |
+| Source | A retained input or supplied attachment. Interpretation cites sources; it does not replace them. A reply cites only the input it answers, inputs already applied and supplied attachments; an input that went stale before its reply was published is not part of the commons, and the consultant is not shown it. |
+| Goal | A sourced statement of success, with scope, horizon, measure, baseline and protections. Missing values stay unknown. A commons has one goal; it is the Goal Tree's top statement, and a different or reworded goal is a new version of it (`G1@2` replaces `G1@1`). |
 | Note | Sourced literal prose or a bounded interpretation, with its evidence basis. It cannot contain executable later-profile structures. |
 | Test | A bounded change tied to an exact goal, with an original prospective forecast. It may name the tree claim it carries out (`claim_ref`). Until a result for it is in the model it can be given a new version (`P1@2` replaces `P1@1`); from then on its forecast is fixed, and a changed plan is a new test. It may record the pilot's own baseline, its dose and an alternative explanation; its review reads ten fields (owner and scope, intervention and dose, baseline and cohort, exact prediction, measurement method, observation window, protected conditions, stopping conditions, alternative explanation, review date), each unknown until someone records it. A review date is a date, never a reminder. |
 | Action | Proposed work for an exact test, with the state it should bring about (`expected_state`). Ownership requires cited explicit input. Recording that it was done is a new version (`A1@2`) with execution completed; its expected state cannot be marked met or not met until a result for its test is in the model. |
@@ -28,9 +29,9 @@ that contract onto executable code; it does not change acceptance scope.
 | Retraction | Withdraws a claim or link from its tree with a reason. Accepting the withdrawal of a statement also takes the links that join it out of the trees; the operator sees them before confirming, and automatic acceptance leaves such a withdrawal waiting. The withdrawn record stays in history. |
 | Proposal | A record a reply (or an import) added that waits for the operator's decision. It cites its source and may carry the consultant's confidence, which decides nothing. |
 | Membership | Whether a record is in the model: proposed, accepted (in the model), rejected, undone or closed. Accepting admits a record into the working model; it does not make it true, record a belief or authorize an action. |
-| Model | The accepted records that are current: not replaced by an accepted newer version and not withdrawn. Records published before the case kept decisions are in the model by definition. |
+| Model | The accepted records that are current: not replaced by an accepted newer version and not withdrawn. Pending and rejected proposals, undone acceptances and earlier formulations remain in the commons' history without belonging to its current model. Records published before the commons kept decisions are in the model by definition. |
 | Decision | One choice of the operator's, recorded with who and when: accept (with the waiting proposals the chosen ones need, and for a withdrawal the links that join the statement), reject (with the waiting proposals that need them), undo (with whatever cannot stand without it), still holds, or the acceptance setting. Rejections and undos are final. |
-| Acceptance setting | How a case admits proposals: held for review (the default) or accepted automatically, recorded as the operator's decision. Automatic acceptances are recorded as such, with the reply they came with. |
+| Acceptance setting | How a commons admits proposals: held for review (the default) or accepted automatically, recorded as the operator's decision. Automatic acceptances are recorded as such, with the reply they came with. |
 | Backlog | The waiting proposals and open review flags, in the order they are best decided: what an entry cites first, then a new goal, the six trees in method order, tests, actions, observations, reviews and notes, older first. |
 | Review flag | A record in the model that cites a record which has since been given a new version, withdrawn or undone. Derived from explicit references; it changes nothing, and it closes when the flagged record changes or leaves the model, or the operator says it still holds. |
 | Applied request | A retained request whose validated reply was published exactly once. |
@@ -45,6 +46,10 @@ owns identity/time allocation, the retain → consult → validate → publish p
 and the decision use cases. Storage owns how both become durable. Skills own none
 of this truth.
 
+Existing API and archive identifiers use `case`, `case_id`, `CaseApplication`,
+`CaseCapabilities` and `.reasoncase` for compatibility. They refer to a commons,
+not a different domain concept. Participant-facing language uses **commons**.
+
 Every published revision preserves prior records and decisions byte for byte at
 the file level and unchanged at the model level. Original forecasts cannot be
 edited by a later proposal: a test can have new versions only until a result for
@@ -56,7 +61,7 @@ version of the goal is flagged for review when the goal changes.
 ## What enters the model
 
 A reply's updates are proposals. They change nothing in the model until the
-operator accepts them, unless the operator set the case to accept proposals
+operator accepts them, unless the operator set the commons to accept proposals
 automatically; only the operator changes that setting, and a reply cannot. A
 proposal is ready when everything it cites is in the model. Accepting takes the
 waiting proposals it needs; rejecting takes the waiting proposals that need it.
@@ -117,9 +122,9 @@ establish that all critical needs were protected.
 `source_refs` cite retained inputs (`in…`) or supplied source identities. They
 establish attribution. `goal_ref`, `test_ref`, `claim_ref`, `from_ref`, `to_ref`,
 `replaces`, `target_ref`, `observation_refs` and intervention
-`required_context_refs` cite exact **case record** formulations (`G1@1`, `P1@1`,
+`required_context_refs` cite exact **commons record** formulations (`G1@1`, `P1@1`,
 `C1@1`, etc.), or a `temporary_id` declared by another update in the same proposal.
 They may cite records in the model or still waiting, never records that were
 rejected or undone. `from_ref` and `to_ref` may cite the goal.
 An input ID is never a required-context record. Use an empty list if there is no
-relevant case record yet. Do not allocate stable IDs in a consultant proposal.
+relevant commons record yet. Do not allocate stable IDs in a consultant proposal.

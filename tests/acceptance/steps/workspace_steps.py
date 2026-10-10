@@ -2,8 +2,8 @@
 
 The steps drive the real workspace the way a person does (keys, Tab and Enter) and
 read outcomes at the application boundary: the fixture consultant's calls, the
-case's revisions and retained inputs. Setup goes through the use cases
-(``tests/acceptance/workspace.py``); no step writes case files.
+commons' revisions and retained inputs. Setup goes through the use cases
+(``tests/acceptance/workspace.py``); no step writes commons files.
 """
 
 import os
@@ -33,7 +33,7 @@ class Unavailable(ScriptedConsultant):
 
 
 def open_workspace(context, consultant=None, size=(120, 40), with_test=False):
-    """The Forge case in the workspace; ``with_test`` adds a ninth reply recording a bounded test."""
+    """The Forge commons in the workspace; ``with_test`` adds a ninth reply recording a bounded test."""
     context.consultant = consultant or ScriptedConsultant()
     builder = ScriptedConsultant()
     replies = None
@@ -44,7 +44,7 @@ def open_workspace(context, consultant=None, size=(120, 40), with_test=False):
                                         "A test teaches only once it is carried out.",
                                         context=("goal",), updates=[TEST]))]
     build_forge(context.path, builder, **({"replies": replies} if replies else {}))
-    context.consultant.calls.extend(builder.calls)  # the counter covers the case's whole history
+    context.consultant.calls.extend(builder.calls)  # the counter covers the commons' whole history
     context.workspace = Workspace(context.path, context.consultant, size=size)
     context.workspaces.append(context.workspace)
     remember(context)
@@ -150,7 +150,7 @@ def workspace_active(context):
     context.wants_workspace = True
 
 
-@given('case "forge" at revision {number:d} with current question "{decision}"')
+@given('commons "forge" at revision {number:d} with current question "{decision}"')
 def forge_at(context, number, decision):
     open_workspace(context)
     assert revision(context) == number and question(context)["decision"] == decision
@@ -342,7 +342,7 @@ def terminal_size(context, width, height):
     context.size = (width, height)
 
 
-@when("the operator launches a new case without a presentation flag")
+@when("the operator launches a new commons without a presentation flag")
 def launch_new(context):
     create_case(context.path, "Forge").close()
     context.consultant = ScriptedConsultant()
@@ -402,7 +402,7 @@ def consequences_named(context):
 @then("stored explanation, sources, history, export and Save and quit have control paths")
 def control_paths(context):
     names = [entry.partition(" · ")[0] for entry in context.entries]
-    for wanted in ("Explain this question", "View: Your words", "View: History", "Export case", "Save and quit"):
+    for wanted in ("Explain this question", "View: Your words", "View: History", "Export commons", "Save and quit"):
         assert wanted in names, (wanted, names)
 
 
@@ -459,7 +459,7 @@ def recoverable(context):
 
 
 # ----- S47: offline navigation ---------------------------------------------------------
-@given("a saved case and an unavailable consultant adapter")
+@given("a saved commons and an unavailable consultant adapter")
 def offline_case(context):
     open_workspace(context, consultant=Unavailable(), with_test=True)
 
@@ -781,7 +781,7 @@ def prior_restored(context):
 
 
 @then("no revision or consultant call is created")
-@then("no case revision or consultant call is created")
+@then("no commons revision or consultant call is created")
 def no_revision_or_call(context):
     assert not new_calls(context) and revision(context) == context.revision_before
 
@@ -816,7 +816,7 @@ def origin_restored(context):
 
 
 # ----- S72: offline shell utilities --------------------------------------------------------
-@given("a saved valid case and unavailable provider")
+@given("a saved valid commons and unavailable provider")
 def saved_case_offline(context):
     import os
     build_forge(context.path, ScriptedConsultant())
@@ -949,7 +949,7 @@ def no_match_shown(context):
 
 
 @then("no consultant call or reasoning revision is created")
-@then("no consultant request, case update or revision is created")
+@then("no consultant request, commons update or revision is created")
 def nothing_created(context):
     assert not new_calls(context) and revision(context) == context.revision_before
 
@@ -1040,7 +1040,7 @@ def bound_menu(context, decision, number):
     assert menu_state(context)["binding"]["revision"] == number
 
 
-@given("the case advances to revision {number:d} with a different current question")
+@given("the commons advances to revision {number:d} with a different current question")
 def case_advances(context, number):
     context.consultant.release.set()
     context.workspace.wait_for_replies = True
@@ -1092,7 +1092,7 @@ def menu_checkpointed(context):
     assert cursor["draft"] == "Freeze the plan" and cursor["speaker"] == "Sam" and "display" in cursor
 
 
-@when("a fresh process resumes the case")
+@when("a fresh process resumes the commons")
 def resume_case(context):
     context.workspace = Workspace(context.path, context.consultant)
     context.workspaces.append(context.workspace)

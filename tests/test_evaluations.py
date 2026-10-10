@@ -143,7 +143,7 @@ def test_the_replay_sends_each_turn_through_the_workspace_and_reproduces_the_run
     assert [t["sent_with"] for t in turns] == ["Send", "Send", "Ask for direct advice", "Send",
                                                "Ask for help planning an observation"]
     assert [bool(t["notes"]) for t in turns] == [False, False, False, True, False]
-    assert all({"Next step", "Case context"} <= {s["view"] for s in t["screens"]} for t in turns)
+    assert all({"Next step", "Commons context"} <= {s["view"] for s in t["screens"]} for t in turns)
     first = (tmp_path / "review" / turns[0]["before"]["file"]).read_text()
     assert "Late" in first and "deliveries," in first  # the answer as typed, before Send
     after = (tmp_path / "review" / turns[0]["screens"][0]["file"]).read_text()
@@ -172,14 +172,24 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     package = report.directory / "review-package"  # beside the report unless told otherwise
     assert page == package / "index.html"
     html = page.read_text()
+    # Recorded history and the accepted current model are different; older reply wording remains readable.
+    assert "<b>commons</b>" in html and "<b>conversation</b>" in html
+    assert "currently accepted reasoning" in html and "two names for the same thing" not in html
+    assert "Recording a proposal preserves it in the commons; accepting it admits it to the model" in html
+    from evaluations.plain_reply import words_in
+    glossary = dict(words_in([{"headline": "The case keeps earlier reasoning outside the model.", "lines": []}]))
+    assert "complete history across conversations" in glossary["commons"]
+    assert "called a case in older replies" in glossary["commons"]
+    assert "currently accepted reasoning" in glossary["the model"]
+    assert "without belonging to its current model" in glossary["the model"]
     data = json.loads(re.search(r'<script type="application/json" id="data">(.*?)</script>', html, re.S).group(1))
     assert data["template"] == review_template(report.directory / "report.json")
     case = data["cases"][0]
     # Each turn is what was written and what the assistant replied, in plain words, without record IDs.
     assert [t["speaker"] for t in case["turns"]] == ["Sam", "Priya"] and case["unsent"] == [3]
     first = case["turns"][0]
-    assert first["reply"][0]["headline"] == "Claude asks: What should we observe next?"
-    assert first["reply"][1]["source"] == "From Sam's message in Turn 1"
+    assert first["reply"][0]["headline"] == "The system asks: What should we observe next?"
+    assert first["reply"][1]["source"] == "Based on Sam's message in Turn 1"
     assert not re.search(r"\b[A-Z]\d+@\d+\b", json.dumps([t["reply"] for t in case["turns"]]))
     # A code in the assistant's own words stays, with what it names beside it.
     from evaluations.plain_reply import Names
@@ -190,18 +200,19 @@ def test_the_review_package_is_blind_and_writes_the_review_the_checker_accepts(t
     given = {q["id"]: q.get("given", {}).get("answer") for q in case["questions"]}
     assert given == {"1.1": "cant", "1.2": "cant", "2.1": "cant", "2.2": "cant", "3.1": "cant", "3.2": "cant",
                      "3.3": "cant"}
-    # Every screen the page names is in its case's file, as the workspace's own SVG.
+    # Every screen the page names is in its commons' file, as the workspace's own SVG.
     screens = json.loads((package / case["file"]).read_text().split("] = ", 1)[1].rstrip(";\n"))
     keys = {s["key"] for t in case["turns"] for s in t["screens"]}
     assert keys == set(screens) and all(svg.lstrip().startswith("<svg") for svg in screens.values())
-    # The publish call: the case files, and each reviewer's record readable only by them and the owner.
+    # The publish call: the commons files, and each reviewer's record readable only by them and the owner.
     publish = json.loads((package / "publish.json").read_text())
     assert publish["files"] == {case["file"]: case["file"]} and publish["capabilities"] == CAPABILITIES
     assert {"path": "reviews/{self}", "read": "interact", "write": "interact"} in CAPABILITIES["db"]["rules"]
     assert {"path": "reviews", "read": "owner", "write": "owner"} in CAPABILITIES["db"]["rules"]
     # Blind: no machine check, check name or prior review reaches the page; the method's labels stay out.
     assert "checks" not in json.dumps(data) and "machine" not in html and "S06" not in html
-    assert "{consultant}" not in html and "Claude" in html
+    # The assistant is "the system" throughout; the model is named once, beside the person's screens.
+    assert "{consultant}" not in html and html.count("Claude") == 1 and "the system" in html
     with pytest.raises(FileExistsError):
         build_review_package(report.directory / "report.json")
     # The reviewer's stored answers become a review.json the unchanged checker validates.
@@ -226,20 +237,34 @@ def test_every_rubric_criterion_has_plain_questions_about_real_turns():
             assert asks
             for ask in asks:
                 assert ask.turn is None or 1 <= ask.turn <= len(scenario.turns), (scenario.name, ask.text)
-                text = ask.text.format(consultant="Claude")
+                text = ask.text.format(consultant="the system")
                 assert "?" in text and "{" not in text, text
+                # Asked plainly: what the reply did, never a double negative ("does it avoid...?").
+                assert "avoid" not in text.lower() and ask.passes in {"yes", "no"}, text
                 # Plain words: no method labels, scenario IDs or pronouns nobody gave.
                 assert not re.search(r"\b(he|she|his|her|him|denominator|proxy|CRT|FRT|S\d+)\b", text), text
-        for label, value in case.facts:
-            assert label and value
+        # Nothing is used before it is introduced: a fact belongs to a turn that happens, and a question about a turn
+        # names no fact that only becomes known in a later turn.
+        assert "Claude" not in case.situation + str(case.facts) + str(case.criteria)
+        for turn, label, value in case.facts:
+            assert 0 <= turn <= len(scenario.turns) and label and value, (scenario.name, label)
+        for _, asks in case.criteria:
+            for ask in asks:
+                later = [label for turn, label, _ in case.facts
+                         if label.lower() in ask.text.lower() and ask.turn is not None and turn > ask.turn]
+                assert not later, (scenario.name, ask.text, later)
 
 
 def test_a_criterion_is_decided_from_its_questions():
-    from evaluations.review_questions import combine
-    assert combine(["yes", "yes"]) == "pass"
-    assert combine(["yes", "no"]) == "fail" and combine(["no", "unclear"]) == "fail"
-    assert combine(["yes", "cant"]) == "unjudgeable"
-    assert combine(["yes", "unclear"]) == "pending" and combine(["yes", None]) == "pending" and combine([]) == "pending"
+    from evaluations.review_questions import combine, verdict
+    # A question about a mistake is met by No; any other by Yes.
+    assert verdict("yes") == "good" and verdict("no") == "bad"
+    assert verdict("no", passes="no") == "good" and verdict("yes", passes="no") == "bad"
+    assert verdict("cant", passes="no") == "cant" and verdict("unclear") == "unclear"
+    assert combine(["good", "good"]) == "pass"
+    assert combine(["good", "bad"]) == "fail" and combine(["bad", "unclear"]) == "fail"
+    assert combine(["good", "cant"]) == "unjudgeable"
+    assert combine(["good", "unclear"]) == "pending" and combine(["good", None]) == "pending" and combine([]) == "pending"
 
 
 def test_answers_combine_into_the_review_the_checker_accepts(tmp_path):
@@ -248,7 +273,9 @@ def test_answers_combine_into_the_review_the_checker_accepts(tmp_path):
     build_review_package(report.directory / "report.json")
     questions = json.loads((report.directory / "review-package" / "questions.json").read_text())
     run = questions["cases"][0]
-    answers = {f"{run['id']}__{q['id']}": {"answer": "yes", "why": ""} for q in run["questions"]}
+    # Each question answered the way that meets its criterion (No for a question about a mistake), but one.
+    answers = {f"{run['id']}__{q['id']}": {"answer": q["passes"], "why": ""} for q in run["questions"]}
+    assert {q["passes"] for q in run["questions"]} == {"yes", "no"}
     answers[f"{run['id']}__2.2"] = {"answer": "no", "why": "It asks who is to blame"}
     review = review_from_answers(questions, {"reviewer": "Test reviewer", "reviewer_role": "fixture",
                                              "reviewed_at": "2026-10-08", "answers": answers})

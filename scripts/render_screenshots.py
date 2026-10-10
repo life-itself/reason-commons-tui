@@ -410,6 +410,8 @@ async def first_start(folder):
         await pilot.pause(0.2)
 
     async def to_consultant(app, pilot):
+        await pilot.press('f1')
+        await pilot.pause()
         await answer(app, pilot, key="setup")
         await answer(app, pilot, "Mira")
 
@@ -442,6 +444,8 @@ def can_make_png():
 
 def chromium():
     candidates = [os.environ.get("CHROMIUM"), shutil.which("chromium"), shutil.which("google-chrome"),
+                  *sorted((Path.home() / "Library/Caches/ms-playwright").glob(
+                      "chromium_headless_shell-*/chrome-headless-shell-mac-*/chrome-headless-shell")),
                   *sorted(Path("/opt/pw-browsers").glob("chromium-*/chrome-linux/chrome"))]
     return next((str(c) for c in candidates if c and Path(c).exists()), None)
 
@@ -453,11 +457,14 @@ def to_png(browser, svg):
     page = svg.with_suffix(".html")
     page.write_text(f'<html><body style="margin:0;background:transparent"><img src="{svg.name}" '
                     f'style="display:block;width:{width}px;height:{height}px"></body></html>', encoding="utf-8")
-    subprocess.run([browser, "--headless=new", "--no-sandbox", "--hide-scrollbars", "--disable-gpu",
-                    "--force-device-scale-factor=1",
-                    f"--screenshot={svg.with_suffix('.png')}", f"--window-size={width},{height + 200}",
-                    "--default-background-color=00000000", page.as_uri()],
-                   check=True, capture_output=True, timeout=60)
+    # A private profile keeps a render independent of an already-running personal browser.
+    with tempfile.TemporaryDirectory(prefix="reason-commons-render-") as profile:
+        subprocess.run([browser, "--headless=new", "--no-sandbox", "--hide-scrollbars", "--disable-gpu",
+                        f"--user-data-dir={profile}", "--no-first-run", "--no-default-browser-check",
+                        "--force-device-scale-factor=1",
+                        f"--screenshot={svg.with_suffix('.png')}", f"--window-size={width},{height + 200}",
+                        "--default-background-color=00000000", page.as_uri()],
+                       check=True, capture_output=True, timeout=60)
     # Chromium's window includes space it does not draw into; trim to the picture itself.
     from PIL import Image
     with Image.open(svg.with_suffix(".png")) as image:

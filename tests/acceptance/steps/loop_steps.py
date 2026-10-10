@@ -1,4 +1,4 @@
-"""Executable definitions for the goal-action-review loop in the case engine (S32, S37, S95, S101).
+"""Executable definitions for the goal-action-review loop in the commons engine (S32, S37, S95, S101).
 
 Setup and behavior go through application use cases: the fixture consultant proposes, the operator
 accepts, and outcomes are read from the workspace and its text rendering. Nothing reaches into the store.
@@ -130,7 +130,7 @@ def view_says(context, words):
 def nothing_scheduled(context):
     assert len(context.provider.calls) == context.calls
     case_files = {p.relative_to(context.path.parent).parts[0] for p in context.path.parent.rglob("*")}
-    assert case_files <= {f.parts[0] for f in context.files}  # nothing outside the case folder
+    assert case_files <= {f.parts[0] for f in context.files}  # nothing outside the commons folder
     assert set(context.decision) <= {"status", "revision", "decision", "action", "refs", "closes", "leaves", "flags"}
 
 

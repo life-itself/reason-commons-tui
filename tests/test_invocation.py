@@ -87,7 +87,7 @@ def skill_server():
 @pytest.mark.parametrize("runner", ["agent", "procedure"])
 def test_cli_contribution_preserves_literal_input_restarts_and_retry_is_idempotent(skill_server, tmp_path, runner):
     store, text = tmp_path / "case", "5\n:options\nExactly this text.\n"
-    with create_case(store, "Own case"):
+    with create_case(store, "Own commons"):
         pass
     source = tmp_path / "input.txt"
     source.write_text(text)

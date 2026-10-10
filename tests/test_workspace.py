@@ -15,7 +15,7 @@ from examples.p0_slice import AuthoredConsultant
 from tests.support import ScriptedConsultant, bounded_case, cli, proposal, submit
 
 
-# These tests are about what the views show of the model, so the case accepts proposals as they arrive.
+# These tests are about what the views show of the model, so the commons accepts proposals as they arrive.
 AUTOMATIC = {"acceptance": "automatic", "actor": "Sam"}
 
 
@@ -138,7 +138,7 @@ def test_reply_uses_displayed_anchor_and_explicit_consultant_intent(tmp_path):
     consultant = ScriptedConsultant()
     with create_case(tmp_path / "case", consultant=consultant) as app:
         displayed = app.workspace()
-        submit(app, "Someone else advances the case")
+        submit(app, "Someone else advances the commons")
         stale = run_contribution(app, consultant, text="My reply to the old question", speaker="David", target=displayed["target"])
         assert stale["result"]["status"] == "stale" and len(consultant.calls) == 1
         current = app.workspace()

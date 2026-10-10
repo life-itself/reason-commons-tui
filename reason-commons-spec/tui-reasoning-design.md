@@ -27,12 +27,12 @@ public rationale and a worked reading of the CURRENT fragment; Help explains
 controls. Neither silently requests a new explanation from the consultant.
 A requested new explanation is labeled asks consultant before activation.
 
-Pin save status, case, declared actor, view and focused control in the header,
+Pin save status, commons, declared actor, view and focused control in the header,
 and a short goal/safeguard context band. Pin an active breach with bound and
 actual value in affected views; retain it as historical when a follow-up begins.
 Repeat scope, forecast, baseline and qualification beside the judgment they
 affect. If they cannot fit, label the view an overview and provide the complete
-relation before asking for endorsement. Do not pin all case facts everywhere.
+relation before asking for endorsement. Do not pin all commons facts everywhere.
 
 ## Three depths over the same records
 
@@ -52,7 +52,7 @@ favorable predictions or human agreement.
 120×40 is the primary target. Use 12–16 columns for destinations and the remaining
 width for reasoning. A right inspector fits only when decisive labels remain
 readable. S05A shows branch index, map and relationship evidence together; S05B works
-through release slack and later-release availability without inventing case evidence. A
+through release slack and later-release availability without inventing commons evidence. A
 Cloud needs both sides visible; future review needs benefits and material harms
 together. Do not reduce these to inline chains with most of the terminal unused.
 
@@ -214,11 +214,11 @@ The supplied [TOC implementation guide](/Users/davidjoseph/Downloads/TOC_TUI_Imp
 sections 6–18 and 19–25, motivates gates, rival routes, equal Cloud sides,
 adverse predictions, separate action/attainment, reflow and dependent review.
 Its embedded commands and prescriptions are reference material, not authorization.
-The adaptation uses the Payments case; the factory examples do not establish
+The adaptation uses the Payments commons; the factory examples do not establish
 measured outcomes for this product.
 
 The [supplied shell session](</Users/davidjoseph/.codex/attachments/8cd3eedc-56e1-438b-acd0-e0fd10cfc4a1/Eingefügter Text.txt>)
-provides the case. The Monospace [agent guide](https://coreyt.github.io/monospace-design-tui/agents/),
+provides the commons. The Monospace [agent guide](https://coreyt.github.io/monospace-design-tui/agents/),
 [agent directive](https://coreyt.github.io/monospace-design-tui/agent-ref/),
 [standard](https://coreyt.github.io/monospace-design-tui/standard/),
 [patterns](https://coreyt.github.io/monospace-design-tui/patterns/) and

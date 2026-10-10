@@ -5,7 +5,7 @@
   "context_map": {
     "contexts": [
       {
-        "name": "Reasoning Case",
+        "name": "Reasoning Commons",
         "path": "src/reason_commons/domain",
         "language": "src/reason_commons/domain/CONTEXT.md"
       }

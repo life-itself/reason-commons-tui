@@ -40,7 +40,7 @@ def main():
     report = Report(args.output, {"provider": args.provider, "model": args.model or "provider default",
                                   "provider_version": consultant.version, "repeat": args.repeat,
                                   "synthetic_data": True, "selected_semantic_cases": [s.name for s in selected],
-                                  "acceptance": "automatic, recorded as Sam's setting in each case",
+                                  "acceptance": "automatic, recorded as Sam's setting in each commons",
                                   "python": platform.python_version(), "platform": platform.platform()})
     for name, attribute in (("consulting-procedure.md", "_procedure"), ("domain-context.md", "_context")):
         if hasattr(consultant, attribute):

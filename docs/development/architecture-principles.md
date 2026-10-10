@@ -12,7 +12,7 @@ Agent side:        agent (runtime)  ->  skill (procedure)
                           \               /
                    Application use cases and ports (CaseCapabilities)
                                   |
-                           Domain model (Reasoning Case)
+                           Domain model (Reasoning Commons)
                                   |
               Outbound ports: storage, consultant, clock  ->  adapters
 ```
@@ -53,7 +53,7 @@ Anthropic implement the same consultant port.
 
 ## A rule lives where it can be enforced
 
-If a rule is part of what a valid case means, the **domain** enforces it. It must
+If a rule is part of what a valid commons means, the **domain** enforces it. It must
 not live only in:
 
 - `SKILL.md` ("remember to check consumers before changing published language"),
@@ -63,7 +63,7 @@ not live only in:
 Those may *guide* a participant or an agent toward the right workflow, but the
 application must make the invalid operation fail even when called directly. This
 is why a skill can be removed, rewritten or run by a weaker model without risking
-the case, and why tests for the domain need no skill or agent at all.
+the commons, and why tests for the domain need no skill or agent at all.
 
 A useful check: delete the guidance and call the use case with a bad input. If
 the bad input succeeds, the rule is not yet enforced.
@@ -93,7 +93,7 @@ Two guarantees keep the interfaces honest (details in `ARCHITECTURE.md`):
 - **Semantic parity.** Every domain-significant operation a local interface offers
   must be expressible through `CaseCapabilities`. Focus, viewport, expansion and
   caret state are exempt. `tests/test_architecture.py` fails when a public use
-  case is missing from the capability surface or its signature differs.
+  commons is missing from the capability surface or its signature differs.
 - **Projection, not authority.** The TUI projects and accelerates application
   state. It defines no reasoning invariants, consulting semantics or persistence
   behavior. A consequential rule is enforced in the application even if the UI also
@@ -116,6 +116,6 @@ outward import means a port is missing; add the port instead.
 
 ## One bounded context
 
-There is a single context, Reasoning Case. Storage and consulting are capabilities,
+There is a single context, Reasoning Commons. Storage and consulting are capabilities,
 not invented contexts. Add a context, with a published contract, only when
 independent domain ownership genuinely emerges.

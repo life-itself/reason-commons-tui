@@ -1,4 +1,4 @@
-"""Presentation-neutral reads of a frozen case revision, with no inference.
+"""Presentation-neutral reads of a frozen commons revision, with no inference.
 
 Only explicit formulation references become links. Unknown data stays unknown;
 these trace links cannot be interpreted as causal, necessity or agreement edges.
@@ -41,7 +41,7 @@ def legacy_goal_aliases(records, membership):
 def project_trees(records, membership=None):
     """The current state of each thinking-process tree in the model, exactly as recorded.
 
-    Only accepted records appear; proposals wait in the backlog. The case's goal is the Goal
+    Only accepted records appear; proposals wait in the backlog. The commons' goal is the Goal
     Tree's top statement. A new version takes the place of the old one and keeps its links; a
     withdrawn claim or link disappears from the tree but stays in history. A link belongs to one
     tree and may use a statement from another, which then appears in this tree too, marked with
@@ -382,7 +382,7 @@ def project_workspace(snapshot, sources, *, view="next", selection=None, live_re
                             "route": "asks_consultant", "capability": "submit", "arguments": {
                                 "intent": "review_flags", "base_revision": case["revision"],
                                 "response_target": case["current_intervention"]}, "requires": ["text", "speaker"]})
-    actions.append({"id": "export", "label": "Export the live portable case", "route": "local",
+    actions.append({"id": "export", "label": "Export the live portable commons", "route": "local",
                     "capability": "export", "requires": ["destination"]})
     if not historical:
         actions += [{"id": "retry_" + p["input"]["request_id"], "label": "Explicitly retry " + p["input"]["request_id"],

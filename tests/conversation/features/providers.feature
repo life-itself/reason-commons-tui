@@ -1,8 +1,8 @@
 @conversation @automated @providers
-Feature: The consultant is a replaceable choice made outside the case
+Feature: The consultant is a replaceable choice made outside the commons
   A participant chooses which model consults: a local model through LM Studio,
   or Anthropic. The choice is explicit, checkable offline, and never stored in
-  case state. A failure explains what to check without exposing a secret, and
+  commons state. A failure explains what to check without exposing a secret, and
   the participant's literal words are always kept for an explicit retry.
 
   Scenario: Use the local model when nothing else is chosen
@@ -34,20 +34,20 @@ Feature: The consultant is a replaceable choice made outside the case
 
   Scenario: Keep the participant's words when Anthropic is not configured
     Given the environment chooses Anthropic without an API key
-    And a case opened with the configured consultant
-    When David contributes to the empty case
+    And a commons opened with the configured consultant
+    When David contributes to the empty commons
     Then the application reports the consultant unavailable because of configuration
     And David's literal words are retained for explicit retry
     And no revision was published
-    And the case can still be read offline
+    And the commons can still be read offline
 
   Scenario Outline: Explain a provider failure without revealing its secret
     Given a consultant that fails with a <category> problem containing a secret
-    And a case opened with that consultant
-    When David contributes to the empty case
+    And a commons opened with that consultant
+    When David contributes to the empty commons
     Then the application reports the consultant unavailable because of <category>
     And the participant is told to <check>
-    And the secret appears nowhere in the saved case
+    And the secret appears nowhere in the saved commons
 
     Examples:
       | category      | check                                  |
@@ -56,47 +56,47 @@ Feature: The consultant is a replaceable choice made outside the case
       | timeout       | allow more time or check provider load |
       | connection    | check the provider is running          |
 
-  Scenario: Switch consultants on the same case
-    Given a case consulted by "first-model"
-    When the case is reopened with the consultant "second-model"
+  Scenario: Switch consultants on the same commons
+    Given a commons consulted by "first-model"
+    When the commons is reopened with the consultant "second-model"
     And David replies to the displayed question
     Then the earlier records and forecast are unchanged
     And each applied request records the consultant that produced it
 
   Scenario: Consult Anthropic end to end
     Given an Anthropic server and an environment choosing it with an API key
-    And a case opened with the configured consultant
-    When David contributes to the empty case
+    And a commons opened with the configured consultant
+    When David contributes to the empty commons
     Then a question is saved
-    And the API key is not stored in the case or its export
+    And the API key is not stored in the commons or its export
 
   Scenario: Claude Haiku 5.5 consults when no Claude model is chosen
     Given an Anthropic server and an environment choosing it with an API key
-    And a case opened with the configured consultant
-    When David contributes to the empty case
+    And a commons opened with the configured consultant
+    When David contributes to the empty commons
     Then a question is saved
-    And the case records that Claude Haiku 5.5 produced it
+    And the commons records that Claude Haiku 5.5 produced it
     And the consultant settings name claude-haiku-5-5 as the default Claude model
 
-  Scenario: Count what a Claude reply cost outside the case
+  Scenario: Count what a Claude reply cost outside the commons
     Given an Anthropic server and an environment choosing it with an API key
-    And a case opened with the configured consultant, counting its usage
-    When David contributes to the empty case
+    And a commons opened with the configured consultant, counting its usage
+    When David contributes to the empty commons
     Then a question is saved
     And the usage log counts one Claude Haiku 5.5 reply of 12000 tokens in and 900 out, about $0.00165
-    And the case and its export hold no token counts or cost
-    And the usage log holds no words from the case, no case name, no path and no key
+    And the commons and its export hold no token counts or cost
+    And the usage log holds no words from the commons, no commons name, no path and no key
 
   Scenario: Consult a local model end to end
     Given a local LM Studio server and an environment choosing it
-    And a case opened with the configured consultant
-    When David contributes to the empty case
+    And a commons opened with the configured consultant
+    When David contributes to the empty commons
     Then a question is saved
-    And the case records that LM Studio produced it
+    And the commons records that LM Studio produced it
 
   Scenario: Keep the experimental agent runner local-model only
     Given the environment chooses Anthropic with an API key
-    And an empty case store
+    And an empty commons store
     When I contribute using the experimental agent runner
     Then the command is rejected because that runner requires lm-studio
-    And nothing was retained in the case
+    And nothing was retained in the commons

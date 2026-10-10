@@ -52,7 +52,7 @@ Every task starts with `AGENTS.md`, this page, `ARCHITECTURE.md` and
 
 | Task | Also read |
 |---|---|
-| Change case behavior | The relevant spec features, [workflow](workflow.md), [testing strategy](testing-strategy.md) |
+| Change commons behavior | The relevant spec features, [workflow](workflow.md), [testing strategy](testing-strategy.md) |
 | Provider or adapter work | [Choosing a consultant](../providers.md), [LM Studio](../lm-studio.md) |
 | Skill or procedure work | [Skill usage](../skill-use.md), the packaged `SKILL.md`, [validation](../validation.md) |
 | TUI or interface work | `TUI-DESIGN.md`, `reason-commons-spec/tui-reasoning-design.md`, `reason-commons-spec/accessibility.md` |

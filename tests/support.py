@@ -123,7 +123,7 @@ def accept_all(app, speaker="Sam"):
 
 
 def automatic(app, speaker="Sam"):
-    """Set the case to accept proposals automatically."""
+    """Set the commons to accept proposals automatically."""
     result = app.set_acceptance("automatic", speaker, app.inspect()["case"]["revision"])
     assert result["status"] == "saved", result
     return result

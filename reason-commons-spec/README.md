@@ -19,7 +19,7 @@ ALL boundaries, both Cloud sides and selected-object evidence. The 80x24 and
 40x24 views preserve the same logic. Every scene replaces the prior scene in one
 persistent application; ACTION annotations describe keys and contributions.
 
-V1 ships p0-p2: a durable case, persistent workspace and a complete goal/action/
+V1 ships p0-p2: a durable commons, persistent workspace and a complete goal/action/
 review loop for one operator, with the six trees growing in its conversation.
 The consultant drafts and the operator decides what enters the model: proposals
 wait in a backlog unless the operator chose automatic acceptance, a change flags
@@ -54,7 +54,7 @@ reviews. Internal consultant records do not become numbered stationery objects.
 
 | Phase | Increment | Scenarios | Expanded cases |
 |---|---|---:|---:|
-| p0 | Durable minimal case | 9 | 9 |
+| p0 | Durable minimal commons | 9 | 9 |
 | p1 | Persistent TUI workspace | 32 | 47 |
 | p2 | Complete v1 goal-action-review loop, trees in conversation, proposals decided in a backlog | 46 | 59 |
 | p3 | Partial causal reasoning | 29 | 31 |

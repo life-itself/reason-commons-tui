@@ -97,20 +97,20 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
             try:
                 content = base64.b64decode(source["content_base64"], validate=True).decode("utf-8")
             except (UnicodeError, ValueError):
-                content = "Binary attachment; content is retained in the portable case."
+                content = "Binary attachment; content is retained in the portable commons."
             paragraph(literal(content))
 
     status = "Stored revision"
     if result:
         status = {"saved": "Saved", "input_retained": "Input retained; consultation incomplete",
                   "not_saved": "Save not confirmed", "unavailable": "Consultant unavailable",
-                  "rejected": "Proposal rejected", "stale": "Case changed; input needs re-evaluation",
+                  "rejected": "Proposal rejected", "stale": "Commons changed; input needs re-evaluation",
                   "skill_incomplete": "Contribution procedure incomplete"}.get(result["status"], result["status"])
     heading(literal(workspace["case_name"]) + " · " + status + " · revision " + str(workspace["revision"]))
     if speaker:
         paragraph("Declared participant: " + literal(speaker))
     if workspace["historical"]:
-        paragraph(f"Historical view. Live case is revision {workspace['live_revision']}. Return to the live question before answering.")
+        paragraph(f"Historical view. Live commons is revision {workspace['live_revision']}. Return to the live question before answering.")
     if result and result.get("request_id"):
         paragraph("Contribution receipt: " + result["request_id"])
     if result and result.get("message"):
@@ -139,7 +139,7 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
             route = "asks consultant" if action["type"] == "consult" else "local"
             paragraph("Stored option (" + route + "): " + literal(option["label"]))
     else:
-        heading("Start this case")
+        heading("Start this commons")
         paragraph("What would you like to improve, and what must be protected? Contribute in your own words; unknown details can stay unknown.")
     for breach in workspace.get("breaches") or []:
         paragraph(f"Breach: {literal(breach['measure'])}: {literal(breach['value'])}, outside the bound "
@@ -181,7 +181,7 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
         if len(shown) < len(backlog):
             paragraph(f"And {len(backlog) - len(shown)} more in the backlog.")
         paragraph(f"{len(proposals)} proposals wait and {len(reviews)} records are flagged for review. "
-                  + ("Proposals are accepted automatically under this case's setting. "
+                  + ("Proposals are accepted automatically under this commons' setting. "
                      if workspace.get("acceptance") == "automatic" else "")
                   + "Accepting admits a statement to the model; it does not make it true.")
     if workspace["view"] == "history":
@@ -193,7 +193,7 @@ def render_workspace(workspace, *, markdown=False, result=None, speaker=None):
                         "said still holds:", "acceptance": "set acceptance to"}[decision["action"]]
                 what = decision.get("value") or ", ".join(decision["refs"])
                 paragraph("  " + literal(decision["actor"]) + f" {verb} {what}"
-                          + (" (automatically, under the case's setting)" if decision["mode"] == "automatic" else "")
+                          + (" (automatically, under the commons' setting)" if decision["mode"] == "automatic" else "")
                           + (" · closed " + ", ".join(decision["closes"]) if decision["closes"] else ""))
     elif workspace["view"] == "sources":
         for source in workspace["sources"].values():

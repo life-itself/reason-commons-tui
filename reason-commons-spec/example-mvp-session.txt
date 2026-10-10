@@ -1,6 +1,6 @@
 REASON COMMONS / FIRST-RELEASE TUI JOURNEY
 Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
-Fictional Forge case; an authored specimen, not a recording of the
+Fictional Forge commons; an authored specimen, not a recording of the
 application. Frames are 80x24. V1 has no structured graph browser, participant
 stance registry or formal tree authoring. Its persistent workspace, literal
 response editor, visible local controls, proposals that wait for the operator
@@ -19,7 +19,7 @@ SCREEN M01 80x24
 | What is happening, and what would count as better?                           |
 | You can begin in ordinary words. Unknown measures can stay open.             |
 |                                                                              |
-| [How this works]  [Open a case]                                              |
+| [How this works]  [Open a commons]                                           |
 | Send asks the consultant. Browsing and saved explanations stay local.        |
 | Enter adds a line. Tab to Send, then Enter sends once.                       |
 | All typing, including 5, ?, q and punctuation, is literal in Response.       |
@@ -283,8 +283,8 @@ SCREEN M07 80x24
 | Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
 +------------------------------------------------------------------------------+
 
-ACTION: Actions > Export portable case > ./forge-v1-after-review.reasoncase;
-Actions > Save and quit. No call.
+ACTION: Actions > Export portable commons > ./forge-v1-after-
+review.reasoncase; Actions > Save and quit. No call.
 CONSULTANT CALLS 6: in001 through in006.
 9 reasoning revisions = 6 semantic commits + 3 structured local decisions.
 

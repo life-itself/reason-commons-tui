@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Explicit provider check; never retries or changes a participant's case.
+"""Explicit provider check; never retries or changes a participant's commons.
 
 A billed smoke consultation is counted in the usage log (entry "check"), like any other reply."""
 
@@ -19,9 +19,9 @@ from reason_commons.bootstrap import create_case, open_case, usage_session
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", help="Count the complete pending prompt, without inference or writes")
-    parser.add_argument("--smoke", action="store_true", help="One billed synthetic consultation in a temporary case")
+    parser.add_argument("--smoke", action="store_true", help="One billed synthetic consultation in a temporary commons")
     parser.add_argument("--model", help="Claude model ID; otherwise REASON_COMMONS_ANTHROPIC_MODEL or the default")
-    parser.add_argument("--output", help="New JSON verification file; contains no key, case text or model output")
+    parser.add_argument("--output", help="New JSON verification file; contains no key, commons text or model output")
     args = parser.parse_args()
     if args.output and Path(args.output).exists():
         parser.error("Choose a new output file")

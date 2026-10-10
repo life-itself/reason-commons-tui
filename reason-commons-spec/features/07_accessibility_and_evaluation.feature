@@ -7,7 +7,7 @@ Feature: Make the interface legible and the consultant evaluable
     When a test review is rendered
     Then compact status shows save status and names the focused control
     And the question shows its consequential goal and protected condition
-    And the Case context control exposes complete current context locally
+    And the Commons context control exposes complete current context locally
     And lines wrap without horizontal scrolling
     And additional content is explicitly paged
     And "NEXT", uncertainty, and control labels do not depend on color
@@ -29,7 +29,7 @@ Feature: Make the interface legible and the consultant evaluable
 
   @S52 @p2 @v1 @semantic
   Scenario Outline: Evaluate realistic semantic input by invariants rather than exact prose
-    Given a documented case fixture and a live question
+    Given a documented commons fixture and a live question
     When the participant submits "<input>"
     Then all contributed information is accounted for in the receipt
     And no unsupported causal certainty, identity verification, or group assent is invented
@@ -48,7 +48,7 @@ Feature: Make the interface legible and the consultant evaluable
   @S53 @p3 @later @automated
   Scenario: Measure useful progress without rewarding agreement
     Given a group corrects two causal links and completes a pilot review
-    When the case progress view is opened
+    When the commons progress view is opened
     Then it reports the corrections, evidence obtained, decisions, and reviewed predictions
     And it does not score agreement, reply count, or WIP depletion as success
     And learning measures require an actual reasoning task or later unaided performance

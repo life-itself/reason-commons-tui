@@ -47,7 +47,7 @@ def configured_consultant(provider=None, model=None, base_url=None, usage=None):
     """Explicit provider selection at composition, with no hosted fallback.
 
     ``usage`` is a sink told what each paid request cost (``usage_session(...).record``); only a
-    billed provider gets it, and it never reaches the case."""
+    billed provider gets it, and it never reaches the commons."""
     name, _ = _choose_provider(provider)
     if name == "guided":
         from reason_commons.adapters.guided import GuidedConsultant
@@ -72,7 +72,7 @@ def usage_session(entry, environ=os.environ, settings=None):
                         saved_budget=saved.get("monthly_budget_usd"), environ=environ)
 
 
-def create_case(path, name="Untitled case", consultant=None, timezone="Europe/Berlin", clock=None,
+def create_case(path, name="Untitled commons", consultant=None, timezone="Europe/Berlin", clock=None,
                 acceptance="review", actor=None):
     clock = clock or UTCClock()
     initial = Snapshot.initial(str(uuid.uuid4()), name, clock.now(), timezone, acceptance, actor)

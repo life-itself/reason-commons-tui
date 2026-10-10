@@ -116,6 +116,16 @@ class GuidedConsultant:
         records = {r["ref"]: r for r in case["records"] if r["kind"] == "intervention"
                    or membership.status[r["ref"]] == "proposed" or membership.current(r["ref"])}
         current = records.get(case["current_intervention"])
+        if current and current['data'].get('purpose') == 'continuation':
+            # An imported working conversation is not an unstarted guided trial.
+            # Preserve literal contributions without inventing a test or interpreting their meaning.
+            intervention = deepcopy(current['data'])
+            intervention.update(rationale='The offline guide preserves your contribution as a proposal. '
+                                'For adaptive analysis, choose an AI consultant under Commands (Ctrl+P).')
+            updates = [self._note(value['text'], [value['request_id']])] if value['text'] else []
+            return {'schema_version': '1', 'delivery_profile': 'p2',
+                    'request_id': value['request_id'], 'base_revision': value['base_revision'],
+                    'proposed_updates': updates, 'intervention': intervention}
         step, inferred = self._step(current, records)
         answer = _literal(value["text"])
         request_id = value["request_id"]
@@ -157,7 +167,7 @@ class GuidedConsultant:
                         "protections": protections}
                 goals = membership.goals(proposing=True)
                 if goals:
-                    data["replaces"] = goals[-1]  # a case has one goal: a different one is its new version
+                    data["replaces"] = goals[-1]  # a commons has one goal: a different one is its new version
                 updates.append({"operation": "record_goal", "temporary_id": "goal", "data": data,
                                 "source_refs": self._refs(statement, measure, request_id)})
                 context["goal"] = "goal"
@@ -218,7 +228,7 @@ class GuidedConsultant:
                               change=change, after_review=step == "review" and bool(answer))
 
     def _step(self, current, records):
-        """Return (step, inferred). The empty case's welcome question asks for the goal."""
+        """Return (step, inferred). The empty commons' welcome question asks for the goal."""
         if current is None and not records:
             return "goal", False
         purpose = (current or {}).get("data", {}).get("purpose", "")

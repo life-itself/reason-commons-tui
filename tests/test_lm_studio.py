@@ -39,7 +39,7 @@ def test_adapter_sends_full_case_with_structured_schema_and_records_provenance(s
         assert request["input"]["request_id"] in request["sources"]
         assert request["case"]["revision"] == 0
         assert app.inspect()["case"]["adapter_versions"]["in000001"] == adapter.version
-        assert "Reasoning Case" in payload["messages"][0]["content"]
+        assert "Reasoning Commons" in payload["messages"][0]["content"]
 
 
 def test_provider_schema_separates_sources_context_and_plain_protections(server, tmp_path):

@@ -6,7 +6,7 @@ Feature: Navigate without asking the consultant to think
 
   Background:
     Given the persistent TUI workspace is active
-    And case "forge" at revision 10 with current question "Choose a test"
+    And commons "forge" at revision 10 with current question "Choose a test"
     And History contains the earlier questions "Define success" and "Inspect the baseline"
     And the consultant call counter is 8
 

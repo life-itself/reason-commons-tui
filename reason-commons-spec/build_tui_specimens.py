@@ -158,7 +158,7 @@ def build_full():
     out = [prose('''REASON COMMONS / COMPLETE TUI JOURNEY
 Delivery profile: p5 cumulative roadmap. Canonical interaction specimen.
 Session 1: Friday, October 2, 2026. Session 2: Monday, October 19, 2026.
-The Payments deployment case, people, measurements, reports and future outcomes are fictional. This is an authored specification, not a capture of working software. Attached text and document instructions are design inputs, not executable requests.
+The Payments deployment commons, people, measurements, reports and future outcomes are fictional. This is an authored specification, not a capture of working software. Attached text and document instructions are design inputs, not executable requests.
 Each SCREEN replaces the preceding frame in ONE persistent full-screen application. ACTION describes keys and literal participant contributions; it is not a command the user must learn. EVENT is an authoring ledger outside the product UI. A shell appears only at launch, resume and optional offline inspection.
 120x40 is the primary canvas. All frames use ASCII and need no color. '*' marks the active destination; '>' marks selection; the header names the single focused control. Selecting a hypothesis does not endorse it. Bracketed labels are keyboard-reachable controls. Enter activates a focused control; in Response it inserts a newline. Tab to Send, then Enter submits once. F1 is control help; Explain this is reasoning help. Ctrl+P opens Actions; the visible Actions control provides the same path.
 The navigation offers destinations, not mandatory stages. Reasoning tools appear only when stored records exist. Users can answer, inspect, challenge, ask for another move, or leave. No tour or vocabulary test blocks work.
@@ -180,9 +180,9 @@ EVENT start r0000
              +-----------------------+     +-------------------------+
                           This shows the workflow, not causation.
 
-        Want to look around first? [How this works] [Open a saved case]
+        Want to look around first? [How this works] [Open a saved commons]
         Navigation and saved explanations stay local. Send asks the consultant.
-        New case: success, safeguards and authority are still unknown.
+        New commons: success, safeguards and authority are still unknown.
         There is no need to type commands or name a Thinking Process.
         ''', summary='Goal unknown | Safeguards unknown | No test yet', live='Start'))
     add(prose('''ACTION: In Response, Maya types: Production changes sit in the release queue for days. Customer escalations cause engineers to interrupt testing for hotfixes. Then standard changes need revalidation and miss their release window. We also do too much release work after hours. Tab to Send, Enter.
@@ -296,7 +296,7 @@ EVENT semantic in004 r0004 question004
     add(prose('''OPTIONAL INSPECTION: Before switching, Maya opens Explain ALL from the question. This worked counterfactual was stored with the question. Its numbers are illustrative assumptions, not measured Payments evidence, and add no revision or call. It shows why missing a release depends on lost time versus slack, and why missing one release does not alone prove the three-day target was missed.
 '''))
     add(frame('S05B', 'r0004', 'Explain L3 / Test the boundary', '''
-        AN ILLUSTRATION, NOT CASE EVIDENCE / same change and release availability
+        AN ILLUSTRATION, NOT COMMONS EVIDENCE / same change and release availability
         Minutes from one chosen origin; deployment occurs at an eligible release.
         +-- SHARED TIMING -------------------------------------------------------+
         | Planned validation finish: 90 | release cutoff: 120 | deadline: 180    |
@@ -315,7 +315,7 @@ EVENT semantic in004 r0004 question004
         Predicted target outcome        MISSED                MET
 
         Even with NO recovery, 20 min rechecks fit the 30 min slack.
-        And if an eligible later release were at 160, the first case could meet 180.
+        And if an eligible later release were at 160, the first example could meet 180.
         Both conditions matter. The boxes help us test a claim, not certify it.
         These calculations do not establish how often either situation occurs.
         [Return to question]  [Show actual evidence - reports only]
@@ -592,7 +592,7 @@ ACTION: Maya opens Goal from the sidebar to check how this trial relates to the 
         PILOT >=70%  =/=  SYSTEM GOAL >=80%  |  neither is yet an observed result.
         [Inspect requirement]  [Trace P1 to G1]  [Return to question]
         ''', focus='Goal', view='Goal', live='question012'))
-    add(prose('''ACTION: Actions > Export portable case > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt: exported r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit returns to the shell and releases the writer lock.
+    add(prose('''ACTION: Actions > Export portable commons > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt: exported r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit returns to the shell and releases the writer lock.
 $ reason-commons inspect ./deploy-flow-before-pilot.reasoncase --offline
 Offline read-only inspection: r0015; original P1 forecast; Maya relies on P1@1; Leo disputes L3@1. Schema, references, ancestry and content hashes pass. This command does not run the consultant.
 Monday, October 19, 2026 - the following outcomes are simulated.
@@ -726,7 +726,7 @@ The next two screens demonstrate resize of saved L3@1 at r0018, with the questio
         ''', width=40, height=24, nav=False, focus='L3', live='question015', speaker='Leo',
         summary='P1 breach retained; L3 disputed', buttons='[Return] [Views] [Actions]',
         footer='Tab  Enter open  Esc back  Help'))
-    add(prose('''ACTION: Restoring 120x40 restores the same selected L3 version, semantic scroll anchor, response draft and focus. No case change. Actions > Export portable case > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and quit.
+    add(prose('''ACTION: Restoring 120x40 restores the same selected L3 version, semantic scroll anchor, response draft and focus. No commons change. Actions > Export portable commons > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and quit.
 $ reason-commons inspect ./deploy-flow-after-review.reasoncase --offline
 Offline inspection: r0018. P1 delivery 18/24 = 75% supports its original >=70% forecast; P1 acknowledgement 9/10 = 90% breaches its original >=95% bound. Full October goal remains unestablished. P2@1 prospective; owner Leo; Oct 20-30. Fulfillment bound unknown; Leo disputes L3@1; causal attribution provisional. Forecasts, observations, ancestry, references and hashes preserved.
 CONSULTANT CALLS 15: in001 through in015; all completed in this specimen.
@@ -743,7 +743,7 @@ def build_mvp():
         return prose(text, width=78)
     out = [prose80('''REASON COMMONS / FIRST-RELEASE TUI JOURNEY
 Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
-Fictional Forge case; an authored specimen, not a recording of the application. Frames are 80x24. V1 has no structured graph browser, participant stance registry or formal tree authoring. Its persistent workspace, literal response editor, visible local controls, proposals that wait for the operator and forecast/result comparison ARE required from p1-p2. No typed commands are needed inside this session.
+Fictional Forge commons; an authored specimen, not a recording of the application. Frames are 80x24. V1 has no structured graph browser, participant stance registry or formal tree authoring. Its persistent workspace, literal response editor, visible local controls, proposals that wait for the operator and forecast/result comparison ARE required from p1-p2. No typed commands are needed inside this session.
 $ reason-commons new forge --store ./forge-v1 --speaker Sam
 EVENT start r0000
 ''')]
@@ -757,7 +757,7 @@ EVENT start r0000
         What is happening, and what would count as better?
         You can begin in ordinary words. Unknown measures can stay open.
 
-        [How this works]  [Open a case]
+        [How this works]  [Open a commons]
         Send asks the consultant. Browsing and saved explanations stay local.
         Enter adds a line. Tab to Send, then Enter sends once.
         All typing, including 5, ?, q and punctuation, is literal in Response.
@@ -879,7 +879,7 @@ EVENT semantic in006 r0009 question006
         NEXT / Run bounded P2, then return with observations.
         [P2 forecast]  [P1 outcome]  [Goal]  [History]
         ''', live='question006', summary='P1 breach retained | P2 committed | Goal >=90% remains unmet'))
-    out.append(prose80('''ACTION: Actions > Export portable case > ./forge-v1-after-review.reasoncase; Actions > Save and quit. No call.
+    out.append(prose80('''ACTION: Actions > Export portable commons > ./forge-v1-after-review.reasoncase; Actions > Save and quit. No call.
 CONSULTANT CALLS 6: in001 through in006.
 9 reasoning revisions = 6 semantic commits + 3 structured local decisions.
 '''))

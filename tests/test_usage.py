@@ -190,12 +190,12 @@ def test_a_real_consultation_is_logged_without_words_names_paths_or_key(tmp_path
         consultant = AnthropicConsultant(base_url=server.url, api_key="fixture-secret", usage=usage.record)
         store = tmp_path / "Secret Project Name"
         with create_case(store, "Secret Project Name", consultant=consultant) as app:
-            assert submit(app, "Words only the case may hold")["status"] == "saved"
+            assert submit(app, "Words only the commons may hold")["status"] == "saved"
             case_id = app.inspect()["case"]["case_id"]
     finally:
         next(generator, None)
     raw = usage.log.path.read_text()
-    for private in ("Words only the case", "Secret Project", str(tmp_path), "fixture-secret"):
+    for private in ("Words only the commons", "Secret Project", str(tmp_path), "fixture-secret"):
         assert private not in raw
     line = json.loads(raw)
     assert tuple(line) == KEYS and (line["case_id"], line["request_id"]) == (case_id, "in000001")

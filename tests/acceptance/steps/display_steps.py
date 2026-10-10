@@ -61,7 +61,7 @@ def explain_and_return(context):
     assert "Why this question" not in content(context)
 
 
-@then("the pinned header shows case, save status and speaker, and the focused control is framed")
+@then("the pinned header shows commons, save status and speaker, and the focused control is framed")
 def header(context):
     assert "Forge Sam · Saved" in screen(context)
     assert context.workspace.focused() == "editor"
@@ -85,9 +85,9 @@ def band_pinned(context):
     assert "Overtime at most 20 hours per week" in shown and "No defects shipped to customers" in shown
 
 
-@when("the goal changes or Sam activates Goal or Case context")
+@when("the goal changes or Sam activates Goal or Commons context")
 def activate_context(context):
-    choose_view(context, "Case context")
+    choose_view(context, "Commons context")
 
 
 @then("complete goal, horizon, protections, test boundaries, response target and revision appear")

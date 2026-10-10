@@ -1,6 +1,6 @@
 """Executable definitions for how the live question is presented (S03, S04, S17, S93, S121).
 
-Each case is built through the application use cases with a counting fixture consultant, then opened in
+Each commons is built through the application use cases with a counting fixture consultant, then opened in
 the real workspace, which is read the way a person reads it: what is on screen, in which control.
 """
 
@@ -31,7 +31,7 @@ def asking(decision, prompt, rationale, purpose=None, goal=None, updates=()):
 
 
 def case_with(context, replies, acceptance="automatic", size=(120, 40)):
-    """A case built from (words, reply, declarations) and opened in the workspace."""
+    """A commons built from (words, reply, declarations) and opened in the workspace."""
     create_case(context.path, "Forge", acceptance=acceptance, actor="Sam").close()
     builder = ScriptedConsultant([reply for _, reply, _ in replies])
     for words, _, declarations in replies:
@@ -62,7 +62,7 @@ def canvas(context):
 
 # Background of feature 01.
 
-@given("a writable case store")
+@given("a writable commons store")
 def writable_store(context):
     assert context.path.parent.exists() and not context.path.exists()
 
@@ -133,7 +133,7 @@ def overtime_pilot(context):
                       "scope": "Payments orders", "denominator": "orders due", "period": "October 5-16"}]}}
 
 
-@given('the case protects "{protection}"')
+@given('the commons protects "{protection}"')
 def protects(context, protection):
     goal = {**GOAL, "data": {**GOAL["data"], "protections": [protection]}}
     case_with(context, [
@@ -158,7 +158,7 @@ def goal_beside(context):
     assert "Could the urgent slots push overtime" in screen(context)
 
 
-@then("compact status shows save status, the focused control is framed, and Case context gives the revision")
+@then("compact status shows save status, the focused control is framed, and Commons context gives the revision")
 def compact_status(context):
     assert "Forge Sam · Saved" in screen(context)
     assert context.workspace.focused() == "editor"  # the frame marks the focused pane

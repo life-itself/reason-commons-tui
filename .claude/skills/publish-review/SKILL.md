@@ -13,7 +13,7 @@ which is the publish call to make.
 
 1. If the folder does not exist yet, build it: `python3 scripts/review_screens.py <report.json>`.
 2. Read `publish.json` and `index.html` (the Artifact tool requires reading a file before publishing it;
-   the case files are generated screen data, one per case).
+   the conversation files are generated screen data, one per conversation).
 3. Call the Artifact tool once with `file_path` = `<package>/index.html`, `root` = the package folder,
    `files` = `publish.json`'s `files`, `capabilities` = `publish.json`'s `capabilities`, `icon`,
    `description`. The page's `<title>` is its name.

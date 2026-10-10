@@ -1,22 +1,22 @@
 # Choosing a consultant
 
-Reason Commons keeps your reasoning in a durable case. A **consultant** proposes
-the next question or recommendation from that case. The consultant is a
-replaceable choice, made outside the case. Three are supported:
+Reason Commons keeps your reasoning in a durable commons. A **consultant** proposes
+the next question or recommendation from that commons. The consultant is a
+replaceable choice, made outside the commons. Three are supported:
 
 | | Built-in guide | LM Studio (local) | Anthropic |
 |---|---|---|---|
 | Where it runs | Inside Reason Commons | A server on your machine or network | Anthropic's hosted API |
 | What you need | Nothing | LM Studio with a chat model loaded | An Anthropic API key |
 | Cost | None | None beyond your hardware | Billed to your API key; estimated as you go ([what it costs](#what-it-costs)) |
-| Case content leaves your machine | No | No (unless you point it at a remote server) | Yes, to Anthropic |
+| Commons content leaves your machine | No | No (unless you point it at a remote server) | Yes, to Anthropic |
 | Provider name | `guided` | `lm-studio` | `anthropic` |
 
 The built-in guide is not a language model. It asks the loop's questions in a
 fixed order, keeps your exact words, never gives advice and does not add to the
 trees.
 
-Every consultation sends the **complete** case and its sources; nothing is
+Every consultation sends the **complete** commons and its sources; nothing is
 truncated or summarised on the way. No provider is a fallback for another.
 If the chosen consultant fails, your words are kept and nothing else is tried.
 
@@ -77,7 +77,7 @@ order over the provider's own environment variables and defaults.
 
 Settings live in the process environment of whatever starts `reason-commons`. The
 workspace's saved settings fill in only the variables the environment leaves unset.
-Neither is ever written into a case or an export.
+Neither is ever written into a commons or an export.
 
 | Setting | Anthropic | LM Studio |
 |---|---|---|
@@ -155,17 +155,17 @@ reachable or the key is accepted. For that, use a live check:
 ```sh
 python3 scripts/check_anthropic.py                     # confirms the key can see the model; no inference
 python3 scripts/check_anthropic.py --case /path/to/my-case      # also counts the pending prompt's tokens; no inference
-python3 scripts/check_anthropic.py --smoke             # one billed synthetic consultation in a throwaway case
+python3 scripts/check_anthropic.py --smoke             # one billed synthetic consultation in a throwaway commons
 python3 examples/lm_studio_smoke.py --store /tmp/reason-lm-check --model your-served-model-id
 ```
 
-## Switching on an existing case
+## Switching on an existing commons
 
-Reopen the same case with a different provider whenever you like. Committed
+Reopen the same commons with a different provider whenever you like. Committed
 records, forecasts and history do not change. Each applied request records which
 consultant produced it, so `inspect` shows, for example, `in000001` answered by
 `anthropic/...` and `in000002` by `lm-studio/...`. A response that was received
-but not yet committed is recovered from the case and keeps its original
+but not yet committed is recovered from the commons and keeps its original
 consultant; to get a different consultant's view, submit a new contribution
 against the current question rather than overwriting an earlier forecast.
 
@@ -180,7 +180,7 @@ consultation has cost about $0.004 with Haiku 5.5 and $0.05 with Sonnet 5.5 (see
 [validation](validation.md)); Haiku's replies take longer, about 22 seconds against 11.
 
 Each request is one line in a local **usage log**, kept outside every goal and never
-in a case, its history or an export:
+in a commons, its history or an export:
 
 - **Where:** `REASON_COMMONS_USAGE_LOG`, else `$XDG_STATE_HOME/reason-commons/usage.jsonl`,
   else `~/.local/state/reason-commons/usage.jsonl`, readable only by you. The workspace,
@@ -256,7 +256,7 @@ Apps launched from a desktop icon often do not inherit variables from your shell
 # .codex/config.toml
 [mcp_servers.reason-commons]
 command = "/absolute/path/to/.venv/bin/python"
-args = ["-m", "reason_commons", "mcp", "--case-root", "/absolute/path/to/cases", "--provider", "anthropic"]
+args = ["-m", "reason_commons", "mcp", "--commons-root", "/absolute/path/to/commons", "--provider", "anthropic"]
 env_vars = ["ANTHROPIC_API_KEY"]
 ```
 
@@ -273,5 +273,5 @@ file. After changing a provider, restart the client so it starts a new server.
   provider-free application scenarios. They show the integration behaves as
   designed. They do not establish the quality of any live model's consulting;
   see [validation](validation.md).
-- A case larger than the provider accepts fails with a size or context error.
+- A commons larger than the provider accepts fails with a size or context error.
   Nothing is cut down to fit.

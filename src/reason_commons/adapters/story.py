@@ -102,7 +102,7 @@ class Chapter:
 
         def claim(key, tree, role, statement, basis=None, replaces=None):
             if role == "goal":
-                # The goal is the case's goal record, at the top of the Goal Tree.
+                # The goal is the commons' goal record, at the top of the Goal Tree.
                 known[key] = known.get("__goal__") or state.goal
                 trees[key] = "goal"
                 goal_aliases.append(key)
@@ -142,7 +142,7 @@ class Chapter:
             data = {"statement": goal["statement"], "scope": None, "horizon": None,
                     "measure": goal.get("measure"), "baseline": None, "protections": []}
             if state.goal:
-                data["replaces"] = state.goal  # a case has one goal; a changed one is its new version
+                data["replaces"] = state.goal  # a commons has one goal; a changed one is its new version
             temp = update("goal", data, ("goal", None, None))
             known["__goal__"] = temp
         for item in chapter.get("reword", []):

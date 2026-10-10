@@ -49,7 +49,7 @@ def accept_reply(app, result):
 
 
 def build_sample(path, answers=None, clock=None, view="tests", name=NAME, trees=None):
-    """Create the example case at path (which must not exist) and return path.
+    """Create the example commons at path (which must not exist) and return path.
 
     By default the whole loop is answered and the trees are brought in; screenshots
     pass fewer answers or a fixed clock.

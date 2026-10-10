@@ -4,12 +4,12 @@ Feature: Help a group make its next reasoning move
   feedback, and a useful next question or recommendation.
 
   Background:
-    Given a writable case store
+    Given a writable commons store
     And an available consultant adapter
 
   @S01 @p2 @v1 @semantic
   Scenario: Begin with a situation rather than a TOC questionnaire
-    Given a new case with no agreed goal
+    Given a new commons with no agreed goal
     When Sam submits "Late deliveries, changing priorities, overtime, and falling morale"
     Then the input is preserved with Sam's declared attribution
     And one prominent question asks what meaningful progress would look like and what must be protected
@@ -37,10 +37,10 @@ Feature: Help a group make its next reasoning move
   @S04 @p2 @v1 @automated
   Scenario: Keep the information that changes the answer beside the question
     Given the current question concerns a pilot that may increase overtime
-    And the case protects "Overtime at most 20 hours per week"
+    And the commons protects "Overtime at most 20 hours per week"
     When the pilot workspace is rendered
     Then the consequential goal and protected condition appear beside the question
-    And compact status shows save status, the focused control is framed, and Case context gives the revision
+    And compact status shows save status, the focused control is framed, and Commons context gives the revision
     And an estimate is not relabeled as a measurement
     And the pilot workspace shows the relevant baseline and period
 

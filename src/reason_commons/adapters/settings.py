@@ -1,6 +1,6 @@
 """Personal settings chosen on first start: your name, consultant and model, the theme and a monthly budget.
 
-They live outside every goal folder (never in a case or an export), in
+They live outside every goal folder (never in a commons or an export), in
 ``$REASON_COMMONS_CONFIG`` or ``$XDG_CONFIG_HOME/reason-commons/settings.yaml``
 (default ``~/.config/reason-commons/settings.yaml``), readable only by you.
 Precedence stays: command-line flags, then environment variables, then these

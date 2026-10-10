@@ -1,7 +1,7 @@
 """Executable definitions for the trees-in-conversation scenarios (S128-S134).
 
 Setup and behavior go through application use cases and the LTP adapter's
-public functions; no step writes case files directly. What the consultant
+public functions; no step writes commons files directly. What the consultant
 proposes waits until the operator accepts it, so steps accept explicitly.
 """
 
@@ -23,7 +23,7 @@ def new_app(context):
         automatic(context.app)
 
 
-@given("a case set to accept proposals automatically")
+@given("a commons set to accept proposals automatically")
 def automatic_case(context):
     context.automatic = True
 
@@ -62,7 +62,7 @@ def tree(context, name):
     return next(t for t in context.app.workspace(view="trees")["trees"] if t["tree"] == name)
 
 
-@given('a case whose goal is "{goal}"')
+@given('a commons whose goal is "{goal}"')
 def case_with_goal(context, goal):
     new_app(context)
     context.provider.responses.append(recording({"operation": "record_goal", "temporary_id": "goal",
@@ -117,7 +117,7 @@ def drawn(context, label):
 
 INVALID = {
     "a goal role in the Current Reality Tree": [claim("temp_a", "A goal", role="goal")],
-    "a statement in the goal role, beside the case goal": [claim("temp_a", "A second goal", tree="goal", role="goal")],
+    "a statement in the goal role, beside the commons goal": [claim("temp_a", "A second goal", tree="goal", role="goal")],
     "a link whose claims both belong to other trees": [
         claim("temp_a", "Effect"), claim("temp_b", "Need", tree="conflict", role="cloud_requirement"),
         link("temp_l", "temp_a", "temp_b", tree="future_reality")],
@@ -171,7 +171,7 @@ def link_flagged(context):
         ("L1@1", [("C2@1", "new_version", "C2@2")])]
 
 
-@then("the earlier wording stays in the case history")
+@then("the earlier wording stays in the commons history")
 def earlier_kept(context):
     records = {r["ref"]: r for r in context.app.inspect()["case"]["records"]}
     assert records["C2@1"]["data"]["statement"] == "We never offer a next step"
@@ -240,7 +240,7 @@ def forecast_unchanged(context):
     assert test["data"]["forecast"] == context.forecast
 
 
-@given("a case in the middle of the goal-action-review loop")
+@given("a commons in the middle of the goal-action-review loop")
 def mid_loop(context):
     from reason_commons.adapters.guided import GuidedConsultant
     create_case(context.path, "Delivery").close()
@@ -266,7 +266,7 @@ def cites_file(context):
     with open_case(context.path, writable=False) as app:
         sources, records = app.sources()["sources"], app.inspect()["case"]["records"]
     file_ref = next(k for k, v in sources.items() if v.get("name") == "delivery.ltp.yaml")
-    # Six statements (the file's goal is proposed as the case's goal) and two links.
+    # Six statements (the file's goal is proposed as the commons' goal) and two links.
     imported = [r for r in records if r["kind"] in {"claim", "link"} or file_ref in r["source_refs"]
                 and r["kind"] == "goal"]
     assert len(imported) == 6 + 2 and all(r["source_refs"] == [file_ref] for r in imported)
@@ -304,7 +304,7 @@ def no_consultant(context):
     assert case["adapter_versions"][case["applied_requests"][-1]].startswith("ltp-tree-import/1/")
 
 
-@given("a case with imported trees")
+@given("a commons with imported trees")
 def imported_case(context):
     create_case(context.path, "Delivery").close()
     ltp_file(context)
@@ -313,7 +313,7 @@ def imported_case(context):
         accept_all(app)
 
 
-@when("the operator exports the trees to a new LTP file and brings that file into a new case")
+@when("the operator exports the trees to a new LTP file and brings that file into a new commons")
 def round_trip(context):
     with open_case(context.path, writable=False) as app:
         context.first = app.workspace(view="trees")
@@ -331,7 +331,7 @@ def accept_import(context):
         context.second = app.workspace(view="trees")
 
 
-@then("both cases show the same statements, roles, links and assumptions")
+@then("both commons show the same statements, roles, links and assumptions")
 def same_trees(context):
     shape = lambda w: [(t["tree"], [(c["role"], c["statement"]) for c in t["claims"]],
                         [(l["relation"], l["assumption"]) for l in t["links"]]) for t in w["trees"]]

@@ -1,10 +1,10 @@
-"""Bring LTP 1.0 trees into a case, and write a case's trees back out.
+"""Bring LTP 1.0 trees into a commons, and write a commons' trees back out.
 
 Import goes through the ordinary use cases: the file is attached as a source,
 a literal request is retained, and a deterministic, one-use proposal adapter
 proposes one claim per entity and one link per relationship, citing the file.
 Like any proposal they wait in the backlog until the operator accepts them. The
-file's Goal Tree goal is proposed as the case's goal, or as a new version of it.
+file's Goal Tree goal is proposed as the commons' goal, or as a new version of it.
 The current question carries on unchanged. Anything the native trees cannot
 hold (a joint premise group, an assessment) is kept as a labelled note, so
 nothing in the file is silently dropped.
@@ -103,7 +103,7 @@ class TreeImport:
             entity_alias[entity["id"]] = alias
             given = self.roles.get(entity["id"], [])
             if goal_entities and entity is goal_entities[0]:
-                # The case has one goal, at the top of its Goal Tree: the file's goal is that goal.
+                # The commons has one goal, at the top of its Goal Tree: the file's goal is that goal.
                 if current_goal and current_goal["data"]["statement"] == entity["statement"]:
                     entity_alias[entity["id"]] = current_goal["ref"]
                     continue
@@ -156,7 +156,7 @@ class TreeImport:
                  f"{assessment.get('statement')}. It is the file's own conclusion, not one reached here.")
         current = records.get(case["current_intervention"])
         for extra in goal_entities[1:]:
-            note(f"From {self.name}: {extra['id']} is a second goal, \"{extra['statement']}\"; a case has one "
+            note(f"From {self.name}: {extra['id']} is a second goal, \"{extra['statement']}\"; a commons has one "
                  "goal, so it is kept here as a note.")
         waiting = (f"The trees from {self.name} wait in the backlog until you accept them"
                    if (request.get("model") or {}).get("acceptance") != "automatic"
@@ -184,7 +184,7 @@ class TreeImport:
 
 
 def import_trees(store, source, speaker, open_case=None):
-    """Add the trees in an LTP file to an existing case; return a short summary."""
+    """Add the trees in an LTP file to an existing commons; return a short summary."""
     if open_case is None:
         from reason_commons.bootstrap import open_case
     source = Path(source)
@@ -206,7 +206,7 @@ def _slug(ref):
 
 
 def ltp_document(workspace, project_id=None):
-    """The case's current trees as an LTP 1.0 document (a dict)."""
+    """The commons' current trees as an LTP 1.0 document (a dict)."""
     entities, designations, relationships, assumptions = [], [], [], []
     for tree in workspace["trees"]:
         for claim in tree["claims"]:
@@ -214,7 +214,7 @@ def ltp_document(workspace, project_id=None):
                 continue  # a statement another tree's link uses is written once, in its own tree
             entity = "e-" + _slug(claim["ref"])
             entities.append({"id": entity, "tree": tree["tree"], "statement": claim["statement"],
-                             "provenance": {"path": f"reason-commons case {workspace['case_id']}#{claim['ref']}"}})
+                             "provenance": {"path": f"reason-commons commons {workspace['case_id']}#{claim['ref']}"}})
             designations.append({"id": "d-" + _slug(claim["ref"]), "entity_id": entity, "role": claim["role"]})
         for link in tree["links"]:
             relationship = "r-" + _slug(link["ref"])

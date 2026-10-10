@@ -12,7 +12,7 @@ def save_question(context):
     context.calls_before = len(context.consultant.calls)
 
 
-@given("a new case")
+@given("a new commons")
 def new(context):
     pass
 
@@ -59,7 +59,7 @@ def reply(context):
     context.workspace = context.app.workspace()
 
 
-@when("I reopen the case and inspect explanation, sources and history")
+@when("I reopen the commons and inspect explanation, sources and history")
 def reopen(context):
     context.app.close()
     context.app = open_case(context.path, writable=False)

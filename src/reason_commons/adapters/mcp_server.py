@@ -1,7 +1,7 @@
 """Local stdio MCP projection of application capabilities.
 
 Each call opens/closes one session, so an idle client holds no writer lock.
-Case names select direct children of a configured root, never arbitrary paths.
+Commons names select direct children of a configured root, never arbitrary paths.
 The optional official SDK owns transport/lifecycle/schema validation.
 """
 
@@ -23,7 +23,7 @@ from reason_commons.domain.model import CONSULT_INTENTS
 
 READS = {"inspect", "workspace", "history", "sources", "receipts", "storage_help", "context"}
 STRING = {"type": "string"}
-CASE = {"type": "string", "description": "Existing case folder name under the configured root; no path."}
+CASE = {"type": "string", "description": "Existing commons folder name under the configured root; no path."}
 
 
 def tool(name, description, properties=None, required=(), case=True):
@@ -47,15 +47,15 @@ submit_schema = deepcopy(retain["inputSchema"])
 TOOLS += [
     {"name": "submit", "description": "Deliberately retain and consult once, with an explicit revision and target.",
      "inputSchema": submit_schema},
-    tool("history", "Read published case history offline."),
+    tool("history", "Read published commons history offline."),
     tool("sources", "Read attributed inputs and supplied sources offline."),
     tool("receipts", "Read attempt receipts for an original retained request.", {"request_id": STRING}, ("request_id",)),
     tool("storage_help", "Read application storage guarantees offline."),
     tool("add_source", "Attach participant-supplied content. Do not invent content or attribution.",
          {"name": STRING, "content_base64": STRING, "speaker": STRING}, ("name", "content_base64", "speaker")),
-    tool("export", "Export a new portable bundle under the case root's exports folder.",
+    tool("export", "Export a new portable bundle under the commons root's exports folder.",
          {"bundle": {"type": "string", "description": "New filename ending .reasoncase; no path."}}, ("bundle",)),
-    tool("new_case", "Create a named case only when the participant requests creation.",
+    tool("new_case", "Create a named commons only when the participant requests creation.",
          {"name": STRING}, ("name",)),
     tool("context", "Read the owning domain glossary, capability contract and contribution procedure.", case=False),
 ]
@@ -88,19 +88,19 @@ class CaseToolBridge:
         # usage_notice for the person. It says; it never blocks, and nothing is written to stdout, the transport.
         self.usage = usage
         if not self.root.is_dir():
-            raise ValueError("Case root must be an existing directory")
+            raise ValueError("Commons root must be an existing directory")
         self.consultant = consultant
         # Automatic acceptance delegates the operator's decision; an agent gets it only when granted.
         self.allow_acceptance_setting = allow_acceptance_setting
 
     def _case(self, name):
         if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}", name):
-            raise ValueError("Use a case folder name of letters, digits, underscores or hyphens")
+            raise ValueError("Use a commons folder name of letters, digits, underscores or hyphens")
         if name == "exports":
             raise ValueError("The exports folder is reserved for portable bundles")
         path = self.root / name
         if path.is_symlink() or path.resolve().parent != self.root:
-            raise ValueError("Case must be a direct folder under the configured root")
+            raise ValueError("Commons must be a direct folder under the configured root")
         return path
 
     def invoke(self, name, arguments):
@@ -114,7 +114,7 @@ class CaseToolBridge:
             with create_case(path, args["name"]) as app:
                 return app.inspect()
         if name not in {t["name"] for t in TOOLS}:
-            raise ValueError("Unknown case capability")
+            raise ValueError("Unknown commons capability")
         if name == "set_acceptance" and not self.allow_acceptance_setting:
             return {"status": "rejected", "message": "Only the operator changes how proposals are accepted; "
                     "this server was not granted that capability"}
@@ -125,7 +125,7 @@ class CaseToolBridge:
                     raise ValueError("Use a new .reasoncase filename without a path")
                 exports = self.root / "exports"
                 if exports.is_symlink():
-                    raise ValueError("Exports directory must stay within the case root")
+                    raise ValueError("Exports directory must stay within the commons root")
                 exports.mkdir(exist_ok=True)
                 destination = exports / bundle
                 app.export(str(destination))

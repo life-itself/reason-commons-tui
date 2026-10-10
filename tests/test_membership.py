@@ -224,7 +224,7 @@ def test_a_case_recorded_before_proposals_needed_acceptance_opens_unchanged(tmp_
 
 
 def answer(case, value, sources, request_id, *updates):
-    """A later reply, answering ``request_id``; returns the case and the sources including it."""
+    """A later reply, answering ``request_id``; returns the commons and the sources including it."""
     later = dict(value, request_id=request_id, base_revision=case.revision, response_target=case.target)
     sources = {**sources, request_id: later}
     return reply(case, later, sources, *({**u, "source_refs": [request_id]} for u in updates),
@@ -275,7 +275,7 @@ def test_a_reply_cites_only_answers_the_case_took_in_and_supplied_sources():
         reply(case, later, sources, note("in003", "in002"), revision=case.revision + 1)
     allowed = reply(case, later, sources, note("in003", "in001", supplied["source_id"]), revision=case.revision + 1)
     assert allowed.membership().status["N2@1"] == "proposed"
-    # The rule governs new replies; a case already holding such a citation still validates and opens.
+    # The rule governs new replies; a commons already holding such a citation still validates and opens.
     earlier = deepcopy(allowed.value)
     earlier["records"][-2]["source_refs"] = ["in002"]
     Snapshot(earlier).validate(sources)

@@ -17,7 +17,7 @@ from tests.test_invocation import skill_server
 
 def test_real_stdio_tools_retention_failure_retry_and_restart(skill_server, tmp_path):
     parameters = StdioServerParameters(command=sys.executable, args=["-m", "reason_commons", "mcp",
-        "--case-root", str(tmp_path), "--model", "fixture-model", "--base-url", skill_server.url],
+        "--commons-root", str(tmp_path), "--model", "fixture-model", "--base-url", skill_server.url],
         cwd=str(ROOT))
 
     async def run():

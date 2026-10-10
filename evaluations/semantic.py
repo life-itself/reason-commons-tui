@@ -16,7 +16,7 @@ def run_scenario(report, scenario, consultant, repeat):
         report.record({"id": identity, "status": status, "scenarios": list(scenario.scenarios), "case": str(path),
                        "setup": (f"authored setup '{scenario.seed_kind}' via application, accepted under Sam's "
                                  "automatic-acceptance setting") if scenario.seed else
-                                "empty case set to accept proposals automatically (Sam's recorded setting)",
+                                "empty commons set to accept proposals automatically (Sam's recorded setting)",
                        "setup_text": setup["text"], "setup_records": deepcopy(setup["records"]),
                        "unjudgeable_turns": [t["number"] for t in turns if t["result"]["status"] != "saved"],
                        "checks": deepcopy(checks), "turns": deepcopy(turns), "rubric": list(scenario.rubric),
