@@ -1599,6 +1599,60 @@
       "previous": null,
       "disposition": "evaluation of feedback follow-up; evidence outstanding",
       "reason": "Evaluate participant comprehension and attention costs separately from automated receipt and marker behavior."
+    },
+    {
+      "id": "S192",
+      "previous": null,
+      "disposition": "user-requested host consultant follow-up",
+      "reason": "Let the agent hosting the skill consult through the application's provider path; the application keeps every check, and the model stays unverifiable."
+    },
+    {
+      "id": "S193",
+      "previous": null,
+      "disposition": "user-requested host consultant follow-up",
+      "reason": "Let the agent hosting the skill consult through the application's provider path; the application keeps every check, and the model stays unverifiable."
+    },
+    {
+      "id": "S194",
+      "previous": null,
+      "disposition": "user-requested host consultant follow-up",
+      "reason": "Let the agent hosting the skill consult through the application's provider path; the application keeps every check, and the model stays unverifiable."
+    },
+    {
+      "id": "S195",
+      "previous": null,
+      "disposition": "user-requested host consultant follow-up",
+      "reason": "Let the agent hosting the skill consult through the application's provider path; the application keeps every check, and the model stays unverifiable."
+    },
+    {
+      "id": "S196",
+      "previous": null,
+      "disposition": "user-requested host consultant follow-up",
+      "reason": "Let the agent hosting the skill consult through the application's provider path; the application keeps every check, and the model stays unverifiable."
+    },
+    {
+      "id": "S197",
+      "previous": null,
+      "disposition": "user-requested host consultant follow-up",
+      "reason": "Let the agent hosting the skill consult through the application's provider path; the application keeps every check, and the model stays unverifiable."
+    },
+    {
+      "id": "S198",
+      "previous": null,
+      "disposition": "user-requested host consultant follow-up",
+      "reason": "Let the agent hosting the skill consult through the application's provider path; the application keeps every check, and the model stays unverifiable."
+    },
+    {
+      "id": "S199",
+      "previous": null,
+      "disposition": "evaluation of host consultant; evidence outstanding",
+      "reason": "Evaluate keyless setup, subscription allowance and the agent's two roles with participants, separately from fixture replies."
+    },
+    {
+      "id": "S200",
+      "previous": null,
+      "disposition": "evaluation of host consultant; evidence outstanding",
+      "reason": "Compare host-model consulting with a validated provider consultant; fake-consultant tests prove integration, not quality."
     }
   ]
 }

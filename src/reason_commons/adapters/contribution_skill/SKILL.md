@@ -1,6 +1,6 @@
 ---
 name: reason-commons-contribute
-description: Open, resume and participate in a persistent Reason Commons reasoning conversation, with local explanations, sources, history and saved diagrams. Use for working with commons, not for implementing product features or editing commons files.
+description: Open, resume and participate in a persistent Reason Commons reasoning conversation through the reason-commons MCP tools, on the commons folders the Reason Commons TUI uses, with local explanations, sources, history, trees, decisions and saved diagrams. Use for working with commons, not for implementing product features, editing commons files or a single reason-commons.yaml file.
 ---
 
 Read the owning [context](../../domain/CONTEXT.md) and
@@ -10,7 +10,7 @@ application state; it supplies no consulting semantics of its own.
 
 ## Open and continue the conversation
 
-In Codex use the configured `reason-commons` MCP tools. Each commons tool takes
+In Claude Code or Codex use the configured `reason-commons` MCP tools. Each commons tool takes
 `case`, the folder name under the configured root. `context` supplies the glossary
 and contract when file references are unavailable. Follow the offered schemas.
 The local model host binds the commons already and omits the `case` argument.
@@ -75,7 +75,8 @@ paraphrasing passages. Supply ownership/evidence declarations only when explicit
    if any, and the chosen intent. Ordinary answers/corrections use `answer`.
 3. If it returns `input_retained`, call `consult` exactly once with that request
    identity before ending the contribution workflow. Retention alone publishes
-   no reasoning update.
+   no reasoning update. When the tools offer `consultation` and `propose` instead
+   of `consult`, you are the consultant: follow the next section instead.
 4. Present the returned application status and workspace as a human next turn,
    including the new question and appropriate saved diagram/table. Keep the
    active commons, participant and displayed target for the next reply. Success is
@@ -84,6 +85,37 @@ paraphrasing passages. Supply ownership/evidence declarations only when explicit
    accepts automatically (`result.accepted_automatically`), they wait in the
    backlog and are not in the participant's model. Say so, show them as
    proposed, and leave the decision to the participant.
+
+## When you are the consultant
+
+When the server offers `consultation` and `propose` instead of `consult`, `submit`
+and `retry`, it was started with the host consultant: you draft the consultant's
+reply yourself, and the application receives, validates and saves or refuses it
+exactly as it does any provider's. For each contribution the participant
+authorized, once `retain_input` returns `input_retained`:
+
+1. Call `consultation` with that request identity. It returns `prompt`, `request`
+   and `schema`: everything any consultant is sent. If it is refused, show the
+   application's status and message and stop. Read all of it before writing a
+   proposal: if the client saved it to a file or shortened it and you cannot read
+   the whole, stop and say so. Never consult from part of a request.
+2. As the consultant, reason only from `prompt` and `request`, not from this chat,
+   files or anything else you know about the participant, and write one proposal
+   that satisfies `schema`.
+3. Call `propose` exactly once with the request identity, that proposal, and
+   `agent` and `model` naming what you are, truthfully (such as `claude-code` and
+   the model you run as). Do not propose again to improve a saved reply.
+4. Return to presenting. Show what the application returned (status, the saved
+   question, the proposals as proposed) the same way as for any consultant. Add no
+   reasoning of your own in chat beyond the proposal and the saved state, do not
+   argue for your proposals, and keep the participant's literal, attributed words
+   intact. Say that the consultant was this coding agent, whose model the
+   application records as declared, not verified.
+
+What you propose waits for the participant like any consultant's proposals; as
+the consultant you never accept, reject or undo anything. A `rejected` result
+names the rule the proposal broke: show it, and propose again for the same
+request (after a fresh `consultation`) only when the participant asks for a retry.
 
 ## Decisions belong to the participant
 
@@ -115,6 +147,18 @@ and available recovery. Stop; do not retry automatically. For an explicitly
 requested retry use `retry` with the original retained request identity, then
 present its returned workspace. Resume with `workspace` to discover pending
 contributions after reopening; never create a duplicate request to recover one.
+
+## Bring trees in or write them out
+
+The MCP tools take no file paths, so `.ltp.yaml` files go through the command
+line, and only when the participant asks and names the file. The commons folder is
+the name under the commons root the MCP server was started with; ask if unknown.
+
+- `reason-commons trees ROOT/NAME --import FILE --speaker NAME` retains the file
+  as a source and adds its trees as proposals waiting in the backlog; no
+  consultant is asked. Then show the `backlog` view.
+- `reason-commons trees ROOT/NAME --export NEW_FILE` writes the current trees to a
+  new file and never overwrites one.
 
 ## CLI fallback
 

@@ -170,6 +170,38 @@ class CaseApplication:
         self._store.input(request_id)  # validate identity before constructing file paths
         return {"schema_version": "1", "attempts": deepcopy(self._store.attempts(request_id))}
 
+    def _consulting_request(self, value, current):
+        """Everything a consultant is sent: only words the commons took in, this answer and supplied sources.
+        A stale answer is not shown."""
+        taken_in = set(current.value["applied_requests"]) | {value["request_id"]}
+        sources = {ref: source for ref, source in self._store.sources().items()
+                   if "request_id" not in source or ref in taken_in}
+        return {"input": deepcopy(value), "case": current.to_dict(), "sources": deepcopy(sources),
+                "model": consulting_view(current)}
+
+    def consultation(self, request_id: str) -> dict:
+        """What a consultant would be sent for a retained request awaiting one; local, and no consultant is
+        called. Any other request is refused, so a reply can only be drafted for one that is due."""
+        try:
+            value = self._store.input(request_id)
+        except (InvalidCase, OSError):
+            return {"status": "rejected", "reason": "not_retained", "request_id": request_id,
+                    "message": "No retained input has this request ID"}
+        current = self._store.current()
+        if request_id in current.value["applied_requests"]:
+            return {"status": "rejected", "reason": "already_applied", "request_id": request_id,
+                    "revision": current.revision, "message": "This request was already answered"}
+        if value["response_target"] != current.target:
+            return {"status": "stale", "reason": "stale", "request_id": request_id,
+                    "message": "Response is stale; re-evaluate against the current revision",
+                    "recovery_actions": ["reevaluate_current_revision"]}
+        if self._store.pending_response(request_id) is not None:
+            return {"status": "rejected", "reason": "reply_received", "request_id": request_id,
+                    "message": "A reply to this request was already received; retrying publishes it without "
+                               "consulting again", "recovery_actions": ["retry_retained_input"]}
+        return {"status": "awaiting_consultation", "request_id": request_id,
+                "request": self._consulting_request(value, current)}
+
     def consult(self, request_id: str) -> dict:
         value = self._store.input(request_id)
         current = self._store.current()
@@ -196,13 +228,7 @@ class CaseApplication:
                 return self._failure(request_id, "not_saved", "not saved; input retained; request did not start",
                                      ["retry_retained_input"], persist=False)
             try:
-                # Only words the commons took in, this answer and supplied sources: a stale answer is not shown.
-                taken_in = set(current.value["applied_requests"]) | {request_id}
-                sources = {ref: source for ref, source in self._store.sources().items()
-                           if "request_id" not in source or ref in taken_in}
-                proposal = self._consultant.propose({"input": deepcopy(value), "case": current.to_dict(),
-                                                    "sources": deepcopy(sources),
-                                                    "model": consulting_view(current)})
+                proposal = self._consultant.propose(self._consulting_request(value, current))
             except ConsultantResponseError as exc:
                 # Say why the reply was refused. Adapters word these themselves, with no response text.
                 return self._failure(request_id, "rejected", "Input retained; invalid structured response rejected",

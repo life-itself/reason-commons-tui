@@ -12,7 +12,11 @@ from reason_commons.domain.model import Snapshot
 
 
 PROVIDERS = ("lm-studio", "anthropic", "guided")
+# The coding agent using the MCP server drafts each reply itself: only that server can offer it.
+AGENT_PROVIDERS = ("host",)
 DEFAULT_PROVIDER = "lm-studio"
+HOST_ONLY = ("Only an agent using the MCP server (reason-commons mcp --provider host) can be the host consultant; "
+             "choose " + ", ".join(PROVIDERS) + " here")
 
 
 def _choose_provider(provider, environ=os.environ):
@@ -20,26 +24,37 @@ def _choose_provider(provider, environ=os.environ):
     for value, source in ((provider, "explicit"), (environ.get("REASON_COMMONS_PROVIDER"), "environment")):
         if value is not None and value.strip():
             name = value.strip().lower()
-            if name not in PROVIDERS:
-                raise ValueError(f"Unknown provider {value!r}; choose one of: {', '.join(PROVIDERS)}")
+            if name not in PROVIDERS + AGENT_PROVIDERS:
+                raise ValueError(f"Unknown provider {value!r}; choose one of: {', '.join(PROVIDERS + AGENT_PROVIDERS)}")
             return name, source
     return DEFAULT_PROVIDER, "default"
+
+
+def chosen_provider(provider=None, environ=os.environ):
+    """The provider an entry point would use, by name."""
+    return _choose_provider(provider, environ)[0]
 
 
 def provider_settings(provider=None, model=None, base_url=None, environ=os.environ):
     """What would be used and whether it is ready: offline, no request, no secret value."""
     name, source = _choose_provider(provider, environ)
+    if name == "host":
+        # No key and no endpoint: the agent's own subscription pays. What model wrote a reply is only declared.
+        return {"provider": name, "selected_by": source, "providers": list(PROVIDERS + AGENT_PROVIDERS),
+                "model": "whichever model the coding agent uses", "model_source": "agent", "model_verifiable": False,
+                "endpoint": None, "credential": {"variable": None, "required": False, "present": False},
+                "problems": [], "ready": True}
     if name == "guided":
         settings = {"model": "built-in guide", "model_source": "default", "endpoint": None,
                     "credential": {"variable": None, "required": False, "present": False}, "problems": []}
-        return {"provider": name, "selected_by": source, "providers": list(PROVIDERS),
+        return {"provider": name, "selected_by": source, "providers": list(PROVIDERS + AGENT_PROVIDERS),
                 **settings, "ready": True}
     if name == "anthropic":
         from reason_commons.adapters.anthropic import AnthropicConsultant as Adapter
     else:
         from reason_commons.adapters.lm_studio import LMStudioConsultant as Adapter
     settings = Adapter.describe_settings(model=model, base_url=base_url, environ=environ)
-    return {"provider": name, "selected_by": source, "providers": list(PROVIDERS),
+    return {"provider": name, "selected_by": source, "providers": list(PROVIDERS + AGENT_PROVIDERS),
             **settings, "ready": not settings["problems"]}
 
 
@@ -49,6 +64,8 @@ def configured_consultant(provider=None, model=None, base_url=None, usage=None):
     ``usage`` is a sink told what each paid request cost (``usage_session(...).record``); only a
     billed provider gets it, and it never reaches the commons."""
     name, _ = _choose_provider(provider)
+    if name == "host":
+        raise ValueError(HOST_ONLY)
     if name == "guided":
         from reason_commons.adapters.guided import GuidedConsultant
         return GuidedConsultant()

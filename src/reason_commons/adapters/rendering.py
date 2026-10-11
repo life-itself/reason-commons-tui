@@ -290,11 +290,16 @@ def render_provider_settings(settings):
     chosen = {"explicit": "chosen explicitly", "environment": "chosen by REASON_COMMONS_PROVIDER",
               "default": "the default"}[settings["selected_by"]]
     source = {"explicit": "set explicitly", "environment": "from the environment", "default": "default",
-              "auto": "selected automatically"}[settings["model_source"]]
+              "auto": "selected automatically", "agent": "declared by the agent"}[settings["model_source"]]
+    endpoint = ("none; the coding agent using reason-commons mcp --provider host drafts each reply"
+                if settings["provider"] == "host" else settings["endpoint"] or "none (works offline)")
     lines = [f"Provider: {settings['provider']} ({chosen})",
              f"Model: {settings['model']} ({source})",
-             f"Endpoint: {settings['endpoint'] or 'none (works offline)'}",
+             f"Endpoint: {endpoint}",
              f"Credential: {credential['variable']} {state}" if credential["variable"] else "Credential: none needed"]
+    if settings.get("model_verifiable") is False:
+        lines.append("Verification: the application cannot verify which model writes a proposal; "
+                     "it records the agent and model the agent declares")
     if "max_tokens" in settings:
         lines.append(f"Output: up to {settings['max_tokens']} tokens; effort {settings['effort']}")
     if "boost_model" in settings:

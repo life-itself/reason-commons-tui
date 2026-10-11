@@ -63,3 +63,40 @@ def test_real_stdio_tools_retention_failure_retry_and_restart(skill_server, tmp_
                     assert app.sources()["sources"][request_id]["text"] == "5\n:options\n"
                     assert app.inspect()["case"]["revision"] == 1
     asyncio.run(run())
+
+
+def test_real_stdio_host_consultant_without_any_key(tmp_path):
+    """The agent using the server consults: it reads the consultation and proposes; no key or provider exists."""
+    import os
+    from tests.support import proposal
+    environment = {k: v for k, v in os.environ.items()
+                   if k not in {"ANTHROPIC_API_KEY", "REASON_COMMONS_PROVIDER", "LM_STUDIO_API_TOKEN"}}
+    parameters = StdioServerParameters(command=sys.executable, args=["-m", "reason_commons", "mcp",
+        "--commons-root", str(tmp_path), "--provider", "host"], cwd=str(ROOT), env=environment)
+
+    async def run():
+        async with stdio_client(parameters) as (read, write):
+            async with ClientSession(read, write, read_timeout_seconds=timedelta(seconds=15)) as session:
+                await session.initialize()
+                tools = {t.name: t for t in (await session.list_tools()).tools}
+                assert {"consultation", "propose"} <= set(tools) and not {"consult", "submit", "retry"} & set(tools)
+                assert tools["consultation"].annotations.readOnlyHint and not tools["propose"].annotations.readOnlyHint
+                # Claude Code keeps a result this tool declares whole, rather than saving it to a file.
+                assert tools["consultation"].meta == {"anthropic/maxResultSizeChars": 500000}
+                await session.call_tool("new_case", {"case": "payments", "name": "Payments"})
+                retained = await session.call_tool("retain_input", {"case": "payments", "text": "Late again",
+                    "speaker": "Sam", "base_revision": 0, "response_target": None})
+                request_id = retained.structuredContent["request_id"]
+                due = (await session.call_tool("consultation", {"case": "payments", "request_id": request_id}))
+                assert not due.isError and set(due.structuredContent) >= {"prompt", "request", "schema"}
+                reply = proposal(due.structuredContent["request"])
+                saved = await session.call_tool("propose", {"case": "payments", "request_id": request_id,
+                    "proposal": reply, "agent": "fixture-agent", "model": "fixture-model"})
+                assert not saved.isError and saved.structuredContent["status"] == "saved"
+                again = await session.call_tool("propose", {"case": "payments", "request_id": request_id,
+                    "proposal": reply, "agent": "fixture-agent", "model": "fixture-model"})
+                assert again.isError and again.structuredContent["reason"] == "already_applied"
+        with open_case(tmp_path / "payments") as app:
+            version = app.inspect()["case"]["adapter_versions"][request_id]
+            assert version.startswith("host/adapter=1/agent=fixture-agent/model=fixture-model/verified=no/")
+    asyncio.run(run())
