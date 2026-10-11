@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-10",
+  "date": "2026-10-11",
   "branch": "codex/v1-spec-reconciliation",
   "baseline_commit": "030cbdd",
   "fixtures": "Disposable commons, settings, usage logs and offline stand-ins; loopback mock providers, no live/paid consulting.",
@@ -11,13 +11,13 @@
   "final_gate": {
     "command": ".venv/bin/python scripts/check_p0.py (delegates to scripts/check_v1.py)",
     "exit_code": 0,
-    "pytest": 477,
+    "pytest": 487,
     "structural_tests": 30,
-    "automated_identities": 109,
-    "expanded_cases": 135,
+    "automated_identities": 112,
+    "expanded_cases": 138,
     "product": {
-      "identities": 84,
-      "cases": 107
+      "identities": 87,
+      "cases": 110
     },
     "conversation": {
       "identities": 25,
@@ -25,42 +25,39 @@
     }
   },
   "additional_checks": {
-    "late_help_text_and_gate_help_targeted_pytest": 26,
-    "documentation_architecture_gate_targeted_pytest": 11,
-    "mutations_detected": 11,
-    "runtime_screenshot_fixtures": 65,
-    "visually_inspected_import_screens": [
-      "commons-next",
-      "commons-next-80x24",
-      "commons-history",
-      "commons-built",
-      "commons-review-import",
-      "commons-adopted-review",
-      "commons-settings",
-      "commons-transition",
-      "commons-commands-views"
+    "feature_argument_tests": 10,
+    "documentation_argument_architecture_gate_targeted_pytest": 14,
+    "feedback_mutations_detected": 4,
+    "prior_reconciliation_mutations_detected": 11,
+    "runtime_screenshot_fixtures": 68,
+    "visually_inspected_followup_screens": [
+      "commons-contribution-receipt",
+      "commons-contribution-receipt-80x24",
+      "commons-tree-update-markers"
     ],
-    "capture_utility": {
-      "selection": "@S176",
-      "passed_steps": 16,
-      "pictures": 16,
-      "errors": 0
-    },
-    "engine_example": "Four revisions; restart and archive handoff identical",
     "protected_files_unchanged": 11,
-    "markdown_pages_link_checked": 41
+    "authored_argument_updates": 30,
+    "pending_application_records_with_exact_sources_and_endpoints": 30,
+    "initial_followup_gate": {
+      "pytest_passed": 484,
+      "pytest_failed": 1,
+      "reason": "Documentation image link checked before the new image was generated; rerun passed."
+    },
+    "readable_argument_documentation_architecture_gate_targeted_pytest": 21,
+    "readable_claim_consistency_mutation_detected": 1
   },
   "outstanding": {
     "semantic_v1_identities": 16,
     "semantic_v1_cases": 24,
-    "usability_v1_identities": 3,
-    "usability_v1_cases": 3,
+    "usability_v1_identities": 4,
+    "usability_v1_cases": 4,
     "future_identities": 59,
     "future_cases": 67,
-    "evidence": "Complete live consultant and human semantic review, participant/assistive-technology studies, consent and real-world outcomes."
+    "evidence": "Complete live consultant and human semantic review, participant/assistive-technology studies, consent and real-world outcomes; S191 benefit and attention costs are unverified.",
+    "product_capabilities": "Production feature-argument import and executing coding work through the TUI remain future design."
   },
   "scope_sha256": {
-    "reason-commons-spec/delivery-phases.json": "8da75f00d0edc8b2024029b4d408fd9446653cd0efdc9a65e07293ff6fcc6eb1",
+    "reason-commons-spec/delivery-phases.json": "5840b9f5899d9e6c221c0e4b323b061b661f59bc81f60492ca3ea837585aff07",
     "reason-commons-spec/features/01_goals_and_guidance.feature": "6ade1e928aa945f27b4f942becb8b1944cee169388f71d82ff045ecaa94d4ec4",
     "reason-commons-spec/features/02_navigation_and_routing.feature": "d522a76b7629f17d9f9dcc405e1eac1b258756977ffe3e09b000be6314ff4cc4",
     "reason-commons-spec/features/03_model_and_wip.feature": "a46d18120875463cf59f882297d8b7f664e391ce64554f0b3bbfa3fee901310d",
@@ -75,9 +72,163 @@
     "reason-commons-spec/features/12_trees_in_conversation.feature": "f3aa6cdea7d63f399f25d9b9ce54d1d5dc3cd9ef6aef3affc73f4d2bfebe5b78",
     "reason-commons-spec/features/13_proposals_and_review.feature": "9737c22e620787b3e7689be163980e039f217bda7c6f8af5b0facfc783525274",
     "reason-commons-spec/features/14_accepted_v1_baseline.feature": "fb9105854e223056a1a99370553dccd3270ba5f9aa1caf905426ed337c5ff3e0",
-    "reason-commons-spec/reconciliation-decisions.json": "6aee4b41d4c7d691f646cbf9251b75c8c0a8b466daaa3dd4b4e2bc87ccbb37d5",
+    "reason-commons-spec/reconciliation-decisions.json": "3b3f04f005faf9eb0cfe3faa6af0553be0caf7769c7933afa91b9cbdbeb41b3f",
     "tests/conversation/features/providers.feature": "8b62428ac12b38f4da3da0db771e1ed20c2ca15c570f48b69048174389d117c6",
     "tests/conversation/features/restoration.feature": "15231fed38c8b6dbe692c39e3750949316f08dbdb88815eff1652733b684f63a",
-    "tests/conversation/features/workspace.feature": "c13a2394e73648cfde44310688256ef78d9a4b33c69cc07060836fc54f418b99"
+    "tests/conversation/features/workspace.feature": "c13a2394e73648cfde44310688256ef78d9a4b33c69cc07060836fc54f418b99",
+    "reason-commons-spec/features/15_contribution_feedback.feature": "81417e529f79fc967da4988995c0b17b45f2aecaf68768b82682821014719ea5"
+  },
+  "reconciliation_run": {
+    "date": "2026-10-10",
+    "final_gate": {
+      "command": ".venv/bin/python scripts/check_p0.py (delegates to scripts/check_v1.py)",
+      "exit_code": 0,
+      "pytest": 477,
+      "structural_tests": 30,
+      "automated_identities": 109,
+      "expanded_cases": 135,
+      "product": {
+        "identities": 84,
+        "cases": 107
+      },
+      "conversation": {
+        "identities": 25,
+        "cases": 28
+      }
+    },
+    "additional_checks": {
+      "late_help_text_and_gate_help_targeted_pytest": 26,
+      "documentation_architecture_gate_targeted_pytest": 11,
+      "mutations_detected": 11,
+      "runtime_screenshot_fixtures": 65,
+      "visually_inspected_import_screens": [
+        "commons-next",
+        "commons-next-80x24",
+        "commons-history",
+        "commons-built",
+        "commons-review-import",
+        "commons-adopted-review",
+        "commons-settings",
+        "commons-transition",
+        "commons-commands-views"
+      ],
+      "capture_utility": {
+        "selection": "@S176",
+        "passed_steps": 16,
+        "pictures": 16,
+        "errors": 0
+      },
+      "engine_example": "Four revisions; restart and archive handoff identical",
+      "protected_files_unchanged": 11,
+      "markdown_pages_link_checked": 41
+    },
+    "outstanding": {
+      "semantic_v1_identities": 16,
+      "semantic_v1_cases": 24,
+      "usability_v1_identities": 3,
+      "usability_v1_cases": 3,
+      "future_identities": 59,
+      "future_cases": 67,
+      "evidence": "Complete live consultant and human semantic review, participant/assistive-technology studies, consent and real-world outcomes."
+    },
+    "scope_sha256": {
+      "reason-commons-spec/delivery-phases.json": "8da75f00d0edc8b2024029b4d408fd9446653cd0efdc9a65e07293ff6fcc6eb1",
+      "reason-commons-spec/features/01_goals_and_guidance.feature": "6ade1e928aa945f27b4f942becb8b1944cee169388f71d82ff045ecaa94d4ec4",
+      "reason-commons-spec/features/02_navigation_and_routing.feature": "d522a76b7629f17d9f9dcc405e1eac1b258756977ffe3e09b000be6314ff4cc4",
+      "reason-commons-spec/features/03_model_and_wip.feature": "a46d18120875463cf59f882297d8b7f664e391ce64554f0b3bbfa3fee901310d",
+      "reason-commons-spec/features/04_group_and_conflict.feature": "4d4ba742a2f6d7e04292342a46bc5d4ca74bf757bebf2c3167dfc6ab6d8dae56",
+      "reason-commons-spec/features/05_experiments_and_review.feature": "b1420f04d0d0d10b7ca7c405afcb4e526d1a18aeaa09afeecd3d64b48a2344ec",
+      "reason-commons-spec/features/06_persistence_and_recovery.feature": "25be390bfdaacf2e2c7d6effc9a56ca062be586f40def3970bce6504ee28669a",
+      "reason-commons-spec/features/07_accessibility_and_evaluation.feature": "245072d9c5700fa3da6ab5b2ce7e70c159eb6aceff95fe75e52aeba5d2b7028f",
+      "reason-commons-spec/features/08_human_interface.feature": "d9eaf5a0ad47b2379cbb3fe4d98db4094813ec0b6b4ac264c7ca3deac042b2a9",
+      "reason-commons-spec/features/09_visual_reasoning.feature": "f9e64405395b9dba993e989a28d1a57aed7deadf400cea058cdd04200670fc43",
+      "reason-commons-spec/features/10_goal_progress_and_delivery.feature": "2229b5a81cd0cca699e2b55996e71dc65dc7aa7a895ece210d7ac39b43aaf328",
+      "reason-commons-spec/features/11_tui_workspace.feature": "8d3f8fc3470fe534837c3ea6a88b8825edf020ebea167f1060887540455e7600",
+      "reason-commons-spec/features/12_trees_in_conversation.feature": "f3aa6cdea7d63f399f25d9b9ce54d1d5dc3cd9ef6aef3affc73f4d2bfebe5b78",
+      "reason-commons-spec/features/13_proposals_and_review.feature": "9737c22e620787b3e7689be163980e039f217bda7c6f8af5b0facfc783525274",
+      "reason-commons-spec/features/14_accepted_v1_baseline.feature": "fb9105854e223056a1a99370553dccd3270ba5f9aa1caf905426ed337c5ff3e0",
+      "reason-commons-spec/reconciliation-decisions.json": "6aee4b41d4c7d691f646cbf9251b75c8c0a8b466daaa3dd4b4e2bc87ccbb37d5",
+      "tests/conversation/features/providers.feature": "8b62428ac12b38f4da3da0db771e1ed20c2ca15c570f48b69048174389d117c6",
+      "tests/conversation/features/restoration.feature": "15231fed38c8b6dbe692c39e3750949316f08dbdb88815eff1652733b684f63a",
+      "tests/conversation/features/workspace.feature": "c13a2394e73648cfde44310688256ef78d9a4b33c69cc07060836fc54f418b99"
+    }
+  },
+  "feedback_run": {
+    "date": "2026-10-11",
+    "final_gate": {
+      "command": ".venv/bin/python scripts/check_p0.py (delegates to scripts/check_v1.py)",
+      "exit_code": 0,
+      "pytest": 485,
+      "structural_tests": 30,
+      "automated_identities": 112,
+      "expanded_cases": 138,
+      "product": {
+        "identities": 87,
+        "cases": 110
+      },
+      "conversation": {
+        "identities": 25,
+        "cases": 28
+      }
+    },
+    "additional_checks": {
+      "feature_argument_tests": 8,
+      "documentation_argument_architecture_gate_targeted_pytest": 14,
+      "feedback_mutations_detected": 4,
+      "prior_reconciliation_mutations_detected": 11,
+      "runtime_screenshot_fixtures": 68,
+      "visually_inspected_followup_screens": [
+        "commons-contribution-receipt",
+        "commons-contribution-receipt-80x24",
+        "commons-tree-update-markers"
+      ],
+      "protected_files_unchanged": 11,
+      "authored_argument_updates": 30,
+      "pending_application_records_with_exact_sources_and_endpoints": 30,
+      "initial_followup_gate": {
+        "pytest_passed": 484,
+        "pytest_failed": 1,
+        "reason": "Documentation image link checked before the new image was generated; rerun passed."
+      }
+    },
+    "outstanding": {
+      "semantic_v1_identities": 16,
+      "semantic_v1_cases": 24,
+      "usability_v1_identities": 4,
+      "usability_v1_cases": 4,
+      "future_identities": 59,
+      "future_cases": 67,
+      "evidence": "Complete live consultant and human semantic review, participant/assistive-technology studies, consent and real-world outcomes; S191 benefit and attention costs are unverified.",
+      "product_capabilities": "Production feature-argument import and executing coding work through the TUI remain future design."
+    },
+    "scope_sha256": {
+      "reason-commons-spec/delivery-phases.json": "5840b9f5899d9e6c221c0e4b323b061b661f59bc81f60492ca3ea837585aff07",
+      "reason-commons-spec/features/01_goals_and_guidance.feature": "6ade1e928aa945f27b4f942becb8b1944cee169388f71d82ff045ecaa94d4ec4",
+      "reason-commons-spec/features/02_navigation_and_routing.feature": "d522a76b7629f17d9f9dcc405e1eac1b258756977ffe3e09b000be6314ff4cc4",
+      "reason-commons-spec/features/03_model_and_wip.feature": "a46d18120875463cf59f882297d8b7f664e391ce64554f0b3bbfa3fee901310d",
+      "reason-commons-spec/features/04_group_and_conflict.feature": "4d4ba742a2f6d7e04292342a46bc5d4ca74bf757bebf2c3167dfc6ab6d8dae56",
+      "reason-commons-spec/features/05_experiments_and_review.feature": "b1420f04d0d0d10b7ca7c405afcb4e526d1a18aeaa09afeecd3d64b48a2344ec",
+      "reason-commons-spec/features/06_persistence_and_recovery.feature": "25be390bfdaacf2e2c7d6effc9a56ca062be586f40def3970bce6504ee28669a",
+      "reason-commons-spec/features/07_accessibility_and_evaluation.feature": "245072d9c5700fa3da6ab5b2ce7e70c159eb6aceff95fe75e52aeba5d2b7028f",
+      "reason-commons-spec/features/08_human_interface.feature": "d9eaf5a0ad47b2379cbb3fe4d98db4094813ec0b6b4ac264c7ca3deac042b2a9",
+      "reason-commons-spec/features/09_visual_reasoning.feature": "f9e64405395b9dba993e989a28d1a57aed7deadf400cea058cdd04200670fc43",
+      "reason-commons-spec/features/10_goal_progress_and_delivery.feature": "2229b5a81cd0cca699e2b55996e71dc65dc7aa7a895ece210d7ac39b43aaf328",
+      "reason-commons-spec/features/11_tui_workspace.feature": "8d3f8fc3470fe534837c3ea6a88b8825edf020ebea167f1060887540455e7600",
+      "reason-commons-spec/features/12_trees_in_conversation.feature": "f3aa6cdea7d63f399f25d9b9ce54d1d5dc3cd9ef6aef3affc73f4d2bfebe5b78",
+      "reason-commons-spec/features/13_proposals_and_review.feature": "9737c22e620787b3e7689be163980e039f217bda7c6f8af5b0facfc783525274",
+      "reason-commons-spec/features/14_accepted_v1_baseline.feature": "fb9105854e223056a1a99370553dccd3270ba5f9aa1caf905426ed337c5ff3e0",
+      "reason-commons-spec/reconciliation-decisions.json": "3b3f04f005faf9eb0cfe3faa6af0553be0caf7769c7933afa91b9cbdbeb41b3f",
+      "tests/conversation/features/providers.feature": "8b62428ac12b38f4da3da0db771e1ed20c2ca15c570f48b69048174389d117c6",
+      "tests/conversation/features/restoration.feature": "15231fed38c8b6dbe692c39e3750949316f08dbdb88815eff1652733b684f63a",
+      "tests/conversation/features/workspace.feature": "c13a2394e73648cfde44310688256ef78d9a4b33c69cc07060836fc54f418b99",
+      "reason-commons-spec/features/15_contribution_feedback.feature": "d70e718f6e2727e1dd4811fd6542a1fbf4814f1aa467aeaef9c9c51e4a8e97e4"
+    }
+  },
+  "readability_followup": {
+    "date": "2026-10-11",
+    "change": "Readable proposed Rules and Given/When/Then examples replace the YAML payload; executable acceptance scenarios and scope unchanged.",
+    "argument_native_records": 30,
+    "sources": "Previously retained source text preserved exactly; attachment used as a writing proposal, not as instructions.",
+    "evidence_limit": "Automated mapping and consistency checks do not establish human readability or participant benefit."
   }
 }

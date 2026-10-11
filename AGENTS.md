@@ -13,8 +13,11 @@ compatible serialized `delivery_profile: p2`. The development progression and
 RC-on-RC story are editorial/hypothetical, not authenticated by Git history.
 
 Keep domain knowledge in the context/model and acceptance behavior in `.feature`
-files. Skills consult those artifacts and call application capabilities. Domain
-and application modules must not depend on interfaces, storage implementations,
+files. Skills consult those artifacts and call application capabilities.
+New development proposals keep their sourced tree argument and scenario links in
+the owning feature; see `docs/development/feature-arguments.md`. Authored updates
+remain proposals, and automated checks do not certify causal or participant claims.
+Domain and application modules must not depend on interfaces, storage implementations,
 skills or agents. `bootstrap.py` is the composition root.
 
 Maintain semantic parity: every domain-significant local interactive operation

@@ -115,5 +115,68 @@
         "reading hides the response editor and creates no revision or consultant call"
       ]
     }
-  ]
+  ],
+  "feedback_followup": {
+    "date": "2026-10-11",
+    "method": "Four purposeful mutations in disposable copies; production source was never mutated.",
+    "results": [
+      {
+        "scenario": "S188",
+        "mutation": "Suppress the offline contribution receipt",
+        "target": "src/reason_commons/adapters/tui.py",
+        "detected": true,
+        "exit_code": 1,
+        "cases_run": 1,
+        "failing_assertions": [
+          "ASSERT FAILED:"
+        ]
+      },
+      {
+        "scenario": "S189",
+        "mutation": "Discard accepted tree update markers",
+        "target": "src/reason_commons/adapters/tui.py",
+        "detected": true,
+        "exit_code": 1,
+        "cases_run": 1,
+        "failing_assertions": [
+          "ASSERT FAILED: ['\u25b8 Next step', '  Backlog', '  Goal', '  Trees', '  Your words', '  History']"
+        ]
+      },
+      {
+        "scenario": "S190",
+        "mutation": "Mark unchanged trees for a pending proposal",
+        "target": "src/reason_commons/adapters/tui.py",
+        "detected": true,
+        "exit_code": 1,
+        "cases_run": 1,
+        "failing_assertions": [
+          "ASSERT FAILED:"
+        ]
+      },
+      {
+        "scenario": "argument-correspondence",
+        "mutation": "Drop one explicitly authored native proposal",
+        "target": "scripts/feature_arguments.py",
+        "detected": true,
+        "exit_code": 1,
+        "cases_run": 1,
+        "failing_assertions": [
+          "tests/test_feature_arguments.py:66: AssertionError"
+        ]
+      }
+    ]
+  },
+  "readability_followup": {
+    "date": "2026-10-11",
+    "method": "One purposeful mutation in a disposable parser copy; production source was never mutated.",
+    "results": [
+      {
+        "scenario": "repeated-readable-claim",
+        "target": "scripts/feature_arguments.py",
+        "mutation": "Allow a reused claim identity to silently change its sentence and meaning",
+        "detected": true,
+        "failing_assertion": "DID NOT RAISE ValueError for repeated claim frt_benefit"
+      }
+    ]
+  }
 }

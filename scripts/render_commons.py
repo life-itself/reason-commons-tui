@@ -64,6 +64,43 @@ async def render(folder):
         lambda provider: configured_consultant(provider=provider))
     await shoot(adopted, 'commons-adopted-review', (120, 36), steps=adopt)
 
+    feedback_path = folder / 'feedback'
+    with build_commons(feedback_path):
+        pass
+    def feedback_app():
+        return ReasonCommonsApp(feedback_path, 'David', 'guided',
+            lambda consultant: open_case(feedback_path, consultant=consultant),
+            lambda provider: configured_consultant(provider=provider))
+    async def contribute(app, pilot):
+        app.query_one('#editor').load_text('Explore importing prior conversations without re-entering them by hand.')
+        await pilot.press('ctrl+s')
+        await app.workers.wait_for_complete()
+    await shoot(feedback_app(), 'commons-contribution-receipt', (120, 36), steps=contribute)
+    await shoot(feedback_app(), 'commons-contribution-receipt-80x24', (80, 24))
+
+    # An explicitly authored offline fixture, not evidence of a live model's reasoning.
+    from copy import deepcopy
+    class FeedbackFixture:
+        version = 'fixture/feedback'
+        def propose(self, request):
+            case, value = request['case'], request['input']
+            intervention = deepcopy(next(r['data'] for r in case['records']
+                                         if r['ref'] == case['current_intervention']))
+            updates = []
+            for identity, tree, role, statement in (
+                ('burden', 'current_reality', 'undesirable_effect', 'Re-entering prior reasoning takes attention'),
+                ('import', 'transition', 'transition_action', 'Try importing one plain-text conversation')):
+                updates.append({'operation': 'record_claim', 'temporary_id': identity,
+                                'data': {'tree': tree, 'role': role, 'statement': statement, 'basis': 'hypothesis'},
+                                'source_refs': [value['request_id']]})
+            return {'schema_version': '1', 'delivery_profile': 'p2', 'request_id': value['request_id'],
+                    'base_revision': value['base_revision'], 'proposed_updates': updates,
+                    'intervention': intervention}
+    scripted = FeedbackFixture()
+    changed = ReasonCommonsApp(feedback_path, 'David', 'fixture',
+        lambda consultant: open_case(feedback_path, consultant=consultant), lambda _: scripted)
+    await shoot(changed, 'commons-tree-update-markers', (120, 36), steps=contribute)
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     os.environ['REASON_COMMONS_USAGE_LOG'] = 'off'
