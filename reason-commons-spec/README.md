@@ -18,8 +18,8 @@ release, increment and evaluation tags. The manifest declares their runners.
 `@semantic` and `@usability` evaluate existing capabilities without implying that
 their evidence is complete. `@later` retains unimplemented richer requirements.
 
-- 18 `.feature` files: 191 named scenarios/outlines, expanding to 233 cases.
-- V1: 132 scenarios and 166 expanded cases.
+- 19 `.feature` files: 200 named scenarios/outlines, expanding to 244 cases.
+- V1: 141 scenarios and 177 expanded cases.
 - Future: 59 scenarios and 67 expanded cases.
 - 38 ASCII screens across three synchronized authored illustrations.
 
@@ -29,7 +29,7 @@ their evidence is complete. `@later` retains unimplemented richer requirements.
 | p1 | Proposals and acceptance | 10 | 10 |
 | p2 | Inspectable reasoning and history | 12 | 17 |
 | p3 | Guided work and revision | 63 | 86 |
-| p4 | Import prior work and continue | 38 | 44 |
+| p4 | Import prior work and continue | 47 | 55 |
 | p5 | Richer causal tools | 28 | 30 |
 | p6 | Facilitated group positions | 13 | 13 |
 | p7 | Full reasoning and implementation tools | 18 | 24 |
