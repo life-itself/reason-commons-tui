@@ -10,12 +10,17 @@ ask. The recipes in [recipes.md](recipes.md) apply it to common changes.
 touches. Run the gate once so you know the starting state, including any failures
 that are already there.
 
-**1. Classify the change.** Decide which owner it concerns (see the table in the
+**1. Argue the change in the trees.** Classify the request as argued, new argument,
+upkeep or not explicable, as [tree updates](tree-updates.md) describes. For a new
+argument, reply with the proposed tree update and wait for the participant to
+accept, edit or reject it. Recommend against what the trees cannot explain.
+
+**2. Classify the change.** Decide which owner it concerns (see the table in the
 overview): a domain rule, an application use case, an adapter, a skill procedure, an
 interface, or documentation only. This decides where the code goes and which tests
 apply. If it spans several, split it into steps.
 
-**2. Specify first.** Write or extend the scenario in the right place (see
+**3. Specify first.** Write or extend the scenario in the right place (see
 [testing strategy](testing-strategy.md#where-a-new-scenario-goes)), in domain
 language, through use cases. Do not touch the specification features without
 authorization. Run it and confirm it fails for the right reason.
@@ -23,33 +28,36 @@ For a new development proposal, keep its sourced argument in the owning feature
 using [feature arguments](feature-arguments.md). Link scenarios to named tree
 updates, and leave causal hypotheses and participant benefits visibly unverified.
 
-**3. Write the steps.** Steps define the interface the code must satisfy, so write
+**4. Write the steps.** Steps define the interface the code must satisfy, so write
 them before the implementation. Drive the application use cases only.
 
-**4. Implement in the narrowest layer that can enforce it.** Domain rule in
+**5. Implement in the narrowest layer that can enforce it.** Domain rule in
 `domain/`, orchestration in `application/`, protocol or format in `adapters/`,
 selection in `bootstrap.py`. Never give the skill or the TUI a rule the application
 does not enforce. If you need an outward import, a port is missing.
 
-**5. Go green.** Make the scenario pass with the least code that does so, then tidy.
+**6. Go green.** Make the scenario pass with the least code that does so, then tidy.
 Run the neighboring suites, not only the new one.
 
-**6. Cover what Gherkin should not.** Add adapter tests for bytes, sockets, exit
+**7. Cover what Gherkin should not.** Add adapter tests for bytes, sockets, exit
 codes, limits and input normalization. Add a domain test for a new rule's negative
 cases. Add or adjust skill tests if a procedure or host changed.
 
-**7. Prove the tests can fail.** Mutation-check the new scenarios in a scratch copy
+**8. Prove the tests can fail.** Mutation-check the new scenarios in a scratch copy
 (see [testing strategy](testing-strategy.md#proving-a-test-can-fail)).
 
-**8. Update the documents the change touches.** At minimum: `CONTEXT.md` for a new
+**9. Update the documents the change touches.** At minimum: `CONTEXT.md` for a new
 term, `ARCHITECTURE.md` for a boundary or guarantee, the user guides for anything a
 participant sets or sees, and `docs/v1-delivery.md` when scope changes. Run every
 command and check every path you wrote.
 
-**9. Run the full gate** and report.
+**10. Run the full gate** and
+`python3 scripts/check_tree_updates.py`, and report.
 
 ## Definition of done
 
+- [ ] The participant accepted a proposed tree update, or the change is declared
+      upkeep; each guarded commit names it in a `Tree-update:` trailer.
 - [ ] A scenario or test specified the behavior before the code existed.
 - [ ] The rule is enforced by the domain or application, not only by a skill or UI.
 - [ ] Specification scenarios are unchanged (or a change was explicitly authorized).
@@ -66,6 +74,8 @@ command and check every path you wrote.
 
 Do not guess. Stop and ask the user when:
 
+- the request is not explicable in the development trees, or its proposed tree update
+  has not been accepted;
 - the work needs specification or delivery-tag changes not already authorized by the user;
 - two authoritative sources disagree and the existing task authorization cannot resolve them;
 - a domain-significant operation has no place on `CaseCapabilities`;

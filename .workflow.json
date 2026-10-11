@@ -39,7 +39,8 @@
     "development_method": [
       "AGENTS.md",
       "CLAUDE.md",
-      "docs/development/**"
+      "docs/development/**",
+      ".githooks/**"
     ]
   },
   "dependency_rules": {
