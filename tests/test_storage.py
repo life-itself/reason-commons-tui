@@ -347,3 +347,22 @@ def test_offline_cli_outputs_one_json_object_and_preserves_inspected_archive(ses
     assert bundle.read_bytes() == original
     assert cli("--help").returncode == cli("--version").returncode == 0
     assert cli("inspect", tmp_path / "missing", "--json").returncode == 1
+
+
+def test_a_commons_without_its_cursor_opens_as_a_new_one_does(tmp_path):
+    """A clone that keeps cursor.yaml (one person's draft and view) out of git still opens, reads and exports."""
+    path = tmp_path / "case"
+    with create_case(path, "Shared", consultant=ScriptedConsultant()) as app:
+        assert submit(app)["status"] == "saved"
+    (path / "cursor.yaml").unlink()
+    with open_case(path, writable=False) as app:
+        assert app.inspect()["cursor"] == {} and app.workspace()["revision"] == 1
+    with open_case(path) as app:
+        app.export(str(tmp_path / "shared.reasoncase"))
+        target = app.workspace()["target"]
+        assert app.checkpoint({"view": "next", "focus": "response", "draft": "", "caret": 0, "speaker": "Sam",
+                               "response_target": target["response_target"],
+                               "base_revision": target["base_revision"]})["status"] == "saved"
+    assert (path / "cursor.yaml").exists()
+    with open_case(tmp_path / "shared.reasoncase", writable=False) as archive:
+        assert archive.inspect()["cursor"] == {}
