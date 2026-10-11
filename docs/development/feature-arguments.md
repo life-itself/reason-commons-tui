@@ -73,8 +73,8 @@ The compact annotations declare roles and identities. NC is a Goal necessary
 condition; UDE and cause belong to the CRT; injection, DE and NBR to the FRT;
 objective, obstacle and IO to the PRT; reality, need, action and effect to the TT.
 A shared claim retains its own tree when referenced from another tree's Rule.
-`David reports that` cites `user_report`; `Codex found that` cites `editor` as a
-reported finding; other claims are hypotheses from `editor`. Fixed lead-ins such
+`David reports that` cites `user_report`; `Codex found that` and `Claude found that`
+cite `editor` as a reported finding; other claims are hypotheses from `editor`. Fixed lead-ins such
 as `we predict that` are presentation wording; the checker does not infer roles,
 attribution or extra claims from free prose.
 
@@ -135,6 +135,9 @@ application. Accepting the reasoning does not authorize code execution. Later
 wording changes must use new record versions and retain the earlier source bytes;
 rerunning tests must not duplicate an already imported proposal.
 
-Legacy features remain valid without argument blocks. Add this convention when
-authoring or substantially revisiting a proposal; do not fabricate motivations
-or historical tree records for the older specifications.
+Legacy features remain valid without argument blocks; do not fabricate motivations
+or historical tree records for the older specifications. Every new change that is
+not upkeep needs an argument, and [tree updates](tree-updates.md) says when an
+agent proposes one. A change to the development method, tooling or repository
+practice has no owning product feature; its argument goes in an argument-only file
+under `docs/development/arguments/`, which the full gate validates the same way.

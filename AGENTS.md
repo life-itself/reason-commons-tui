@@ -12,6 +12,24 @@ Read `docs/v1-reconciliation.md` for dispositions and reachable capabilities, an
 compatible serialized `delivery_profile: p2`. The development progression and
 RC-on-RC story are editorial/hypothetical, not authenticated by Git history.
 
+## Every change is a proposed tree update
+
+Reason Commons is developed with Reason Commons. Before editing any file, classify
+the request as argued, new argument, upkeep or not explicable, following
+`docs/development/tree-updates.md`:
+
+- **New behavior, scope or method:** reply first with a proposed tree update (the
+  template in that document) and make no edits until the participant accepts it.
+- **Not explicable in the trees:** recommend against it and say why; build it only
+  if the participant overrides, and record that override in the argument.
+- **Upkeep** (no reasoning changes) proceeds, with its reason stated.
+
+A feature request is never upkeep. Every commit touching guarded paths ends with
+`Tree-update: <proposal-id>` or `Tree-update: upkeep - <reason>`; run
+`python3 scripts/check_tree_updates.py` before opening a pull request.
+
+## Working rules
+
 Keep domain knowledge in the context/model and acceptance behavior in `.feature`
 files. Skills consult those artifacts and call application capabilities.
 New development proposals keep their sourced tree argument and scenario links in

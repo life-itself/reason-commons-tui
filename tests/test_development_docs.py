@@ -10,7 +10,8 @@ import re
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCUMENTS = [ROOT / "AGENTS.md", *sorted((ROOT / "docs/development").glob("*.md"))]
-EXPECTED = {"README.md", "architecture-principles.md", "testing-strategy.md", "workflow.md", "recipes.md"}
+EXPECTED = {"README.md", "architecture-principles.md", "testing-strategy.md", "workflow.md", "recipes.md",
+            "tree-updates.md"}
 
 
 def exists(reference):
@@ -25,6 +26,7 @@ def test_the_method_documents_exist():
 def test_agent_entry_points_lead_to_the_method():
     agents = (ROOT / "AGENTS.md").read_text()
     assert "docs/development/README.md" in agents
+    assert "docs/development/tree-updates.md" in agents, "Agents must meet the tree-update protocol first"
     claude = (ROOT / "CLAUDE.md").read_text()
     assert "@AGENTS.md" in claude, "Claude Code reads CLAUDE.md; it must import AGENTS.md"
     overview = (ROOT / "docs/development/README.md").read_text()

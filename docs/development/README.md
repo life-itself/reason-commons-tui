@@ -29,6 +29,7 @@ Each question has exactly one authoritative place. Change the owner, not a copy.
 | What states and rules are valid? | Domain model | `src/reason_commons/domain/model.py`, `contract.py` |
 | How is behavior invoked? | Application use cases | `src/reason_commons/application/ports.py` (`CaseCapabilities`), `service.py` |
 | How does an agent carry out the work? | Skill procedure | `src/reason_commons/adapters/contribution_skill/SKILL.md` (linked from `skills/` and `.agents/skills/`) |
+| Why is this change worth making? | Development argument | An `RC-ARGUMENT` block in the owning feature, or `docs/development/arguments/` for method and tooling changes |
 | How does a human initiate and control it? | Interface | The offline CLI and the accepted v1 TUI (`adapters/tui.py`); future rendering requirements are labeled in `TUI-DESIGN.md` |
 | Which dependencies and gates apply? | Control files | `ARCHITECTURE.md`, `.workflow.json`, `tests/test_architecture.py` |
 
@@ -42,14 +43,15 @@ when the task has not authorized the needed specification decision.
 |---|---|
 | [Architecture principles](architecture-principles.md) | Deciding where a change belongs; placing a rule; touching a skill |
 | [Testing strategy](testing-strategy.md) | Choosing what kind of test to write and what it may assert |
+| [Tree updates](tree-updates.md) | Before any change: argue it in the trees, or recommend against it |
 | [Workflow](workflow.md) | Doing any change, start to finish, and knowing when it is done |
 | [Feature arguments](feature-arguments.md) | Keeping the complete development argument and scenario-to-tree correspondence in one feature |
 | [Recipes](recipes.md) | Adding a rule, a use case, a provider, an interface action, or changing a skill |
 
 ## Reading order by task
 
-Every task starts with `AGENTS.md`, this page, `ARCHITECTURE.md` and
-`src/reason_commons/domain/CONTEXT.md`. Then:
+Every task starts with `AGENTS.md`, this page, [tree updates](tree-updates.md),
+`ARCHITECTURE.md` and `src/reason_commons/domain/CONTEXT.md`. Then:
 
 | Task | Also read |
 |---|---|

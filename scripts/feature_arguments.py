@@ -91,8 +91,8 @@ def read_sentences(lines):
         basis, source = 'hypothesis', 'editor'
         if sentence.startswith('David reports that '):
             sentence, basis, source = sentence.removeprefix('David reports that '), 'participant_report', 'user_report'
-        elif sentence.startswith('Codex found that '):
-            sentence, basis = sentence.removeprefix('Codex found that '), 'participant_report'
+        elif sentence.startswith(('Codex found that ', 'Claude found that ')):
+            sentence, basis = sentence.split(' found that ', 1)[1], 'participant_report'
         else:
             for lead in ('this overcomes the obstacle that ', 'we must first ensure that ',
                          'we suspect that ', 'we predict that ', 'we want to ', 'we need to ', 'we '):

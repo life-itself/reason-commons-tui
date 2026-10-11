@@ -1,0 +1,4 @@
+#!/bin/sh
+# Reject a commit that touches guarded paths without naming its tree update.
+# Enable once per clone: git config core.hooksPath .githooks
+exec python3 "$(git rev-parse --show-toplevel)/scripts/check_tree_updates.py" --commit-msg "$1"
