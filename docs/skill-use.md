@@ -18,24 +18,29 @@ With the host consultant, Claude Code itself drafts each consultant reply on you
 subscription, and Reason Commons checks it as it checks any provider's. Set it up
 once:
 
-1. Install Reason Commons with the MCP extra (Python 3.10 or later):
+1. Install Reason Commons with the MCP extra (it needs Python 3.10 or later, which
+   uv provides):
 
    ```sh
-   python3 -m venv .venv
-   .venv/bin/python -m pip install -e '.[mcp]'
+   uv tool install 'reason-commons[mcp] @ git+https://github.com/life-itself/reason-commons-tui'
    ```
+
+   In a clone, `.venv/bin/python -m pip install -e '.[mcp]'` does the same.
 
 2. Register the server for your user, with the host consultant:
 
    ```sh
-   claude mcp add --scope user reason-commons -- /absolute/path/to/.venv/bin/reason-commons mcp --commons-root ~/ReasonCommons --provider host
+   mkdir -p ~/ReasonCommons
+   claude mcp add --scope user reason-commons -- "$(command -v reason-commons)" mcp --commons-root ~/ReasonCommons --provider host
    ```
 
 3. Make the skill discoverable. In this repository, `.claude/skills/reason-commons-contribute`
    already links it. To use it from any folder, link it for your user:
 
    ```sh
-   ln -s /absolute/path/to/reason-commons-tui/skills/reason-commons-contribute ~/.claude/skills/reason-commons-contribute
+   git clone https://github.com/life-itself/reason-commons-tui ~/reason-commons-tui
+   mkdir -p ~/.claude/skills
+   ln -s ~/reason-commons-tui/skills/reason-commons-contribute ~/.claude/skills/reason-commons-contribute
    ```
 
    An older `reason-commons` skill that keeps a single `reason-commons.yaml` file
