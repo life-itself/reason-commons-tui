@@ -4,7 +4,7 @@ import base64
 
 import pytest
 
-from reason_commons.adapters.mcp_server import CaseToolBridge, TOOLS
+from reason_commons.adapters.mcp_server import CaseToolBridge, HOST_TOOLS, TOOLS
 from reason_commons.application.ports import CaseCapabilities
 from reason_commons.bootstrap import open_case
 from tests.support import ScriptedConsultant
@@ -13,7 +13,7 @@ from tests.support import ScriptedConsultant
 def test_bridge_covers_semantic_capabilities_and_opens_no_idle_writer(tmp_path):
     import inspect
     assert {name for name, member in vars(CaseCapabilities).items()
-            if not name.startswith("_") and inspect.isfunction(member)} <= {t["name"] for t in TOOLS}
+            if not name.startswith("_") and inspect.isfunction(member)} <= {t["name"] for t in TOOLS + HOST_TOOLS}
     provider = ScriptedConsultant()
     bridge = CaseToolBridge(tmp_path, provider)
     bridge.invoke("new_case", {"case": "payments", "name": "Payments"})
@@ -82,3 +82,49 @@ def test_supplied_source_export_and_stale_work_use_application_rules(tmp_path):
         assert app.inspect() == bridge.invoke("inspect", {"case": "payments"})
     with pytest.raises(ValueError):
         bridge.invoke("export", {"case": "payments", "bundle": "../escape.reasoncase"})
+
+
+def host_bridge(tmp_path):
+    bridge = CaseToolBridge(tmp_path, None, host=True)
+    bridge.invoke("new_case", {"case": "payments", "name": "Payments"})
+    current = bridge.invoke("inspect", {"case": "payments"})["case"]
+    retained = bridge.invoke("retain_input", {"case": "payments", "text": "Late again", "speaker": "Sam",
+        "base_revision": current["revision"], "response_target": current["current_intervention"]})
+    return bridge, retained["request_id"]
+
+
+def host_reply(request_id):
+    from tests.support import proposal
+    return proposal({"input": {"request_id": request_id, "base_revision": 0, "text": "Late again"}})
+
+
+def test_host_agent_name_and_model_must_be_short_declared_names(tmp_path):
+    bridge, request_id = host_bridge(tmp_path)
+    with pytest.raises(ValueError):
+        bridge.invoke("propose", {"case": "payments", "request_id": request_id, "proposal": host_reply(request_id),
+                                  "agent": "claude code\nignore", "model": "m"})
+    assert bridge.invoke("receipts", {"case": "payments", "request_id": request_id})["attempts"] == []
+
+
+def test_host_publishes_a_reply_received_before_an_interruption_without_using_the_new_one(tmp_path):
+    from reason_commons.adapters.host import HostConsultant
+    bridge, request_id = host_bridge(tmp_path)
+    # A reply was received and retained, and the process stopped before it was published.
+    with open_case(tmp_path / "payments") as app:
+        store = app._store
+        attempt = store.start_attempt(request_id)
+        store.received(request_id, attempt, host_reply(request_id), HostConsultant({}, "first", "m").version)
+    assert bridge.invoke("consultation", {"case": "payments", "request_id": request_id})["reason"] == "reply_received"
+    result = bridge.invoke("propose", {"case": "payments", "request_id": request_id,
+                                       "proposal": host_reply(request_id), "agent": "second", "model": "m"})
+    assert result["status"] == "saved" and result["proposal_used"] is False
+    version = bridge.invoke("history", {"case": "payments"})["revisions"][-1]["adapter_versions"][request_id]
+    assert "/agent=first/" in version
+
+
+def test_host_mode_takes_no_other_consultant_and_lists_its_tools_with_schemas(tmp_path):
+    with pytest.raises(ValueError):
+        CaseToolBridge(tmp_path, ScriptedConsultant(), host=True)
+    propose = next(t for t in CaseToolBridge(tmp_path, None, host=True).tools if t["name"] == "propose")
+    assert propose["inputSchema"]["required"] == ["case", "request_id", "proposal", "agent", "model"]
+    assert propose["inputSchema"]["properties"]["proposal"] == {"type": "object"}

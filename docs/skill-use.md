@@ -1,11 +1,87 @@
 # Reason Commons conversations
 
-The skill is a conversational commons interface. Codex presents the saved question,
-context, uncertainty, forecast comparisons and recorded diagrams, and accepts
-participant replies in ordinary language. The application owns the reasoning,
-attribution, exact targets and persistence. The chosen consultant, a local model
-or Anthropic (see [choosing a consultant](providers.md)), supplies semantic
-consultation only after an explicit contribution or consultant move.
+The skill is a conversational commons interface. A coding agent (Claude Code or
+Codex) presents the saved question, context, uncertainty, forecast comparisons and
+recorded diagrams, and accepts participant replies in ordinary language. The
+application owns the reasoning, attribution, exact targets and persistence. The
+chosen consultant (a local model, Anthropic, or the coding agent itself; see
+[choosing a consultant](providers.md)) supplies semantic consultation only after an
+explicit contribution or consultant move.
+
+The skill and the TUI work on the same commons folders. Point the MCP server at
+`~/ReasonCommons`, the folder the TUI's home screen lists, and a goal can be
+continued in either.
+
+## Use it in Claude Code without a key
+
+With the host consultant, Claude Code itself drafts each consultant reply on your
+subscription, and Reason Commons checks it as it checks any provider's. Set it up
+once:
+
+1. Install Reason Commons with the MCP extra (Python 3.10 or later):
+
+   ```sh
+   python3 -m venv .venv
+   .venv/bin/python -m pip install -e '.[mcp]'
+   ```
+
+2. Register the server for your user, with the host consultant:
+
+   ```sh
+   claude mcp add --scope user reason-commons -- /absolute/path/to/.venv/bin/reason-commons mcp --commons-root ~/ReasonCommons --provider host
+   ```
+
+3. Make the skill discoverable. In this repository, `.claude/skills/reason-commons-contribute`
+   already links it. To use it from any folder, link it for your user:
+
+   ```sh
+   ln -s /absolute/path/to/reason-commons-tui/skills/reason-commons-contribute ~/.claude/skills/reason-commons-contribute
+   ```
+
+   An older `reason-commons` skill that keeps a single `reason-commons.yaml` file
+   is a different format. If you have both, name this one when you start:
+
+> Use the reason-commons-contribute skill. I'm David. Open my-goal.
+
+A consultation on a large commons is 150,000–200,000 characters. Claude Code saves
+any MCP result over 50,000 characters to a file, so the server declares a larger
+size for `consultation` (`anthropic/maxResultSizeChars`, 500,000) and it arrives
+whole; no client setting is needed. Other large reads, such as a long backlog, may
+still be saved to a file, which the agent reads from there.
+
+`claude mcp list` shows whether the server is connected; `reason-commons providers
+--provider host` confirms the host consultant needs no key. The server offers
+`consultation` and `propose` instead of `consult`, `submit` and `retry`. For each
+contribution you authorize, the skill retains your words, reads the consultation,
+writes one proposal from that alone and hands it over with `propose`. What it
+proposes waits for your decision like any consultant's, and the skill never
+accepts on your behalf. The application records the consultant as the agent and
+model the agent declared and cannot verify them; consulting quality with a host
+model has not been evaluated, and every turn uses your subscription allowance (see
+[the host consultant](providers.md#your-coding-agent-as-the-consultant-host)).
+
+Bringing trees in from an `.ltp.yaml` file, or writing them out, goes through the
+command line, because the MCP tools take no file paths. Ask for it and name the
+file; the skill runs `reason-commons trees ~/ReasonCommons/my-goal --import FILE`
+(the trees arrive as proposals waiting in the backlog) or `--export NEW_FILE`.
+
+### What the skill reaches, and what it leaves to the TUI
+
+Every TUI command and view that reads or changes a commons is reachable from the
+skill: sending an answer and the other consultant moves (another question, direct
+advice, explaining an observation, asking about open reviews), retry, explaining
+the question, all ten views and any earlier revision, accepting (including "accept
+all" and adopting an import), rejecting, undoing, "still holds", exporting the
+commons, creating a goal, and importing or exporting trees through the command
+line. Changing the acceptance setting stays behind the operator's
+`--allow-acceptance-setting`.
+
+Left out on purpose, because they change no reasoning: focus, folding, keyboard
+navigation, display density, theme, help, the saved draft and caret, and "answer
+about the chosen statement", which only fills in a draft. Choosing a consultant,
+and deeper reasoning for one reply, are made when the server starts, not by the
+agent. The cost screen reads the local usage log, which the host consultant does
+not write to.
 
 ## Use it on this machine
 

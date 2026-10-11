@@ -8,8 +8,8 @@ from pathlib import Path
 
 from reason_commons import __version__
 from reason_commons.application.ports import StoreError
-from reason_commons.bootstrap import (PROVIDERS, configured_consultant, create_case, import_case, open_case,
-                                      provider_settings, usage_session)
+from reason_commons.bootstrap import (AGENT_PROVIDERS, PROVIDERS, configured_consultant, create_case, import_case,
+                                      open_case, provider_settings, usage_session)
 from reason_commons.domain.model import InvalidCase
 from reason_commons.domain.model import CONSULT_INTENTS
 from reason_commons.application.presentation import VIEWS
@@ -105,7 +105,8 @@ def main(argv=None):
     imported.add_argument("--store", required=True)
     commands.add_parser("storage-help", help="Explain storage integrity guarantees")
     providers = commands.add_parser("providers", help="Check which consultant would be used and whether it is configured; sends no request")
-    providers.add_argument("--provider", choices=list(PROVIDERS), help="Check this provider instead of REASON_COMMONS_PROVIDER")
+    providers.add_argument("--provider", choices=list(PROVIDERS + AGENT_PROVIDERS),
+                           help="Check this provider instead of REASON_COMMONS_PROVIDER")
     providers.add_argument("--model", help="Model ID to check")
     providers.add_argument("--base-url", help="Server URL to check")
     providers.add_argument("--json", action="store_true")
@@ -156,7 +157,9 @@ def main(argv=None):
     mcp = commands.add_parser("mcp", help="Serve commons capabilities to a local MCP client over standard input/output")
     mcp.add_argument("--commons-root", "--case-root", dest="case_root", metavar="FOLDER", required=True,
                      help="Existing directory containing editable commons folders (--case-root is a legacy alias)")
-    mcp.add_argument("--provider", choices=list(PROVIDERS), help="Consultant provider; otherwise REASON_COMMONS_PROVIDER or lm-studio")
+    mcp.add_argument("--provider", choices=list(PROVIDERS + AGENT_PROVIDERS),
+                     help="Consultant provider; otherwise REASON_COMMONS_PROVIDER or lm-studio. host: the agent using "
+                          "this server drafts each reply itself, with no key")
     mcp.add_argument("--model", help="Selected provider's model ID")
     mcp.add_argument("--base-url", help="Selected provider's URL")
     mcp.add_argument("--allow-acceptance-setting", action="store_true",

@@ -3617,7 +3617,8 @@ class ReasonCommonsApp(ThemedApp):
             return ''  # The prepared import is not a new participant submission.
         who = ('Offline guide (no AI)' if version.startswith('guided/') else
                'Claude' if version.startswith('anthropic/') else
-               'Local model' if version.startswith('lm-studio/') else 'Consultant')
+               'Local model' if version.startswith('lm-studio/') else
+               'Coding agent (model not verified)' if version.startswith('host/') else 'Consultant')
         accepted = [r for r in reply['records'] if r['status'] == 'accepted']
         waiting = sum(r['status'] == 'proposed' for r in reply['records'])
         parts = []
@@ -4366,6 +4367,9 @@ def run(store, name=None, speaker=None, provider=None, model=None, base_url=None
     settings.apply()  # fills in only what flags and the environment leave unset
     store = Path(os.path.expanduser(store)).resolve()
     provider = provider or os.environ.get("REASON_COMMONS_PROVIDER") or "guided"
+    if provider == "host":
+        from reason_commons.bootstrap import HOST_ONLY
+        raise ValueError(HOST_ONLY)
     speaker = speaker or os.environ.get("REASON_COMMONS_SPEAKER") or os.environ.get("USER") or "Me"
     usage = usage_session("workspace", settings=settings)
     # A model named here is for one reply with deeper reasoning; otherwise the one chosen at start, if any.

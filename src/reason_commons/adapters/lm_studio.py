@@ -4,7 +4,6 @@ No hosted fallback, implicit provider retries, credentials in commons state, or
 provider-specific behavior in the application/domain.
 """
 
-from importlib.resources import files
 from hashlib import sha256
 from http.client import HTTPException
 import json
@@ -16,7 +15,8 @@ from urllib.parse import urlsplit, urlunsplit
 from urllib.request import ProxyHandler, Request, build_opener
 
 from reason_commons.application.ports import ConsultantResponseError
-from reason_commons.adapters.provider_support import NoRedirect, decode_json, request_schema
+from reason_commons.adapters.provider_support import (NoRedirect, consulting_resources, decode_json, request_schema,
+                                                      system_prompt)
 
 
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
@@ -57,8 +57,8 @@ class LMStudioConsultant:
         self._opener = build_opener(ProxyHandler({}), NoRedirect())
         # Freeze procedure/context for this adapter session. Editing files while
         # a run is active must not silently change its consulting policy.
-        self._context = files("reason_commons.domain").joinpath("CONTEXT.md").read_text(encoding="utf-8")
-        self._procedure = files("reason_commons.adapters").joinpath("prompts/consultant.md").read_text(encoding="utf-8")
+        self._procedure, self._context = consulting_resources()
+        self.system_prompt = system_prompt(self._procedure, self._context)
 
     @classmethod
     def from_env(cls, model: Optional[str] = None, base_url: Optional[str] = None):
@@ -158,7 +158,7 @@ class LMStudioConsultant:
         self._resolve_model()
         schema = request_schema(request)
         payload = {"model": self.model, "messages": [
-            {"role": "system", "content": self._procedure + "\n\nDOMAIN CONTEXT\n" + self._context},
+            {"role": "system", "content": self.system_prompt},
             {"role": "user", "content": json.dumps(request, ensure_ascii=False, allow_nan=False)}],
             "response_format": {"type": "json_schema", "json_schema": {
                 "name": "reason_commons_proposal", "strict": True, "schema": schema}},

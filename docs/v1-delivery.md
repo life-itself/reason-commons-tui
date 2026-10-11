@@ -1,7 +1,8 @@
 # Accepted v1 delivery and reconciliation
 
-Status: accepted personal-use baseline, reconciled on 10 October 2026, with a
-user-requested feedback and feature-argument follow-up on 11 October 2026 on
+Status: accepted personal-use baseline, reconciled on 10 October 2026, with
+user-requested feedback, feature-argument and host-consultant follow-ups on
+11 October 2026; the first two on
 `codex/v1-spec-reconciliation`, from `030cbdd`. The current simplified app defines
 release scope. [The full reconciliation matrix](v1-reconciliation.md) inventories
 reachable capabilities and every disposition; [the delivery manifest](../reason-commons-spec/delivery-phases.json)
@@ -19,10 +20,10 @@ baseline operations and a distinct continuation usability evaluation. Outdated
 Actions terminology and the richer Cloud contract are clarified. Basic supporting
 views remain reachable through Commands despite the small imported sidebar.
 
-Scope is separate from evidence: 132 v1 identities expand to 166 cases, comprising
-112 automated identities / 138 cases, 16 semantic identities / 24 cases and four
-usability identities / four cases. The future backlog contains 59 identities /
-67 cases. The complete contract has 191 identities / 233 cases in 18 feature files.
+Scope is separate from evidence: 141 v1 identities expand to 177 cases, comprising
+119 automated identities / 147 cases, 17 semantic identities / 25 cases and five
+usability identities / five cases. The future backlog contains 59 identities /
+67 cases. The complete contract has 200 identities / 244 cases in 19 feature files.
 No hardcoded delivered-subset list overrides these tags. The v1 gate verifies each
 selected identity, each expanded row and every step actually passes.
 
@@ -136,9 +137,55 @@ files and screenshots are unchanged by this follow-up. Human readability and
 participant benefit still require human review; the parser is specification tooling,
 not a production feature importer.
 
+## Host consultant follow-up, 11 October
+
+David found that the skill needed an API key for hosted consulting, while the
+agentic skill it replaced did not. A read of the repository confirmed the cause:
+the MCP server composes its consultant at start-up and the application calls it, so
+the agent hosting the skill only relayed. The accepted proposal `host-consultant`
+lives with S192–S200 in [its own feature](../tests/conversation/features/host_consultant.feature),
+status proposed.
+
+`reason-commons mcp --provider host` makes that agent the consultant, with no key.
+`CaseApplication.consultation` (also on `CaseCapabilities`) returns the request
+`consult` sends a provider, built by the same function, and refuses one that is
+answered, stale, unknown or already has a received reply. The MCP `propose` tool
+hands the agent's proposal to `consult` through a one-shot `HostConsultant`, so it
+is received, validated and published or refused with a receipt like any provider's.
+LM Studio, Anthropic and the host share one consulting prompt builder; the existing
+adapters' prompts are byte-identical. The workspace and `contribute` refuse `host`.
+Tree import and export stay on the `reason-commons trees` command. An audit of
+every TUI command and view found no other operation the skill could not reach.
+
+Automated evidence: S192–S198 (seven identities / nine cases) pass with fixture
+replies; ten purposeful mutations were each detected, the workspace refusal only
+once both of its guards were removed. Adapter tests cover a real stdio server in host
+mode with no key, a reply received before an interruption, and declared names.
+The complete gate **passed**: 504 pytest tests, 30 structural regressions and all
+119 automated v1 identities / 147 expanded cases (87 product identities / 110 cases;
+32 conversation identities / 37 cases).
+
+A real Claude Code session (2.1.220, `claude -p`, `ANTHROPIC_API_KEY` unset, the
+skill found through a project `.claude/skills` link, throwaway commons under
+`/tmp`) created a goal, contributed and received a validated proposal and next
+question, accepted two proposals and rejected one, showed the backlog and trees,
+and imported and exported `.ltp.yaml` through the CLI. The same folders opened in
+the TUI with decisions, waiting proposals and consultant versions intact. On a
+large commons the first trial showed Claude Code saving any MCP result over 50,000
+characters to a file the agent could not read whole; it correctly stopped without
+proposing. The server now declares `anthropic/maxResultSizeChars` for
+`consultation`, and the rerun received the 126,034-character consultation whole and
+saved a validated reply. Two older `reason-commons` skills were visible; the session
+chose this one when named.
+
+This is integration evidence from one session driven by the developer, not
+participant evidence. S199 (participant use, allowance and the agent's two roles)
+and S200 (host-model consulting quality against a validated provider) are
+outstanding. The application cannot verify which model wrote a host proposal.
+
 ## Evidence outstanding
 
-The release contract evaluates existing capabilities in 16 semantic and four
+The release contract evaluates existing capabilities in 17 semantic and five
 participant scenarios. Their complete live/participant evidence remains
 outstanding, including newly recognized units, reported authorship, bounded Cloud
 work, real incompatibility and imported continuation. Existing dated consultant,

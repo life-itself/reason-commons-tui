@@ -27,6 +27,7 @@ flowchart TD
   Ports --> Provider[Replaceable consultant]
   Provider --> LMS[LM Studio adapter]
   Provider --> Anth[Anthropic adapter]
+  Provider --> Host[Host agent's proposal, via MCP]
 ```
 
 There is one bounded context, [Reasoning Commons](src/reason_commons/domain/CONTEXT.md).
@@ -321,6 +322,17 @@ choice beats `REASON_COMMONS_PROVIDER`, which beats the local default. There is 
 fallback between them, and an unknown name is rejected. `bootstrap.provider_settings`
 reports the resolved choice and its readiness offline, without a request or a
 secret value; the `providers` command projects it.
+
+A third choice, `host`, makes the agent using the MCP server the consultant, with no
+key. `CaseApplication.consultation` returns the request `consult` would send, built by
+the same function, and refuses a request that is applied, stale, unknown or already
+has a received reply. The bridge adds the shared procedure (`provider_support.consulting_prompt`)
+and the request's schema. Its `propose` tool composes a one-shot `HostConsultant`
+(`adapters/host.py`) holding the agent's proposal and calls `consult`, so the reply
+is received, validated and published or refused exactly as a provider's. In host
+mode the bridge offers `consultation` and `propose` instead of `consult`, `submit`
+and `retry`; the workspace and `contribute` refuse `host`. The recorded version names
+the agent and model the agent declared, which the application cannot verify.
 
 Model, endpoint and credentials stay outside commons state; only each applied
 request's consultant version is recorded, so a commons can change consultants between

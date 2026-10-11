@@ -64,7 +64,7 @@ def test_adapter_freezes_procedure_and_context_for_session_provenance(server, tm
     version = adapter.version
     # Resources cannot be reread halfway through a live evaluation and still
     # claim the original policy version.
-    monkeypatch.setattr("reason_commons.adapters.lm_studio.files", lambda *a: (_ for _ in ()).throw(AssertionError()))
+    monkeypatch.setattr("reason_commons.adapters.provider_support.files", lambda *a: (_ for _ in ()).throw(AssertionError()))
     with create_case(tmp_path / "case", consultant=adapter) as app:
         assert submit(app)["status"] == "saved"
     assert adapter.version == version

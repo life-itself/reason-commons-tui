@@ -8,7 +8,6 @@ in last_repairs; nothing the consultant decides is changed or filled in.
 
 from hashlib import sha256
 from http.client import HTTPException
-from importlib.resources import files
 import json
 import math
 import os
@@ -17,7 +16,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import ProxyHandler, Request, build_opener
 
-from reason_commons.adapters.provider_support import NoRedirect, decode_json, request_schema
+from reason_commons.adapters.provider_support import (NoRedirect, consulting_resources, decode_json, request_schema,
+                                                      system_prompt)
 from reason_commons.application.ports import ConsultantResponseError
 from reason_commons.domain.model import FIELDS, PROFILE, SCHEMA
 
@@ -146,8 +146,7 @@ class AnthropicConsultant:
         # Calls can run in parallel on one consultant, so each is reported with its own values.
         self.usage = usage
         self._opener = build_opener(ProxyHandler({}), NoRedirect())
-        self._context = files("reason_commons.domain").joinpath("CONTEXT.md").read_text(encoding="utf-8")
-        self._procedure = files("reason_commons.adapters").joinpath("prompts/consultant.md").read_text(encoding="utf-8")
+        self._procedure, self._context = consulting_resources()
         self._procedure += (
             "\n\nANTHROPIC TRANSPORT\nReturn the complete proposal by calling submit_proposal exactly once, rather "
             "than writing JSON as plain text. The call's arguments are the proposal itself, not wrapped in another "
@@ -173,6 +172,7 @@ class AnthropicConsultant:
             "\"required_context_refs\": [<refs, or temporary_ids declared in this proposal, it relies on>]}, "
             "\"proposed_updates\": [<update objects, as the procedure describes>]}\n"
             "This is a data return channel, not an executable application capability.")
+        self.system_prompt = system_prompt(self._procedure, self._context)
 
     @staticmethod
     def _output_settings(environ):
@@ -298,7 +298,7 @@ class AnthropicConsultant:
         if self._resolved_model is None:
             self.model_metadata()
         payload = {"model": self._resolved_model, "max_tokens": self.max_tokens,
-                   "system": self._procedure + "\n\nDOMAIN CONTEXT\n" + self._context,
+                   "system": self.system_prompt,
                    "messages": [{"role": "user", "content": json.dumps(request, ensure_ascii=False, allow_nan=False)}],
                    "stream": False,
                    "tools": [{"name": "submit_proposal", "description":

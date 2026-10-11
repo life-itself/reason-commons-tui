@@ -3,11 +3,29 @@
 This projects the existing domain contract; it supplies no consulting semantics.
 """
 
+from importlib.resources import files
 import json
 from urllib.request import HTTPRedirectHandler
 
 from reason_commons.domain.contract import proposal_schema
 from reason_commons.domain.model import REFERENCE_KINDS, REQUIRED_REFERENCES
+
+
+def consulting_resources():
+    """The consulting procedure and domain context, read once per consultant so a run cannot change them."""
+    return (files("reason_commons.adapters").joinpath("prompts/consultant.md").read_text(encoding="utf-8"),
+            files("reason_commons.domain").joinpath("CONTEXT.md").read_text(encoding="utf-8"))
+
+
+def system_prompt(procedure, context):
+    return procedure + "\n\nDOMAIN CONTEXT\n" + context
+
+
+def consulting_prompt(transport=""):
+    """What every consultant is told: one procedure and domain context, followed only by its own way of
+    returning the proposal (``transport``)."""
+    procedure, context = consulting_resources()
+    return system_prompt(procedure + transport, context)
 
 
 class NoRedirect(HTTPRedirectHandler):

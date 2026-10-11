@@ -2,15 +2,15 @@
 
 Reason Commons keeps your reasoning in a durable commons. A **consultant** proposes
 the next question or recommendation from that commons. The consultant is a
-replaceable choice, made outside the commons. Three are supported:
+replaceable choice, made outside the commons. Four are supported:
 
-| | Built-in guide | LM Studio (local) | Anthropic |
-|---|---|---|---|
-| Where it runs | Inside Reason Commons | A server on your machine or network | Anthropic's hosted API |
-| What you need | Nothing | LM Studio with a chat model loaded | An Anthropic API key |
-| Cost | None | None beyond your hardware | Billed to your API key; estimated as you go ([what it costs](#what-it-costs)) |
-| Commons content leaves your machine | No | No (unless you point it at a remote server) | Yes, to Anthropic |
-| Provider name | `guided` | `lm-studio` | `anthropic` |
+| | Built-in guide | LM Studio (local) | Anthropic | Your coding agent |
+|---|---|---|---|---|
+| Where it runs | Inside Reason Commons | A server on your machine or network | Anthropic's hosted API | The coding agent using the skill (Claude Code, Codex) |
+| What you need | Nothing | LM Studio with a chat model loaded | An Anthropic API key | The skill and its MCP server; no key |
+| Cost | None | None beyond your hardware | Billed to your API key; estimated as you go ([what it costs](#what-it-costs)) | Your agent's subscription allowance; not estimated here |
+| Commons content leaves your machine | No | No (unless you point it at a remote server) | Yes, to Anthropic | Yes, to your agent's model provider |
+| Provider name | `guided` | `lm-studio` | `anthropic` | `host` (MCP server only) |
 
 The built-in guide is not a language model. For new goals it asks the loop's questions in a fixed order; for the imported
 RC development it preserves free-form notes and the continuation recommendation.
@@ -56,7 +56,8 @@ The first of these that is set wins:
 
 1. **An explicit choice**: `--provider guided`, `--provider anthropic` or
    `--provider lm-studio` on `tui`, `resume`, `contribute`, `retry`, `mcp` or
-   `providers`.
+   `providers`. `--provider host` exists only on `mcp` and `providers`; the
+   workspace and `contribute` refuse it, because no agent is there to answer.
 2. **The environment**: `REASON_COMMONS_PROVIDER`.
 3. **Your saved settings**, in the workspace only: the consultant chosen at first
    start or under **Settings** on the home screen, kept in
@@ -126,6 +127,37 @@ Use a model ID the server actually serves. Both adapters check the model first,
 and require each answer to come from that same model, so a server cannot quietly
 answer with a different one. Details for the local server are in
 [Using LM Studio](lm-studio.md).
+
+### Your coding agent as the consultant (host)
+
+`reason-commons mcp --provider host` makes the coding agent that uses the skill the
+consultant, on your own subscription, with no API key. The server then offers two
+tools instead of `consult`, `submit` and `retry`:
+
+- `consultation` returns, for a retained contribution awaiting a consultant, exactly
+  what every provider is sent: the consulting procedure and domain context, the
+  complete commons request and the proposal schema. It calls no model, and the
+  application refuses it for a request that was already answered, has gone stale or
+  was never retained.
+- `propose` hands the agent's proposal to the application, which treats it as any
+  provider's reply: it is retained as received, validated, then saved as proposals
+  that wait for you, or refused with a receipt that names the broken rule and keeps
+  your words. It accepts nothing on your behalf, and automatic acceptance still
+  needs `--allow-acceptance-setting`.
+
+Each saved reply records its consultant as
+`host/adapter=1/agent=AGENT/model=MODEL/verified=no/...`. **The application cannot
+verify which model wrote a proposal**: the agent and model are what the agent
+declared. **The quality of host-model consulting is unmeasured.** The consulting
+procedure was validated with provider models; the automated tests use fixture
+replies, so they prove the integration, not the quality. Every turn with the agent,
+reads included, uses your subscription allowance. A consultation adds about 11k
+tokens on an empty commons and about 40–50k on a large one, and the
+[usage log](#what-it-costs) does not count any of it. The agent also presents the
+commons, so it could draw on your chat, which the commons does not hold; the skill
+tells it not to, and nothing enforces that.
+
+Setup for Claude Code is in [skill usage](skill-use.md#use-it-in-claude-code-without-a-key).
 
 ## Check your setup
 
@@ -264,8 +296,14 @@ env_vars = ["ANTHROPIC_API_KEY"]
 already set, it reads your `~/.zshrc` for it, so the key stays out of the config
 file. After changing a provider, restart the client so it starts a new server.
 
+With `--provider host` no key is needed and none reaches the server; see
+[Claude Code setup](skill-use.md#use-it-in-claude-code-without-a-key).
+
 ## Limits
 
+- The host consultant works only through the MCP server. Its model cannot be
+  verified and its consulting quality has not been evaluated; see
+  [above](#your-coding-agent-as-the-consultant-host).
 - The experimental `--runner agent` currently needs `lm-studio`. With Anthropic
   it is rejected before anything is retained; use the default `--runner procedure`,
   or the Codex skill.

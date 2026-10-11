@@ -17,11 +17,11 @@ from reason_commons.adapters.invocation import procedure_text
 from reason_commons.adapters.skill_agent import TOOLS as CONTRIBUTION_TOOLS
 from reason_commons.adapters.rendering import workspace_output
 from reason_commons.adapters.usage import session_notice
-from reason_commons.bootstrap import configured_consultant, create_case, open_case, usage_session
+from reason_commons.bootstrap import chosen_provider, configured_consultant, create_case, open_case, usage_session
 from reason_commons.domain.model import CONSULT_INTENTS
 
 
-READS = {"inspect", "workspace", "history", "sources", "receipts", "storage_help", "context"}
+READS = {"inspect", "workspace", "history", "sources", "receipts", "storage_help", "context", "consultation"}
 STRING = {"type": "string"}
 CASE = {"type": "string", "description": "Existing commons folder name under the configured root; no path."}
 
@@ -80,9 +80,30 @@ TOOLS += [
           "base_revision": {"type": "integer", "minimum": 0}}, ("mode", "speaker", "base_revision")),
 ]
 
+# With the host consultant the agent using this server drafts each reply itself, so it reads the consultation and
+# hands back a proposal instead of asking the server to consult. Which request is due is the application's decision.
+DECLARED = {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"}
+HOST_TOOLS = [
+    tool("consultation", "For a retained request awaiting a consultant: the consulting procedure, the complete "
+         "request and the proposal schema, exactly what any provider is sent. Local; no model is called. Any other "
+         "request is refused.", {"request_id": STRING}, ("request_id",)),
+    tool("propose", "Hand over your proposal as the consultant for a retained request awaiting one, once per "
+         "contribution the participant authorized. The application validates it and saves its updates as proposals "
+         "that wait for the participant, or refuses it with a receipt. It accepts nothing.",
+         {"request_id": STRING, "proposal": {"type": "object"},
+          "agent": {**DECLARED, "description": "The coding agent you are, such as claude-code or codex."},
+          "model": {**DECLARED, "description": "The model you are running as; recorded, never verified."}},
+         ("request_id", "proposal", "agent", "model")),
+]
+PROVIDER_ONLY = {"consult", "submit", "retry"}
+# A consultation must reach the agent whole: a large commons's is 150,000-200,000 characters, past the 50,000 at
+# which Claude Code otherwise saves a result to a file. Other reads may still be saved to a file; they need not
+# be read whole, and leaving them there spares the participant's allowance.
+WHOLE_RESULT = {"consultation": {"anthropic/maxResultSizeChars": 500000}}
+
 
 class CaseToolBridge:
-    def __init__(self, case_root, consultant, allow_acceptance_setting=False, usage=None):
+    def __init__(self, case_root, consultant, allow_acceptance_setting=False, usage=None, host=False):
         self.root = Path(case_root).resolve(strict=True)
         # The usage log session of a paid consultant: from 80% of the monthly budget, consulting results carry a
         # usage_notice for the person. It says; it never blocks, and nothing is written to stdout, the transport.
@@ -92,6 +113,10 @@ class CaseToolBridge:
         self.consultant = consultant
         # Automatic acceptance delegates the operator's decision; an agent gets it only when granted.
         self.allow_acceptance_setting = allow_acceptance_setting
+        if host and consultant is not None:
+            raise ValueError("The host consultant is the agent using this server; compose no other")
+        self.host = host
+        self.tools = ([t for t in TOOLS if t["name"] not in PROVIDER_ONLY] + HOST_TOOLS) if host else TOOLS
 
     def _case(self, name):
         if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,79}", name):
@@ -113,11 +138,13 @@ class CaseToolBridge:
         if name == "new_case":
             with create_case(path, args["name"]) as app:
                 return app.inspect()
-        if name not in {t["name"] for t in TOOLS}:
+        if name not in {t["name"] for t in self.tools}:
             raise ValueError("Unknown commons capability")
         if name == "set_acceptance" and not self.allow_acceptance_setting:
             return {"status": "rejected", "message": "Only the operator changes how proposals are accepted; "
                     "this server was not granted that capability"}
+        if name == "propose":
+            return self._propose(path, args)
         with open_case(path, consultant=self.consultant, writable=name not in READS) as app:
             if name == "export":
                 bundle = args["bundle"]
@@ -134,6 +161,9 @@ class CaseToolBridge:
                 content = base64.b64decode(args.pop("content_base64"), validate=True)
                 return {"source_ref": app.add_source(content=content, **args)}
             result = getattr(app, name)(**args)
+            if name == "consultation":
+                from reason_commons.adapters.host import consultation_package
+                return consultation_package(result) if result["status"] == "awaiting_consultation" else result
             if name == "workspace":
                 return workspace_output(result)
             if name in {"consult", "submit", "retry"}:
@@ -141,6 +171,21 @@ class CaseToolBridge:
                 return {**result, **workspace_output(app.workspace(), result=result),
                         **({"usage_notice": notice} if notice else {})}
             return result
+
+    def _propose(self, path, args):
+        """The agent's proposal through the application's consult, for a request the application says is due."""
+        from reason_commons.adapters.host import HostConsultant
+        consultant = HostConsultant(args["proposal"], args["agent"], args["model"])
+        with open_case(path, consultant=consultant) as app:
+            due = app.consultation(args["request_id"])
+            # A reply already received is published without consulting again, as a retry would.
+            if due["status"] != "awaiting_consultation" and due.get("reason") != "reply_received":
+                return due
+            result = app.consult(args["request_id"])
+            if not consultant.called:
+                result = {**result, "proposal_used": False,
+                          "message": "A reply received earlier for this request was published; this proposal was not used"}
+            return {**result, **workspace_output(app.workspace(), result=result)}
 
 
 def build_server(bridge):
@@ -156,13 +201,14 @@ def build_server(bridge):
     async def list_tools():
         return [types.Tool(**item, annotations=types.ToolAnnotations(
                     readOnlyHint=item["name"] in READS, destructiveHint=False,
-                    idempotentHint=item["name"] in READS, openWorldHint=False))
-                for item in TOOLS]
+                    idempotentHint=item["name"] in READS, openWorldHint=False),
+                    **({"_meta": WHOLE_RESULT[item["name"]]} if item["name"] in WHOLE_RESULT else {}))
+                for item in bridge.tools]
 
     @server.call_tool(validate_input=False)
     async def call_tool(name, arguments):
         try:
-            spec = next(item for item in TOOLS if item["name"] == name)
+            spec = next(item for item in bridge.tools if item["name"] == name)
             validate(arguments, spec["inputSchema"])
             # One blocking adapter call per tool in a worker. Cancelling the
             # client doesn't start another request; retained input remains queryable.
@@ -183,10 +229,15 @@ def build_server(bridge):
 
 def serve(case_root, model=None, base_url=None, provider=None, allow_acceptance_setting=False):
     from reason_commons.adapters.anthropic import AnthropicConsultant
-    usage = usage_session("mcp")
-    consultant = configured_consultant(provider=provider, model=model, base_url=base_url, usage=usage.record)
-    bridge = CaseToolBridge(case_root, consultant, allow_acceptance_setting,
-                            usage=usage if isinstance(consultant, AnthropicConsultant) else None)
+    if chosen_provider(provider) == "host":
+        if model or base_url:
+            raise ValueError("The host consultant is the agent using this server; --model and --base-url do not apply")
+        bridge = CaseToolBridge(case_root, None, allow_acceptance_setting, host=True)
+    else:
+        usage = usage_session("mcp")
+        consultant = configured_consultant(provider=provider, model=model, base_url=base_url, usage=usage.record)
+        bridge = CaseToolBridge(case_root, consultant, allow_acceptance_setting,
+                                usage=usage if isinstance(consultant, AnthropicConsultant) else None)
     server = build_server(bridge)
     from mcp.server.stdio import stdio_server
 
