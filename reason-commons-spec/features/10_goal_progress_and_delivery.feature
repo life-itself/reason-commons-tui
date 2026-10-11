@@ -3,7 +3,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
   The selected delivery profile limits controls, fixtures, and adapter updates.
   Later models remain specified without becoming requirements for v1.
 
-  @S91 @p5 @later @automated
+  @S91 @p7 @later @automated
   Scenario: Preserve every delivered reasoning type in a portable handoff
     Given a full-tools commons with traceability, reviews, stances, and all six models
     When the operator exports and imports the commons offline
@@ -11,7 +11,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And review needs, open questions, observation criteria, and cursor are retained
     And no provider conversation is required
 
-  @S92 @p3 @later @automated
+  @S92 @p5 @later @automated
   Scenario: Keep structured causal navigation useful offline
     Given a causal-profile commons and an unavailable consultant
     When the operator opens the model, WIP, assumptions, or stored comparison
@@ -19,7 +19,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And no inference or discriminating prediction is invented
     And no consultant call or reasoning revision is created
 
-  @S93 @p2 @v1 @automated
+  @S93 @p3 @v1 @automated
   Scenario: Show the decision and goal served by the live question
     Given a stored intervention with purpose, decision, and goal version G1 version 1
     When the current question is rendered
@@ -27,14 +27,14 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And the rationale links the task to that exact goal formulation
     And a provisional goal remains labeled provisional
 
-  @S94 @p2 @v1 @automated
+  @S94 @p3 @v1 @automated
   Scenario: Leave a question open and return without reconstructing it
     Given a live question and an answer draft
     When the operator opens history and returns with Esc
     Then the open question, response target, and exact draft are restored
     And inspection creates no reasoning revision or consultant call
 
-  @S95 @p2 @v1 @automated
+  @S95 @p3 @v1 @automated
   Scenario: Revisit test relevance when its referenced goal changes
     Given test P1 version 1 explicitly serves goal G1 version 1
     When goal G1 receives a substantively different version 2
@@ -43,7 +43,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And the next test decision shows that review need
     And neither the old result nor the participants' positions are rewritten
 
-  @S96 @p3 @later @automated
+  @S96 @p5 @later @automated
   Scenario: Inspect a typed goal connection without inventing a mechanism
     Given a reported unwanted effect linked to a goal criterion by "violates"
     And its proposed causal explanation remains incomplete
@@ -53,7 +53,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And a new connection requiring judgment is a labeled consultant option
     And browsing makes no consultant call
 
-  @S97 @p5 @later @automated
+  @S97 @p7 @later @automated
   Scenario: Trace a change through distinct reasoning and implementation roles
     Given stored links from a goal through a CRT, Cloud, FRT, PRT, and action
     When the goal-connection view is opened
@@ -62,7 +62,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And a present observation and future prediction remain separate records
     And unresolved unwanted effects and safeguards remain visible
 
-  @S98 @p3 @later @automated
+  @S98 @p5 @later @automated
   Scenario: A revised premise requests review of its known dependent reasoning
     Given L2's reviewed formulation references premise N1 version 1
     When N1 receives a substantively revised version 2
@@ -72,7 +72,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And support or rejection does not propagate automatically
     And unrelated semantic consequences are not claimed to be discovered
 
-  @S99 @p4 @later @automated
+  @S99 @p6 @later @automated
   Scenario: Resolve a review without transferring another participant's belief
     Given a revised relationship and Priya's stance on its earlier formulation
     When Sam explicitly records a bounded decision under the remaining uncertainty
@@ -80,7 +80,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And Priya's earlier stance stays attached to its original version
     And Priya's current belief is unknown until she supplies it
 
-  @S100 @p5 @later @semantic
+  @S100 @p7 @later @semantic
   Scenario: A same-setup counterexample changes the questions across tools
     Given a CRT explanation that every sequence insertion adds setup time
     And the Cloud, FRT, and PRT contain explicitly linked dependent proposals
@@ -91,7 +91,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And the late-order observation is not erased
     And no operational improvement is inferred from the model correction
 
-  @S101 @p2 @v1 @automated
+  @S101 @p3 @v1 @automated
   Scenario: Complete an action without claiming its expected effect occurred
     Given a test action with an expected intermediate state and observation criterion
     When the operator explicitly records that the action was completed
@@ -99,7 +99,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And the receipt says "Action completed; result awaiting observation"
     And neither the prediction nor the system goal is marked achieved
 
-  @S102 @p2 @v1 @semantic
+  @S102 @p3 @v1 @semantic
   Scenario: Turn a recommendation into an immediate action with an observation
     Given a proposed bounded change and unknown decision authority
     When the operator asks what to do next
@@ -108,7 +108,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And it asks for the most consequential missing item
     And a drawn or saved action does not create a real-world assignment
 
-  @S103 @p5 @later @automated
+  @S103 @p7 @later @automated
   Scenario: Keep attained prerequisites distinct from executable readiness
     Given two independent intermediate objectives with attainment criteria
     And both are necessary before a supervised pilot
@@ -118,7 +118,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And missing resources, authority, or sufficient action steps remain unknown
     And the pilot is not labeled ready solely from its dependency graph
 
-  @S104 @p2 @v1 @semantic
+  @S104 @p3 @v1 @semantic
   Scenario: Distinguish a supported pilot target from achievement of the goal
     Given the goal is 90 percent on-time delivery
     And a bounded pilot prospectively predicts 80 percent
@@ -127,7 +127,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And the review shows protected conditions and implementation fidelity separately
     And a next decision addresses remaining goal progress and relevant uncertainty
 
-  @S105 @p2 @v1 @semantic
+  @S105 @p3 @v1 @semantic
   Scenario: Check whether the measured safeguard covers the protected need
     Given urgent responsiveness matters and only acknowledgement is measured
     When the operator asks whether timely acknowledgements establish fulfillment
@@ -136,7 +136,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And missing values remain unknown rather than receiving invented defaults
     And no breach is hidden by delivery success
 
-  @S106 @p5 @later @automated
+  @S106 @p7 @later @automated
   Scenario: Share a requirement without confusing necessity with attainment
     Given a necessary condition supports two critical success factors
     When the goal overview and focused requirement are opened
@@ -145,13 +145,13 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And current attainment is separate from its necessity warrant
     And meeting the requirement does not establish sufficiency for the goal
 
-  @S107 @p1 @v1 @automated
+  @S107 @p3 @v1 @automated
   Scenario Outline: Refuse a restored out-of-profile action locally
     Given the v1 delivery profile and a retained response draft
     And a stale cursor or action reference requests "<action>"
     When the workspace revalidates that action reference
     Then a local notice says the action belongs to a later delivery profile
-    And Help, navigation and Actions omit it as an available operation
+    And Help, navigation and Commands omit it as an available operation
     And no consultant call, revision or draft loss occurs
 
     Examples:
@@ -169,7 +169,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And the raw input and failure receipt remain available
     And later fields are not silently stored or partially applied
 
-  @S109 @p5 @later @usability
+  @S109 @p7 @later @usability
   Scenario: Change medium when narrow output cannot support the comparison
     Given a decision requires simultaneous review of interacting future branches
     When ordered 40-column records do not let a participant make the comparison
@@ -177,15 +177,15 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And decisive qualifications are not shortened away
     And the failed narrow comparison and rescue are recorded in evaluation
 
-  @S110 @p1 @v1 @automated
+  @S110 @p3 @v1 @automated
   Scenario: Do not advertise an out-of-profile option from an adapter
-    Given a v1 semantic response contains an option opening a Cloud view
+    Given a v1 semantic response contains an option opening a future structured Cloud view
     When the response is validated
     Then the proposal is rejected with a local unsupported-action receipt
     And the input, live response target, and prior revision remain intact
     And no menu exposes the unavailable option
 
-  @S111 @p2 @v1 @usability
+  @S111 @p3 @v1 @usability
   Scenario: Evaluate the complete goal action review loop without a tree lesson
     Given first-time participants and a v1 fixture with a fake consultant
     When they define success, inspect the purpose, record a test, resume, and review results
@@ -194,7 +194,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And completion, reference repairs, missed conditions, and reasoning are reported individually
     And no TOC vocabulary lesson or complete tree is required
 
-  @S112 @p5 @later @usability
+  @S112 @p7 @later @usability
   Scenario: Evaluate design hypotheses without confusing navigation with improvement
     Given predeclared rubrics and distinct comparable cases
     When joint-premise, goal-connection, and revision-review displays are compared
@@ -203,7 +203,7 @@ Feature: Connect reasoning to goal progress within the delivered scope
     And defensible alternative answers are accepted
     And access, reasoning, learning, implementation, and goal results are reported separately
 
-  @S113 @p1 @v1 @automated
+  @S113 @p3 @v1 @automated
   Scenario: Cancel an options menu and retain the question and draft
     Given a displayed options menu and an answer draft
     When the operator activates Cancel or presses Esc

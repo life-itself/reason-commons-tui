@@ -5,7 +5,8 @@ from pathlib import Path
 import unittest
 
 from check_bundle import (parse_scenarios, select_scenarios, validate_scope, validate_tui_frames,
-                          validate_tui_ledger, validate_interface_language, validate_v1_decisions)
+                          validate_tui_ledger, validate_interface_language, validate_v1_decisions, feature_paths,
+                          validate_reconciliation)
 
 VALID = '''@J01
 Feature: Fixture
@@ -21,7 +22,7 @@ class ScopeChecks(unittest.TestCase):
     def setUp(self):
         self.manifest = json.loads((Path(__file__).parent / 'delivery-phases.json').read_text())
         self.scenarios = []
-        for path in sorted((Path(__file__).parent / 'features').glob('*.feature')):
+        for path in feature_paths(self.manifest):
             parsed, errors = parse_scenarios(path.read_text(), path.name)
             self.assertEqual(errors, [])
             self.scenarios.extend(parsed)
@@ -29,7 +30,7 @@ class ScopeChecks(unittest.TestCase):
     def test_current_manifest_and_release_boundary(self):
         self.assertEqual(validate_scope(self.scenarios, self.manifest), [])
         self.assertEqual({s['id'] for s in select_scenarios(self.scenarios, 'v1', self.manifest)},
-                         {s['id'] for s in select_scenarios(self.scenarios, 'through-p2', self.manifest)})
+                         {s['id'] for s in select_scenarios(self.scenarios, 'through-p4', self.manifest)})
 
     def test_missing_phase_is_rejected(self):
         _, errors = parse_scenarios(VALID.replace('@p0 ', ''), 'fixture')
@@ -64,8 +65,8 @@ class ScopeChecks(unittest.TestCase):
 
     def test_later_requirement_cannot_silently_join_v1(self):
         modified = copy.deepcopy(self.scenarios)
-        target = next(s for s in modified if s['phase'] == 'p3')
-        target['phase'], target['release'] = 'p2', 'v1'
+        target = next(s for s in modified if s['release'] == 'later')
+        target['phase'], target['release'] = 'p4', 'v1'
         self.assertTrue(any('membership' in e for e in validate_scope(modified, self.manifest)))
 
     def test_phase_release_conflict_and_unknown_phase(self):
@@ -88,12 +89,42 @@ class ScopeChecks(unittest.TestCase):
         with self.assertRaises(ValueError):
             select_scenarios(self.scenarios, 'through-p99', self.manifest)
 
+    def test_future_scope_and_owned_conversation_scenarios_are_visible(self):
+        future = select_scenarios(self.scenarios, 'later', self.manifest)
+        self.assertEqual({s['phase'] for s in future}, {'p5', 'p6', 'p7'})
+        self.assertTrue({'S151', 'S164', 'S175', 'S187'} <= set(self.manifest['v1_scenarios']))
+        self.assertEqual(len(future) + len(select_scenarios(self.scenarios, 'v1', self.manifest)),
+                         len(self.scenarios))
+
+    def test_delivery_exit_is_independent_of_legacy_protocol_profile(self):
+        self.assertEqual(self.manifest['v1_exit'], 'p4')
+        self.assertEqual(self.manifest['sessions']['example-mvp-session.txt']['profile'], 'p2')
+        broken = copy.deepcopy(self.manifest)
+        broken['v1_exit'] = 'p2'
+        self.assertTrue(any('v1 exit' in e for e in validate_scope(self.scenarios, broken)))
+
     def test_untagged_and_duplicate_identity_are_rejected(self):
         _, errors = parse_scenarios(VALID.replace('  @S01 @p0 @v1 @automated\n', ''), 'fixture')
         self.assertTrue(any('identity tag' in e for e in errors))
         modified = copy.deepcopy(self.scenarios)
         modified[1]['id'] = modified[0]['id']
         self.assertTrue(any('duplicate scenario' in e for e in validate_scope(modified, self.manifest)))
+
+    def test_disposition_inventory_cannot_drop_future_requirement(self):
+        root = Path(__file__).parent
+        decisions = json.loads((root / 'reconciliation-decisions.json').read_text())['scenarios']
+        matrix = (root.parent / 'docs/v1-reconciliation.md').read_text()
+        self.assertEqual(validate_reconciliation(self.scenarios, decisions, matrix), [])
+        future = next(s['id'] for s in self.scenarios if s['release'] == 'later')
+        modified = [d for d in decisions if d['id'] != future]
+        self.assertTrue(any('every identity' in e for e in validate_reconciliation(self.scenarios, modified, matrix)))
+
+    def test_matrix_cannot_relabel_evaluation_as_executed_coverage(self):
+        root = Path(__file__).parent
+        decisions = json.loads((root / 'reconciliation-decisions.json').read_text())['scenarios']
+        matrix = (root.parent / 'docs/v1-reconciliation.md').read_text()
+        modified = matrix.replace('p4 · v1 · usability', 'p4 · v1 · automated')
+        self.assertTrue(any('scope/mode' in e for e in validate_reconciliation(self.scenarios, decisions, modified)))
 
 
 class TuiSpecimenChecks(unittest.TestCase):

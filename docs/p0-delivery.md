@@ -1,5 +1,9 @@
 # P0 delivered slice
 
+> Historical delivery evidence, through the accepted restoration on 10 October 2026.
+> The p0/p1/p2 labels and earlier unimplemented-slice claims below belong to their
+> dated runs. Current scope, tags and verification are in [V1 delivery](v1-delivery.md).
+
 The first natural phase is the existing **Durable minimal commons** increment,
 selected by `@p0 and @automated`, not the full v1 release. Its complete slice runs
 from an attributed contribution through retained input, a consultant port,

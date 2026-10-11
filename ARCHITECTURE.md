@@ -5,18 +5,22 @@ How to work on this code (method, workflow, testing, recipes) is in
 
 The refined conversation fits Reason Commons directly: the app must preserve
 reasoning correctly even if a skill is removed or a consultant misbehaves.
-The first completed increment is **p0**, as selected by the existing delivery
-manifest: all nine durable commons scenarios. V1 still ships after p2.
+The accepted simplified application is **v1**. The manifest's editorial progression
+(p0–p4) culminates in it; p5–p7 retain future requirements. See
+[the reconciliation matrix](docs/v1-reconciliation.md) and
+[current delivery report](docs/v1-delivery.md). Serialized `delivery_profile: p2`
+remains compatible with existing records and providers. Scope, automated coverage,
+live consulting quality and participant evidence are separate.
 
 ```mermaid
 flowchart TD
   CLI[Offline CLI] --> App[Application use cases]
   Invocation[One-shot contribution command] --> Skill
   MCP[Local MCP tools] --> App
-  TUI[Textual TUI, first p1 slice] --> App
+  TUI[Accepted v1 Textual TUI] --> App
   Agent[Agent using procedure] --> Skill[Skill adapter]
   Skill --> App
-  BDD[Original p0 Gherkin steps] --> App
+  BDD[Tagged v1 Gherkin steps] --> App
   App --> Domain[Reasoning Commons aggregate]
   App --> Ports[Storage / consultant / clock ports]
   Ports --> FS[POSIX YAML and ZIP adapter]
@@ -72,16 +76,17 @@ and session lifecycle are explicit exceptions. The architecture gate checks
 coverage and argument parity against `CaseApplication`: a new public use case
 cannot silently remain outside the skill surface. TUI actions call these use
 cases; domain effects and local-versus-consultant routing are tested at that
-boundary, while focus/layout behavior belongs in adapter tests. The first TUI
-slice (`adapters/tui.py`) reads `workspace`/`inspect`/`history`/`sources` and writes only through
+boundary, while focus/layout behavior belongs in adapter tests. The v1 TUI
+(`adapters/tui.py`) reads `workspace`/`inspect`/`history`/`sources` and writes only through
 `retain_input`, `consult`, `retry`, the decision use cases (`accept`, `reject`, `undo`,
 `still_holds`, `set_acceptance`), `export` and `checkpoint`; importing trees
 goes through `add_source` and `submit` with a deterministic proposal adapter
 (`adapters/ltp_trees.py`), the same path the `trees --import` command uses. The
 confirmation the TUI shows before a decision that takes more than was chosen comes
-from the use case itself, which refuses to act without `confirmed=True`. Its bindings are
-covered by adapter tests, and 28 of the 32 p1 scenarios run through the real workspace as
-interface acceptance steps (`tests/acceptance/steps/workspace_steps.py`); the gate lists the rest.
+from the use case itself, which refuses to act without `confirmed=True`. Its bindings are covered by adapter tests and interface acceptance steps
+(`tests/acceptance/steps/workspace_steps.py`, `baseline_steps.py`). The gate derives
+all automated v1 cases from scenario metadata; semantic and usability protocols
+remain separate.
 
 ## Application surface
 
@@ -112,8 +117,8 @@ Callers get copies of state, not mutable aggregate/repository handles.
 The `CaseCapabilities` protocol is the shared semantic surface for skills and
 local interfaces; it receives no repository capability. The contribution
 procedure uses inspect, retain, consult and explicit retry, while other skills
-can use the remaining capabilities. P0 has synchronous use
-cases; p1 can invoke them in a worker while retaining UI focus. No event bus,
+can use the remaining capabilities. Application use cases are synchronous; the TUI invokes consultation in a worker
+while retaining UI focus. No event bus,
 generic command dispatcher, service container or framework is necessary yet.
 
 Result statuses distinguish `input_retained`, `saved`, `not_saved`, `unavailable`,
@@ -178,6 +183,14 @@ screen over the commons folders in `~/ReasonCommons`; it only lists (read-only
 `inspect`) and creates (`create_case`) cases, then opens the chosen one. The consultant is chosen at
 composition (`--provider`, `REASON_COMMONS_PROVIDER`, default `guided`) and can
 be switched in the app by reopening the commons with another adapter.
+
+The imported sidebar shows Next step, Backlog, Goal, Trees, Your words and History.
+Tests, Loop actions, Reasoning and Commons context remain under Commands/Views and
+appear in the sidebar when relevant. RC-on-RC is an editable source-backed
+reconstruction; its adoption events are real import events, its earlier development
+story is explicitly hypothetical. The tour and Second Renaissance reading example
+are disposable learning surfaces; the latter retains editorial provenance and
+unresolved consent notes in its sources. They do not authenticate group approvals.
 
 For one reply with deeper reasoning, the workspace consults through a
 `ChosenConsultant`: the consultant in use, or for exactly one consultation a stand-in
@@ -251,15 +264,12 @@ flush failures remain `not_saved` and never trigger another consultant call.
 
 ## Testing and increment boundary
 
-`python3 scripts/check_p0.py` runs document consistency, the pre-existing checker
-regressions, domain/storage/application/skill tests and, through Behave, **the
-nine p0 scenarios**, every scenario of the two p2 features delivered so far (trees
-in conversation, S128–S134, and deciding what enters the model, S135–S150), the other delivered p2
-scenarios (listed in `DELIVERED_P2`, the rest named as outstanding), the
-delivered p1 workspace scenarios and the conversation features. The runner locates
-external step definitions; it does not copy, rewrite or weaken the feature files.
-It also verifies the exact selected scenario identities and rejects undefined,
-skipped or pending cases.
+`python3 scripts/check_v1.py` runs structural checker regressions, pytest and
+all scenario-local `@v1 and @automated` cases in both roots declared by the
+manifest. `check_p0.py` delegates to the same complete gate for compatibility.
+It verifies every stable identity, expanded row name and passed step; undefined,
+skipped or pending required cases fail. No separate delivered subset overrides
+release tags. Semantic and participant evaluations remain separately reported.
 Fixture setup uses application use cases. Byte-level persistence checks inspect
 archives returned by the public export capability.
 
@@ -338,14 +348,15 @@ context resources are frozen/hashed for each consultant session. The provider
 grammar distinguishes source identities, existing formulation refs and named
 temporary updates; domain validation still decides publication.
 
-P0 is complete. A first personal-use TUI slice ships, with the trees and the
-backlog of proposals of p2; the remaining p1 contract, the rest of p2 (consulting
-quality and the useful human review loop), complete semantic acceptance and
-participant studies remain later work. The p2 envelope
-name denotes the v1 **data profile**, not completion of p2 delivery behavior.
-The conversational skill projects current saved record links; later typed graph/group semantics remain unavailable. No shell REPL is advertised. The
-existing TUI design remains the p1 contract that the TUI slice works toward.
-
+The accepted simplified application is personal-use v1. Its editorial progression
+p0–p4 includes partial trees, proposals and membership, ordinary contributions,
+local reads, history and imported continuation. Supporting views hidden from the
+default sidebar remain available through Commands. Full structured causal/group
+semantics and focused canvases are future p5–p7 requirements; complete consulting
+quality and participant evidence remain outstanding for the existing capability.
+The `p2` envelope is a compatible data profile, independent of release increments.
+No shell REPL is advertised. [The reconciliation matrix](docs/v1-reconciliation.md)
+and [current delivery report](docs/v1-delivery.md) distinguish these claims.
 
 The offline legacy LTP continuation converter is a source-bound deterministic
 proposal adapter. It uses existing public application operations, retains the

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture one screenshot per step of every feature, named by feature, scenario and step.
+"""Capture one screenshot per executed step of selected acceptance features, named by feature, scenario and step.
 
 Runs the specification features and the conversation features through behave, with the same step definitions and
 environments as the gate, and after each step that executes saves what the participant would see at that point:
@@ -17,7 +17,8 @@ Pictures go to docs/screenshots/<feature>/<scenario>/<NN>-<keyword>-<step>.png. 
 replaces the previous run's pictures, so nothing stale is left behind. MANIFEST.json beside them lists every step,
 its outcome, and where its picture came from.
 
-    python3 scripts/capture_steps.py                     # every feature, four at a time
+    python3 scripts/capture_steps.py                     # automated v1, four features at a time
+    python3 scripts/capture_steps.py --all-contract       # future/evaluation documentation, not a gate
     python3 scripts/capture_steps.py --feature PATH      # one feature file (what the run above starts for each)
 
 PNG pictures use the same Chromium path as scripts/render_screenshots.py, so Pillow and Chromium must be available.
@@ -43,7 +44,7 @@ OUT = ROOT / "docs" / "screenshots"
 SPEC = ROOT / "reason-commons-spec" / "features"
 CONVERSATION = ROOT / "tests" / "conversation" / "features"
 # Step definitions that drive the live workspace: their picture is the running workspace, not a fresh one.
-LIVE_MODULES = {"workspace_steps.py", "question_steps.py"}
+LIVE_MODULES = {"workspace_steps.py", "question_steps.py", "baseline_steps.py"}
 ACCESSIBLE_MODULES = {"accessible_steps.py"}
 EXECUTED = {"passed", "failed", "error"}
 SIZE = (120, 40)
@@ -212,21 +213,23 @@ def capturing_runner(suite, capture):
     return CaptureRunner
 
 
-def capture_feature(path, suite, manifest):
+def capture_feature(path, suite, manifest, tags):
     """Run one feature file through behave, capture each executed step, then turn the pictures into PNG."""
     import render_screenshots
     from behave.__main__ import run_behave
     from behave.configuration import Configuration
     from reason_commons.adapters import themes
 
+    os.environ["REASON_COMMONS_CONFIG"] = str(manifest.parent / "disposable-settings.yaml")
     os.environ["REASON_COMMONS_USAGE_LOG"] = "off"
     os.environ[themes.ENVIRONMENT] = themes.DEFAULT_THEME  # the pictures show the default, not your own theme
     os.environ["TZ"] = "UTC"  # times read the same wherever the pictures are made
     time.tzset()
+    manifest.parent.mkdir(parents=True, exist_ok=True)
     directory = Path(feature_folder(path))
     capture = Capture(directory)
     report = manifest.with_suffix(".behave.json")
-    config = Configuration(command_args=[str(path), "--format", "json", "--outfile", str(report), "--no-summary"])
+    config = Configuration(command_args=[str(path), "--format", "json", "--outfile", str(report), "--no-summary", "--tags", tags])
     # behave reports failure for undefined steps; the manifest records those instead of failing the capture.
     run_behave(config, runner_class=capturing_runner(suite, capture))
     # Every step behave saw, by its outcome: a step with no definition is undefined, and a step after one is not run.
@@ -247,14 +250,14 @@ def capture_feature(path, suite, manifest):
             svg.with_suffix(".html").unlink(missing_ok=True)
         svg.unlink()
     manifest.write_text(json.dumps({"feature": feature_title(path), "file": str(path.relative_to(ROOT)),
-                                    "suite": suite, "steps_by_outcome": {k: len(v) for k, v in outcomes.items()},
+                                    "suite": suite, "selection": tags, "steps_by_outcome": {k: len(v) for k, v in outcomes.items()},
                                     "undefined_steps": outcomes.get("undefined", []),
                                     "not_run_steps": outcomes.get("not run", []), "steps": capture.entries},
                                    indent=2), encoding="utf-8")
     report.unlink()
 
 
-def run_all(jobs):
+def run_all(jobs, tags):
     if OUT.exists():
         # Only a folder this script generated is replaced; anything else is refused rather than deleted.
         if any(OUT.iterdir()) and not (OUT / MARKER).exists():
@@ -270,7 +273,7 @@ def run_all(jobs):
         manifest, log = work / f"{suite}-{path.stem}.json", work / f"{suite}-{path.stem}.log"
         with log.open("w") as output:
             code = subprocess.run([sys.executable, __file__, "--feature", str(path), "--suite", suite,
-                                   "--manifest", str(manifest)], stdout=output, stderr=subprocess.STDOUT,
+                                   "--manifest", str(manifest), "--tags", tags], stdout=output, stderr=subprocess.STDOUT,
                                   cwd=ROOT).returncode
         return path, code, manifest, log
 
@@ -296,7 +299,7 @@ def run_all(jobs):
                "not_run_steps": sum(len(feature["not_run_steps"]) for feature in features),
                "by_status": {status: sum(1 for e in steps if e["status"] == status)
                              for status in sorted({e["status"] for e in steps})}}
-    (OUT / MARKER).write_text(json.dumps({"summary": summary, "features": features}, indent=2), encoding="utf-8")
+    (OUT / MARKER).write_text(json.dumps({"selection": tags, "summary": summary, "features": features}, indent=2), encoding="utf-8")
     for path, code, log in broken:
         print(f"FAIL: {path.relative_to(ROOT)} exited {code}; the end of its log:")
         print("".join(log.read_text(encoding="utf-8").splitlines(keepends=True)[-15:]))
@@ -311,11 +314,14 @@ def main():
     parser.add_argument("--suite", choices=("spec", "conversation"), default="spec")
     parser.add_argument("--manifest", type=Path, help="where a per-feature run writes its manifest")
     parser.add_argument("--jobs", type=int, default=4, help="features captured at the same time")
+    parser.add_argument("--tags", default="@v1 and @automated", help="explicit scenario selection")
+    parser.add_argument("--all-contract", action="store_true", help="capture implemented steps in the full future/evaluation contract; not a gate")
     args = parser.parse_args()
+    tags = "" if args.all_contract else args.tags
     if args.feature:
-        capture_feature(args.feature.resolve(), args.suite, args.manifest)
+        capture_feature(args.feature.resolve(), args.suite, args.manifest or OUT / (feature_folder(args.feature) + ".json"), tags)
         return
-    run_all(args.jobs)
+    run_all(args.jobs, tags)
 
 
 if __name__ == "__main__":

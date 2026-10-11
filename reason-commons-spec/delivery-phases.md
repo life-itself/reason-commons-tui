@@ -1,188 +1,116 @@
-# Delivery phases and release gates
+# V1 scope, development increments and evidence
 
-V1 proves a useful goal–action–review loop. Its user does not need graph controls,
-formal participant stances, or TOC vocabulary. V1 already provides
-a persistent full-screen workspace, literal response
-editor, visible local controls and readable forecast/outcome review, and it draws
-the six trees as they grow in conversation (scope change approved 2026-10-03),
-and the operator decides what enters the model: proposals wait in a backlog unless
-the operator chose automatic acceptance (scope change approved 2026-10-07).
-The trees' joint premises, rival routes, review of consequences that no reference
-records and other formal checks arrive later; the TUI itself is not deferred.
+The accepted simplified application is v1. The reconciliation authorized on
+10 October 2026 aligns requirements with that baseline. It does not reconstruct
+an authenticated engineering history or certify the product's effectiveness.
+The demon was a metaphor for lost MVP discipline. Git can establish code changes;
+it cannot authenticate the hypothetical development argument.
 
-Section 0 of the main specification defines the v1 boundary. The JSON manifest
-locks the selected scenario IDs and artifact profiles. Changing that scope is
-an explicit specification decision; tagging a later scenario `@v1` is not a
-shortcut around it.
+[The matrix](../docs/v1-reconciliation.md) gives every scenario a disposition and
+maps reachable capabilities, including supporting views absent from the default
+sidebar. [The current report](../docs/v1-delivery.md) records checks actually run;
+[the old report](../docs/p0-delivery.md) preserves earlier evidence with its original
+phase vocabulary. This document supersedes the old “ship after p2” roadmap.
 
-## Tag contract
+## Tag contract and authority
 
-Every scenario or outline has exactly one delivery tag `@p0` through `@p5`,
-exactly one release tag `@v1` or `@later`, and exactly one evaluation tag:
+Each scenario or outline has exactly one stable `@Snn` identity, increment
+`@p0`–`@p7`, release `@v1` or `@later`, and evaluation kind:
 
-- `@automated`: deterministic fixtures, validator/routing/state invariants,
-  fake adapter, and observable call counter.
-- `@semantic`: authored and real-adapter proposals assessed against invariants
-  and a professional rubric. Passing a canned fake reply is insufficient.
-- `@usability`: a participant protocol and individual results; it cannot pass
-  from automated step execution alone.
+- `@automated`: deterministic application, interface or adapter behavior. The gate
+  runs every selected identity and every expanded row, refusing skipped or undefined
+  steps. Authored consultants establish transitions, never consulting quality.
+- `@semantic`: useful consulting assessed against a professional rubric and retained
+  actual proposals. A v1 tag means the capability exists; evidence can remain pending.
+- `@usability`: participant protocols and individual results, including assistive
+  technology use. Agent inspection and automated UI checks cannot complete them.
 
-`@Snn` preserves the scenario identity and `@Jnn` links jobs. Release, phase,
-and evaluation tags are scenario-local; they are forbidden on Feature or
-Examples blocks to avoid accidental inheritance. An outline has one delivery
-scope for all rows. Mixed-scope outlines must be split, as S07 and S90 are.
+Scope/identity tags are scenario-local, never inherited from Feature or Examples.
+Outlines cannot mix scope. `@Jnn` links jobs. Both `features/` and
+`../tests/conversation/features/` are authoritative tagged sources declared in
+`delivery-phases.json`; the latter retains its separate runner and provider fixtures.
+The reviewed v1 ID list locks scope, while the gate derives execution directly
+from `@v1 and @automated`. There are no secondary delivered-ID lists.
 
-Tags select sets. They do not order scenario execution or provide runtime
-feature flags. Each scenario uses an isolated fixture; no scenario depends on
-another having run. Phase dependencies belong to delivery milestones. Tags and
-boolean filters follow the [official Cucumber reference](https://cucumber.io/docs/cucumber/api/#tags).
+Tags select requirements, not runtime stages or participant questionnaires.
+Evidence status is recorded separately in the matrix and delivery/validation
+reports. Future requirements are not incomplete automated v1 coverage.
 
-## Ordered increments
+## Editorial development progression
 
-| Phase | Build and validate | Incremental exit gate |
+| Increment | Dependency and observable result | Release |
 |---|---|---|
-| p0 Durable minimal commons | Goal/note/intervention/test/action/observation schema; immutable ancestry; preserved inputs; atomic publication; idempotent retry; stale response rejection; one writer; portable export/import; profile validation | Restart and round-trip reproduce the supported records and original forecast offline. Failed writes and invalid/out-of-profile proposals commit nothing. No provider call follows failed input retention. |
-| p1 Persistent TUI | Event loop; pinned commons/goal/task/footer; literal multiline editor; keyboard controls; local inspection; async completion notices; focus/draft restoration; 80×24; linear alternative; profile-aware Actions | Default launch opens the workspace. Tab/arrows/Enter/Esc complete ordinary work without commands. Input is literal; navigation makes zero calls; pending output does not steal focus. Resize, resume and failure preserve draft and target. |
-| p2 Complete v1 loop | Goal/baseline/protections; public decision purpose; attributed corrections; bounded forecast; immediate action and authority; effect observation; prospective review; next decision; tree claims, single links (which may reach another tree), new versions and retraction drawn in a Trees view, with the commons' one goal at the Goal Tree's top; LTP 1.0 import/export; proposals decided in an ordered backlog, the acceptance setting, review flags on explicit references, and undo | The v1 session is reproducible with a fake adapter; a real adapter preserves semantic invariants; no proposal enters the model without the operator's acceptance or their automatic-acceptance setting, and every acceptance can be undone; first-time users complete and explain the goal–action–review loop. |
-| p3 Causal release | Joint premise (ALL) groups and rival routes in the CRT, WIP integration, assumptions, evidence detail, comparisons, feedback episodes, goal-connection and revision-review views; optional coaching/density settings and structured authoring forms | New causal scenarios and p0-p2 regressions pass. Users preserve joint premises, challenge a mechanism, distinguish alternatives, and notice changed-premise reviews. |
-| p4 Facilitated group release | Exact-version representation/belief/reliance; declared speaker switching; scoped Cloud; reported versus direct attribution | New group scenarios and p0-p3 regressions pass. No silence, reported opinion, or willingness to test becomes invented belief or consensus. |
-| p5 Full-tools release | Goal hierarchy, FRT and negative branches, PRT criteria/dependencies, TT rationale/contingencies, shared requirements, cross-tool traceability and review | New full-tool scenarios and p0-p4 regressions pass. Users trace the goal connection, review adverse paths, distinguish necessary states from sufficient action plans, and choose a changed-case action. |
+| p0 Durable attributed records | Retain literal inputs and sources; validate closed schema and exact references; atomic publication, immutable ancestry, explicit retry, stale-target rejection, one writer and portable archives | v1 foundation |
+| p1 Proposals and acceptance | On durable records, distinguish retention from model membership; explicit/automatic admission, dependency confirmation, final rejection and undo, operator-controlled policy | v1 foundation |
+| p2 Inspectable reasoning and history | On accepted membership, inspect goals, six partial trees, single typed links, source words, versions, stage history and explicit-reference review flags; import/export LTP without inference | v1 foundation |
+| p3 Guided work and revision | On inspectable records, offer one next move, literal editor, responsive local navigation, fixed offline loop, forecasts/results, action/effect distinctions, correction, draft restoration and accessible ordered text | v1 working interface |
+| p4 Import prior work and continue | Bring prior RC development into that interface with honest provenance and actual adoption; free-form continuation, collision-safe resume, Settings, provider choice, usage/cost controls and one deliberate deeper reply | accepted v1 baseline |
+| p5 Richer causal tools | Joint-premise groups, rival routes, WIP integration, structured local authoring, evidence/assumption detail, feedback/comparison views and review beyond explicit references | future |
+| p6 Facilitated group positions | Exact-version wording/belief/reliance and actor-bound forms; speaker switching without draft reassignment or invented consensus | future |
+| p7 Full reasoning and implementation tools | Richer goal/forecast/prerequisite/action representations, adverse paths, criteria, shared requirements and cross-tool traceability/review | future |
 
-All increments need their selected automated, semantic, and participant checks.
-P0 fixtures exercise the commons engine through a test driver; they do not require
-the p1 TUI. Later phases can reuse those records without depending on another
-scenario's execution. Shared Background steps use only capabilities available
-by the earliest selected scenario in that feature.
-Ship v1 after p2. Later releases require evidence that their additional structure
-helps a recurring user decision; they do not delay v1 merely because their
-specifications exist. Notifications, authenticated simultaneous users,
-remote synchronization, and external execution have no delivery tags and remain
-outside this roadmap.
+Every increment depends on the preceding one. This is one plausible order of
+responsibilities culminating in the accepted app, not the sequence people must
+follow in RC or a claim about historical releases. P0 includes the compatible
+record schema, so later increments can exercise richer fixtures without demanding
+later interaction. Each scenario uses an isolated fixture through application use
+cases; none depends on another scenario having run.
 
-## V1 participant gate
+V1 already draws all six partial trees and a complete five-box Cloud, with one goal
+at the Goal Tree's top and single links allowed across trees. Future full tools
+means richer semantics and checks, not the first existence of those trees.
+Commands/Views exposes Tests, Loop actions, Reasoning and Commons context even when
+the imported sidebar omits them. Density, theme, caret and folding are presentation
+state. Decisions, sources and persistence remain application capabilities.
 
-Use at least five first-time participants with varied terminal and domain
-experience, including an accessible linear text workflow. Begin at the default
-v1 TUI current
-question without a manual at both 120×40 and 80×24. Repeat the linear workflow
-with assistive technology users; an ASCII screenshot is not accessibility
-evidence. Core navigation tasks use visible controls, not command prompts:
-inspect purpose and stored
-source, return to the question, type the literal answer `5`, choose local versus
-consultant options, preserve a draft, quit, and resume. At least four of five
-complete those tasks within 15 minutes without moderator commands. Everyone
-predicts the provider boundary before selecting an action. Any accidental call,
-wrong test/version, lost draft, focus theft, clipped premise or concealed breach blocks release.
+## Scope is not a wire profile or an evidence certificate
 
-Separately give them the complete loop: state success and protections, identify
-the next action and authority, specify an observation and stop condition, resume,
-and review an unchanged forecast. They accept and reject what a reply proposes,
-find a proposal in the backlog, and undo an acceptance. They must distinguish
-completed action, observed effect, pilot target, and system goal, and say that
-accepting a proposal admits it to the model without making it true. Record individual performance,
-repairs, missing conditions, and reasoning. These are proposed gates and small
-formative samples, not claims of measured usability or population effectiveness.
-Test consequential fixes with new participants.
+The existing v1 protocol and archives use `delivery_profile: "p2"`. Preserve that
+value, `CaseCapabilities`, `case` keys and `.reasoncase` compatibility. Future
+illustrations use legacy profiles p3/p5; those are unsupported by the v1 runtime.
+Changing delivery increments is not a migration of records or providers.
 
-The existing all-tree and structured-position protocol in section 6a applies to
-later releases. Comparative display studies in S112 need their own size and
-prepared rubrics; a five-person navigation round does not establish their effects.
+The accepted release scope remains v1 even while semantic and participant evidence
+is outstanding. The automated gate checks all deterministic v1 behavior; completion
+of that gate alone makes no effectiveness, live-model or participant claim. Scope
+reconciliation must not retag a required failing automated baseline as future.
 
-## Selection and regression
-
-The structural checker can list scope before any step definitions exist:
+## Selection and complete execution
 
 ```sh
-python3 reason-commons-spec/check_bundle.py --select v1 --list
-python3 reason-commons-spec/check_bundle.py --select p3 --list
-python3 reason-commons-spec/check_bundle.py --select through-p4 --list
+.venv/bin/python reason-commons-spec/check_bundle.py --select v1 --list
+.venv/bin/python reason-commons-spec/check_bundle.py --select later --list
+.venv/bin/python reason-commons-spec/check_bundle.py --select p5 --list
+.venv/bin/python reason-commons-spec/check_bundle.py --select through-p5 --list
+.venv/bin/python scripts/check_v1.py
 ```
 
-`p3` lists only the new increment; `through-p4` includes every earlier phase.
-`v1` is exactly p0-p2. A later release must run cumulative regressions, not only
-the incremental list.
+`v1` selects p0–p4; `p5` selects one future increment; `through-p5` includes all
+prior regressions. The historical `scripts/check_p0.py` command delegates to the
+same complete v1 gate. It also runs the structural regressions and all implementation,
+architecture and adapter tests. Live provider calls are opt-in and outside the gate.
 
-Once a Cucumber runner and step definitions are implemented, use these tag
-expressions with that runner's tag option:
+## Outstanding evaluations of v1
 
-```text
-@v1 and @automated
-@v1 and @semantic
-@v1 and @usability
-@p3 and @automated
-(@p0 or @p1 or @p2 or @p3) and @automated
-```
+Use S73 and S111 for first-time navigation and the test/review loop; use S185 for
+RC-on-RC continuation and provenance. Start without a manual at 120×40 and 80×24,
+with varied terminal/domain experience, and include assistive-technology users in
+the ordered workflow. Record each person's actions, confusion, repairs and reasoning.
+The existing proposed navigation target is four of five completing core tasks in
+15 minutes without moderator commands; treat this as a formative protocol, not a
+population estimate. Everyone should predict the consultant boundary, distinguish
+acceptance from truth and action authority, and recover drafts and exact targets.
+Consequential failures require repairs and new participant checks.
 
-The last filter is the cumulative automated gate for p3. Run semantic and
-usability protocols separately for the same cumulative release. Undefined or
-pending steps are incomplete acceptance work; filtering them out does not meet
-a release gate. Do not use an exclusion such as `not @later` as an alternative
-to explicit scope, or use `@wip` to hide required failing scenarios. WIP in the
-product means accepted but unconnected material (shown as Unlinked); it is
-unrelated to delivery status and to the backlog of proposals.
+Semantic evaluations assess neutrality, useful next moves, causal restraint,
+units/denominators, original forecasts, protection breaches and immature outcomes.
+The expanded inventory also identifies reported positions and bounded Cloud
+reasoning already expressible by v1. Existing live runs and AI pre-screens remain
+in [validation](../docs/validation.md); they do not complete attributed human review.
+A missing evaluation fixture stays visible as an evidence gap.
 
-## Change discipline
-
-1. Add a scenario to the smallest phase that can deliver it without later
-   schemas, controls, views, or shared fixture setup.
-2. Split an outline whose rows need different capabilities.
-3. Review earlier fixtures and Background steps for later dependencies.
-4. Update the manifest deliberately if v1 scope or an artifact profile changes.
-5. Update view/scenario traceability and session ledgers, then run `--sync`.
-6. Run structural validation and checker regression tests. Application behavior
-   remains unverified until a runnable implementation and participant study exist.
-
-Keep a short release report identifying the selected scenarios, their completed
-checks, consequential failures, and the scope actually enabled by the runtime.
-Do not treat a scenario tag or a passing document check as proof of implementation.
-
-## Specification decision of 2 October 2026
-
-P1 includes the persistent workspace; p2 completes the useful goal/action/review
-loop. All three session specimens are full-screen interactions. Every human
-acceptance scenario follows visible controls; the shell only launches or operates
-offline utilities. The superseded CLI wireframes and shell transcript are removed.
-The accessible ordered presentation shares the same actions, never a separate
-command language. Product/executable/archive names are Reason Commons,
-`reason-commons` and `.reasoncase`. Internal consultant contributions do not
-become user-facing stationery objects. No graph/group requirement moves into v1.
-
-## Specification decision of 7 October 2026
-
-The consultant drafts; the operator decides what enters the model. Before this
-decision a valid consultant reply was published straight into the trees. Now
-every update a reply proposes, to any part of the model, waits in a backlog with
-its source until the operator accepts it, unless the operator has set the commons to
-accept proposals automatically; holding them for review is the default. The
-backlog orders proposals by what they cite and then by method, with a new goal
-marked to be decided first. An accepted change flags whatever explicitly cites
-what it changed, so a consequence cascades one reviewed step at a time, and every
-acceptance can be undone, finally, by an appended revision. Section 2F of the
-specification states the contract; feature 13 (S135–S147) specifies it.
-
-Three related changes make one model rather than parallel records: the commons'
-goal is the Goal Tree's top statement and changes by new versions; a link may use
-a statement from another tree; and LTP imports wait in the backlog like any other
-proposal. These move bounded parts of p3 (membership, review on explicit
-references) and p5 (links across trees) into v1. S01, S02, S07, S40, S43, S46,
-S52, S108 and S128–S133 were amended to match; no scenario was removed. Review
-of consequences that no reference records, correction receipts and Restore
-reasoning stay in p3. A confidence threshold for automatic acceptance is a later
-setting; v1 records the consultant's confidence without using it.
-
-Later the same day, after a live run against Claude, three rules were added to
-that contract (S148–S150). Accepting a withdrawal names the links it takes out of
-the trees and waits for the operator's confirmation, also under automatic
-acceptance. A reply cites only the answer it replies to, answers already taken
-in and supplied sources, so an answer that went stale stays out of the commons. A
-test can be given a new version until its first result is in the model; from
-then on its forecast is fixed. A result reported before a test's stated start is
-not refused, because those dates are the participant's free text.
-
-Also on 7 October, the status line kept its redesign (the goal's name, who is
-answering and whether it is saved), with focus shown by a heavy frame round the
-focused pane. S04, S49 and S68 were reworded to match: the focused control is
-framed, or named in words in the accessible text presentation, and Commons context
-gives the revision with the rest of the complete context. Their other steps are
-unchanged. The authored specimen frames, which print the revision and focus in
-their header line, are illustrations and were left as they are.
+Future comparisons (S88, S109, S112) retain their own protocols. Confidence thresholds,
+editing proposals before adoption, TUI source attachment, and home rename/delete
+are explicit candidate backlog in the matrix; they are not silently promised by v1.
+Authenticated simultaneous users, reminders, remote synchronization and external
+execution remain outside release scope. A review date schedules nothing.

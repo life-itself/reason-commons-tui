@@ -29,12 +29,12 @@ Each question has exactly one authoritative place. Change the owner, not a copy.
 | What states and rules are valid? | Domain model | `src/reason_commons/domain/model.py`, `contract.py` |
 | How is behavior invoked? | Application use cases | `src/reason_commons/application/ports.py` (`CaseCapabilities`), `service.py` |
 | How does an agent carry out the work? | Skill procedure | `src/reason_commons/adapters/contribution_skill/SKILL.md` (linked from `skills/` and `.agents/skills/`) |
-| How does a human initiate and control it? | Interface | The offline CLI and the TUI (`adapters/tui.py`); the TUI contract is `TUI-DESIGN.md`, partly delivered |
+| How does a human initiate and control it? | Interface | The offline CLI and the accepted v1 TUI (`adapters/tui.py`); future rendering requirements are labeled in `TUI-DESIGN.md` |
 | Which dependencies and gates apply? | Control files | `ARCHITECTURE.md`, `.workflow.json`, `tests/test_architecture.py` |
 
 If two owners appear to disagree, do not pick one silently. The specification and
-its delivery tags define scope; the glossary maps them onto code. Report the
-conflict and ask.
+its delivery tags define scope; the glossary maps them onto code. Record the conflict and resolve it within existing user authorization; ask only
+when the task has not authorized the needed specification decision.
 
 ## Documents in this set
 
@@ -56,7 +56,7 @@ Every task starts with `AGENTS.md`, this page, `ARCHITECTURE.md` and
 | Provider or adapter work | [Choosing a consultant](../providers.md), [LM Studio](../lm-studio.md) |
 | Skill or procedure work | [Skill usage](../skill-use.md), the packaged `SKILL.md`, [validation](../validation.md) |
 | TUI or interface work | `TUI-DESIGN.md`, `reason-commons-spec/tui-reasoning-design.md`, `reason-commons-spec/accessibility.md` |
-| Scope or delivery questions | `reason-commons-spec/delivery-phases.md`, [P0 delivery](../p0-delivery.md) |
+| Scope or delivery questions | `reason-commons-spec/delivery-phases.md`, [V1 delivery](../v1-delivery.md) and [reconciliation matrix](../v1-reconciliation.md) |
 
 ## Where this came from
 

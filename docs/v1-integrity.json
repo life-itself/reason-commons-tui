@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-10",
+  "baseline_commit": "030cbdd",
+  "method": "SHA-256 compared against the clean baseline before reconciliation; archived source bytes and compatibility fixtures are unchanged.",
+  "preserved_sha256": {
+    "docs/restoration/reason-commons.reasoncase": "eba828d75bb8b2eeb485c3ec26b2a438589a5b4fc2474e073ab3b38aa566722b",
+    "docs/restoration/sources/reason-commons-ledger.json": "c10ec04d700bde7f4cf69360b168ebe66d58c6b7dc3c2efd2cd17a480898517b",
+    "src/reason_commons/adapters/commons/acceptance-request.txt": "db74f08b502fb4c7d5d984cae8537c9b22566923b79c4509452115506bad2ed0",
+    "src/reason_commons/adapters/commons/builders-brief.txt": "a0f974a5619c9e340b4ecb614b4307b257bdff1f7cf3c0bba163048627fd00e4",
+    "src/reason_commons/adapters/commons/conversation.json": "f0c5e006f504832dec8ed567eaad3d97669ff772bc6f4a5c6fe78d733dffd777",
+    "src/reason_commons/adapters/commons/development.json": "a5c0023c388eaf76a85b8aff036899de34e21df0edb985061d9226a0bb63a746",
+    "src/reason_commons/adapters/commons/scenario.txt": "0bbac6d24d0fbbbfc3cca4badcd33331726e4f3667bf1240ff678cff0de8d7e3",
+    "src/reason_commons/adapters/stories/second-renaissance.reasoncase": "9ed98a75719afc97223a4fda1873a69a41613ac9e7c553f2f2853e4ee45eb0bd",
+    "tests/fixtures/README.md": "2acf8f186238fe6b6a89661559bff9bf983f24af15712a44cf2f3934381cc9ae",
+    "tests/fixtures/null-test-reference.json": "3a10f0bb8f749fd3eedaefc72a24363506069f598351abdafcaeb30adf8974e2",
+    "tests/fixtures/recorded-before-proposals.reasoncase": "bbf309eecab4a90e4b7a15c6a7106f4d8fdd1885b6160f3ebd03a9a3e8a5a6c9"
+  }
+}

@@ -33,7 +33,11 @@ reason-commons import ~/Desktop/first-practice.reasoncase --store ~/ReasonCommon
 reason-commons
 ```
 
-The destination folder must not exist yet. The copy carries the whole history.
+The destination folder must not exist yet. The copy carries the whole history, original source bytes, proposal membership,
+acceptance decisions and cursor. Existing `.reasoncase` archives and `case` keys
+remain compatible; delivery increment changes do not migrate them.
+For the accepted reconstructed development import, see
+[the working-import guide](restoration/working-import.md).
 
 ## Bring trees in or out
 

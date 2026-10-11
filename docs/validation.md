@@ -1,15 +1,16 @@
-# Validation of the implemented slice
+# Validation and evidence limits
 
-The p0 application/DDD boundary has a deterministic acceptance gate. A local
-model and an agent are separate replaceable adapters with separate evaluations.
-None of these evaluations constitutes the p1/p2 or first-time participant gate.
-The existing [delivery contract](../reason-commons-spec/delivery-phases.md)
-defines those additional requirements.
+The accepted application is v1. Its complete deterministic gate is recorded in
+[the current report](v1-delivery.md); [the matrix](v1-reconciliation.md) separates
+future requirements from evaluations of existing capabilities. The local model,
+hosted consultant and skill executor have separate evaluations. Earlier dated
+runs below retain their original phase vocabulary and configurations. None
+constitutes participant or assistive-technology research.
 
 ## Repeatable checks
 
 ```sh
-python3 scripts/check_p0.py
+python3 scripts/check_v1.py
 python3 scripts/evaluate_lm_studio.py \
   --model google/gemma-4-e4b --suite all --repeat 2 \
   --output .evaluation-runs/my-model-check
@@ -30,7 +31,7 @@ was not saved, the transport slips the adapter undid, and tokens and seconds.
 
 `evaluate_semantic.py` runs every fixture in `evaluations/fixtures.py` (or `--case
 NAME`, repeatable) once per repetition, each generation attempted once. The
-fixtures cover the twelve `@semantic` p2 scenarios (S01, S02, S06, S30, S34, S35,
+fixtures cover the original twelve `@semantic` v1 scenarios (S01, S02, S06, S30, S34, S35,
 S36 with one fixture per outline row, S52, S102, S104, S105, S122); authored setups
 are seeded through the application. Two more carry the live procedure's
 open-evenings conversation, which asks for the largest replies: its trees (a cause
@@ -64,7 +65,10 @@ directory is ignored by Git; reviewed conclusions belong in this document.
 The semantic fixtures cover a situation → goal → prospective pilot → action →
 outcome sequence, attributed correction/uncertainty, a guardrail review, and an
 unimplemented/inconclusive review. They link to original scenario identities;
-they do **not** cover every p2 scenario or outline row. Required record kinds,
+they do **not** establish complete semantic evaluation. The reconciled v1 scope
+also includes S23 (units/comparability), S26 (reported attribution), S28 (bounded
+Cloud representation) and S29 (real incompatibility). Existing related fixtures
+do not by themselves complete these scenarios' attributed review. Required record kinds,
 immutable history, exact source/target retention, provider outcomes and restart
 are mechanically checked. Judging neutrality, causal restraint, decision
 usefulness, and whether the protection breach is properly addressed requires
@@ -105,7 +109,7 @@ before commit) is marked `unjudgeable` with the reason; such a review reports
 `setup_records`) and the turns whose reply was not committed, and every machine
 check says what a failure would be evidence of: the consultant's reply, the
 application, or only the consequence of an uncommitted reply. Pending criteria and failures remain visible. A completed review
-of these fixtures still cannot approve the unimplemented TUI or substitute for
+of these fixtures still cannot establish participant usability of the delivered TUI or substitute for
 five real first-time participants and assistive-technology testing.
 
 ### Reviewing replies with people who have no background
@@ -265,7 +269,7 @@ The complete v1 semantic gate is **not passed**.
 
 P1's persistent workspace/action bindings and p2's complete loop, goal version
 transitions, local action completion, complete acceptance coverage and participant
-study remain implementation/release work. The current runtime is the p0 slice;
+study remain implementation/release work. The runtime at that evaluation date was the p0 slice;
 its data profile name `p2` does not imply that the later phase is delivered.
 
 ## Usable skill entry points — 3 October 2026
@@ -305,7 +309,7 @@ command defaults to the existing deterministic procedure driver. `--runner
 agent` is an explicit experimental selection; no failure silently switches
 runners or repeats semantic requests. Application publication status and agent
 completion are reported independently. This delivers the own-commons skill entry
-point, not the unfinished TUI or a passed v1 semantic quality gate.
+point at that date, without establishing TUI completion or semantic quality.
 
 
 ## Conversational interface verification on 3 October 2026
@@ -347,8 +351,10 @@ The existing `my-case` was inspected read-only; its revision 1 was not resubmitt
 or modified. It has a note and question without graph references, so no diagram
 is invented. The packaged skill now presents a continuing conversation over the
 shared workspace; a fresh Codex chat must load the updated MCP tool catalog.
-The full p1 TUI contract (a first slice now ships), later typed causal/conflict graphs, full v1 consulting quality
-and participant/assistive-technology release gates remain outstanding.
+At that evaluation date, the older p1 contract was only partially delivered.
+Current accepted v1 scope is recorded in the reconciliation matrix; richer typed
+causal/group tools remain future, while complete live consulting, participant
+and assistive-technology evidence remains outstanding.
 
 
 The updated wheel also built in an isolated build environment and passed an

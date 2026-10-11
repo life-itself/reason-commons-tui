@@ -40,7 +40,7 @@ cases. Add or adjust skill tests if a procedure or host changed.
 
 **8. Update the documents the change touches.** At minimum: `CONTEXT.md` for a new
 term, `ARCHITECTURE.md` for a boundary or guarantee, the user guides for anything a
-participant sets or sees, and `docs/p0-delivery.md` when scope changes. Run every
+participant sets or sees, and `docs/v1-delivery.md` when scope changes. Run every
 command and check every path you wrote.
 
 **9. Run the full gate** and report.
@@ -51,7 +51,7 @@ command and check every path you wrote.
 - [ ] The rule is enforced by the domain or application, not only by a skill or UI.
 - [ ] Specification scenarios are unchanged (or a change was explicitly authorized).
 - [ ] New scenarios were shown to fail, and a deliberate break was caught.
-- [ ] `python3 scripts/check_p0.py` passes, or each failure that cannot run in this
+- [ ] `python3 scripts/check_v1.py` passes, or each failure that cannot run in this
       environment is named, with its cause.
 - [ ] The shared capability surface covers any new semantic operation, and
       `tests/test_architecture.py` passes.
@@ -63,8 +63,8 @@ command and check every path you wrote.
 
 Do not guess. Stop and ask the user when:
 
-- the work seems to require changing a specification scenario or its delivery tags;
-- two authoritative sources disagree;
+- the work needs specification or delivery-tag changes not already authorized by the user;
+- two authoritative sources disagree and the existing task authorization cannot resolve them;
 - a domain-significant operation has no place on `CaseCapabilities`;
 - the change would add a second bounded context or an outward dependency;
 - the work would make a provider call, spend money, or touch anyone's real commons data
@@ -78,8 +78,9 @@ Do not guess. Stop and ask the user when:
 - **Never edit what you did not read.** Read the file and its neighbors first.
 - **Disposable commons.** Experiments use temporary stores. Do not write into a
   participant's commons root, and never store credentials in a commons or an export.
-- **Leave scope honest.** P0 is implemented; p1 and p2 are partly delivered, and the
-  gate prints which p1 scenarios are still outstanding. Do not describe planned
-  behavior as delivered.
+- **Leave scope honest.** V1 is the accepted application baseline (p0–p4);
+  p5–p7 are future. The complete automated v1 gate derives from tags. Record
+  live quality and participant evidence separately, with outstanding evaluations
+  visible in the current report. Do not describe planned behavior as delivered.
 - **Prefer the plain solution.** No event bus, generic dispatcher, service container
   or framework until a real need appears.

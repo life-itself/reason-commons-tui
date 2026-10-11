@@ -63,8 +63,7 @@ with the code.
    application boundary.
 3. A confirmation or disabled control is a hint only. The use case must reject the
    same operation when called directly.
-4. Follow `TUI-DESIGN.md` and the specification's interface scenarios; the TUI
-   implements part of p1, and the gate lists which p1 scenarios are delivered.
+4. Follow `TUI-DESIGN.md` and the specification's interface scenarios; the accepted TUI is v1, and the gate executes every tagged automated v1 case.
 
 ## Change a skill procedure
 
@@ -87,7 +86,9 @@ with the code.
 
 ## Change the specification
 
-Not without the user's explicit authorization. If you believe a scenario is wrong or
-missing, write down which scenario, why, and the proposed change, then ask. The
+Use the user's explicit authorization when the task includes specification changes.
+Otherwise, record the scenario, reason and proposed change before asking. Keep
+release scope separate from its evidence status; regenerate the reconciliation
+matrix and synchronize examples when tags or observations change. The
 delivery manifest and `reason-commons-spec/check_bundle.py` lock scope on purpose:
 tagging a later scenario `@v1` is not a shortcut.

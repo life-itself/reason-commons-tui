@@ -4,12 +4,13 @@ How we develop (method, workflow, testing, recipes) is in
 `docs/development/README.md`.
 
 Read `ARCHITECTURE.md` and the owning `src/reason_commons/domain/CONTEXT.md`
-before changing commons behavior. The existing specification and its scenario-local
-delivery tags define scope. P0 is implemented; a personal-use TUI slice exists. Of p1, 31 of 32
-scenarios are delivered (the gate lists which); of p2, the trees-in-conversation scenarios
-(S128–S134), deciding what enters the model (S135–S150), the loop's records (S32, S37,
-S95, S101), how the question is presented (S03, S04, S17, S93, S121) and leaving and
-returning (S94); the gate lists the rest of p2 as outstanding.
+before changing commons behavior. The accepted simplified app is v1. Scenario-local tags in both specification and
+conversation features define scope; `reason-commons-spec/delivery-phases.json`
+defines their runners and dependency progression (p0–p4 for v1; p5–p7 future).
+Read `docs/v1-reconciliation.md` for dispositions and reachable capabilities, and
+`docs/v1-delivery.md` for current evidence. Delivery labels are distinct from the
+compatible serialized `delivery_profile: p2`. The development progression and
+RC-on-RC story are editorial/hypothetical, not authenticated by Git history.
 
 Keep domain knowledge in the context/model and acceptance behavior in `.feature`
 files. Skills consult those artifacts and call application capabilities. Domain
@@ -33,6 +34,7 @@ Do not infer live-model quality or participant usability from fake-consultant
 tests. Preserve the existing scenarios unless the user authorizes a specification
 change; do not filter required cases to conceal undefined or failing steps.
 
-Run `python3 scripts/check_p0.py` after application changes. Update the delivery
-report when scope changes. New interfaces use the same application boundary;
+Run `python3 scripts/check_v1.py` after application or scope changes
+(`scripts/check_p0.py` remains a compatibility entry point). Update the current
+delivery report when scope changes. New interfaces use the same application boundary;
 normal human interaction follows the existing TUI contract, without a shell REPL.

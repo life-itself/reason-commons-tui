@@ -1,9 +1,11 @@
 # The loop, explained
 
-The six trees say what might work; the loop finds out. It is one small cycle:
-**goal → test with a forecast → action → observation → review**, then again. In the
-method's terms, each loop tests one action from a Transition Tree, the last of
+The six trees record accounts of what might work; a bounded test can help find out. It is one small cycle:
+**goal → test with a forecast → action → observation → review**, then again. A test may connect to an action in a Transition Tree, the last of
 [the six trees](the-trees.md), which the app draws in its Trees view (Ctrl+T).
+No tree is required to run a test, and a test is not required to continue reasoning.
+The [RC development import](restoration/working-import.md) continues with a
+reasoning move rather than a fabricated trial.
 This page explains why each step is there. To try it, follow the
 [tutorial](tutorial.md).
 
@@ -19,7 +21,7 @@ would have produced its first result.
 ## Why write the forecast first
 
 After the fact, almost any result feels expected. Writing down what you think will
-happen *before* the test runs, and keeping that original forecast unchanged, is
+happen *before* the test runs, and preserving the original forecast and any versions made before the first result, is
 what lets you notice surprise. Surprise is where learning is: a result that beats
 or misses your forecast tells you your picture of the situation needs updating.
 That is why the review always puts your original words in front of you.
@@ -54,7 +56,7 @@ See [use Claude or a local model](use-a-model.md).
 | Goal | What would count as better, in your words, with a measure and date if you have them |
 | Safeguard | Something that must not get worse while you pursue the goal |
 | Test | One small, bounded change you can make yourself |
-| Original forecast | What you expected before the test ran; saved and never changed |
+| Original forecast | What you expected before a result; earlier versions remain in History, and the forecast is fixed once the first result enters the model |
 | Action | The concrete next thing you will do, and when |
 | Observation | What actually happened, as you report it |
 | Review | The result next to the forecast and safeguards, ending in keep, adjust or drop |

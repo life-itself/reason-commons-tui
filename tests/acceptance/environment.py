@@ -6,7 +6,9 @@ import tempfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 # What a scenario must not inherit or leave behind: the usage log, a monthly budget, saved settings.
-ISOLATED = ("REASON_COMMONS_USAGE_LOG", "REASON_COMMONS_MONTHLY_BUDGET_USD", "REASON_COMMONS_CONFIG")
+ISOLATED = ("REASON_COMMONS_USAGE_LOG", "REASON_COMMONS_MONTHLY_BUDGET_USD", "REASON_COMMONS_CONFIG",
+            "REASON_COMMONS_THEME", "REASON_COMMONS_PROVIDER", "REASON_COMMONS_ANTHROPIC_MODEL",
+            "REASON_COMMONS_ANTHROPIC_BOOST_MODEL", "ANTHROPIC_API_KEY", "LM_STUDIO_API_TOKEN")
 
 
 def before_scenario(context, scenario):
@@ -29,4 +31,3 @@ def after_scenario(context, scenario):
         if value is not None:
             os.environ[name] = value
     context.temporary.cleanup()
-

@@ -9,7 +9,7 @@ deterministic where it can be, and honest about what it does not prove.
 |---|---|---|---|
 | **Domain** | Is the rule enforceable with no skill or agent present? | Domain objects directly | `tests/test_domain.py` |
 | **Application acceptance (BDD)** | Does the application do what the scenario says? | Application use cases, with a fixture consultant | `tests/acceptance/` (spec scenarios), `tests/conversation/` (conversation and provider scenarios) |
-| **Interface acceptance (BDD)** | Does the workspace do what a p1 scenario says, through its visible controls? | The real TUI, by keys, with a fixture consultant | `tests/acceptance/steps/workspace_steps.py`, `tests/acceptance/workspace.py` |
+| **Interface acceptance (BDD)** | Does the workspace do what a v1 interface scenario says, through its visible controls? | The real TUI, by keys, with a fixture consultant | `tests/acceptance/steps/workspace_steps.py`, `tests/acceptance/workspace.py` |
 | **Adapter** | Does an adapter honor its port, down to bytes, sockets and exit codes? | The real adapter against a fake or temp resource | `tests/test_storage.py`, `test_anthropic.py`, `test_lm_studio.py`, `test_providers.py`, `test_mcp_*.py`, `test_ltp_conversion.py` |
 | **Skill** | Does an agent use the capabilities correctly? | A skill host or harness over fake ports | `tests/test_skills.py`, `test_skill_agent.py`, `test_invocation.py` |
 | **Live evaluation** | Does a real model do useful work end to end? | A real model, opt-in | `evaluations/`, `scripts/evaluate_lm_studio.py`, `scripts/check_anthropic.py --smoke` |
@@ -35,9 +35,9 @@ so keep them few, retain their evidence, and never make them part of the gate.
 - **Isolation.** Each scenario gets its own temporary commons. Anything global, such as
   environment variables, is cleared and restored in `environment.py`.
 
-### Interface acceptance (p1)
+### Interface acceptance
 
-The p1 scenarios are about the workspace itself: focus, Tab and Enter, literal
+Interface scenarios are about the workspace itself: focus, Tab and Enter, literal
 typing, Esc, resizing. Their steps drive the real Textual app headlessly through
 `tests/acceptance/workspace.py`, pressing keys as a person would, and never call
 widget methods to cause an effect. They read outcomes at the application boundary
@@ -56,7 +56,7 @@ holds a consultant reply back (to browse while it is pending) sets
 scenarios unless the user explicitly authorizes a specification change. Never hide
 a failing or undefined step by filtering scenarios; the gate checks that every
 selected scenario actually ran and passed. Tags select sets and are scenario-local
-(`@p0`–`@p5`, `@v1`/`@later`, `@automated`/`@semantic`/`@usability`); see
+(`@p0`–`@p7`, `@v1`/`@later`, `@automated`/`@semantic`/`@usability`); see
 `reason-commons-spec/delivery-phases.md`.
 
 ### Where a new scenario goes
@@ -65,7 +65,7 @@ selected scenario actually ran and passed. Tags select sets and are scenario-loc
    duplicate.
 2. Is it new participant-visible behavior outside the specification, such as
    conversation flow or provider choice? Add it under `tests/conversation/features/`
-   with `@conversation @automated`, and put its steps in `tests/conversation/steps/`.
+   with scenario-local identity, increment, release and evaluation tags (plus `@conversation` on the Feature), and put its steps in `tests/conversation/steps/`.
    The gate runs every scenario in that directory.
 3. Would it require changing or contradicting a specification scenario? Stop and
    ask.
@@ -110,16 +110,18 @@ Install with `python3 -m pip install -e '.[test,mcp]'`. Without installation, pr
 commands with `PYTHONPATH=src:.`.
 
 ```sh
-python3 scripts/check_p0.py                                   # the full gate
+python3 scripts/check_v1.py                                   # the full gate
 python3 -m pytest -q                                          # implementation tests
-python3 -m behave --tags "@p0 and @automated"                 # original p0 scenarios
+python3 -m behave --tags "@v1 and @automated"                 # all product v1 automated cases
 python3 -m behave --runner tests.conversation.runner:ConversationRunner \
   tests/conversation/features                                 # conversation scenarios
 ```
 
-`check_p0.py` runs the bundle check, the specification regressions, pytest, the p0
-scenarios and the conversation scenarios, and verifies that every selected
-scenario executed and passed.
+`check_v1.py` runs the bundle check, specification regressions, pytest and both
+authoritative scenario roots with `@v1 and @automated`. It checks every stable
+identity, expanded row name and passed step. `check_p0.py` delegates to it.
+`@semantic` and `@usability` describe evaluations; their protocols do not acquire
+automated evidence by using a fake consultant.
 
 ## Reporting results honestly
 

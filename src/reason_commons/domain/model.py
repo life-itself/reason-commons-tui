@@ -20,7 +20,7 @@ class StaleWork(InvalidCase):
 
 
 SCHEMA = "1"
-PROFILE = "p2"  # v1 data contract; delivery milestone remains p0
+PROFILE = "p2"  # compatible v1 data contract; independent of editorial delivery increments
 PREFIXES = {"goal": "G", "note": "N", "test": "P", "action": "A",
             "observation": "B", "review": "R", "intervention": "I",
             "claim": "C", "link": "L", "retraction": "X"}

@@ -12,9 +12,9 @@ replaceable choice, made outside the commons. Three are supported:
 | Commons content leaves your machine | No | No (unless you point it at a remote server) | Yes, to Anthropic |
 | Provider name | `guided` | `lm-studio` | `anthropic` |
 
-The built-in guide is not a language model. It asks the loop's questions in a
-fixed order, keeps your exact words, never gives advice and does not add to the
-trees.
+The built-in guide is not a language model. For new goals it asks the loop's questions in a fixed order; for the imported
+RC development it preserves free-form notes and the continuation recommendation.
+It keeps your exact words, never gives advice and does not add to the trees.
 
 Every consultation sends the **complete** commons and its sources; nothing is
 truncated or summarised on the way. No provider is a fallback for another.
@@ -39,7 +39,7 @@ reason-commons providers
 
 ```sh
 # In LM Studio: start the local server and load a chat model, then:
-export REASON_COMMONS_PROVIDER=lm-studio   # optional: this is the default
+export REASON_COMMONS_PROVIDER=lm-studio   # the workspace defaults to the offline guide
 export REASON_COMMONS_LM_STUDIO_MODEL='your-served-model-id'
 reason-commons providers
 ```

@@ -7,7 +7,7 @@ guarantees and enforcement; this page gives the reasoning behind them.
 ## The layers
 
 ```
-Human interfaces:  offline CLI   TUI (p1)   other UIs / API / scheduled job
+Human interfaces:  offline CLI   TUI (v1)   other UIs / API / scheduled job
 Agent side:        agent (runtime)  ->  skill (procedure)
                           \               /
                    Application use cases and ports (CaseCapabilities)
@@ -93,7 +93,7 @@ Two guarantees keep the interfaces honest (details in `ARCHITECTURE.md`):
 - **Semantic parity.** Every domain-significant operation a local interface offers
   must be expressible through `CaseCapabilities`. Focus, viewport, expansion and
   caret state are exempt. `tests/test_architecture.py` fails when a public use
-  commons is missing from the capability surface or its signature differs.
+  case is missing from the capability surface or its signature differs.
 - **Projection, not authority.** The TUI projects and accelerates application
   state. It defines no reasoning invariants, consulting semantics or persistence
   behavior. A consequential rule is enforced in the application even if the UI also

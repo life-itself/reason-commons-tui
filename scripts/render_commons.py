@@ -4,10 +4,13 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import time
+from datetime import date
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
-from render_screenshots import shoot, to_png, OUT  # noqa: E402
+from render_screenshots import shoot, to_png, OUT, SHOTS, chromium, write_manifest  # noqa: E402
+from reason_commons.adapters import themes, timeline
 from reason_commons.adapters.commons import build_commons  # noqa: E402
 from reason_commons.adapters.settings import Settings  # noqa: E402
 from reason_commons.adapters.tui import GoalsApp, ReasonCommonsApp  # noqa: E402
@@ -31,6 +34,7 @@ async def render(folder):
     await shoot(app(), 'commons-conflict', (120, 36), before=lambda app: app.show_tree('conflict'))
     await shoot(app(), 'commons-history', (120, 36), before=lambda app: app.show_view('history'))
     await shoot(app(), 'commons-built', (120, 36), before=lambda app: app.go_to(7))
+    await shoot(app(), 'commons-commands-views', (100, 30), before=lambda app: app.action_command_palette())
     await shoot(app(), 'commons-current-reality', (120, 36), before=lambda app: app.show_tree('current_reality'))
     async def acceptance(app, pilot):
         rows = app.screen.query_one('#settings-rows')
@@ -44,22 +48,41 @@ async def render(folder):
         lambda provider: configured_consultant(provider=provider))
     await shoot(pending, 'commons-review-import', (120, 36), before=lambda app: app.show_view('backlog'))
 
+    async def adopt(app, pilot):
+        app.adopt_import()
+        await pilot.pause()
+        from textual.widgets import OptionList
+        if app.screen.query(OptionList):
+            options = app.screen.query_one(OptionList)
+            index = next((i for i, o in enumerate(options.options) if o.id == 'confirm'), None)
+            if index is not None:
+                options.highlighted = index
+                await pilot.press('enter')
+        await pilot.pause()
+    adopted = ReasonCommonsApp(review, 'David', 'guided',
+        lambda consultant: open_case(review, consultant=consultant),
+        lambda provider: configured_consultant(provider=provider))
+    await shoot(adopted, 'commons-adopted-review', (120, 36), steps=adopt)
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     os.environ['REASON_COMMONS_USAGE_LOG'] = 'off'
+    os.environ[themes.ENVIRONMENT] = themes.DEFAULT_THEME
+    os.environ['TZ'] = 'UTC'
+    time.tzset()
+    timeline.today = lambda: date(2026, 11, 10)
     with tempfile.TemporaryDirectory() as folder:
+        os.environ["REASON_COMMONS_CONFIG"] = str(Path(folder) / "settings.yaml")
         asyncio.run(render(Path(folder)))
-    browser = os.environ.get('CHROMIUM')
+    browser = chromium()
     if browser:
-        for name in ['first-start', 'home', 'home-help', 'commons-next', 'commons-next-80x24',
-                     'commons-transition', 'commons-conflict', 'commons-history', 'commons-built',
-                     'commons-current-reality', 'commons-settings', 'commons-review-import']:
+        for name in sorted(SHOTS):
             svg = OUT / (name + '.svg')
             try:
                 to_png(browser, svg)
             finally:
                 svg.with_suffix('.html').unlink(missing_ok=True)
+    write_manifest('scripts/render_commons.py', 'disposable RC-on-RC adopted and pending imports')
     print('Rendered imported working commons in docs/images')
 
 

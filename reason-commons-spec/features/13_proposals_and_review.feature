@@ -9,7 +9,7 @@ Feature: Decide what enters the model
   changed, and every acceptance can be undone. Accepting admits a statement into the
   working model; it does not make it true or record anyone's belief.
 
-  @S135 @p2 @v1 @automated
+  @S135 @p1 @v1 @automated
   Scenario: Hold a reply's proposals in the backlog by default
     Given a commons whose goal is "A clear next step after open evenings"
     When the operator says "Newcomers do not know the next step, because we never offer one"
@@ -19,7 +19,7 @@ Feature: Decide what enters the model
     And the Current Reality Tree is unchanged
     And a confidence the consultant gave is kept with each proposal without deciding anything
 
-  @S136 @p2 @v1 @automated
+  @S136 @p1 @v1 @automated
   Scenario: Accept a reply's proposals together
     Given the backlog holds a symptom, a cause and a causes link proposed from one input
     When the operator accepts all three
@@ -28,7 +28,7 @@ Feature: Decide what enters the model
     And the cause keeps its basis, so an accepted hypothesis is still a hypothesis
     And the backlog is empty and the live question and draft are unchanged
 
-  @S137 @p2 @v1 @automated
+  @S137 @p1 @v1 @automated
   Scenario: Reject a proposal together with what needs it
     Given the backlog holds a symptom, a cause and a causes link proposed from one input
     When the operator rejects the cause
@@ -38,7 +38,7 @@ Feature: Decide what enters the model
     And the commons history keeps both rejected proposals with the operator's decision
     And neither can be accepted later
 
-  @S138 @p2 @v1 @automated
+  @S138 @p1 @v1 @automated
   Scenario: List the backlog in the order it is best decided
     Given the backlog holds, from earlier replies, a Transition Tree action, a Current Reality cause, a causes link from that cause and a new version of the goal
     When the operator opens the backlog
@@ -49,7 +49,7 @@ Feature: Decide what enters the model
     Then the operator is shown that the cause is accepted with it
     And after confirming, both are in the Current Reality Tree while the new goal still waits
 
-  @S139 @p2 @v1 @automated
+  @S139 @p1 @v1 @automated
   Scenario: Accept proposals automatically when the operator has chosen to
     Given a commons set to accept proposals automatically
     When the consultant proposes a symptom, a cause and a causes link citing the operator's words
@@ -57,7 +57,7 @@ Feature: Decide what enters the model
     And it records that they were accepted automatically under the operator's setting
     And the operator can undo that acceptance like an explicit one
 
-  @S140 @p2 @v1 @automated
+  @S140 @p1 @v1 @automated
   Scenario: Only the operator changes how proposals are accepted
     Given a commons that holds proposals for review, with two proposals waiting
     When the operator sets the commons to accept proposals automatically
@@ -65,7 +65,7 @@ Feature: Decide what enters the model
     And the two proposals already waiting still wait
     And a consultant reply that tries to change the setting is rejected before commit
 
-  @S141 @p2 @v1 @automated
+  @S141 @p1 @v1 @automated
   Scenario: Undo an accepted change without rewriting history
     Given the Current Reality Tree holds an accepted cause with its causes link and a later accepted symptom that cites neither
     And a waiting proposal links another statement to the cause
@@ -114,7 +114,7 @@ Feature: Decide what enters the model
     And the injection stays one statement, so its new wording shows in both trees
     And a link whose two statements both belong to other trees than its own is rejected before commit
 
-  @S146 @p2 @v1 @automated
+  @S146 @p1 @v1 @automated
   Scenario: Decide proposals while the consultant is working
     Given the operator has sent an answer and the consultant has not replied
     When the operator accepts a waiting proposal
@@ -128,7 +128,7 @@ Feature: Decide what enters the model
     Then one consultant request carries the flagged statements and the changes that raised the flags
     And the amendments it proposes wait in the backlog like any other proposal
 
-  @S148 @p2 @v1 @automated
+  @S148 @p1 @v1 @automated
   Scenario: Withdraw a statement together with the links that join it
     Given the Current Reality Tree holds an accepted cause with its causes link and a test that carries out the cause
     And the consultant proposes withdrawing the cause
@@ -139,7 +139,7 @@ Feature: Decide what enters the model
     Then a new revision removes the cause and its link from the tree and the test's flag waits in the backlog
     And in a commons set to accept proposals automatically, the same withdrawal waits for the operator
 
-  @S149 @p2 @v1 @automated
+  @S149 @p1 @v1 @automated
   Scenario: Cite only words the commons has taken in
     Given an answer the operator sent became stale before the consultant replied to it
     When the operator sends another answer
@@ -147,7 +147,7 @@ Feature: Decide what enters the model
     And a reply whose proposal cites the stale answer is rejected before commit, leaving the commons unchanged
     And the stale answer stays retained with its source, so the operator can send it again
 
-  @S150 @p2 @v1 @automated
+  @S150 @p3 @v1 @automated
   Scenario: Revise a test's forecast only before its first result
     Given an accepted test forecasting "6 of 30" and an accepted action that carries it out
     When the operator accepts a new version of the test forecasting "8 of 30"

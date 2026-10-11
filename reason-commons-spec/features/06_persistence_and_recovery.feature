@@ -20,7 +20,7 @@ Feature: Preserve the commons across sessions and failures
     And the intervention and the goal, note, test or tree updates it proposes appear together
     And "saved" is shown only after the local commit succeeds
 
-  @S41 @p3 @later @automated
+  @S41 @p5 @later @automated
   Scenario: Keep inspection read-only and rollback explicit
     Given revision 14 is current and revision 3 exists
     When Sam selects revision 3 in History and opens it
@@ -76,7 +76,7 @@ Feature: Preserve the commons across sessions and failures
     And the receipt offers a re-evaluation against the current revision
     And no last-write-wins merge is performed
 
-  @S47 @p1 @v1 @automated
+  @S47 @p3 @v1 @automated
   Scenario: Keep offline navigation useful
     Given a saved commons and an unavailable consultant adapter
     When Sam opens options, rationale, history, or the bounded test

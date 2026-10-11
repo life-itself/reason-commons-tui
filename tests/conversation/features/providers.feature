@@ -1,37 +1,43 @@
-@conversation @automated @providers
+@conversation @providers
 Feature: The consultant is a replaceable choice made outside the commons
   A participant chooses which model consults: a local model through LM Studio,
   or Anthropic. The choice is explicit, checkable offline, and never stored in
   commons state. A failure explains what to check without exposing a secret, and
   the participant's literal words are always kept for an explicit retry.
 
+  @S151 @p4 @v1 @automated
   Scenario: Use the local model when nothing else is chosen
     Given no consultant has been chosen
     When I check the consultant settings
     Then LM Studio is selected by default
     And no request has been sent to any provider
 
+  @S152 @p4 @v1 @automated
   Scenario: Choose Anthropic with the environment
     Given the environment chooses Anthropic with an API key
     When I check the consultant settings
     Then Anthropic is selected by the environment and is ready
     And the settings name ANTHROPIC_API_KEY but never show its value
 
+  @S153 @p4 @v1 @automated
   Scenario: An explicit choice overrides the environment
     Given the environment chooses Anthropic with an API key
     When I explicitly choose "lm-studio"
     Then LM Studio is selected by an explicit choice
     And the composed consultant is the LM Studio consultant
 
+  @S154 @p4 @v1 @automated
   Scenario: Reject an unknown provider by name
     When I explicitly choose "openai"
     Then the choice is rejected and names lm-studio and anthropic as the valid providers
 
+  @S155 @p4 @v1 @automated
   Scenario: Say what is missing when Anthropic has no key
     Given the environment chooses Anthropic without an API key
     When I check the consultant settings
     Then Anthropic is not ready because ANTHROPIC_API_KEY is not set
 
+  @S156 @p4 @v1 @automated
   Scenario: Keep the participant's words when Anthropic is not configured
     Given the environment chooses Anthropic without an API key
     And a commons opened with the configured consultant
@@ -41,6 +47,7 @@ Feature: The consultant is a replaceable choice made outside the commons
     And no revision was published
     And the commons can still be read offline
 
+  @S157 @p4 @v1 @automated
   Scenario Outline: Explain a provider failure without revealing its secret
     Given a consultant that fails with a <category> problem containing a secret
     And a commons opened with that consultant
@@ -56,6 +63,7 @@ Feature: The consultant is a replaceable choice made outside the commons
       | timeout       | allow more time or check provider load |
       | connection    | check the provider is running          |
 
+  @S158 @p4 @v1 @automated
   Scenario: Switch consultants on the same commons
     Given a commons consulted by "first-model"
     When the commons is reopened with the consultant "second-model"
@@ -63,6 +71,7 @@ Feature: The consultant is a replaceable choice made outside the commons
     Then the earlier records and forecast are unchanged
     And each applied request records the consultant that produced it
 
+  @S159 @p4 @v1 @automated
   Scenario: Consult Anthropic end to end
     Given an Anthropic server and an environment choosing it with an API key
     And a commons opened with the configured consultant
@@ -70,6 +79,7 @@ Feature: The consultant is a replaceable choice made outside the commons
     Then a question is saved
     And the API key is not stored in the commons or its export
 
+  @S160 @p4 @v1 @automated
   Scenario: Claude Haiku 5.5 consults when no Claude model is chosen
     Given an Anthropic server and an environment choosing it with an API key
     And a commons opened with the configured consultant
@@ -78,6 +88,7 @@ Feature: The consultant is a replaceable choice made outside the commons
     And the commons records that Claude Haiku 5.5 produced it
     And the consultant settings name claude-haiku-5-5 as the default Claude model
 
+  @S161 @p4 @v1 @automated
   Scenario: Count what a Claude reply cost outside the commons
     Given an Anthropic server and an environment choosing it with an API key
     And a commons opened with the configured consultant, counting its usage
@@ -87,6 +98,7 @@ Feature: The consultant is a replaceable choice made outside the commons
     And the commons and its export hold no token counts or cost
     And the usage log holds no words from the commons, no commons name, no path and no key
 
+  @S162 @p4 @v1 @automated
   Scenario: Consult a local model end to end
     Given a local LM Studio server and an environment choosing it
     And a commons opened with the configured consultant
@@ -94,6 +106,7 @@ Feature: The consultant is a replaceable choice made outside the commons
     Then a question is saved
     And the commons records that LM Studio produced it
 
+  @S163 @p4 @v1 @automated
   Scenario: Keep the experimental agent runner local-model only
     Given the environment chooses Anthropic with an API key
     And an empty commons store

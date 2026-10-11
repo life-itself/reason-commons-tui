@@ -1,0 +1,1580 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "baseline_commit": "030cbdd",
+  "interpretation": "Editorial reconciliation under user authorization; not authenticated development history. Scenario tags own current scope.",
+  "scenarios": [
+    {
+      "id": "S01",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S02",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S03",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S04",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S05",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S06",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S07",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered with outdated scenario wording reconciled",
+      "reason": "Use current Commands vocabulary or clarify the unavailable richer view. Preserve the original observable application requirement."
+    },
+    {
+      "id": "S08",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S09",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S10",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S11",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S12",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S13",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S14",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S15",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S16",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S17",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S18",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S19",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S20",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S21",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S22",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S23",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes. Promoted from the older future scope because units, reported attribution, bounded Cloud discussion and actual incompatibility are available through ordinary consulting."
+    },
+    {
+      "id": "S24",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S25",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S26",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes. Promoted from the older future scope because units, reported attribution, bounded Cloud discussion and actual incompatibility are available through ordinary consulting."
+    },
+    {
+      "id": "S27",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S28",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes. Promoted from the older future scope because units, reported attribution, bounded Cloud discussion and actual incompatibility are available through ordinary consulting."
+    },
+    {
+      "id": "S29",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes. Promoted from the older future scope because units, reported attribution, bounded Cloud discussion and actual incompatibility are available through ordinary consulting."
+    },
+    {
+      "id": "S30",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S31",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S32",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S33",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S34",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S35",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S36",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S37",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S38",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S39",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S40",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S41",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S42",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S43",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S44",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S45",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S46",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S47",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S48",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S49",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S50",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S51",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S52",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S53",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S54",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S55",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S56",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S57",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S58",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S59",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S60",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S61",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S62",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S63",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S64",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S65",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S66",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S67",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S68",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S69",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S70",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S71",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S72",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S73",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S74",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S75",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S76",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S77",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S78",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S79",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S80",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S81",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S82",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S83",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S84",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S85",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S86",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S87",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S88",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S89",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S90",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S91",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S92",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S93",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S94",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S95",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S96",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S97",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S98",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S99",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S100",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S101",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S102",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S103",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S104",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S105",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S106",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S107",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S108",
+      "previous": {
+        "phase": "p0",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S109",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S110",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S111",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S112",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S113",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S114",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S115",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S116",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S117",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S118",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S119",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S120",
+      "previous": {
+        "phase": "p1",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S121",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S122",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S123",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S124",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S125",
+      "previous": {
+        "phase": "p3",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S126",
+      "previous": {
+        "phase": "p4",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S127",
+      "previous": {
+        "phase": "p5",
+        "release": "later"
+      },
+      "disposition": "partial/future requirement",
+      "reason": "Retain the richer requirement. Related basic reads or contributions do not deliver its complete structured behavior."
+    },
+    {
+      "id": "S128",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S129",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S130",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S131",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S132",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S133",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S134",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S135",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S136",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S137",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S138",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S139",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S140",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S141",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S142",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S143",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S144",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S145",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S146",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S147",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S148",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S149",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S150",
+      "previous": {
+        "phase": "p2",
+        "release": "v1"
+      },
+      "disposition": "delivered unchanged",
+      "reason": "Retain the accepted observable behavior and original identity; place it in the dependency progression rather than a separate hardcoded delivery list."
+    },
+    {
+      "id": "S151",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S152",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S153",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S154",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S155",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S156",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S157",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S158",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S159",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S160",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S161",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S162",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S163",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S164",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S165",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S166",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S167",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S168",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S169",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S170",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S171",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S172",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S173",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S174",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S175",
+      "previous": null,
+      "disposition": "delivered unchanged; stable identity added",
+      "reason": "Existing owned conversation/provider acceptance gains scenario-local identity, release and increment tags; retain its behavior and runner."
+    },
+    {
+      "id": "S176",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S177",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S178",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S179",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S180",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S181",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S182",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S183",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S184",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S185",
+      "previous": null,
+      "disposition": "evaluation of existing capability; evidence outstanding",
+      "reason": "Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes."
+    },
+    {
+      "id": "S186",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S187",
+      "previous": null,
+      "disposition": "current capability needing a new scenario",
+      "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    }
+  ]
+}

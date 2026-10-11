@@ -31,13 +31,19 @@ Carry the exact `workspace.target` of the displayed live question into the next
 contribution. A historical question cannot be answered until the live workspace
 has been displayed.
 
+The accepted application is v1; scope metadata and quality/participant evidence
+are separate. Import provenance distinguishes source words, AI interpretations
+and actual adoption; do not authenticate an editorial narrative from Git history.
+
 Local moves use `workspace` views: `explain` shows the stored rationale, `backlog`
 lists what waits for the participant's decision in the order it is best decided,
 `goal` shows goals and safeguards, `reasoning` shows saved reasoning and references,
 `tests` compares original forecasts with recorded observations and reviews,
 `actions` keeps work execution separate from expected state attainment,
-`history` lists published revisions, and `sources` shows literal attributed
-input. For a specific item pass its exact `selection` reference; for earlier
+`history` lists published revisions and reconstructed stage history, `trees`
+shows accepted partial trees, `context` shows complete commons context, and
+`sources` shows literal attributed input and source attachments. All remain
+capabilities even when a TUI sidebar omits them. For a specific item pass its exact `selection` reference; for earlier
 state pass `revision`. Resolve ordinary descriptions to saved references; ask
 which item when ambiguous. These reads never call `consult`, `submit` or `retry`.
 

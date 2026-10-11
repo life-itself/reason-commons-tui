@@ -1,5 +1,10 @@
 # Plan: Haiku 5.5 by default, a one-reply Sonnet boost, and a usage/cost meter with a soft budget
 
+> Historical implementation plan. Delivered behavior is inventoried in
+> [the v1 matrix](../v1-reconciliation.md); current validation is in
+> [the delivery report](../v1-delivery.md). Prices and model names below describe
+> the recorded implementation/evaluation, not a fresh provider check.
+
 > Status: in progress on `claude/haiku-default-sonnet-boost-15ad85`: steps 1–7 done; the live smoke is recorded in `docs/validation.md`. Written 2026-10-08 on `claude/relaxed-rubin-9mij55` after the Haiku 5.5
 > evaluation recorded in `docs/validation.md` ("Claude Haiku 5.5 as the consultant"). Line numbers are as of that
 > branch and will drift; search for the named functions.

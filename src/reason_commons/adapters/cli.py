@@ -75,7 +75,7 @@ def main(argv=None):
         workspace.add_argument("--accessible", action="store_true",
                                help="Ordered text without redrawing the screen, for screen readers (also used "
                                     "when TERM=dumb); the same controls and records")
-    new = commands.add_parser("new", help="Create a durable minimal commons (p0)")
+    new = commands.add_parser("new", help="Create a durable personal commons")
     new.add_argument("--store", required=True)
     new.add_argument("--name", default="Untitled commons")
     for name in ("inspect", "history"):

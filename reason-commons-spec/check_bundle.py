@@ -17,8 +17,14 @@ MODES = {'@automated', '@semantic', '@usability'}
 SCOPING = MODES | {'@v1', '@later'}
 JOBS = {f'{i:02}' for i in range(1, 18)}
 # Local decisions a v1 session may record: admitting proposals into the model and
-# the commons' acceptance setting. Stances (wording, belief, reliance) arrive in p4.
+# the commons' acceptance setting. Structured stances are future delivery scope.
 V1_DECISIONS = {'membership', 'acceptance'}
+
+
+def feature_paths(manifest):
+    """Both product and owned conversation scenarios carry authoritative scope."""
+    return [path for source in manifest['scenario_roots']
+            for path in sorted((ROOT / source['path']).glob('*.feature'))]
 
 
 def parse_scenarios(text, source):
@@ -94,13 +100,17 @@ def validate_scope(scenarios, manifest):
     errors = []
     phases = manifest['phases']
     ids = [p['id'] for p in phases]
-    if ids != [f'p{i}' for i in range(len(ids))] or len(ids) < 3:
-        errors.append('Manifest phases must be a contiguous ordered sequence from p0 through at least p2')
+    if ids != [f'p{i}' for i in range(len(ids))] or not ids:
+        errors.append('Manifest phases must be a contiguous ordered sequence from p0')
+    exit_phase = manifest.get('v1_exit')
+    if exit_phase not in ids:
+        errors.append('Manifest v1 exit must name an increment')
+    exit_index = ids.index(exit_phase) if exit_phase in ids else -1
     for i, phase in enumerate(phases):
         if phase['requires'] != ([] if i == 0 else [ids[i-1]]):
             errors.append(f"{phase['id']}: dependency must be the preceding phase")
-        if phase['release'] != ('v1' if i < 3 else 'later'):
-            errors.append(f"{phase['id']}: only p0-p2 belong to v1")
+        if phase['release'] != ('v1' if i <= exit_index else 'later'):
+            errors.append(f"{phase['id']}: release disagrees with the manifest v1 exit")
     releases = {p['id']: p['release'] for p in phases}
     scenario_ids = [s['id'] for s in scenarios]
     if None in scenario_ids or len(set(scenario_ids)) != len(scenario_ids):
@@ -122,6 +132,8 @@ def select_scenarios(scenarios, selection, manifest):
         return scenarios
     if selection == 'v1':
         return [s for s in scenarios if s['release'] == 'v1']
+    if selection == 'later':
+        return [s for s in scenarios if s['release'] == 'later']
     phases = [p['id'] for p in manifest['phases']]
     if selection.startswith('through-'):
         end = selection[len('through-'):]
@@ -135,9 +147,30 @@ def select_scenarios(scenarios, selection, manifest):
     return [s for s in scenarios if s['phase'] in selected]
 
 
+def validate_reconciliation(scenarios, decisions, matrix):
+    """Keep all dispositions, including future requirements, traceable to tags."""
+    errors = []
+    identities = [d['id'] for d in decisions]
+    expected = {s['id']: (s['phase'], s['release'], s['mode']) for s in scenarios}
+    if len(identities) != len(set(identities)) or set(identities) != set(expected):
+        errors.append('Reconciliation dispositions must cover every identity exactly once')
+    rows = re.findall(r'^\| (S\d+) \| .*? \| (p\d+) · (v1|later) · (\w+) \| ', matrix, re.M)
+    actual = {identity: (phase, release, mode) for identity, phase, release, mode in rows}
+    if len(rows) != len(actual) or actual != expected:
+        errors.append('Reconciliation matrix identity/scope/mode differs from feature tags')
+    for d in decisions:
+        if not d.get('disposition') or not d.get('reason'):
+            errors.append(f"{d['id']}: reconciliation disposition and reason required")
+        row = next((line for line in matrix.splitlines() if line.startswith(f"| {d['id']} | ")), '')
+        if d.get('disposition', '') not in row or d.get('reason', '') not in row:
+            errors.append(f"{d['id']}: reconciliation rationale differs; rebuild matrix")
+    return errors
+
+
 def appendix():
     sections = [MARKER + '\n\n']
-    for path in sorted((ROOT / 'features').glob('*.feature')):
+    manifest = json.loads((ROOT / 'delivery-phases.json').read_text())
+    for path in feature_paths(manifest):
         sections.append(f'### {path.name}\n\n```gherkin\n{path.read_text().rstrip()}\n```\n\n')
     for title, name in [
         ('## 8. V1 TUI goal action review session', 'example-mvp-session.txt'),
@@ -229,7 +262,7 @@ def check_session(name, config, require):
     require(config.get('format') == 'tui', f'{name}: session must use the TUI format')
     for issue in validate_tui_frames(text, config['width']) + validate_tui_ledger(text, config):
         require(False, f'{name}: {issue}')
-    require(f"Delivery profile: {config['profile']} cumulative" in text,
+    require(f"legacy protocol profile: {config['profile']}" in text,
             f'{name}: delivery profile differs')
     if config['profile'] == 'p2':
         for issue in validate_v1_decisions(text):
@@ -249,11 +282,11 @@ def check(selection='all', list_selected=False):
         if not condition:
             errors.append(message)
     manifest = json.loads((ROOT / 'delivery-phases.json').read_text())
-    require(manifest['schema_version'] == 1, 'Unsupported phase manifest version')
+    require(manifest['schema_version'] == 2, 'Unsupported phase manifest version')
     spec = (ROOT / 'reason-commons-specification.md').read_text()
     require(MARKER in spec and spec.split(MARKER, 1)[1] == appendix().split(MARKER, 1)[1],
             'Embedded artifacts differ; run --sync')
-    features = sorted((ROOT / 'features').glob('*.feature'))
+    features = feature_paths(manifest)
     scenarios, jobs = [], set()
     for path in features:
         text = path.read_text()
@@ -263,6 +296,10 @@ def check(selection='all', list_selected=False):
         scenarios.extend(parsed)
         errors.extend(issues)
     errors.extend(validate_scope(scenarios, manifest))
+    decisions = json.loads((ROOT / 'reconciliation-decisions.json').read_text())
+    require(decisions['schema_version'] == 1, 'Unsupported reconciliation decision version')
+    errors.extend(validate_reconciliation(scenarios, decisions['scenarios'],
+                  (ROOT.parent / 'docs/v1-reconciliation.md').read_text()))
     names = [s['name'] for s in scenarios]
     require(len(names) == len(set(names)), 'Duplicate scenario names')
     require(jobs == JOBS, 'Job coverage must include J01-J17')
@@ -310,7 +347,8 @@ def check(selection='all', list_selected=False):
             errors.append(f'Response envelope invalid: {exc}')
     releases = {phase['id']: phase['release'] for phase in manifest['phases']}
     for name, config in manifest['sessions'].items():
-        require(config['profile'] in releases, f'{name}: unknown session profile')
+        require(config['profile'] in manifest['protocol_profiles'], f'{name}: unknown protocol profile')
+        require(releases.get(config['increment']) == config['release'], f'{name}: illustration scope differs')
         check_session(name, config, require)
     readme = (ROOT / 'README.md').read_text()
     cases = sum(s['cases'] for s in scenarios)
