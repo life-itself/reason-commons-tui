@@ -1575,6 +1575,30 @@
       "previous": null,
       "disposition": "current capability needing a new scenario",
       "reason": "Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior."
+    },
+    {
+      "id": "S188",
+      "previous": null,
+      "disposition": "user-requested feedback follow-up",
+      "reason": "Project saved contribution outcomes and accepted tree changes visibly; preserve source attribution, application authority and unchanged-tree feedback."
+    },
+    {
+      "id": "S189",
+      "previous": null,
+      "disposition": "user-requested feedback follow-up",
+      "reason": "Project saved contribution outcomes and accepted tree changes visibly; preserve source attribution, application authority and unchanged-tree feedback."
+    },
+    {
+      "id": "S190",
+      "previous": null,
+      "disposition": "user-requested feedback follow-up",
+      "reason": "Project saved contribution outcomes and accepted tree changes visibly; preserve source attribution, application authority and unchanged-tree feedback."
+    },
+    {
+      "id": "S191",
+      "previous": null,
+      "disposition": "evaluation of feedback follow-up; evidence outstanding",
+      "reason": "Evaluate participant comprehension and attention costs separately from automated receipt and marker behavior."
     }
   ]
 }

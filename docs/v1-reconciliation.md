@@ -69,6 +69,7 @@ consults. Display density, expansion, focus and viewport are presentation state.
 | Start, name, open and resume a commons; F1 examples; F2 settings | S94, S113–S122, S164–S175, S181–S183, S186–S187; home is an adapter over creation/opening |
 | Continue Reason Commons once, then resume its sources/history/draft | S164–S168, S181; commons importer calls the application; existing import bytes preserved |
 | Literal multiline contribution, intent, retained input and live target; send, another question, advice, retry and safe failure | S01–S13, S39, S47–S48, S63, S67–S70, S102, S104–S105, S114, S151–S163; `retain_input`, `consult`, `submit`, `retry` |
+| Lasting contribution receipt, actual consultant, accepted versus waiting changes and local updated-tree markers | S188–S190; user-requested feedback follow-up; projects published replies/membership without new domain rules |
 | Backlog, accept/reject, exact dependency/consequence confirmation, undo, still holds, automatic/review policy | S135–S150, S178; `accept`, `reject`, `undo`, `still_holds`, `set_acceptance` enforce rules beyond the TUI |
 | Your words, attribution, source attachments and reconstruction provenance | S06–S07, S26, S42–S44, S128–S130, S164–S168; `sources`, `add_source` (application/MCP); CLI native/LTP imports retain sources and `contribute --text-file` submits a literal contribution; no TUI attachment picker promised |
 | Trees, local statement/link/support inspection, cross-tree references, ordered text, LTP import/export, answer about a statement | S108, S128–S134, S142–S147, S179; shared `workspace` projections, application proposals/decisions for tree import; reads do not consult |
@@ -98,11 +99,11 @@ unaccepted interpretations, home rename/delete, and a TUI attachment picker;
 these require deliberate scope decisions, not silent v1 promotion. No automated
 notifications, synchronization, parallel writers or external execution is promised.
 
-16 v1 semantic identities (24 cases) and three participant usability identities
-(S73, S111, S185) evaluate existing scope. The original live/agent evidence is
+16 v1 semantic identities (24 cases) and four participant usability identities
+(S73, S111, S185, S191) evaluate existing scope. The original live/agent evidence is
 retained in [validation](validation.md); it is limited and dated, and has not been
 rerun as a complete v1 evaluation. The four newly promoted semantic contracts
-(S23, S26, S28, S29) and continuation protocol S185 need evidence. Fake consultants,
+(S23, S26, S28, S29), continuation protocol S185 and feedback protocol S191 need evidence. Fake consultants,
 offline guides and screenshot fixtures cannot supply it. Assistive-technology
 validation, participant agreement/consent, group use, and real-world outcomes also
 remain outstanding. Future scenarios are not failures hidden by the automated gate;
@@ -308,3 +309,7 @@ and the complete v1 gate; semantic and participant evidence remains outstanding.
 | S185 | [Evaluate continuation from imported reasoning without transferring discovery back to the user](../reason-commons-spec/features/14_accepted_v1_baseline.feature) (1 cases) | p4 · v1 · usability | evaluation outstanding | evaluation of existing capability; evidence outstanding. Evaluate the accepted capability separately from deterministic behavior; release scope does not certify consulting quality or participant outcomes. |
 | S186 | [Complete a guided practice tour with deliberate example submissions](../reason-commons-spec/features/14_accepted_v1_baseline.feature) (1 cases) | p4 · v1 · automated | complete v1 gate | current capability needing a new scenario. Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior. |
 | S187 | [Browse the separate editorial example without consulting or contributing](../reason-commons-spec/features/14_accepted_v1_baseline.feature) (1 cases) | p4 · v1 · automated | complete v1 gate | current capability needing a new scenario. Inventory an already reachable baseline operation; add executable application/keyboard evidence without expanding product behavior. |
+| S188 | [Explain a saved offline contribution without suggesting AI analysis](../reason-commons-spec/features/15_contribution_feedback.feature) (1 cases) | p4 · v1 · automated | complete v1 gate | user-requested feedback follow-up. Project saved contribution outcomes and accepted tree changes visibly; preserve source attribution, application authority and unchanged-tree feedback. |
+| S189 | [Mark accepted tree changes until the affected trees are opened](../reason-commons-spec/features/15_contribution_feedback.feature) (1 cases) | p4 · v1 · automated | complete v1 gate | user-requested feedback follow-up. Project saved contribution outcomes and accepted tree changes visibly; preserve source attribution, application authority and unchanged-tree feedback. |
+| S190 | [Distinguish waiting tree proposals from changes to the model](../reason-commons-spec/features/15_contribution_feedback.feature) (1 cases) | p4 · v1 · automated | complete v1 gate | user-requested feedback follow-up. Project saved contribution outcomes and accepted tree changes visibly; preserve source attribution, application authority and unchanged-tree feedback. |
+| S191 | [Evaluate whether contribution feedback supports accurate continuation](../reason-commons-spec/features/15_contribution_feedback.feature) (1 cases) | p4 · v1 · usability | evaluation outstanding | evaluation of feedback follow-up; evidence outstanding. Evaluate participant comprehension and attention costs separately from automated receipt and marker behavior. |

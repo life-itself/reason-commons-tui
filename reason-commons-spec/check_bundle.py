@@ -27,6 +27,17 @@ def feature_paths(manifest):
             for path in sorted((ROOT / source['path']).glob('*.feature'))]
 
 
+def validate_feature_argument(text):
+    """Optional authored development arguments share the application tree grammar."""
+    sys.path.insert(0, str(ROOT.parent))
+    sys.path.insert(0, str(ROOT.parent / 'src'))
+    from scripts.feature_arguments import load_argument, validate_argument
+    try:
+        return validate_argument(load_argument(text), text)
+    except (ValueError, KeyError, TypeError) as exc:
+        return [f'Invalid feature argument: {exc}']
+
+
 def parse_scenarios(text, source):
     """Read the bundle's scenario-local tags and outline rows; return diagnostics.
 
@@ -295,6 +306,7 @@ def check(selection='all', list_selected=False):
         parsed, issues = parse_scenarios(text, path.name)
         scenarios.extend(parsed)
         errors.extend(issues)
+        errors.extend(f'{path.name}: {issue}' for issue in validate_feature_argument(text))
     errors.extend(validate_scope(scenarios, manifest))
     decisions = json.loads((ROOT / 'reconciliation-decisions.json').read_text())
     require(decisions['schema_version'] == 1, 'Unsupported reconciliation decision version')

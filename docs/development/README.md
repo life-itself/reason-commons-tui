@@ -43,6 +43,7 @@ when the task has not authorized the needed specification decision.
 | [Architecture principles](architecture-principles.md) | Deciding where a change belongs; placing a rule; touching a skill |
 | [Testing strategy](testing-strategy.md) | Choosing what kind of test to write and what it may assert |
 | [Workflow](workflow.md) | Doing any change, start to finish, and knowing when it is done |
+| [Feature arguments](feature-arguments.md) | Keeping the complete development argument and scenario-to-tree correspondence in one feature |
 | [Recipes](recipes.md) | Adding a rule, a use case, a provider, an interface action, or changing a skill |
 
 ## Reading order by task
