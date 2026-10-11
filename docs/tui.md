@@ -7,12 +7,13 @@ Facts to look up while you work. To learn the workspace step by step, follow the
 
 | Part | What it shows |
 | --- | --- |
-| Top line | The goal's name on the left; on the right, your name and whether everything is saved (or *Asking …* while the consultant works, *Asking Claude (Sonnet 5.5)…* for a reply with deeper reasoning, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
+| Top line | The goal's name on the left; on the right, your name, the active consultant (including **Offline guide (no AI)**), and whether everything is saved (or *Asking …* while the consultant works, *Asking Claude (Sonnet 5.5)…* for a reply with deeper reasoning, *Answer ready* when its reply waits on **Next step**, *Read-only* while you look back) |
 | Pinned lines | Your goal and safeguards, and the open **Action**, once a goal is in your model; a goal still waiting in **Backlog** shows as *proposed, not yet accepted*, and one with no measure yet as *provisional*. A long goal ends in … and **Goal** shows all of it. At review the safeguards move down, next to the result. A **Breach** (a reported result outside a bound recorded with its forecast) stays pinned here in every view. Commands, **Display: Expanded** repeats the goal's measure, baseline, horizon and scope, each safeguard and each test's boundaries here; **Display: Compact** (the default) turns it back. The choice is saved with your draft and changes nothing else |
 | Loop line | Shown for the offline guided loop or a recorded test: Goal ─ Test + forecast ─ Action ─ Observe ─ Review, with ✓ finished, ● current and ○ still to come. On its right, the goal's **Measure**, or *not set* while there is none. On a narrow terminal the line drops its joins, and below about 56 columns shows only where you are ("● Review · step 5 of 5") |
 | Views list | Core destinations are Next step, Backlog, Goal, Trees, and Your words (including source attachments), plus History. Empty Tests and Loop actions stay in Commands → Views until relevant; Reasoning and Commons context are available there too, and join the sidebar for test work. **VIEWS**, with ▸ beside the open one; **Backlog** says how many entries wait ("Backlog · 3"). While **Trees** is open and has statements, **All six** and the six trees are listed under it, with ▸ beside the one on screen. On terminals 100 columns or wider; narrower, the **Views** button takes its place |
 | The page | A heading, then the question in plain type, then, for a question you may skip, a quiet hint ("Leave empty if you don't know yet."). Below it, what the last reply proposes, marked *proposed* (see [deciding what enters your model](#deciding-what-enters-your-model)), then what the question builds on (at review: the original forecast beside the result) |
 | Answer box | Right under the page, so you answer next to the question. All typing is literal, including `?`, `q` and numbers. Its tag says who you answer as, with the built-in guide an example of the answer shows faintly while it is empty, and the line beside the buttons says what **Send** will bring back (with Claude, from which model: "Send: get Claude's reply (Haiku 5.5)"). It grows as you write, and when the page is long the page scrolls above it, so the box never leaves the screen. On any view other than **Next step** its tag also names the question it answers ("Answer as Mira · Choose a test"), and while it is empty it folds to one line so the view has the room; Tab or a click opens it, and a draft keeps it open |
+| Contribution receipt | Above the answer box, the last saved contribution names the actual consultant and distinguishes accepted notes, waiting proposals and tree changes. It remains after the temporary notification and on reopening. A failed reply says whether the input was retained. **Trees ● updated** and marked tree destinations indicate actual accepted projection changes during this session; opening an affected tree clears its marker locally. Commands identifies affected trees even on narrow screens. The offline guide explicitly says **Trees unchanged** when it saves a literal note |
 | Footer | The keys that work where the keyboard is, then **Commands**, then **Help** on the right. On a narrow terminal the hints say less, then the last ones go; **Commands** and **Help** always stay. With Claude, the space before **Help** estimates what this session and this month cost ("Haiku 5.5 · session ≈ $0.02 · month ≈ $1.40 of $5", or "…, over $5" past a budget); it says less as room runs out and is the first thing to go. With LM Studio it says *no charge*; with the built-in guide it says nothing until something was spent this month |
 
 You can always see where the keyboard is: a heavy frame in the accent colour round the answer
@@ -21,6 +22,13 @@ button or footer control. There is no label for it; the footer says what the key
 In the trees, the chosen statement lies on a band of the same colour's tint: that marks
 what is chosen, not where the keyboard is. Tab goes from the Views list to the open
 page's own list (Backlog, History or Trees) if it has one, and back to the answer otherwise.
+
+![A saved offline contribution, explicitly identified as a note with unchanged trees](images/commons-contribution-receipt.png)
+
+The proposed argument and acceptance checks for this feedback are together in
+[the contribution-feedback feature](../reason-commons-spec/features/15_contribution_feedback.feature).
+Its predicted participant benefit is still an evaluation, even when the receipt
+and update markers pass automated checks.
 
 On a small terminal (80×24) the views list gives way to the **Views** button, and
 the forecast and the result stack one above the other:

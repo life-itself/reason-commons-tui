@@ -66,8 +66,8 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   box's tag names the question it answers, and while it is empty and unfocused it folds to one line;
   Tab or a click opens it, and a draft keeps it open.
 - **Focus is a frame.** Where the keyboard is has a heavy frame in the accent colour (a heavy bar at the
-  edge for the page and the trees, a highlight for a button or a footer control). No label names it. The header says only the goal's name, who you are
-  and whether it is saved.
+  edge for the page and the trees, a highlight for a button or a footer control). No label names it. The header says the goal's name, who you are,
+  whether it is saved and which consultant is active, including **Offline guide (no AI)**.
 - **The footer speaks for the focused pane.** It lists the keys that work there, then Commands, with Help
   on the right. Every key it names must be a real binding. Commands and Help are also controls: Tab
   reaches them and Enter presses them. On a narrow terminal the hints say less and then drop from the
@@ -110,6 +110,13 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   correct a wrong reading, reject it or say so in the answer. Accepting admits the reading into the
   model; it is not agreement, and a stance still waits for the position records of future p6. Under automatic
   acceptance the same place says what entered the model with the reply and that History can undo it.
+- **Keep the outcome visible.** A lasting receipt distinguishes a saved literal note,
+  waiting proposals and accepted changes, and names the consultant that handled the
+  contribution. Reopening reconstructs it from application state. Changed tree
+  destinations carry a dot and the word *updated* until opened; opening one tree
+  clears only its marker, while opening All six acknowledges all. Pending proposals
+  do not mark unchanged trees. These markers are session-local navigation state,
+  separate from recorded acceptance, truth and agreement.
 - **The model and the backlog never mix.** Trees, Goal and Tests show what has been accepted; a
   proposal appears only in Next step, the Backlog and its own details, always marked *proposed*. The
   Backlog lists proposals and review flags in decision order: what an entry cites first, then a new

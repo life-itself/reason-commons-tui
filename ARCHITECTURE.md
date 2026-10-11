@@ -173,6 +173,19 @@ local explanation/inspection, ordinary replies and explicit consultant moves.
 Replies remain bound to the last displayed live target; no silent retargeting.
 The TUI reuses the projection and supplies its own layout and controls.
 
+New development proposals can retain an explicitly authored tree argument in their
+own feature file, using [feature arguments](docs/development/feature-arguments.md).
+Specification tooling binds one declared update to one native proposal; a disposable
+application test checks the correspondence. Parsing never infers reasoning, adopts
+it or executes code. Production feature import and coding execution remain future
+capabilities at the application boundary.
+
+A lasting contribution receipt projects the last published reply, recorded
+consultant version and current membership, including after reopening. The active
+consultant is visible even when it is the offline guide. Tree update markers compare
+accepted projections and clear locally when an affected destination opens; they
+are presentation state, not reasoning decisions or proof of benefit.
+
 ## Terminal workspace
 
 `reason-commons tui <folder>` creates or resumes a commons and opens a Textual app

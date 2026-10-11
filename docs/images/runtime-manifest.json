@@ -5,8 +5,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "635cb9c29909e9c5431716e0bf0753dde68c041bbdcc793244a21888da83b26e",
-        "svg": "68b908760a3ea1c82fa9eeb580a9b55cca255f91e955a62eac0cde0787281708"
+        "png": "dfd75f06a4a2bb4c743916f1822d9e5a546a80ea9e51f53b45387f9f71b7a66b",
+        "svg": "f7009b89c6a41c8c5e887bcd2e13508d4fc57e19e1f64439d9dfc316a936c988"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -19,8 +19,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "f8adf9351f1ff5358d7c5c03d611aca87ae86fea90fae07d6a916dad15a3c9d6",
-        "svg": "b0222a84333d52224d9f86afe203a1c350b014af15c7dbc2b831992f26bfb760"
+        "png": "8c6995d6bfabc88826db4133b66e08c66bdaca624f3b61f5402626c3ec7a2bd1",
+        "svg": "04f79c2a5ee3ab4501b7890c8f6f7cf77790d46198d4b90214e1b2b06227204c"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -33,8 +33,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "431ba1d0f50dbb1883927b81ccbe4d440fc1f25676ea849ba9038ea2f52b1613",
-        "svg": "a2f37311be0a46ecad04238cfb996b23e564df47e79b0a292a1d06676859ac64"
+        "png": "b91f04d081db394405b3d6917bd99bf8ff0aa0dfc5f524e9ce24ca153031998b",
+        "svg": "25a8341aaea30ca25004f3e693088ef6c82415322d50716269ccfb0ccf396557"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -47,8 +47,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "0cf1fe1999f0227f4107e2690032ac6b867001e77d6bc18a02aac2eecd30bbfc",
-        "svg": "36979ffb3771956b089132851419709a1dee41e9380469e10bc6dda69aa4779d"
+        "png": "985452f6235f4cd9d081c6995c862f94b18793c9b9fb9769145a8da0112b3005",
+        "svg": "b8e1b87e60f90766e608480a1bc3d380ad085e4d899dc908356310a5e8c8a5ec"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -61,8 +61,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "caeab7f91df3af09e27d0d090fdd8a4f21a2dada5551ad6bc99c742e81271014",
-        "svg": "4ba10e43ceec1d89faaa7f6b6476ce810f2c5d92e51a1baab0b7c9d23ecc8963"
+        "png": "492db82d01ce26e93fb3e2994675d3a11632ced2b90b074d337b6af969ce9c51",
+        "svg": "65101175fca867c5bb8eb84721d84ec99f2ef7e28658afc4e9c4db9268a158f1"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -75,8 +75,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "7a42f764bee2ec01c951288d357220f63f823b804ff9e8c4443ddfcd8ce4522d",
-        "svg": "010977b8ae78d0d41b5940059a8d57dac58f415b22673d68ef0b3df9f9e0e1b7"
+        "png": "5505faec4e39678177b76ee3f08605c2604992f053e0d2ab71bf6468cbf9b954",
+        "svg": "8cef5a89d66d568bec58c21f38fc704a80d2d09f671b499cd60574453aea87d5"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -89,8 +89,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "8afd5bee3e02fc702a78ee754d74e0adbfa07219f76c58479edfaa70c5e4be68",
-        "svg": "d29bddc35ce4b824ab7ab2a43fbac3900be8af19e61cb1a7b5195a98071d50d7"
+        "png": "217da487fffc4151b28f23b3045548d8e443069ca4391c1df2258f09e97ef3e0",
+        "svg": "a55698aea6cd23d04abdcbba3a092f18aba31ef5a2761c2c531311a9881d2764"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -103,8 +103,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "e6ef0f5203ce572020cd20e7b62a6a198a317fdf01ae09ad834c3e17bcd4b5ba",
-        "svg": "bd6dcaee86ca58137a0f9b4d3c0a949569c7820274a7ed599d923e484266ffc5"
+        "png": "386dcf21ad0d248cddf583068f5bff23fe869ba238d6914427bd43c46cc37ab9",
+        "svg": "bcb24746b61179fa56df97c240ffcf7936f4d2258fbcfe6de4bb5623a6ece2ca"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -145,8 +145,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "2ebddf8ae164486d32e415470a63bdbb896d8c3870211776e6da71717299fdf1",
-        "svg": "15a72c55cc7a6074fcf0b29b0e362dc96945a85397345c3405fa057a92fa90b7"
+        "png": "100a91727af81efaf586ee9772bd5122ac9559e82b43dfda0cd91d438d7ba9fd",
+        "svg": "c820b9448284d8132378b38fa21d2b2ccc682d5d35272684d60b9484940c396f"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -159,8 +159,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "8ef570a4c0bd868098a2b60f373087fde30f004716cc203e7c583b3a00c33fdc",
-        "svg": "ac430b932599ec7318c685ff3d3f624be3a02ac4007cb47ad398f877ca4938d8"
+        "png": "c3121aa3f0c579befb2bacdbdc36da761ec616cd7c22550eefe945f168672a98",
+        "svg": "e6e7176a65dd360e1818a15958a869c9ae26fa6226d64526894c0ed12c7185ac"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -173,8 +173,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "f64ac2b8020907aa333629bdca70feaa139f3be691c5933b286eabb230449ddc",
-        "svg": "ebd2f4cde067d4fd4969bab2750ae7286abd983fa1868b0f0b5943886039f14e"
+        "png": "1712e4fa3b6d2b48c87f091d09217acd95b39e9820e4fcd19459325012be99c6",
+        "svg": "bb0cfbfe6ad348688f77c73b0a5daa02d03257bf21fa0a01a02e05b9fa18fcc1"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -187,8 +187,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "0004abe279dff634daa8820a3b74c5e6af7d55c82255cf955570c6e1ee51010c",
-        "svg": "eb85c5ae13bf0e5f9585613d2c1e481b9a10c82eb44517c78667334336329dc9"
+        "png": "fb1157ab7cb15363b6a220dad8d6880f2680ae5712ab68b50c6c064ecd74c892",
+        "svg": "474a5c13cf70f1dfac61b5361f05b7b32cad6d257e32e134cf437ce8f916504b"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -201,8 +201,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "f4ad4db84d6c781965fa9167fcd17307bc38bc8acdbea378b82f25aef7b4c7d6",
-        "svg": "686c39bdd3fc1a6e7b90e4c3fedeb0d2d552ec64ea64210720bbdbb1d1982c57"
+        "png": "13e4bd7742dfb943656b0e6aa956ff48d0b92cf9b23302aa068eed189cb2af81",
+        "svg": "cd72f31e6618bc64355264dee323c8545e9676b1de1da2d66cca756ec0f49027"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -215,8 +215,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "e66f804b7ad6950b0275951b3b26f8308a651f401d58fca31d61e46d12561a6e",
-        "svg": "c922f79cfdc5fade29c583e33e1dca297b5c2d5454fb4a327efd77fd3d09b4c0"
+        "png": "6e752d4b8ae7909baf03bb4bab6eb38158555faa3046ab0812aea270e1ab55bb",
+        "svg": "8c115cb07d67bd6cc525c538f7286872eb0da9ed12df359cc458f241872a8ccd"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -229,8 +229,8 @@
       "fixture": "disposable RC-on-RC adopted and pending imports",
       "generator": "scripts/render_commons.py",
       "sha256": {
-        "png": "24e970240290ffac766118786315748db8e4fb0a29253c6d44b64c5a728366dc",
-        "svg": "135089fc1b2fcc0e771f77732dcee91e175b44db3fa3e776e0883c4d8cd0e6b4"
+        "png": "9868f979943b06b499de293c1636273375f3f718cdbb5fecdcb6468198ae60cc",
+        "svg": "f652ee8b68fa6b8243b0dbdfbf6c95f925cc650ca32110f0360107db087240c5"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -257,8 +257,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "d360f0ff98d8ce52f7e9f9ce7624b4fc5dc37d3b0e0d0e46367ed61aaa4087f5",
-        "svg": "06bffe7dafd2f642fa917bf09e8291c3324a63a193364facda0b507d6744c61c"
+        "png": "16ca6b5befb8e469b8fd7ff7ffdc07fb9d9a3dda2b3e2f3366312495dbe75112",
+        "svg": "5e3de5c6026f612cd42eae1140c37ec5d55537dab68451f87ddfdcc271d3b0ac"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -271,8 +271,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "16b3d0b99fe4447ef22788b558dd0579951a28e4eaf05c43fda3e3e297f5996c",
-        "svg": "41525b8a52d6fcc22af9e4d5e7ce07a22e76716a7956cd2ad704a1966e331f8f"
+        "png": "9bedafb9b321ff56c5f9829a98028bcc28a6e77e9c90039e568edcf34d462a85",
+        "svg": "c89211db1437cc3d6d9bfcc6629a8d0b985053da647b64ba171778a885d3947c"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -285,8 +285,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "aeade6da94352df0db414c7d36535bb38025fb7ff0bf6001b9e5808040b7af28",
-        "svg": "2710a83ce419b0c79acd5ecc8c34ade4ff4c53f5774e2468edcbb124ca8f7a77"
+        "png": "b52471d3c9e6bb0a639a4de37829b7ec88055e82e29a53f72b726cd069d377b0",
+        "svg": "32e78cec5df77492d8f8f2b1d60b81d3c30e81794e0c096168121b6af3db83fa"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -299,8 +299,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "cf7ce3776feba6bdacbb182488710d64e103dfde3febcc2772e19538853fe6fb",
-        "svg": "c2b6dabf03843c44e3a45473d011b6dc6423fdc13d6037277c7277768f682312"
+        "png": "d6055b74f61d371ae8e918e5261e592b8d3ff141eb2e8a84f9b2c09551d581f2",
+        "svg": "fe36337a37985eb10700752f92d019b6253dc583c2e040ce0fa94bab8b469314"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -313,8 +313,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "6672185b2e38146b5280912d34798996565dd6009791d155a306567adada15e0",
-        "svg": "7802d429a840fecad5a603eee91f7431d275cffc29bb9d66816d05e547772e6a"
+        "png": "a970ab01f9db4245c553c25f052f96f0d2a67f6092270ff7ec35f1e2b2a5c619",
+        "svg": "5ca0cfc7d66b9b1220167f3b2cc37dedbf6be56c0949328081ecc5e48731a0c6"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -341,8 +341,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "2a6717d8723f8bb91fc13bbc5db3f152bd15a385313a127765bd057e8acb6888",
-        "svg": "20cbb48cdb2f8438fbab5f52d8bcb12a65e0d8354e4f59af44dbae93e060de4d"
+        "png": "dbb47149ac46818571138929deca65a481480a6851ca237cf717a4cd1174d621",
+        "svg": "26791ed469f342bed31baf0974cebcac6f91ef7ac3036d2dd3b580f75d84392c"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -355,8 +355,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "7f4d1ec954575c58e96ee2b10be8357802ff8b24dc0dfaba8f71f218362fd855",
-        "svg": "344acf74d8944a79b051d29bc59a6cbcd74b5e4ee393116933bb2ee88fc69fd9"
+        "png": "5862b3fdf9f779c56488f3aeae33e46a7961177f5b7ac8f87481537be5a0c198",
+        "svg": "0bbadd737040926e2a6aba54c64d2dbcb1b8f92f1c13801aa785259c726b5613"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -369,8 +369,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "0d4b7c8ae08b65f6f322302c3f85108158a5d23a7e5d1ab2becb78c97c0ee1ce",
-        "svg": "3093a3273767e5e966e2de5842f5c1b59e067b010e0c751668d856a2add47544"
+        "png": "9314e909cc973155aa70304a9a031474341f82ff11c580c2ce9b2e1943496cac",
+        "svg": "09799cedc83974952e0ab09a414895014e1e06144c10bc8f89d179e732569c37"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -383,8 +383,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "38e7ff1aa10328e1bc672d86c1f7433cb55d03b4112ea283fb94e66f8ea4e001",
-        "svg": "5be8f30114881ac0b969c8bea0bb7942fad1ffa0c20cc9b7675da0427360b22a"
+        "png": "c603264c97960aad259c594b9decb484ea319f453950c57a023e95b7e71cf998",
+        "svg": "621e487dfd63b503032109a42678f1835cdf36832396585c47f8c96ac8d852f5"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -439,8 +439,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "c9428a2d0e1f846a4949a4d1e1fac3cf2b8b1b83bccbf1d8e7a8f06d8cbf64cd",
-        "svg": "a35ba86fa68d2270a74acce62ac14ecb4db2b44abc32fcb2efb1c97e64db54ca"
+        "png": "b5d706de31156643c9fae479859808d1ba09e864f5094d02f16eed3639082663",
+        "svg": "d831e57e6f99514b7cd26a227516fb7ef9c430fb745577f2ac314d3e79214081"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -453,8 +453,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "f0aeee557087ed441fb813d1e60fec589a5ba150e093d5bbfb5c96748c9a9a3c",
-        "svg": "205c3bd601b7c3f6bedaad9d8b96f450c010cc11504df99a7a3f045fe0461f89"
+        "png": "86497c8952b4a46fde5078c6fced2e616c54a23a0f51dec4b42526fd968be11d",
+        "svg": "55b60875aa0fc19cd9b43fadca2a7e1b84f53b1384776384ff659e34091b76c6"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -481,8 +481,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "1be2df3f2867a83ef7cee5e74f91bdb28ae78bc9418209ddf8ce1ba288b94556",
-        "svg": "f48434ef74fe8c9faa87de703802f42e92e71c6f4c244c6ac863c835f2d3e3cc"
+        "png": "ab3c5486f745fa01aae39946cb99758433f4e585464362938cb6348cce424637",
+        "svg": "bb68d1a11b785b5b109c1409246ab82638104c149ab913734ab79c433d145e5b"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -495,8 +495,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "b3afddfbb8adcf07b1519dc0996c2ef9f602ea9da50519be043d6c49c3f00922",
-        "svg": "6c60b755e7ed25a6b35a95af6cd4c1b497742bb8a0c7997af8383bcc31602c4a"
+        "png": "57a9988d5e907fc6c49a8ee6d0c28cb51b1faa466b89dffaad43f0b924dea91e",
+        "svg": "e8ccf46c945a0ec923d8b79e795ad98a105aecae12a16d6d625e2bc03e31facb"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -565,8 +565,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "933e0b27ff320cbb8a9399d587e9adeb87dfc1fab2a783f88811fdc5d764094a",
-        "svg": "c20ca214dcba64fdcfdb31fb02c138739daee650e6a83999c13f67f3d2f4368f"
+        "png": "29896c299c081543c3c25b8ae925f04dd2f54504275bdb31c19d25b3ba00efb8",
+        "svg": "dfb4b7c8a691f7e6e3edd812696528c84b7da078c235b8db35c329aa39cb41d9"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -579,8 +579,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "ad5eec22f1c7e65d3d0dfab5d4239d89cd5d16a7f13be83efd34275ea06e91e8",
-        "svg": "55fc107cd6ae96fcc19c8d520f07b891f599c43e1992a2d5c12c3ea3ff78c9b2"
+        "png": "8ac8692679f2cdfa32ed111395d87ca54826000c11b58b3371dd3abd1a341ff8",
+        "svg": "2c4d322f2380b4af4db3b45a50b7f67f56e65c06fe94599b8199f36ddd67e5ab"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -593,8 +593,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "0372978c5dc19fc20c5e6df81fcd609b84104ee95c39044b0334926b02d7c0b4",
-        "svg": "9de92f4f775578f6cbce474630a55b57d42ff93376178df4600dcb1592303de9"
+        "png": "e3eaa76fff55e3c0aa8e3a47011e7afd09483f25ac5325027feb23fce6c26573",
+        "svg": "e3ee624525261a31599e6e446037bb7759cfec51ee2619c4dd1fa075dfb179c4"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -607,8 +607,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "b260251e1c41dc0c12e6b20706e1a8dafec8220e2c1cc430d12eef2882f715d1",
-        "svg": "81bfafcaeabbd2b9a0a2db30dde3e4b75e46e61ec4b61de0a7f5df2d43b2b29b"
+        "png": "4179de33760889cc884076d3c96e5b627423d517da72585483763d21e56269e5",
+        "svg": "9d102d28e0dc2603cf9c785e931be91b26092d9b77b9cc211ef9b65164798453"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -621,8 +621,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "c8734cc433c754f4cadb2f754db5a8a147f63ff050c815a1de288ad62ecd85b1",
-        "svg": "582b35086a7abe4ee97a1bafea3deaac8d330b03367de89c564c87654db02768"
+        "png": "5ff0556c6e2ffde957fc66307d0510cd35132b6c9824fa783d2f65db5e2481b2",
+        "svg": "b18717f5d6c02a47f43504494e969677b3c0a547b568a4a5f1a8d99c0b5b9f09"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -635,8 +635,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "e7d15652397bfaaf9fba20559493e64a3714473ee4d5e27b24bed600177adfc5",
-        "svg": "ed003e56358a3f288d3b319f0d01ce1a621f48212964cce18835bb9864ece5ed"
+        "png": "c72afeca701f4b8feab63d1c3e9cb3621e63230e7d08b2b4e7c4cb2415ca9d17",
+        "svg": "8d6d3df82f3b6a11e684b41e63712e2e35a215798d561568bf15cf3731e78c56"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -649,8 +649,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "68f1f42f5e48a580bfc6d52fca2400b7dd730ada8576a5618015a78c08b59c99",
-        "svg": "908f48ab160a9cf2980ad228ad6f52d0fbf4b6382a64336b6d74431338f74350"
+        "png": "37835fb9efdb24a916afd5195f7f3e2ab18cff96b73c5b229ab5b52bf003a439",
+        "svg": "1f2f49b15bfc2c1a6adb6b84fe5d0fbd8f007bbbf2e0055df0b3e446808dcef6"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -663,8 +663,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "48251fef88a5381fbaaeb01d974f252c99ba752a0bc59e792d3c3a65a0128c31",
-        "svg": "a0add77c9af3d001e43324d33be1206b6e9864b5e387d5db8b996a1d4b111344"
+        "png": "315e2cebae076e15c6c5213c09bb2762d27e52bb5a56665438dcc9af1ce16b33",
+        "svg": "27abf597d814b4959722fa1d8968ab1b2e0b478f98c81534579eeb69f1d4be73"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -677,8 +677,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "8ad0434441fd0a87572e59633d83c8128a17edd713d055b12ec4cd5ccdbf2e5b",
-        "svg": "28ca22b85142478d19cab5baeb7b68adc288195a6a609d53054b491ea26ae2a6"
+        "png": "db685709b89ca62b1cb4a37e6294dfb4a9d6d369f48a6c218a257bb942122bc4",
+        "svg": "af12e54be63eb8a7a11aeac2d60f4bb2f107989bd7de5832ff24ff457958f96a"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -691,8 +691,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "d1f2ea0ff09674634acb5dc3b1a982af866d59aead4756108d2a1e3266b9d089",
-        "svg": "b6e131f433149e7a5a4e31b24b14187548cd09c6bf237ce21e5042bd62adc0c2"
+        "png": "fac5925e4ae066ef351b5a19bb68a0a0849cc40bbe6fe754f704738c2bd68211",
+        "svg": "756d99383bf4290e7c00a08d9071c1fa77c5033d541a46f306e62da6876b384a"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -705,8 +705,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "34376cfa657409924bf3773ce72e43ee4863d8c879a6d1daa4ecdfaa7414dfa6",
-        "svg": "2912b93a96d8f5263ffa32144f4e92884404262fb521c3e96e6706942eb449da"
+        "png": "26a7cd936740698972bb5fc368efd4c8e24686ccbb602e8754b1aae5fff2ebfb",
+        "svg": "63397b6a6979a6e5c9f0342f1f551242528a69067814730250ee3fc910b18170"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -719,8 +719,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "4b066c53cf9090b4d11d694bb19235fb9fb7d43b264f3c1c3be635a005d67d17",
-        "svg": "71773f6c945a918f84a1d60004226b88fe6dc9d8c30733d4dfbb8fb96217a2c1"
+        "png": "d179f8d457d7f7e653c76555a6e8b9a1c87ba45bc5add4b2a0fcf1522798ab01",
+        "svg": "e9f05248204642880667da64f7e19cfefb1735446057dca1db8c73462a251b67"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -747,8 +747,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "4e7476a5866b825a08dbe57571b98db4438f715e08ec4eadd2775758204b9497",
-        "svg": "973223a8296e2877140ad7662ebe7519f77c55f444b7e0d5d48e13950eda258f"
+        "png": "9a31d191864eb9bd79e461af0f63999e5bf6e924a5cf116aa2776666aba9ce3a",
+        "svg": "7fb6e2f01d442cc1ee53bb183654a4cfe3983a4d883cca1be842216969c4face"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -789,8 +789,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "934f6c6d1f23c0e1065a061fe9afa941aa0a428ad4800e1edd8e473dfe1ec8f8",
-        "svg": "a1ca19f9768b098e296aca01267c444fea04b7cb8cfd6862404aeb9df08684d7"
+        "png": "76643c814f0138e08c3c037b6d3eeaf457f8b184e950fdad507b7dcacc713b72",
+        "svg": "18a3e901adf533674ec0d5439bf1d6a2561ba33f84c365589500b228172c9200"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -803,8 +803,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "715dac494e42bf0ab983eb6b7a286f898c2ffb6fee6590d19e634e3828c45073",
-        "svg": "51a928996c44733c01860d29c13a974b72b33d8c890e2e963aa673c15d6829c8"
+        "png": "2750228b72182f5173a327248f9c23e367eaa626538e41870d12a62170195d95",
+        "svg": "75e7d8a5f7ccbb1ca2ff4aadafba7f03b12e304944d1ffe5e1915be42be4e140"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -831,8 +831,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "cd62d822ae83ce3b078a173388d917ac95750cdd91cb7fb91e2f20f185ccd5a8",
-        "svg": "be2e85803cd8dfc62177b73e58c4c56db3363ae8a18c15071e838fc723c3f364"
+        "png": "5a7ac385c8ad4b6650298174d737ab3ee97b6b880d3a6c077f2c4c90f2e0a665",
+        "svg": "3152eb5566f804abe5a672d1dee8cf341a947b87d8b227117ec4222221515b40"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -845,8 +845,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "1ccdf96702b1b5839fc51aed531908ae6351e2595f8bbc80981c8516728b898c",
-        "svg": "740c9c0b872696919f3516d45c487d1c3ceac08d0eeaefafea60d4e3b8ceedc6"
+        "png": "824d2078dec1420b8bef7a7e142fed7c4ef3f304381eb02adee7a42116a15957",
+        "svg": "ab9b9de33915053a74af9527c5924abdd02c50ed93caa1d4dfa60c0e76fdb83a"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -859,8 +859,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "9c2102d628c6baca214d858fb59d1a57c236ac97fd92d3d6647bc06d1974031f",
-        "svg": "4a20c2b79600c3aaaef533fcd8503e556fc80e4a713ccfe17786a9325b9a6d91"
+        "png": "46d4e267ab1d80d813d13f94e0046a4f0381b868753696a7707adb63ac1f75c4",
+        "svg": "f69f84f6d37601a56a691d295c24636c5cce19251b6cca2b5cc49a1448716544"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -873,8 +873,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "12951dba26d8675f00e80911ea1963e61592fa985300f6d57b0d6b500c2738f3",
-        "svg": "9525f4a7d50091e65605952b865ddd19e397d134e8b9af200b1bde80df602b3b"
+        "png": "6a9597e39dec9203925e372e6ea9163ae6e77020a9ac5d5189fa858e727ffeb0",
+        "svg": "ce4ccdcebd4706670669cacbbcc2ef5daf923ac443630faa4de149c2f12d4514"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -887,8 +887,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "e5a959c5091b289342af77b72e563273c18775bf93a3a41bc5a4f20cc44883d3",
-        "svg": "43fc49ea3507a8c1d262dfd5b0ff7cacbbcefa5f14524bd5cdad2fd1307692b1"
+        "png": "d0ae65f5e642b79cc69e9f79b1381fcaf2e6d7ffe2a6609a93189f46593f541c",
+        "svg": "bf19cf27979dcd4522b79da1776efc2de4800ae88888a89cf1e0ed4c4770adab"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -901,8 +901,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "c74e87182ab74bad60b3ae8981b4784643928367a68f46dd87641bd583481593",
-        "svg": "43eebb0219bdee39f195d0aeeaede339de590a33aebe4977db0e27a1357485b0"
+        "png": "3dd0b0491fcbaea2f492c1e721dc2395a50907607bc2ab0e87954a841592bc21",
+        "svg": "75f6d5f29e85ad03b6750853014ff1a4a6d84afeb809350595f2cbf50841497a"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -915,8 +915,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "8b0c34ed62a1f354e3e8844cf0f2dc114b857642043b5196b0e3bb3af102d326",
-        "svg": "800309ff95a8b6bc7bb52807f95ea4358caa004b22121c909d1ad8706cf61087"
+        "png": "21492429fe1ddba2c16f10227d6f58fb437f426c8e758afefcfd9142145e3470",
+        "svg": "b8c1a32c505e353fa76e5376cc48fca74a9012cd3134ad130f8e15c52f29a573"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -929,8 +929,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "04a9ad8773ffeec9624bbc9c51279a6c58f296d64989800e745e2d67348abd3e",
-        "svg": "cfc2e866665b758d01641a18125f60854cffd11bf4cdbb6d972efb7248948c7b"
+        "png": "85086078cf67e71d37845a01efd8f7dd42cce473bda252ff8462129d3dced21a",
+        "svg": "fabbe49a84ff83e1d7b1bf170a9f4cb1d0b68a80eedb3dabe47ecc28f744ff2d"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [
@@ -943,8 +943,8 @@
       "fixture": "guided practice / editorial reading / offline provider stand-ins",
       "generator": "scripts/render_screenshots.py",
       "sha256": {
-        "png": "0eb8f9d49fd0d248605912912228e6b3fd456cfaffa952ca12b6f34708864d43",
-        "svg": "fb44cd6910d5b7f8dfaa354c9dc18619d3e92219b8350ddabe1175e1ad4790d4"
+        "png": "2cc796860150906cc68565bc9d1a80df65b84a5528a0cfe4462628103b552143",
+        "svg": "ffff6bf4fe09a7e4ea5d7733c069fd199053b4bd357717f8ffcef51a2a6ada16"
       },
       "source_baseline": "030cbdd",
       "terminal_size": [

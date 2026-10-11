@@ -19,6 +19,9 @@ apply. If it spans several, split it into steps.
 [testing strategy](testing-strategy.md#where-a-new-scenario-goes)), in domain
 language, through use cases. Do not touch the specification features without
 authorization. Run it and confirm it fails for the right reason.
+For a new development proposal, keep its sourced argument in the owning feature
+using [feature arguments](feature-arguments.md). Link scenarios to named tree
+updates, and leave causal hypotheses and participant benefits visibly unverified.
 
 **3. Write the steps.** Steps define the interface the code must satisfy, so write
 them before the implementation. Drive the application use cases only.

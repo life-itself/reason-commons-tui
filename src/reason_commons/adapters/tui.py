@@ -1309,6 +1309,8 @@ class ReasonCommonsApp(ThemedApp):
     #inspector:focus { border-left: heavy $accent; }
     #inspector.hidden { display: none; }
     #canvas.hidden { display: none; }
+    #receipt { height: auto; max-height: 4; margin: 0 1 1 1; color: $text-muted; }
+    #receipt.hidden { display: none; }
     #content MarkdownH2 { margin: 0; color: $accent; background: transparent; text-style: bold; }
     #content MarkdownH3 { margin: 1 0 0 0; color: $text-muted; background: transparent; text-style: bold; }
     #content MarkdownH6 { margin: 0; color: $text-muted; background: transparent; text-style: none; }
@@ -1426,6 +1428,8 @@ class ReasonCommonsApp(ThemedApp):
         self._origin = None
         # The open menu's name, and its state as kept in the cursor (filter, choice, binding).
         self._menu_name, self._menu_state = None, None
+        self._tree_projection, self._unread_trees = None, set()
+        self._submission_failure = None
 
     # ----- layout -------------------------------------------------------
     def compose(self) -> ComposeResult:
@@ -1444,6 +1448,7 @@ class ReasonCommonsApp(ThemedApp):
                     yield TreeCanvas(id="canvas")
                     yield Timeline(id="timeline", classes="hidden")
                     yield BacklogList(id="backlog-list", classes="hidden")
+                yield Static(id="receipt", classes="hidden")
                 with Pane(id="response", classes="hidden" if self.story else ""):
                     yield TextArea("", id="editor", soft_wrap=True, show_line_numbers=False, tab_behavior="focus")
                     with Horizontal(id="controls"):
@@ -1477,7 +1482,12 @@ class ReasonCommonsApp(ThemedApp):
     def view_prompt(self, key):
         """A view's name in the list, with ▸ beside the one that is open; Backlog says how much waits."""
         waiting = len(self.backlog()) if key == "backlog" else 0
-        return ("▸ " if key == self.view_name else "  ") + dict(VIEW_LABELS)[key] + (f" · {waiting}" if waiting else "")
+        prompt = Text(("▸ " if key == self.view_name else "  ") + dict(VIEW_LABELS)[key]
+                      + (f" · {waiting}" if waiting else ""))
+        if key == 'trees' and self._unread_trees:
+            prompt.append(' ●', style=themed('$error', self.theme_variables))
+            prompt.append(' updated')
+        return prompt
 
     def view_options(self):
         """The Views list: every view, and under an open Trees view with something in it, the overview
@@ -1495,8 +1505,12 @@ class ReasonCommonsApp(ThemedApp):
             options.append(Option(self.view_prompt(key), id=key))
             if key == "trees" and self.view_name == "trees" and self.has_trees():
                 shown = self.shown_tree()
-                options += [Option(("  ▸ " if tree == shown else "    ") + name, id="tree:" + tree)
-                            for tree, name in TREE_NAV.items()]
+                for tree, name in TREE_NAV.items():
+                    prompt = Text("  ▸ " if tree == shown else "    ")
+                    if tree in self._unread_trees:
+                        prompt.append('● ', style=themed('$error', self.theme_variables))
+                    prompt.append(name)
+                    options.append(Option(prompt, id="tree:" + tree))
         return options
 
     def has_trees(self):
@@ -1586,7 +1600,9 @@ class ReasonCommonsApp(ThemedApp):
         margin = response.styles.margin
         taken = 0 if response.has_class("hidden") else (response.outer_size.height + grows
                                                          + margin.top + margin.bottom)
-        room = max(3, column.size.height - taken)
+        receipt = self.query_one('#receipt')
+        feedback_height = receipt.outer_size.height + receipt.styles.margin.bottom if receipt.display else 0
+        room = max(3, column.size.height - taken - feedback_height)
         main.styles.max_height = room
         # The History list scrolls on its own, so it gets exactly what the heading above it leaves.
         timeline, page = self.query_one("#timeline"), self.query_one("#content")
@@ -1638,6 +1654,11 @@ class ReasonCommonsApp(ThemedApp):
     # ----- reading ------------------------------------------------------
     def refresh_workspace(self):
         self.workspace_value = self.case.workspace(view=self.view_name, revision=self.revision)
+        if self.revision is None and not self.story:
+            trees = {t['tree']: t for t in self.workspace_value['trees']}
+            if self._tree_projection is not None:
+                self._unread_trees.update(tree for tree in trees if trees[tree] != self._tree_projection.get(tree))
+            self._tree_projection = trees
         self.render_all()
 
     # ----- history ------------------------------------------------------
@@ -1682,6 +1703,9 @@ class ReasonCommonsApp(ThemedApp):
         line.add_column(justify="right", no_wrap=True)
         status = Text.assemble((f"{who} · " if who else "", muted),
                                (state, "bold" if self.answer_ready else muted))
+        if not self.story:
+            status.append(' · ' + {'guided': 'Offline guide (no AI)', 'anthropic': 'Claude',
+                                  'lm-studio': 'Local model'}.get(self.provider, 'Consultant'), style=muted)
         if self.terminal.width >= 100 and self.acceptance_mode() is not None:
             mode = 'automatic' if self.acceptance_mode() == 'automatic' else 'require acceptance'
             status.append(f' · Reasoning: {mode}', style=muted)
@@ -1694,6 +1718,10 @@ class ReasonCommonsApp(ThemedApp):
     def render_all(self):
         w = self.workspace_value
         self.render_status()
+        receipt = self.query_one('#receipt', Static)
+        feedback = self.submission_feedback()
+        receipt.set_class(not feedback, 'hidden')
+        receipt.update(Text(feedback))
         self.refresh_bindings()
         self.render_stepper()
         content = self.render_next() if self.view_name == "next" else self.render_view()
@@ -3017,6 +3045,8 @@ class ReasonCommonsApp(ThemedApp):
         if name != self.view_name:
             self.begin_inspection()
         self.view_name = name
+        if name == 'trees' and self.revision is None:
+            self._unread_trees.difference_update(TREE_ORDER if self.shown_tree() == 'all' else [self.shown_tree()])
         self.answer_ready = self.answer_ready and name != "next"
         self.refresh_workspace()
         self.refresh_views()
@@ -3537,19 +3567,16 @@ class ReasonCommonsApp(ThemedApp):
             back = f" Send goes to {self.model_name()} again."
             cost = (f" {deeper} answered{spent}." if status == "saved" else cost) + back
         if status == "saved":
+            self._submission_failure = None
             if sent:
                 editor.clear()
             self.explain = False
             # Never move the person: a reply that arrives while they browse waits on Next step.
             self.answer_ready = self.view_name != "next"
-            news = self.tree_news()
-            grown = f" In the trees: {tree_summary(news)}." if news else ""
-            waiting = len(self.case.workspace(view="backlog")["backlog"]) and result.get("proposed") and not result.get(
-                "accepted_automatically")
-            proposed = f" {len(result['proposed'])} proposed; they wait in Backlog." if waiting else ""
-            self.notify(("Answer ready: Next step shows the new question." if self.answer_ready else "Saved.")
-                        + grown + proposed + cost)
         elif result.get("input_retained"):
+            self._submission_failure = ('Input saved; publication unconfirmed. Check History and use Retry.'
+                                        if status == 'not_saved' else
+                                        'Input saved; reply not applied. Reasoning unchanged. Use Retry when the consultant is reachable.')
             if sent:
                 editor.clear()  # the words are retained in the commons; Retry reuses them
             deeper_retry = self.boost()
@@ -3558,6 +3585,7 @@ class ReasonCommonsApp(ThemedApp):
             self.notify(result.get("message", status) + ". Use Retry when the consultant is reachable." + elsewhere
                         + cost, severity="warning", timeout=8)
         else:
+            self._submission_failure = 'Saving unconfirmed. Your text is still in the editor.'
             self.notify(result.get("message", status) + " Your text is still in the editor." + cost,
                         severity="error", timeout=8)
         if before is not None and self._meter:
@@ -3565,7 +3593,58 @@ class ReasonCommonsApp(ThemedApp):
             if share:
                 self.notify(budget_notice(share, self._meter["month"]["usd"], self._meter["budget"]), timeout=10)
         self.refresh_workspace()
+        if status == 'saved':
+            self.notify(self.submission_feedback() +
+                        (" Next step has the reply." if self.answer_ready else "") + cost, timeout=10)
         self.checkpoint()
+
+    def submission_feedback(self):
+        """A lasting receipt from the published reply and membership, including after a restart."""
+        if self.story or self.revision is not None:
+            return ''
+        if self.busy:
+            return f'Sending contribution · Waiting for {self.send_to()}…'
+        if self._submission_failure:
+            return self._submission_failure
+        if self.retryable():
+            return 'Input saved; reply not applied. Reasoning unchanged. Retry is available.'
+        reply = self.workspace_value.get('reply')
+        if not reply:
+            return ''
+        snapshot = self.history()['snapshots'][-1]
+        version = snapshot.get('adapter_versions', {}).get(reply['request_id'], '')
+        if version.startswith('commons-import/'):
+            return ''  # The prepared import is not a new participant submission.
+        who = ('Offline guide (no AI)' if version.startswith('guided/') else
+               'Claude' if version.startswith('anthropic/') else
+               'Local model' if version.startswith('lm-studio/') else 'Consultant')
+        accepted = [r for r in reply['records'] if r['status'] == 'accepted']
+        waiting = sum(r['status'] == 'proposed' for r in reply['records'])
+        parts = []
+        if accepted:
+            noun = 'note' if all(r['kind'] == 'note' for r in accepted) else 'proposal'
+            mode = 'accepted automatically' if reply['automatic'] else 'in your model'
+            parts.append(f"{len(accepted)} {noun}{'s' if len(accepted) != 1 else ''} {mode}")
+        if waiting:
+            parts.append(f"{waiting} {'proposal waits' if waiting == 1 else 'proposals wait'} in Backlog")
+        outside = len(reply['records']) - len(accepted) - waiting
+        if outside:
+            parts.append(f"{outside} {'proposal is' if outside == 1 else 'proposals are'} out of your model")
+        by_ref = {r['ref']: r for r in snapshot['records']}
+        trees = set()
+        for row in accepted:
+            record = row['record']
+            if record['kind'] == 'retraction':
+                record = by_ref[record['data']['target_ref']]
+            tree = 'goal' if record['kind'] == 'goal' else record['data'].get('tree')
+            if tree:
+                trees.add(tree)
+        changed = ('Trees updated: ' + ', '.join(TREE_NAV[t] for t in TREE_ORDER if t in trees)
+                   if trees else 'Trees unchanged')
+        detail = ' · '.join(parts or ['No reasoning proposals']) + ' · ' + changed
+        if version.startswith('guided/'):
+            detail += '. AI analysis: Ctrl+P → Consultant.'
+        return f'Last contribution saved · {who}\n{detail}'
 
     def set_busy(self, busy, refresh=True):
         self.busy = busy
@@ -3632,7 +3711,8 @@ class ReasonCommonsApp(ThemedApp):
                    self.action_other_moves)]
         items += [(f"View: {label}", "Local view, no consultant call", lambda key=key: self.show_view(key))
                   for key, label in VIEW_LABELS]
-        items += [(f"Tree: {TREE_TITLES[key][0] if key in TREE_TITLES else 'All six trees'}",
+        items += [(f"Tree: {TREE_TITLES[key][0] if key in TREE_TITLES else 'All six trees'}"
+                   + (' · updated' if key in self._unread_trees else ''),
                    "Local: show this tree (Ctrl+N cycles)", lambda key=key: self.show_tree(key))
                   for key in TREE_ORDER + ["all"]]
         if self.view_name == "trees" and self.drawn_selection() and not self.story and self.revision is None:

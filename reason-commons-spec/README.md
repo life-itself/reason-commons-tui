@@ -18,8 +18,8 @@ release, increment and evaluation tags. The manifest declares their runners.
 `@semantic` and `@usability` evaluate existing capabilities without implying that
 their evidence is complete. `@later` retains unimplemented richer requirements.
 
-- 17 `.feature` files: 187 named scenarios/outlines, expanding to 229 cases.
-- V1: 128 scenarios and 162 expanded cases.
+- 18 `.feature` files: 191 named scenarios/outlines, expanding to 233 cases.
+- V1: 132 scenarios and 166 expanded cases.
 - Future: 59 scenarios and 67 expanded cases.
 - 38 ASCII screens across three synchronized authored illustrations.
 
@@ -29,7 +29,7 @@ their evidence is complete. `@later` retains unimplemented richer requirements.
 | p1 | Proposals and acceptance | 10 | 10 |
 | p2 | Inspectable reasoning and history | 12 | 17 |
 | p3 | Guided work and revision | 63 | 86 |
-| p4 | Import prior work and continue | 34 | 40 |
+| p4 | Import prior work and continue | 38 | 44 |
 | p5 | Richer causal tools | 28 | 30 |
 | p6 | Facilitated group positions | 13 | 13 |
 | p7 | Full reasoning and implementation tools | 18 | 24 |
@@ -62,3 +62,11 @@ selected automated identity and expanded row through the appropriate boundary.
 Neither establishes useful live consulting, participant usability or accessibility.
 Edit the specimen builder, rebuild, then synchronize embedded copies. Features and
 supporting contracts are edited directly with specification authorization.
+
+New development proposals use [feature arguments](../docs/development/feature-arguments.md):
+the complete sourced argument lives in the feature's readable reasoning comments,
+and scenario tags reference exact proposed tree records. The
+[contribution-feedback precedent](features/15_contribution_feedback.feature)
+keeps its CRT problem, FRT injection, PRT conditions and TT actions together.
+Native record correspondence is checked through disposable application fixtures;
+causal and participant claims retain their separate evidence requirements.

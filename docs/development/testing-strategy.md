@@ -20,6 +20,11 @@ so keep them few, retain their evidence, and never make them part of the gate.
 
 ## Acceptance (BDD)
 
+New proposals follow [feature arguments](feature-arguments.md): one authored tree
+update maps to one proposed application record, and scenarios explicitly name
+what they address, implement or verify. Automated evidence checks behavior; it
+does not establish the causal explanation or predicted participant benefit.
+
 - **Gherkin states what must be true**, in the language of `CONTEXT.md`, not how the
   code does it. Avoid screens, files, classes and HTTP in scenario text.
 - **Step definitions use the narrowest stable boundary**: the application use

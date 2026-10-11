@@ -184,6 +184,13 @@ out as `.ltp.yaml`.
 
 ![The Trees view opening on All six: each tree's name and question with the statement it starts from, folded, and how many statements lie below](images/trees-view.png)
 
+After an accepted change, **Trees** and the affected destinations show a dot and
+**updated** until you open them. Opening one tree clears its marker; opening All
+six clears all. These markers last for the current session. Proposals waiting in
+Backlog do not mark unchanged trees. The contribution receipt remains visible and
+can be reconstructed after reopening; it distinguishes accepted changes from a
+saved offline note that leaves the trees unchanged.
+
 Joint causes (several causes that only work together), rival explanations and
 boxed drawings of the other five trees arrive later, as the [delivery plan](../reason-commons-spec/delivery-phases.md)
 describes. The [workspace reference](tui.md#the-trees) has the details.
