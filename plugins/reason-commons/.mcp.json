@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "reason-commons": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH\"; root=\"$REASON_COMMONS_HOME\"; [ -n \"$root\" ] || root=\"$HOME/ReasonCommons\"; mkdir -p \"$root\" && exec uvx --from \"reason-commons[mcp] @ git+https://github.com/life-itself/reason-commons-tui\" reason-commons mcp --commons-root \"$root\" --provider host"
+      ]
+    }
+  }
+}

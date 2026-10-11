@@ -17,7 +17,23 @@ to turn people who resonate with its ideas into people who practise them. A
 community group might want more neighbours at the monthly meeting without burning
 out the organisers.
 
-## Quick start
+## Two ways to use it
+
+You can work in the **workspace**, a full-screen terminal app built for this
+reasoning, or ask a **coding agent** (Claude Code or Codex) through the Reason
+Commons skill. Both use the same goal folders in `~/ReasonCommons` and the same
+rules: your words are kept as you wrote them, and what a consultant proposes waits
+for your decision. You can switch between them on the same goal.
+
+| | The workspace | The skill, in a coding agent |
+| --- | --- | --- |
+| How you use it | Run `reason-commons`; answer one question at a time, with keys, views and a Backlog to decide | Ask in chat: "Use the reason-commons-contribute skill. I'm Sam. Open my-goal." |
+| Who drafts the questions | The built-in guide, Claude (with an API key) or a local model | The coding agent itself, with no API key; or any of the workspace's consultants |
+| What it costs | Nothing with the guide or a local model; Claude is paid per reply, estimated as you go | Your agent subscription's allowance: every turn uses it, including just looking, and a large goal's consultation is about 40,000–50,000 tokens; nothing estimates it |
+| Strengths | Built for this work: trees with colour, folding and markers for what changed; stepping through history; drafts saved as you type; a cost meter; works offline | No key or separate bill; works where you already work, in plain language |
+| Limits | AI questions need an API key or a local model | Trees appear as plain text drawings; the app records which model the agent says it is, but cannot check it; how well a coding agent consults has not been evaluated yet; the same agent drafts proposals and presents them to you; very large views may arrive as a file the agent reads |
+
+## Quick start: the workspace
 
 On macOS or Linux, install [uv](https://docs.astral.sh/uv/) once, then open a new
 terminal window:
@@ -54,6 +70,28 @@ After that, `reason-commons` opens a list of your goals. A goal opens on one
 question; you answer in ordinary words. Enter adds a line, **Ctrl+S** sends,
 **Ctrl+P** lists every command and **Ctrl+Q** quits. Everything is saved as you
 type, including an unsent draft, and you come back to where you were.
+
+## Quick start: the skill in Claude Code
+
+With [uv](https://docs.astral.sh/uv/) installed (see above), add the Reason Commons
+plugin. It brings the skill and its server, with Claude Code as the consultant:
+
+```sh
+claude plugin marketplace add life-itself/reason-commons-tui
+claude plugin install reason-commons@reason-commons --scope user
+```
+
+Start a new Claude Code session and ask:
+
+> Use the reason-commons-contribute skill. I'm Sam. Create a goal called my-goal.
+
+Answer its questions in chat. Ask "What is waiting for me?", "Accept the goal",
+"Show the trees" or "Import the trees from FILE". The first start downloads and
+builds Reason Commons, which takes about 20 seconds; if the skill reports its tools
+missing, run `/mcp` to reconnect. Goals go to `~/ReasonCommons`, so the same goal
+opens in the workspace with `reason-commons` whenever you want it. The plugin
+follows this repository's main branch. Codex setup, the manual install, and what
+the skill leaves to the workspace are in [use Reason Commons from an AI agent](docs/skill-use.md).
 
 ## How it works
 
@@ -179,8 +217,9 @@ record of what happened and a decision you can explain.
 
 ## Who asks the questions
 
-Reading, browsing, history, export and import never need a model. The questions
-come from one of three consultants:
+Reading, browsing, history, export and import never need a model. In the
+workspace, the questions come from one of three consultants (in a coding agent, the
+agent itself can also be the consultant; see [two ways to use it](#two-ways-to-use-it)):
 
 | | Built-in guide | Claude | Local model (LM Studio) |
 | --- | --- | --- | --- |
@@ -226,9 +265,9 @@ trial's success or participant agreement.
 - **From the terminal:** `reason-commons trees FOLDER` draws a goal's trees
   (`--tree current_reality` draws one), `show` reads any view offline, and
   `export` and `import` move goals. Run `reason-commons --help` for the full list.
-- **From an AI agent:** an MCP server and a skill let an agent such as Codex hold
-  the same conversation with the same rules. See
-  [use Reason Commons from an AI agent](docs/skill-use.md).
+- **From an AI agent:** the skill and MCP server let Claude Code or Codex hold the
+  same conversation with the same rules; see [the quick start](#quick-start-the-skill-in-claude-code)
+  and [use Reason Commons from an AI agent](docs/skill-use.md).
 
 ## Status
 
