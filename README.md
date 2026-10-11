@@ -4,13 +4,14 @@
 
 ![The imported Reason Commons conflict: continuing important work while developing useful analysis, with the assisted interface as the injection](docs/images/commons-conflict.png)
 
-Reason Commons is a calm terminal workspace for reasoning about change: what you are
+Reason Commons helps you reason about change: what you are
 aiming for, what is really in the way, which conflict keeps you stuck and what to
 try next. It lays that reasoning out as the six connected trees of the **Logical
 Thinking Process** (from the Theory of Constraints), can support a next action
 with a small test: you write down what you expect **before** you act, and compare
 it with what happened. Every statement keeps who said it and how it was worded,
-and everything lives in a plain folder you own.
+and everything lives in a plain folder you own. You can use it as a full-screen
+terminal workspace, or in chat through a skill in your coding agent.
 
 It suits any change where you are not sure what will work. A movement might want
 to turn people who resonate with its ideas into people who practise them. A
@@ -27,11 +28,17 @@ for your decision. You can switch between them on the same goal.
 
 | | The workspace | The skill, in a coding agent |
 | --- | --- | --- |
+| What you need | macOS or Linux, a terminal and [uv](https://docs.astral.sh/uv/) | macOS or Linux, [Claude Code](https://claude.com/claude-code) with a Claude subscription, and uv; Codex works too, set up by hand |
 | How you use it | Run `reason-commons`; answer one question at a time, with keys, views and a Backlog to decide | Ask in chat: "Use the reason-commons-contribute skill. I'm Sam. Open my-goal." |
-| Who drafts the questions | The built-in guide, Claude (with an API key) or a local model | The coding agent itself, with no API key; or any of the workspace's consultants |
-| What it costs | Nothing with the guide or a local model; Claude is paid per reply, estimated as you go | Your agent subscription's allowance: every turn uses it, including just looking, and a large goal's consultation is about 40,000–50,000 tokens; nothing estimates it |
-| Strengths | Built for this work: trees with colour, folding and markers for what changed; stepping through history; drafts saved as you type; a cost meter; works offline | No key or separate bill; works where you already work, in plain language |
-| Limits | AI questions need an API key or a local model | Trees appear as plain text drawings; the app records which model the agent says it is, but cannot check it; how well a coding agent consults has not been evaluated yet; the same agent drafts proposals and presents them to you; very large views may arrive as a file the agent reads |
+| Who drafts the questions | The built-in guide (free, fixed questions, no advice), Claude (with an API key) or a local model | The coding agent itself, with no API key |
+| What it costs | Nothing with the guide or a local model; Claude is paid per reply, estimated as you go | Your subscription's allowance: every turn uses it, including just looking, and a large goal's consultation is about 40,000–50,000 tokens; nothing estimates it |
+| Strengths | Built for this work: trees with colour, folding and markers for what changed; stepping through history; drafts saved as you type; a cost meter; works offline with the guide or a local model | Adaptive questions with no key or separate bill; plain-language chat in a tool you already use |
+| Limits | A full-screen app with its own keys to learn; adaptive questions need an API key or a local model | Trees appear as plain text drawings; you name the skill when you ask; the app records which model the agent says it is, but cannot check it; how well a coding agent consults has not been evaluated yet; the same agent drafts proposals and presents them to you; very large views may arrive as a file the agent reads |
+
+**Which to choose.** Start with the workspace if you want to see and move around
+the trees and their history, work offline, or do not use a coding agent. Start
+with the skill if you already use Claude Code and want adaptive questions without
+an API key. Either way, the other can pick up the same goal later.
 
 ## Quick start: the workspace
 
