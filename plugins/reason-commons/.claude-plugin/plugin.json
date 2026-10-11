@@ -1,0 +1,12 @@
+{
+  "name": "reason-commons",
+  "version": "0.1.0",
+  "description": "Work on a goal with Reason Commons from Claude Code: the reason-commons-contribute skill and its MCP server, with Claude Code as the consultant and no API key. The model that drafts a proposal is recorded as declared, not verified.",
+  "author": {
+    "name": "Life Itself",
+    "url": "https://github.com/life-itself"
+  },
+  "homepage": "https://github.com/life-itself/reason-commons-tui",
+  "repository": "https://github.com/life-itself/reason-commons-tui",
+  "license": "MIT"
+}

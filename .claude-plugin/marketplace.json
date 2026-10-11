@@ -1,0 +1,12 @@
+{
+  "name": "reason-commons",
+  "owner": {"name": "Life Itself", "url": "https://github.com/life-itself"},
+  "description": "Reason Commons for Claude Code: develop reasoning about a goal you value, with your coding agent as the consultant and no API key",
+  "plugins": [
+    {
+      "name": "reason-commons",
+      "source": "./plugins/reason-commons",
+      "description": "The reason-commons-contribute skill and its MCP server, with the coding agent as the consultant; goals live in ~/ReasonCommons, shared with the Reason Commons workspace"
+    }
+  ]
+}

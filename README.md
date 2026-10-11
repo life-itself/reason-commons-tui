@@ -73,25 +73,12 @@ type, including an unsent draft, and you come back to where you were.
 
 ## Quick start: the skill in Claude Code
 
-With [uv](https://docs.astral.sh/uv/) installed (see above), install Reason Commons
-with its MCP server, and register the server for your user with the coding agent as
-the consultant:
+With [uv](https://docs.astral.sh/uv/) installed (see above), add the Reason Commons
+plugin. It brings the skill and its server, with Claude Code as the consultant:
 
 ```sh
-uv tool install 'reason-commons[mcp] @ git+https://github.com/life-itself/reason-commons-tui'
-mkdir -p ~/ReasonCommons
-claude mcp add --scope user reason-commons -- "$(command -v reason-commons)" mcp --commons-root ~/ReasonCommons --provider host
-```
-
-If you installed the workspace before, the first line replaces it with the same
-app plus the MCP server.
-
-Then make the skill available in every folder:
-
-```sh
-git clone https://github.com/life-itself/reason-commons-tui ~/reason-commons-tui
-mkdir -p ~/.claude/skills
-ln -s ~/reason-commons-tui/skills/reason-commons-contribute ~/.claude/skills/reason-commons-contribute
+claude plugin marketplace add life-itself/reason-commons-tui
+claude plugin install reason-commons@reason-commons --scope user
 ```
 
 Start a new Claude Code session and ask:
@@ -99,9 +86,12 @@ Start a new Claude Code session and ask:
 > Use the reason-commons-contribute skill. I'm Sam. Create a goal called my-goal.
 
 Answer its questions in chat. Ask "What is waiting for me?", "Accept the goal",
-"Show the trees" or "Import the trees from FILE". The same goal opens in the
-workspace with `reason-commons` whenever you want it. Codex setup, and what the
-skill leaves to the workspace, are in [use Reason Commons from an AI agent](docs/skill-use.md).
+"Show the trees" or "Import the trees from FILE". The first start downloads and
+builds Reason Commons, which takes about 20 seconds; if the skill reports its tools
+missing, run `/mcp` to reconnect. Goals go to `~/ReasonCommons`, so the same goal
+opens in the workspace with `reason-commons` whenever you want it. The plugin
+follows this repository's main branch. Codex setup, the manual install, and what
+the skill leaves to the workspace are in [use Reason Commons from an AI agent](docs/skill-use.md).
 
 ## How it works
 

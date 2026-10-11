@@ -15,8 +15,25 @@ continued in either.
 ## Use it in Claude Code without a key
 
 With the host consultant, Claude Code itself drafts each consultant reply on your
-subscription, and Reason Commons checks it as it checks any provider's. Set it up
-once:
+subscription, and Reason Commons checks it as it checks any provider's.
+
+The easiest way is the plugin in this repository. With
+[uv](https://docs.astral.sh/uv/) installed:
+
+```sh
+claude plugin marketplace add life-itself/reason-commons-tui
+claude plugin install reason-commons@reason-commons --scope user
+```
+
+The plugin brings the skill (shown as `reason-commons:reason-commons-contribute`)
+and starts the server with `uvx` straight from this repository's main branch, with
+`--provider host`. Its goals go to `REASON_COMMONS_HOME`, otherwise `~/ReasonCommons`,
+the folder the workspace uses. The first start builds Reason Commons, about
+20 seconds; if the tools are reported missing, `/mcp` reconnects. `claude plugin
+update reason-commons@reason-commons` picks up a newer plugin. The plugin's tools are
+named `mcp__plugin_reason-commons_reason-commons__…`.
+
+Without the plugin, set it up by hand once:
 
 1. Install Reason Commons with the MCP extra (it needs Python 3.10 or later, which
    uv provides):
