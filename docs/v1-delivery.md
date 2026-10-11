@@ -98,7 +98,7 @@ authored updates were submitted through use cases into a disposable review-mode
 commons and checked against exactly 30 pending records, their source attribution
 and resolved endpoints. The checker detects invalid identities, sources, links,
 scenario references, repeated YAML keys and inappropriate automated benefit claims.
-No tree argument was added to a participant's working commons.
+On 11 October the same argument was recorded in David's development commons through the application: his report as his own contribution, the 30 records as the consultant's reply (version `feature-argument/1`, naming Codex's reply of 10–11 October), each bound to its authored identity, with the feature and David's readable revision kept as sources.
 
 The complete follow-up gate **passed**: 485 pytest tests, 30 structural regressions
 and all 112 automated v1 identities / 138 expanded cases (87 product identities /
