@@ -305,7 +305,10 @@ class FileCaseStore:
         atomic_write(self.root / "cursor.yaml", wrapped(value))
 
     def cursor(self):
-        return read_wrapped(self.root / "cursor.yaml")
+        # One person's draft and view. A copy without it, such as a clone that keeps it out of git, starts as
+        # a new commons does.
+        path = self.root / "cursor.yaml"
+        return read_wrapped(path) if path.exists() else {}
 
     def start_attempt(self, request_id):
         self._editing()
@@ -407,8 +410,8 @@ class FileCaseStore:
             with zipfile.ZipFile(temporary, "w", zipfile.ZIP_DEFLATED) as archive:
                 for path in paths:
                     name = path.relative_to(self.root).as_posix()
-                    if name == "cursor.yaml" and cursor_override is not None:
-                        archive.writestr(name, wrapped(cursor_override))
+                    if name == "cursor.yaml" and (cursor_override is not None or not path.exists()):
+                        archive.writestr(name, wrapped(cursor_override if cursor_override is not None else {}))
                     else:
                         archive.write(path, name)
             with open(temporary, "rb") as stream:

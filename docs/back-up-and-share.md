@@ -72,6 +72,42 @@ You can also open any folder directly: `reason-commons tui ~/Projects/my-goal`
 creates or opens it, and `reason-commons resume ~/Projects/my-goal` opens it but
 never creates one.
 
+## Keep goals in a git repository
+
+To share goals with the people working on a repository, keep them in it. Put each
+goal's folder under `commons/` at the repository's root, and add to its
+`.gitignore`:
+
+```gitignore
+commons/*/writer.lock
+commons/*/cursor.yaml
+```
+
+`writer.lock` exists only while a goal is open, and `cursor.yaml` holds your own
+draft and view. A clone without `cursor.yaml` opens the goal at its current
+question.
+
+So that the skill in Claude Code uses the repository's goals, commit
+`.claude/settings.json` with:
+
+```json
+{"env": {"REASON_COMMONS_HOME": "commons"}}
+```
+
+Claude Code then starts the plugin's server on `commons/` whenever it is opened in
+this repository; elsewhere it keeps using `~/ReasonCommons`. In the workspace, run
+it from the repository's root with the same setting:
+
+```sh
+REASON_COMMONS_HOME=commons reason-commons
+```
+
+**Take turns.** Pull before you work on a goal and commit and push when you stop.
+Git cannot merge two people's additions to the same goal: both would write the
+same next revision, and the commit that arrives second conflicts. Different goals
+in the same repository never conflict. Everything in the folder, including
+consultant receipts, is published with the repository.
+
 ## Good to know
 
 - Only one workspace can edit a goal at a time. Quit it in one window before
