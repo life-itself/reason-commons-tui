@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-10",
+  "method": "One purposeful behavioral mutation per newly automated baseline identity in a disposable copy; unmodified full baseline suite passed first. Production source was never mutated.",
+  "results": [
+    {
+      "scenario": "S176",
+      "mutation": "Remove the supporting Commands views",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 4,
+      "failing_steps": [
+        "the operator chooses \"View: Tests\" through Commands",
+        "the operator chooses \"View: Loop actions\" through Commands",
+        "the operator chooses \"View: Reasoning\" through Commands",
+        "the operator chooses \"View: Commons context\" through Commands"
+      ]
+    },
+    {
+      "scenario": "S177",
+      "mutation": "Forget saved display density on resume",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "expanded density is retained without a revision or consultant call"
+      ]
+    },
+    {
+      "scenario": "S178",
+      "mutation": "Ignore the requested acceptance policy",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "the application records the operator's review policy without consulting"
+      ]
+    },
+    {
+      "scenario": "S179",
+      "mutation": "Quote unrelated words instead of the selected statement",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "its words enter the editable draft without a revision or consultant call"
+      ]
+    },
+    {
+      "scenario": "S180",
+      "mutation": "Append invented words to the reported observation",
+      "target": "src/reason_commons/adapters/guided.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "the original test forecast and reported result remain distinct"
+      ]
+    },
+    {
+      "scenario": "S181",
+      "mutation": "Create another import instead of resuming prior work",
+      "target": "src/reason_commons/adapters/commons.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "the same commons, revision, sources and draft are resumed"
+      ]
+    },
+    {
+      "scenario": "S182",
+      "mutation": "Drop the saved appearance preference",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "the appearance preference is retained outside the commons"
+      ]
+    },
+    {
+      "scenario": "S183",
+      "mutation": "Drop the saved monthly budget",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "the personal settings retain the budget outside the commons"
+      ]
+    },
+    {
+      "scenario": "S184",
+      "mutation": "Use the ordinary model for the deeper reply",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "each applied request names the model stand-in that produced it"
+      ]
+    },
+    {
+      "scenario": "S186",
+      "mutation": "Leave the tour example editor empty",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "the operator fills and sends each tour example using its visible controls"
+      ]
+    },
+    {
+      "scenario": "S187",
+      "mutation": "Expose the response editor in the reading example",
+      "target": "src/reason_commons/adapters/tui.py",
+      "detected": true,
+      "cases_run": 1,
+      "failing_steps": [
+        "reading hides the response editor and creates no revision or consultant call"
+      ]
+    }
+  ]
+}

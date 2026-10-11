@@ -44,7 +44,7 @@ Feature: Grow the six thinking-process trees in conversation
     Then the tree no longer shows the cause or its link
     And a later proposal linking the withdrawn cause is rejected before commit
 
-  @S131 @p2 @v1 @automated
+  @S131 @p3 @v1 @automated
   Scenario: Connect a test to the tree action it carries out
     Given a commons set to accept proposals automatically
     And a Transition Tree action "Prototype one next step after open evenings"

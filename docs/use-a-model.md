@@ -7,8 +7,8 @@ moves**. Your commons keeps going from where it is when you switch.
 
 ## The easy way: setup
 
-On the first start, choose **Choose who asks the questions first**; later, choose
-**Settings** on the home screen. Pick Claude or LM Studio:
+On the first start or home screen, open **F1 Help** and choose consultant setup,
+or **F2 Settings**, then **You**. Pick Claude or LM Studio:
 
 - **Claude**: paste your API key from the
   [Anthropic Console](https://console.anthropic.com/). Reason Commons checks it and
@@ -89,8 +89,10 @@ reviews** (Ctrl+P) asks the consultant whether they still hold. The
 automatic acceptance. Press **Ctrl+T** to see the whole tree, **Ctrl+N** to step through
 the trees, **↑**/**↓** to choose a statement and check the words it came from, and
 **a** to begin an answer about the chosen statement. The
-[workspace reference](tui.md#the-trees) explains how to read them. The built-in
-guide does not propose tree statements; it only walks the loop.
+[workspace reference](tui.md#the-trees) explains how to read them. The built-in guide does not propose tree statements. It walks the loop for new
+goals and preserves free-form continuation notes for the imported RC development
+commons. An AI consultant supplies adaptive reasoning; deterministic checks do
+not establish its quality.
 
 ## When the consultant can't be reached
 

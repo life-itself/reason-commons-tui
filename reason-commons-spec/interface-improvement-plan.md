@@ -1,6 +1,7 @@
 # Reason Commons design rationale and implementation priorities
 
-The main specification and TUI specimens are the contract. This document explains
+Scenario-local tags and the accepted v1 define scope; richer TUI specimens are
+explicit future illustrations. This document explains
 the decisions behind them; it contains no competing interface or historical
 implementation recipe.
 
@@ -30,11 +31,14 @@ establish measured usability or authorize organizational actions.
 | Let the operator decide what enters the model | Proposals wait in an ordered backlog with their source; automatic acceptance only by the operator's setting; review flags on what cites a change; Undo | Participants accept, reject and undo, and say that acceptance does not make a statement true |
 | Share one interaction model | All scenarios use labeled controls; ordered accessibility shares actions | No workflow needs colon syntax or a separate REPL |
 
-Build p0 storage/commit/recovery, p1 workspace and p2 complete goal/action/review
-loop, with the six trees growing in that conversation. Ship that loop before the
-trees' formal checks, group stances and cross-tool analysis arrive in p3-p5. One fake adapter isolates state/interaction; a semantic adapter
-and first-time participant checks remain required. More diagrams alone are not
-progress. Introduce a representation when it helps a recurrent decision.
+The editorial progression is durable records → proposals/acceptance → inspectable
+reasoning/history → guided work/revision → imported continuation (p0–p4, v1).
+Future p5–p7 retain richer causal tools, group positions and full-tool integration.
+All six partial trees and the five-box Cloud already exist in v1. Joint-premise
+canvases and richer cross-tool checks are future. A fake adapter isolates state
+and interaction; actual consulting review and participant checks remain separate.
+More diagrams alone are not progress. Introduce a representation when it helps a
+recurring decision and justifies its attention and maintenance cost.
 
 Maintain four separate outcome families: access/use, reasoning/learning,
 implementation fidelity and the group's chosen goal/guardrails. A five-person
@@ -47,4 +51,5 @@ individual missed conditions.
 See [delivery-phases.md](delivery-phases.md) for gates,
 [tui-reasoning-design.md](tui-reasoning-design.md) for rendering,
 [accessibility.md](accessibility.md) for ordered text and
-[the canonical transcript](example-tui-session.txt) for the worked target.
+[the future illustration](example-tui-session.txt) for richer design hypotheses;
+actual v1 appearance is in [the workspace guide](../docs/tui.md).

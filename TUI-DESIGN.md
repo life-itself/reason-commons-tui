@@ -1,12 +1,12 @@
 # Reason Commons terminal design contract
 
-Reason Commons opens a persistent terminal workspace from its first usable release.
-Read the [canonical session](reason-commons-spec/example-tui-session.txt),
-[v1 session](reason-commons-spec/example-mvp-session.txt) and
-[rendering contract](reason-commons-spec/tui-reasoning-design.md) before implementing
-screens. These are required behavior, not optional future styling. A first
-personal-use slice is implemented in `src/reason_commons/adapters/tui.py`
-([run guide](docs/tui.md)); it does not yet meet this whole contract.
+The accepted simplified terminal app is v1. [The workspace reference](docs/tui.md)
+and actual disposable screenshots describe current behavior; [the reconciliation
+matrix](docs/v1-reconciliation.md) maps every scenario and reachable capability.
+The [v1 loop illustration](reason-commons-spec/example-mvp-session.txt) abstracts
+interaction, while [the richer journey](reason-commons-spec/example-tui-session.txt)
+and [rendering rationale](reason-commons-spec/tui-reasoning-design.md) also contain
+explicit future p5–p7 requirements. They do not silently expand the accepted MVP.
 
 ## Direction and references
 
@@ -23,25 +23,26 @@ responsive layout, asynchronous workers and terminal cleanup.
 
 Required patterns: Focused Surface, Footer Command Bar, Master-Detail,
 Expand-to-Focus, Object-Local Actions, filtered Commands palette (the
-specification calls it Actions; on screen it is **Commands**),
+specification and screen call it **Commands**),
 and selection grammar. Returning restores exact selection and draft. A model
 completion notice never moves the user's view or focus without their action.
 
 ## Canvas and visual grammar
 
-Target 120×40. Reserve 12–16 columns for destinations; give the reasoning region
+Target 120×40. The current sidebar reserves 23 columns for destinations; give the reasoning region
 the remaining width. A right inspector may use 28–36 columns when all decisive
 premises still fit. Prefer full words and separate branches over counters.
 Support 80×24 by stacking or expanding the task region; use 40×24 relation
 sentences with visible Views. Below that, retain state and offer resize or linear
 presentation. Reflow preserves logic, IDs, draft, target and focus.
 
-Default named palette: Mono **Default**, with text/symbol statuses. Monochrome
+Current default palette: **Chromatics dark** (`yoruba-dark`), with text/symbol statuses. Monochrome
 and ASCII are fully functional alternatives. ASCII is the specimen baseline;
 Unicode borders may improve continuity but cannot carry unique meaning.
 Measure terminal display cells, not bytes or code points.
 
-Draw measured node boxes with padding and reserved connector gutters. Connections
+V1 draws partial outlines and a five-box Cloud. Future p5–p7 canvases draw
+measured node boxes with padding and reserved connector gutters. Connections
 terminate at explicit ports. Joint causal inferences have an ALL enclosure or
 gate, complete inputs and one labeled output. Independent routes never merge
 implicitly. Necessity says requires; conflict states scope and incompatibility;
@@ -107,7 +108,7 @@ One screen is read in one order. Each rule below was a clarity defect before it 
   what it proposes under the new question, as the trees draw them, beside the words they came from,
   marked *proposed*, with **Accept all** and **Backlog**; a larger change is summed up in a line. To
   correct a wrong reading, reject it or say so in the answer. Accepting admits the reading into the
-  model; it is not agreement, and a stance still waits for the position records of p4. Under automatic
+  model; it is not agreement, and a stance still waits for the position records of future p6. Under automatic
   acceptance the same place says what entered the model with the reply and that History can undo it.
 - **The model and the backlog never mix.** Trees, Goal and Tests show what has been accepted; a
   proposal appears only in Next step, the Backlog and its own details, always marked *proposed*. The
@@ -119,7 +120,7 @@ One screen is read in one order. Each rule below was a clarity defect before it 
 - **Pointing goes into the words.** *Answer about this* (a) puts the chosen statement's words, role and
   tree at the end of the draft as ordinary editable text, so the kept input says which statement "that
   one" was. It changes neither the live question nor the target; an exact subject reference waits for
-  the structured authoring of p3.
+  the structured authoring of future p5.
 - **Records in columns.** Goal, Loop actions and Reasoning use the aligned label column of Next step;
   Reasoning puts what is still open first. History is one row per step. Commands are one line each,
   each still marked local or consultant.
@@ -130,7 +131,7 @@ One screen is read in one order. Each rule below was a clarity defect before it 
 |---|---|---|
 | §1.4/§2.3 footer commands | OVERRIDE: context-critical keys in persistent footer; remaining actions have visible controls and filtered Help/Commands. Commands and Help are footer controls that Tab reaches and Enter presses | No required action depends on recalled syntax or an invisible key |
 | §2.2 keyboard scope | TIGHTEN: all printable keys, including `?`, `q`, numbers, `:` and `/`, are literal in Response and filters | Sending those strings cannot navigate, quit or record a position |
-| §2.2 command activation | OVERRIDE: Ctrl+P opens Commands (the specification's Actions); inside it arrows select and printable keys filter. F10/action-bar keys optional; visible Commands required, in the footer | Complete the journey with Tab, arrows, Space, Enter and Esc |
+| §2.2 command activation | OVERRIDE: Ctrl+P opens Commands; inside it arrows select and printable keys filter. F10/action-bar keys optional; visible Commands required, in the footer | Complete the journey with Tab, arrows, Space, Enter and Esc |
 | §1.6 reflow | TIGHTEN: reflow semantic relations first; use complete records when connectors become ambiguous | No lost negation, input, objection or breach |
 | §8 state | TIGHTEN: save, evidence, freshness, execution, attainment and human positions independent | Selection/save/completion cannot imply truth or consensus |
 
@@ -143,8 +144,9 @@ cannot intercept text. Quit is available through Commands.
 
 Navigation checkpoints the cursor. New input invokes the consultant only through
 labeled Send or a consultant action. Explicit structured decisions share the
-shared exact-target transaction validator. No stance/reliance choice is preselected. Switching
-speakers retains drafts by actor and question and invalidates actor-bound decision forms.
+shared exact-target transaction validator. Future stance/reliance forms must not
+preselect a position, and future speaker switching must preserve actor-bound
+drafts and invalidate actor-bound forms; those are not current v1 controls.
 
 The shell provides launch, resume and offline utilities. `new`/`resume` open
 the workspace. Plain `reason-commons` in a terminal opens a goals home
@@ -160,19 +162,17 @@ Users work with questions, reports, relationships, tests, actions and reviews.
 Internal intervention records never become a stationery metaphor, navigation
 label or numbered object users must learn. Human titles identify the task.
 
-## Delivery gate
+## Delivery and evidence
 
-P1 includes workspace, controls, multiline input, draft preservation, asynchronous
-focus stability, recovery and 80×24. P2 adds original forecast/outcome review and
-the Trees view: the six trees drawn as indented outlines from recorded claims and
-single links (S128–S134), with a chosen statement's links, wording and origin
-beside them (Master-Detail) or full screen (Expand-to-Focus). A complete Evaporating
-Cloud, whose five places are fixed and need no routing, is drawn as its five boxes
-now, so both sides are visible; joint premises, rival routes and the other boxed
-canvases arrive in p3–p5; the TUI is not deferred. P2 also adds the Backlog, where the
-operator accepts or rejects what replies propose and closes review flags, with Undo in
-History (S135–S150). Use S114–S150 alongside earlier integrity and reasoning gates. Authored snapshots
-and document checks do not prove a running TUI or measured usability.
+The editorial p0–p4 progression culminates in the accepted v1: durable attributed
+records, proposals/acceptance, inspectable reasoning/history, guided work/revision
+and imported continuation. [The current report](docs/v1-delivery.md) records the
+complete deterministic gate; semantic and participant evidence remain outstanding.
+All six trees, single links, Cloud boxes, Backlog, review flags, undo, ordered text,
+Settings and Commands are current. Supporting views remain in Commands/Views even
+when absent from the sidebar. Joint premises, positions and richer cross-tool
+canvases remain future p5–p7. Authored frames are illustrations; screenshot
+inspection and automated tests establish neither helpful consulting nor usability.
 
 ## Acceptance visibility
 

@@ -4,7 +4,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
   Screen specimens specify visible behavior; a runtime and participant protocol
   are required to exercise them. Structural document checks cannot pass them.
 
-  @S114 @p1 @v1 @automated
+  @S114 @p3 @v1 @automated
   Scenario: Launch the persistent workspace by default
     Given interactive terminal input and output at 120 columns by 40 rows
     When the operator launches a new commons without a presentation flag
@@ -12,7 +12,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And save status, declared operator and focused control remain visible
     And no tour or command syntax is required to answer or leave
 
-  @S115 @p1 @v1 @automated
+  @S115 @p3 @v1 @automated
   Scenario: Treat all printable response text literally and submit deliberately
     Given the response editor is focused on current question "Choose a test"
     When the operator types or pastes "5 ? q / :options" and presses Enter
@@ -21,7 +21,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     When the operator Tabs to Send and presses Enter
     Then exactly one request preserves the full literal draft for "Choose a test"
 
-  @S116 @p1 @v1 @automated
+  @S116 @p3 @v1 @automated
   Scenario: Restore the question and exact draft after optional inspection
     Given a partially edited response with caret position and current question "Choose a test"
     When the operator opens Explain this and a stored source then returns with Esc
@@ -29,7 +29,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And the live response target remains "Choose a test"
     And no commons revision or consultant call is created
 
-  @S117 @p1 @v1 @automated
+  @S117 @p3 @v1 @automated
   Scenario: Keep the first-release workspace usable at minimum terminal size
     Given a v1 goal and test with a material safeguard at 120 columns by 40 rows
     When the terminal resizes to 80 columns by 24 rows and back
@@ -37,7 +37,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And hidden auxiliary panes have a visible Views destination
     And the draft, target, focus and selected exact record survive without restart
 
-  @S118 @p1 @v1 @automated
+  @S118 @p3 @v1 @automated
   Scenario: Complete a consultant response without stealing inspection focus
     Given a durably retained submission and pending consultant request
     And the operator has selected a source in History
@@ -46,15 +46,15 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And returning to Next presents the committed next question
     And no second request or duplicate commit occurs
 
-  @S119 @p1 @v1 @automated
+  @S119 @p3 @v1 @automated
   Scenario: Expose every required action without recalled commands
     Given the default TUI and focused response editor
-    When the operator reaches Actions or Help using Tab and Enter
+    When the operator reaches Commands or Help using Tab and Enter
     Then the displayed controls identify valid actions and local or consultant consequences
     And stored explanation, sources, history, export and Save and quit have control paths
     And Help for controls is distinct from Explain this for reasoning
 
-  @S120 @p1 @v1 @automated
+  @S120 @p3 @v1 @automated
   Scenario: Recover a failed request while retaining the workspace
     Given a retained response draft and provider failure after input retention
     When the operator opens the failure receipt and retries the retained input
@@ -62,7 +62,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And retry uses the same request identity and applies at most once
     And view state, draft provenance and the correct live target remain recoverable
 
-  @S121 @p2 @v1 @automated
+  @S121 @p3 @v1 @automated
   Scenario: Compare the original pilot forecast with outcomes inside the workspace
     Given an original pilot delivery forecast of 80 percent and acknowledgement bound of 95 percent
     And reported delivery is 80 percent and acknowledgement is 90 percent
@@ -71,7 +71,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And the acknowledgement breach remains visible despite delivery success
     And action execution, observed effects and the 90 percent system goal are distinct
 
-  @S122 @p2 @v1 @semantic
+  @S122 @p3 @v1 @semantic
   Scenario: Keep immature cohort outcomes pending at a review date
     Given a rolling October 1 through 30 cohort with a three-business-day outcome window
     When the operator reviews it on October 30 with final outcomes still immature
@@ -79,7 +79,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And it requests complete follow-up before claiming goal attainment
     And missing observations are not treated as failures or successes
 
-  @S123 @p3 @later @automated
+  @S123 @p5 @later @automated
   Scenario: Render a joint causal inference with complete readable boundaries
     Given L3 has three joint premises including net unrecovered recheck time exceeding slack before release cutoff
     When the causal fragment is rendered
@@ -87,7 +87,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And exactly one labeled hypothesis output terminates at its conclusion
     And independent alternative routes do not become extra members of that ALL
 
-  @S124 @p3 @later @automated
+  @S124 @p5 @later @automated
   Scenario: Inspect one exact relation without losing the broader map
     Given a stored branch index and causal map at 120 columns by 40 rows
     When the operator selects L3 version 1
@@ -95,7 +95,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And occurrence evidence for nodes is not represented as proof of L3
     And selection is distinct from focus, support and endorsement
 
-  @S125 @p3 @later @automated
+  @S125 @p5 @later @automated
   Scenario: Replace a narrow drawing with complete relation sentences
     Given L3 version 1 is disputed and has three joint premises
     When its view resizes through 120 by 40, 80 by 24 and 40 by 24
@@ -103,7 +103,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And the narrow view says IF ALL and THEN instead of clipping node labels
     And no decisive premise remains collapsed while endorsement is requested
 
-  @S126 @p4 @later @automated
+  @S126 @p6 @later @automated
   Scenario: Keep positions independent and drafts attributed when speakers change
     Given Maya has an unsent response and a position form for L3 version 1
     When the operator switches the declared speaker to Leo
@@ -112,7 +112,7 @@ Feature: Work in a persistent terminal workspace from the first usable release
     And wording, belief and exact-test reliance have independent controls with no substantive preselection
     And no assent, belief, reliance or consensus is inferred from the switch
 
-  @S127 @p5 @later @automated
+  @S127 @p7 @later @automated
   Scenario: Display cross-tool consequences without converting trace references into causes
     Given a corrected claim has exact registered dependencies in Cloud, FRT and PRT records
     When the correction is inspected in the workspace

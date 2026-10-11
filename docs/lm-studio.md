@@ -4,7 +4,8 @@ LM Studio is one of two consultants; [Choosing a consultant](providers.md) cover
 how to select between it and Anthropic, check the setup, and diagnose failures.
 This page covers the local server itself. Select it with
 `REASON_COMMONS_PROVIDER=lm-studio` or `--provider lm-studio`; it is also the
-default when nothing is chosen.
+default for script/agent entry points when nothing is chosen. The workspace
+default is the offline guide.
 
 `LMStudioConsultant` implements the existing `Consultant` port. It calls only the
 configured LM Studio server, with no hosted fallback or implicit retries. All
@@ -112,7 +113,7 @@ authentication, invalid/truncated output, HTTP failure/retry, redirects and mode
 switching. These tests bind temporary loopback sockets; a sandbox that prohibits
 socket binding needs permission to run the suite. They require neither LM Studio
 nor model downloads. The live smoke harness is separate and opt-in. A successful
-live transaction verifies integration, not the p2 semantic or participant gates.
+live transaction verifies integration, not the v1 semantic or participant evaluations.
 
 For repeated multi-turn and failure testing, use the
 [validation harness](validation.md). It also runs the actual contribution skill

@@ -1,4 +1,4 @@
-"""Persistent terminal workspace (first usable slice of p1) built with Textual.
+"""Accepted v1 persistent terminal workspace built with Textual.
 
 The TUI is a projection over ``CaseApplication``: it reads ``workspace`` and
 ``inspect``, and changes the commons only through ``retain_input``, ``consult``,
@@ -239,9 +239,10 @@ choose a voice, left and right choose light or dark, Enter keeps it. The choice 
 saved as `theme:` in your settings file; `--theme` or `REASON_COMMONS_THEME`
 overrides it for one run.
 
-New to it? **Take the guided tour** from the home screen: a practice goal with
-coaching at each step and example answers. **Explore a real commons** shows how a
-movement's shared reasoning grew, step by step. Nothing from either is kept.
+New to it? On home, **F1 Help → Practice with the guided tour** opens a practice goal with
+coaching at each step and example answers. **Explore an editorial example: Second Renaissance** shows how a
+movement's source-based editorial reconstruction, step by step, through that same menu.
+Nothing from either is kept in your working goals.
 
 ## Deciding what enters your model
 
@@ -2231,7 +2232,7 @@ class ReasonCommonsApp(ThemedApp):
                 lines += ["", "They grow as you talk: tell the consultant what causes the problem, what conflict "
                               "keeps you stuck, what stands in the way, or what you plan to do."]
             lines += ["", "Or bring in trees you already have: Ctrl+P, **Import trees**.", "",
-                      "###### To see six finished trees first: on the home screen, Explore a real commons."]
+                      "###### To inspect an illustrated set of six trees: on home, F1 Help, Explore an editorial example: Second Renaissance."]
             return "\n".join(lines)
         shown, news = self.shown_tree(), self.tree_news(live_only=False)
         lines = []

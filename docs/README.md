@@ -13,11 +13,15 @@ Pick the door that matches what you need right now.
 | **Understand** the six thinking trees behind the method | [The six trees, explained](the-trees.md) |
 | **Understand why** the loop works the way it does | [The loop, explained](the-loop.md) |
 
+The [editable RC development import](restoration/working-import.md) is the primary
+v1 continuation example. The tutorial and Second Renaissance reading example are
+learning aids; their authored interpretations are not participant validation.
+
 New here? Install it from the [README](../README.md), then start with the tutorial.
 
 ## For contributors
 
 [Contributing](../CONTRIBUTING.md) explains how to set up a checkout and run the
-checks. The [architecture](../ARCHITECTURE.md), [delivery report](p0-delivery.md),
+checks. The [architecture](../ARCHITECTURE.md), [current delivery report](v1-delivery.md) and [reconciliation matrix](v1-reconciliation.md),
 [validation guide](validation.md), [LM Studio adapter notes](lm-studio.md) and the
 [specification bundle](../reason-commons-spec/README.md) describe how it is built.

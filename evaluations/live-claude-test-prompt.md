@@ -1,3 +1,11 @@
+# Live consultant evaluation procedure
+
+This procedure evaluates selected accepted v1 capabilities with a live provider.
+It is separate from release scope and the deterministic gate. Complete v1 semantic
+and participant evidence remains outstanding; see `docs/v1-delivery.md` and
+`docs/v1-reconciliation.md`. Commands below are authorized evaluation operations
+only when a user explicitly chooses to run this procedure with a provider.
+
 # Live test with Claude: every feature, end to end
 
 Paste everything below the line into a fresh Claude Code session (local, or a

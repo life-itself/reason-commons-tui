@@ -14,51 +14,60 @@ cd reason-commons-tui
 python3 -m venv .venv && source .venv/bin/activate
 python3 -m pip install --upgrade pip   # macOS ships an old pip that cannot install this
 python3 -m pip install -e '.[test]'
-python3 scripts/check_p0.py            # the full gate
+python3 scripts/check_v1.py            # the full gate
 ```
 
 The full gate's desktop-launcher test needs `/bin/zsh` and a `.venv` in the
 repository.
 
-## Status by delivery phase
+## Accepted v1 and future work
 
-| Part | State |
-| --- | --- |
-| p0 durable commons engine | Implemented: revisions, YAML storage, export/import, retry, consultant ports, CLI, MCP |
-| Terminal workspace (TUI) | First personal-use slice of p1: `reason-commons tui`, built with Textual |
-| Built-in guide | Offline consultant (`guided`) that walks the loop without a model or key |
-| Real commons | The Second Renaissance story (`adapters/stories/second-renaissance.yaml`), built one revision per chapter by `scripts/build_story.py` into the packaged `.reasoncase`; History becomes a steppable timeline for every goal |
-| First start | Ways to begin, setup (name, consultant, checked key and model), Settings and the in-app guided tour (`adapters/onboarding.py`, `adapters/settings.py`) |
-| Six trees | Tree statements, links (which may reach another tree), new versions and withdrawals, with the goal at the Goal Tree's top (p2, S128–S134); Trees view, `trees` command, `.ltp.yaml` import/export |
-| Deciding what enters the model | Proposals, the acceptance setting, the ordered Backlog, review flags and undo (p2, S135–S150; `domain/membership.py`); Backlog view, Accept all, Undo in History, `decide` command, MCP decision tools |
-| Full p1 contract | Not yet delivered: `--accessible`, speaker switching, 80×24 specimens, usability evidence |
-| p2 and later | Consulting-quality gates, review loop acceptance, joint causes and rival routes remain later work |
+The current simplified app is the v1 baseline. [The matrix](docs/v1-reconciliation.md)
+inventories current capabilities and every scenario disposition; [the current
+report](docs/v1-delivery.md) records checks and outstanding evidence. The manifest
+orders p0–p4 as an editorial development progression culminating in v1; p5–p7
+retain future richer causal, group-position and full-tool work. These labels do
+not rename the compatible serialized profile `p2` or authenticate a historical story.
+
+V1 includes the guided loop, adaptive-provider integration, six partial trees,
+proposals/decisions/review flags/undo, literal sources, editable RC development
+import, stage history, ordered accessible text, Settings, tour and a separate
+editorial reading example. Tests, Loop actions, Reasoning and Commons context
+remain under Commands/Views when absent from the small imported sidebar.
+Semantic review, participant usability and assistive-technology evidence remain
+separate from implementation and release membership.
 
 ## Screenshots
 
 The README and docs pictures are rendered from the real workspace with the
 built-in guide and fixed dates. After changing what the workspace shows, run
 `python3 scripts/render_screenshots.py` (PNG copies need Chromium and Pillow) and
-commit `docs/images/`. `docs/images/loop.svg` is drawn by hand.
+review the changed `docs/images/` files. Then run `python3 scripts/render_commons.py`
+for the primary RC import. Each renderer owns distinct home/first-start filenames;
+`docs/images/runtime-manifest.json` records fixtures and hashes.
+`docs/images/loop.svg` and `docs/images/trees/` are illustrations, not UI captures.
 
-Every executed step of the specification and conversation features also has a
-picture, one per step, named by feature, scenario and step. Run
+The optional capture utility makes a picture per selected executed step, named
+by feature, scenario and step. Its default is `@v1 and @automated`;
+`--all-contract` documents available steps in the future/evaluation contract and
+records undefined steps explicitly. This is a documentation utility, not a gate. Run
 `python3 scripts/capture_steps.py` to regenerate `docs/screenshots/`; each run
 replaces that folder. Its `MANIFEST.json` records where each picture came from (the
 live workspace, a fresh workspace on a copy of the commons, or the accessible
 presentation's text) and lists the steps that have no step definition yet. The folder
-is git-ignored, since it is about 100 MB of generated pictures; regenerate it rather
+is git-ignored, since full-contract capture can exceed 100 MB; regenerate it rather
 than commit it.
 
 ## Engine, utilities and agents
 
 The [architecture](ARCHITECTURE.md) explains the domain/application/adapter
 boundaries and how BDD and replaceable skills use the same application surface.
-The [p0 implementation report](docs/p0-delivery.md) records the delivered slice.
+The [current v1 report](docs/v1-delivery.md) records scope and checks;
+[the older report](docs/p0-delivery.md) retains dated evidence.
 
 ```sh
 python3 -m pip install -e '.[test]'
-python3 scripts/check_p0.py
+python3 scripts/check_v1.py
 reason-commons new --store /tmp/payments-case --name Payments
 reason-commons show /tmp/payments-case
 reason-commons inspect /tmp/payments-case --json
@@ -91,11 +100,11 @@ through the repository's `.agents/skills` symlink. MCP is optional (`.[mcp]`,
 Python 3.10+); the durable engine and local invocation remain Python 3.9+.
 
 Start with the [first-release TUI journey](reason-commons-spec/example-mvp-session.txt)
-or the [full visual reasoning journey](reason-commons-spec/example-tui-session.txt).
+or the [future visual reasoning illustration](reason-commons-spec/example-tui-session.txt).
 Then read the [specification](reason-commons-spec/reason-commons-specification.md),
 [terminal design contract](TUI-DESIGN.md) and [bundle guide](reason-commons-spec/README.md).
 
-The product is **Reason Commons**. The proposed executable is `reason-commons`.
+The product is **Reason Commons**. The executable is `reason-commons`.
 Ordinary work uses visible workspace controls and a literal response editor.
 Questions, reports, relationships, goals, tests, actions and reviews are the
 user-facing concepts. Shell commands launch/resume or operate offline utilities.

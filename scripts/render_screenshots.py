@@ -12,6 +12,8 @@ import asyncio
 from datetime import date, datetime, timezone
 from decimal import Decimal
 import math
+import hashlib
+import json
 import os
 from pathlib import Path
 import re
@@ -30,6 +32,7 @@ from reason_commons.adapters.tui import GoalsApp, ReasonCommonsApp  # noqa: E402
 from reason_commons.bootstrap import configured_consultant, create_case, open_case  # noqa: E402
 
 OUT = ROOT / "docs" / "images"
+SHOTS = {}
 SPEAKER = "Mira"
 GOAL = "From open evening to first practice"
 
@@ -48,6 +51,7 @@ def workspace(path):
 
 
 async def shoot(app, name, size, before=None, steps=None):
+    SHOTS[name] = {"terminal_size": list(size), "app": type(app).__name__}
     async with app.run_test(size=size) as pilot:
         await pilot.pause()
         if before:
@@ -57,6 +61,8 @@ async def shoot(app, name, size, before=None, steps=None):
             await steps(app, pilot)
             await pilot.pause(0.3)
         app.save_screenshot(filename=f"{name}.svg", path=str(OUT))
+        svg = OUT / f"{name}.svg"
+        svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
         if getattr(app, "_save_timer", None):
             app._save_timer.stop()  # a pending draft save must not fire while the app shuts down
 
@@ -73,7 +79,7 @@ async def render(folder):
     settings.set(SPEAKER, "name")
     settings.set("guided", "consultant")
     settings.save()
-    await shoot(GoalsApp(goals, settings=settings), "home", (100, 22))
+    await shoot(GoalsApp(goals, settings=settings), "tutorial-home", (100, 22))
     await first_start(folder)
     create_case(folder / "new", "my-first-goal").close()
     await shoot(workspace(folder / "new"), "welcome", (120, 36))
@@ -170,14 +176,14 @@ class PaidRecorder(Recorder):
 
 async def cost(folder):
     """What Claude's replies cost: the footer and a reply's notice, then Consultant calls and cost. A usage log
-    of its own (under a stand-in home folder, so the path reads as it would for you), a fixed clock and a $5
+    of its own in the disposable fixture folder, a fixed clock and a $5
     budget; nothing is sent anywhere."""
     from reason_commons.adapters.usage import UsageLog, UsageSession
-    home, saved = folder / "home", {name: os.environ.get(name) for name in ("HOME", "REASON_COMMONS_USAGE_LOG",
+    saved = {name: os.environ.get(name) for name in ("REASON_COMMONS_USAGE_LOG",
                                                                            "REASON_COMMONS_MONTHLY_BUDGET_USD",
                                                                            "REASON_COMMONS_ANTHROPIC_MODEL")}
-    log = home / ".local/state/reason-commons/usage.jsonl"
-    os.environ.update(HOME=str(home), REASON_COMMONS_USAGE_LOG=str(log), REASON_COMMONS_MONTHLY_BUDGET_USD="5")
+    log = folder / "usage.jsonl"
+    os.environ.update(REASON_COMMONS_USAGE_LOG=str(log), REASON_COMMONS_MONTHLY_BUDGET_USD="5")
     os.environ.pop("REASON_COMMONS_ANTHROPIC_MODEL", None)
     try:
         now = lambda: datetime(2026, 11, 9, 9, 0, tzinfo=timezone.utc)
@@ -367,7 +373,7 @@ async def more_home(folder, goals):
         app.screen.query_one("Input").value = "A clear next step after open evenings"
         await pilot.pause(0.2)
     await shoot(home(), "new-goal", (100, 22), steps=new_goal)
-    await shoot(home(), "home-help", (100, 30), steps=keys("f1"))
+    await shoot(home(), "tutorial-home-help", (100, 30), steps=keys("f1"))
     await shoot(home(), "home-settings", (100, 26), steps=keys("f2"))
 
 
@@ -421,7 +427,7 @@ async def first_start(folder):
         await answer(app, pilot, "sk-ant-example")
         await pilot.pause(0.3)
 
-    await shoot(fresh(), "first-start", (100, 30))
+    await shoot(fresh(), "tutorial-first-start", (100, 30))
     await shoot(fresh(), "setup-consultant", (100, 30), steps=to_consultant)
     await shoot(fresh(), "setup-model", (100, 30), steps=to_model)
     create_case(folder / "tour", "Practice: your first loop").close()
@@ -482,17 +488,30 @@ def main():
     time.tzset()
     timeline.today = lambda: date(2026, 11, 10)
     with tempfile.TemporaryDirectory() as folder:
+        os.environ["REASON_COMMONS_CONFIG"] = str(Path(folder) / "settings.yaml")
         asyncio.run(render(Path(folder)))
     browser = chromium() if can_make_png() else None
-    for svg in sorted(OUT.glob("*.svg")):
-        if svg.name == "loop.svg":
-            continue
+    for name in sorted(SHOTS):
+        svg = OUT / (name + ".svg")
         if browser:
             try:
                 to_png(browser, svg)
             finally:
                 svg.with_suffix(".html").unlink(missing_ok=True)
         print(f"wrote {svg.relative_to(ROOT)}" + (" and .png" if browser else ""))
+
+    write_manifest("scripts/render_screenshots.py", "guided practice / editorial reading / offline provider stand-ins")
+
+
+def write_manifest(generator, fixture):
+    path = OUT / "runtime-manifest.json"
+    manifest = json.loads(path.read_text()) if path.exists() else {"schema_version": 1, "images": {}}
+    for name, metadata in SHOTS.items():
+        digests = {suffix: hashlib.sha256((OUT / (name + "." + suffix)).read_bytes()).hexdigest()
+                   for suffix in ("svg", "png") if (OUT / (name + "." + suffix)).exists()}
+        manifest["images"][name] = dict(metadata, generator=generator, fixture=fixture,
+                                       source_baseline="030cbdd", sha256=digests)
+    path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
 
 
 if __name__ == "__main__":

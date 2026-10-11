@@ -169,7 +169,7 @@ by Claude Sonnet (see below). Narrower, it is in Commands, and the notice says s
 | Your words | ![Your words view](images/view-sources.png) |
 | History | ![History view: every saved step with who, when and what changed](images/view-history.png) |
 
-### Looking back and the real commons
+### Looking back and the editorial example
 
 Enter on a History step opens that moment, read-only: the question it answered, the
 words, what entered the model, what was proposed or decided, and what was asked next.
@@ -177,14 +177,14 @@ words, what entered the model, what was proposed or decided, and what was asked 
 
 ![An earlier step of Mira's goal, read-only](images/history-moment.png)
 
-**Explore a real commons** opens on the decision the Second Renaissance story waits
+**Explore an editorial example: Second Renaissance** (F1 Help on home) opens on the decision the Second Renaissance story waits
 on and its one open action; each step back shows the editor's narration, the quoted
 words, the source and what changed.
 
 | | |
 | --- | --- |
-| ![The real commons now: the decision and the open action](images/story-now.png) | Now |
-| ![Step 6 of the real commons](images/story-moment.png) | One step back |
+| ![The editorial example now: the decision and the open action](images/story-now.png) | Now |
+| ![Step 6 of the editorial example](images/story-moment.png) | One step back |
 
 ### The trees
 
@@ -306,8 +306,9 @@ changed while looking back, and your unsent draft waits.
 An **Action** line under the goal shows the open action (planned, its test not yet
 observed) and its owner, except where the screen already shows that action.
 
-**Explore a real commons** on the home screen opens the Second Renaissance's shared
-reasoning this way, read-only. It leads with the decision the story is waiting on,
+**Explore an editorial example: Second Renaissance** in home's F1 Help opens the Second Renaissance
+source-based illustration read-only. Quoted words and editorial interpretations
+remain distinct; the example does not certify participant adoption or success. It leads with the decision the story is waiting on,
 then the action's owner, what it carries out, what to expect and when to stop. Each
 step back shows the editor's narration in italics above the quoted words; the words
 are real and dated, the tree changes are an editor's reading, and approximate dates
@@ -453,7 +454,7 @@ only where you started its server with `--allow-acceptance-setting`.
 
 | Command | What it does |
 | --- | --- |
-| `reason-commons` | The first time, the ways to start; then your goals: open one, start one, the tour or the real commons; F2 opens Settings |
+| `reason-commons` | The first time, the ways to start; then your goals: open one, start one, the tour or the imported RC development; F2 opens Settings |
 | `reason-commons tui FOLDER` | Open a goal in that folder, creating it if needed |
 | `reason-commons resume FOLDER` | Open an existing goal; never creates one |
 | `reason-commons export FOLDER FILE` | Write a portable `.reasoncase` copy |
@@ -563,8 +564,9 @@ corners, and square frames for its hard-edged voices.
 
 ## The goal folder
 
-Each goal is a folder of plain YAML files, saved as you type: revisions, your
-inputs, consultant attempts and the workspace position (view and unsent draft). A
+Each goal is a folder of plain YAML files. Draft and workspace position are
+checkpointed as you type; literal inputs and reasoning revisions are retained
+when submitted, and acceptance decisions get their own recorded events. A
 lock file lets only one workspace edit a goal at a time. Treat the folder as a
 whole; use export and import rather than editing files by hand.
 
@@ -575,5 +577,6 @@ in one goal, attaching sources from the workspace, the trees' richer reasoning
 checks (joint causes, rival explanations, and boxed diagrams for the trees other than
 the Evaporating Cloud), review of consequences that no reference records, editing a
 proposal's wording yourself before accepting it, and automatic acceptance above a
-confidence you choose. They
-are specified in [TUI-DESIGN.md](../TUI-DESIGN.md).
+confidence you choose. They are retained in [the explicit future backlog](v1-reconciliation.md#future-backlog).
+The [current report](v1-delivery.md) separates implemented v1 behavior from
+live quality and participant evidence.

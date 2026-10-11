@@ -105,12 +105,14 @@ Actual TUI screenshots can be rendered with:
 
 Set `CHROMIUM` to a local Chrome/Chromium executable for PNGs as well as SVGs.
 
-## Verification
+## Restoration verification recorded before reconciliation
 
 The final `.venv/bin/python scripts/check_p0.py` gate passed: 476 pytest tests,
 26 specification structural tests, all nine P0 cases, 12 tree cases, 16
 proposal/review cases, 46 delivered P1 cases, 10 other delivered P2 cases and
-all 28 conversational scenarios. Existing undelivered scope is unchanged.
+all 28 conversational scenarios. Those results used the earlier scope vocabulary. The authorized reconciliation
+is now in [the v1 report](../v1-delivery.md) and [matrix](../v1-reconciliation.md);
+its development progression is editorial, not authenticated historical chronology.
 
 Focused UI checks exercise both acceptance modes, adopting the pending import,
 later contributions, stage titles, readable sources and 80×24 presentation.

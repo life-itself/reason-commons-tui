@@ -98,7 +98,7 @@ already have come in from an `.ltp.yaml` file and go out the same way (**Ctrl+P*
 then **Import trees** or **Export trees**); what a file brings in waits for you like
 any proposal.
 
-Here is one tree from the real commons the app ships with: the **Second
+Here is one tree from the separate editorial example the app includes: the **Second
 Renaissance**, a movement that wants to help bring about a wiser, more
 regenerative culture. Its Evaporating Cloud brings out the hidden assumption
 behind a conflict that kept the group stuck.
@@ -211,15 +211,15 @@ More: [use Claude or a local model](docs/use-a-model.md) and
 
 See [back up, share and move goals and trees](docs/back-up-and-share.md).
 
-## Explore a real commons
+## Read a separate editorial example
 
-**Explore a real commons** opens the Second Renaissance's shared reasoning,
-read-only, on the one action it says comes next. Step back through each of the 24
-saved steps of how it grew since June 2026: who said what, when, in their own
-words, and what changed in the trees. The people quoted are still being asked for
-their consent, so the story is marked as a draft.
+**F1 Help**, **Explore an editorial example: Second Renaissance** opens a
+read-only, source-based reconstruction with 24 saved steps and trees. Its
+interpretations are editorial and its quotations remain a consent draft. Stepping
+through it demonstrates local history inspection; it does not establish a real
+trial's success or participant agreement.
 
-![The real commons opens on its next action, with a strip for stepping back through how it got here](docs/images/story-now.png)
+![The separate editorial reading example and its history strip](docs/images/story-now.png)
 
 ## Beyond the workspace
 
@@ -232,12 +232,14 @@ their consent, so the story is marked as a draft.
 
 ## Status
 
-This is an early prototype for personal use.
+The accepted simplified application is **v1**, for personal use. Its scope is
+separate from live consulting quality and participant usability evidence, which
+remain outstanding.
 
 | | |
 | --- | --- |
-| **Works now** | The loop end to end, offline with the built-in guide or with an AI consultant; all six trees, grown in conversation by Claude or a local model, or imported; a backlog where you accept or reject what the consultant proposes, with review flags and undo; History for every goal; export and import; the real commons and the guided tour |
-| **Planned** | Joint causes (AND), rival explanations; review of consequences no reference records; automatic acceptance above a confidence you set; group work, with several people's positions on one tree; an accessible plain-text mode |
+| **Works now** | The loop end to end, offline with the built-in guide or with an AI consultant; all six trees, grown in conversation by Claude or a local model, or imported; a backlog where you accept or reject what the consultant proposes, with review flags and undo; History for every goal; export and import; the editable RC development import, the separate editorial example and the guided tour |
+| **Planned** | Joint causes (AND), rival explanations; review of consequences no reference records; automatic acceptance above a confidence you set; group work, with several people's positions on one tree |
 
 The order follows the [delivery plan](reason-commons-spec/delivery-phases.md).
 
@@ -254,7 +256,7 @@ The order follows the [delivery plan](reason-commons-spec/delivery-phases.md).
 Start with [contributing](CONTRIBUTING.md) and [how we develop](docs/development/README.md).
 The [architecture](ARCHITECTURE.md) explains the domain, application and adapter
 boundaries, and how BDD and replaceable skills use the same application surface.
-The [p0 delivery report](docs/p0-delivery.md) records what is delivered, and the
+The [v1 delivery report](docs/v1-delivery.md) records what is delivered, and the
 [validation guide](docs/validation.md) runs live-model, real-agent and recovery
 evaluations.
 

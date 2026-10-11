@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "implemented_milestone": "p0",
+  "implemented_milestone": "v1",
   "data_profile": "p2",
   "context_map": {
     "contexts": [
@@ -27,7 +27,8 @@
     ],
     "acceptance_contract": [
       "reason-commons-spec/features/**",
-      "reason-commons-spec/delivery-phases.json"
+      "reason-commons-spec/delivery-phases.json",
+      "tests/conversation/features/**"
     ],
     "procedures": [
       "skills/**"
@@ -85,7 +86,10 @@
     }
   },
   "required_checks": [
-    "python3 scripts/check_p0.py"
+    "python3 scripts/check_v1.py"
   ],
-  "acceptance_changes": "Preserve existing scenarios unless the user explicitly authorizes specification changes."
+  "acceptance_changes": "Preserve existing scenarios unless the user explicitly authorizes specification changes.",
+  "release_through": "p4",
+  "delivery_manifest": "reason-commons-spec/delivery-phases.json",
+  "evidence_report": "docs/v1-delivery.md"
 }

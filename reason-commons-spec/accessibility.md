@@ -10,7 +10,8 @@ Use a stable reading order: commons/save/actor/view/focus, urgent status, decisi
 complete question and relevant context, what the last reply proposes (each
 record with its source, under "Proposed, not yet in the model"), reasoning as
 relation sentences or an aligned table, local evidence/actions, Response, Send,
-other destinations. The Backlog reads as an ordered list in which each entry says
+other destinations. The spatial TUI may omit empty supporting views from its
+sidebar, but Commands/Views retains them; ordered text exposes local view controls. The Backlog reads as an ordered list in which each entry says
 what it waits for, and its Accept, Reject, Still holds and Undo controls are the
 same labeled controls as in the spatial TUI.
 Describe each control by label, role, consequence and current focus. Announce
@@ -31,7 +32,7 @@ System goal: >=90%; remains unmet.
 Evidence: participant report; supplier comparability uncertain.
 Controls: Inspect sources (local), Explain this (local), Return to question.
 Response editor: retained draft; Enter adds a line.
-Send (asks consultant), Other moves, Views, Actions, Help.
+Send (asks consultant), Other moves, Views, Help.
 ```
 
 Tab/Shift+Tab moves to labeled controls, arrows select list entries, Enter/Space
@@ -42,7 +43,8 @@ from Send. Multiline text needs no escape syntax. Selecting a list item and
 activating it remains distinct from typing a number as an answer. This keyboard
 model also works without color, cursor-addressed panels or Unicode borders.
 
-Read graphs as exact typed relations: all joint premises, output, conditions,
+V1 reads single typed tree/record relations and original forecasts without
+inventing richer graph semantics. Future p5–p7 must read all joint premises, output, conditions,
 scope, warrant, support, disagreement and alternative routes. A relation sentence
 may occupy several sections; explicitly mark continuation and keep premises
 reachable before judgment. Historical wording and current response target remain
@@ -53,5 +55,7 @@ At less than 40x24 retain state and offer resize or this ordered presentation.
 S49 covers narrow ordered context; S50 equivalent relation text; S51 drafts;
 S54-S71 focus/selection/target behavior; S115-S120 deliberate submission, restoration
 and recovery; S135-S150 decisions about proposals. The participant gates in delivery-phases.md include assistive
-technology users. These requirements need implementation and actual reader tests;
-a text specimen or passing document check is not evidence of accessibility.
+technology users. V1 ordered text is implemented and deterministically checked. Actual reader and
+assistive-technology studies remain outstanding; a text specimen or passing
+document check is not evidence of accessibility. Future joint-premise and
+position requirements remain in their scenario-local scope.

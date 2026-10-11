@@ -1,0 +1,957 @@
+{
+  "images": {
+    "actions-palette": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "635cb9c29909e9c5431716e0bf0753dde68c041bbdcc793244a21888da83b26e",
+        "svg": "68b908760a3ea1c82fa9eeb580a9b55cca255f91e955a62eac0cde0787281708"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "actions-palette-search": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "f8adf9351f1ff5358d7c5c03d611aca87ae86fea90fae07d6a916dad15a3c9d6",
+        "svg": "b0222a84333d52224d9f86afe203a1c350b014af15c7dbc2b831992f26bfb760"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "answer-draft": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "431ba1d0f50dbb1883927b81ccbe4d440fc1f25676ea849ba9038ea2f52b1613",
+        "svg": "a2f37311be0a46ecad04238cfb996b23e564df47e79b0a292a1d06676859ac64"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "backlog": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "0cf1fe1999f0227f4107e2690032ac6b867001e77d6bc18a02aac2eecd30bbfc",
+        "svg": "36979ffb3771956b089132851419709a1dee41e9380469e10bc6dda69aa4779d"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        130,
+        36
+      ]
+    },
+    "commons-adopted-review": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "caeab7f91df3af09e27d0d090fdd8a4f21a2dada5551ad6bc99c742e81271014",
+        "svg": "4ba10e43ceec1d89faaa7f6b6476ce810f2c5d92e51a1baab0b7c9d23ecc8963"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-built": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "7a42f764bee2ec01c951288d357220f63f823b804ff9e8c4443ddfcd8ce4522d",
+        "svg": "010977b8ae78d0d41b5940059a8d57dac58f415b22673d68ef0b3df9f9e0e1b7"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-commands-views": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "8afd5bee3e02fc702a78ee754d74e0adbfa07219f76c58479edfaa70c5e4be68",
+        "svg": "d29bddc35ce4b824ab7ab2a43fbac3900be8af19e61cb1a7b5195a98071d50d7"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        30
+      ]
+    },
+    "commons-conflict": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "e6ef0f5203ce572020cd20e7b62a6a198a317fdf01ae09ad834c3e17bcd4b5ba",
+        "svg": "bd6dcaee86ca58137a0f9b4d3c0a949569c7820274a7ed599d923e484266ffc5"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-contribution-receipt": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "d22bd91dbd8fa7727fb96465666e8374b724e6f9ac52f91d20b9f00ff4dbecf3",
+        "svg": "7c9ba72fe24253a7fbd564027b9a3b6f11d18583acdb56537126d3bd56ffede6"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-contribution-receipt-80x24": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "d03b5574f987a88330bee3df8a5e0839ddfd2caa41696208ab159a637cb24b8c",
+        "svg": "4af7cf2868b23e36fd2edb956c7a215c215caa3326d2b5e4ad4152197f63e435"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        80,
+        24
+      ]
+    },
+    "commons-current-reality": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "2ebddf8ae164486d32e415470a63bdbb896d8c3870211776e6da71717299fdf1",
+        "svg": "15a72c55cc7a6074fcf0b29b0e362dc96945a85397345c3405fa057a92fa90b7"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-history": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "8ef570a4c0bd868098a2b60f373087fde30f004716cc203e7c583b3a00c33fdc",
+        "svg": "ac430b932599ec7318c685ff3d3f624be3a02ac4007cb47ad398f877ca4938d8"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-next": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "f64ac2b8020907aa333629bdca70feaa139f3be691c5933b286eabb230449ddc",
+        "svg": "ebd2f4cde067d4fd4969bab2750ae7286abd983fa1868b0f0b5943886039f14e"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-next-80x24": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "0004abe279dff634daa8820a3b74c5e6af7d55c82255cf955570c6e1ee51010c",
+        "svg": "eb85c5ae13bf0e5f9585613d2c1e481b9a10c82eb44517c78667334336329dc9"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        80,
+        24
+      ]
+    },
+    "commons-review-import": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "f4ad4db84d6c781965fa9167fcd17307bc38bc8acdbea378b82f25aef7b4c7d6",
+        "svg": "686c39bdd3fc1a6e7b90e4c3fedeb0d2d552ec64ea64210720bbdbb1d1982c57"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-settings": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "e66f804b7ad6950b0275951b3b26f8308a651f401d58fca31d61e46d12561a6e",
+        "svg": "c922f79cfdc5fade29c583e33e1dca297b5c2d5454fb4a327efd77fd3d09b4c0"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        30
+      ]
+    },
+    "commons-transition": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "24e970240290ffac766118786315748db8e4fb0a29253c6d44b64c5a728366dc",
+        "svg": "135089fc1b2fcc0e771f77732dcee91e175b44db3fa3e776e0883c4d8cd0e6b4"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "commons-tree-update-markers": {
+      "app": "ReasonCommonsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "79a9573d89873225d44235f60f752b27959dcba7ffa18392c4abde755de2a641",
+        "svg": "43869b42850ee2ff7c2ab23540497df97a2b3ef324670ce09a3d42b47b3a6c63"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "consultant-unavailable": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "d360f0ff98d8ce52f7e9f9ce7624b4fc5dc37d3b0e0d0e46367ed61aaa4087f5",
+        "svg": "06bffe7dafd2f642fa917bf09e8291c3324a63a193364facda0b507d6744c61c"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "explain-question": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "16b3d0b99fe4447ef22788b558dd0579951a28e4eaf05c43fda3e3e297f5996c",
+        "svg": "41525b8a52d6fcc22af9e4d5e7ce07a22e76716a7956cd2ad704a1966e331f8f"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "explain-this": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "aeade6da94352df0db414c7d36535bb38025fb7ff0bf6001b9e5808040b7af28",
+        "svg": "2710a83ce419b0c79acd5ecc8c34ade4ff4c53f5774e2468edcbb124ca8f7a77"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "export-case": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "cf7ce3776feba6bdacbb182488710d64e103dfde3febcc2772e19538853fe6fb",
+        "svg": "c2b6dabf03843c44e3a45473d011b6dc6423fdc13d6037277c7277768f682312"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "export-trees": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "6672185b2e38146b5280912d34798996565dd6009791d155a306567adada15e0",
+        "svg": "7802d429a840fecad5a603eee91f7431d275cffc29bb9d66816d05e547772e6a"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "first-start": {
+      "app": "GoalsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "a9614252a41518c61328e3f66dfdc6b4e11e9edb33a894af094149945f71a49b",
+        "svg": "9348fc99934d5e73fd78fdd2695e666d321151360b41412eb6015188770c86db"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        30
+      ]
+    },
+    "footer-meter": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "2a6717d8723f8bb91fc13bbc5db3f152bd15a385313a127765bd057e8acb6888",
+        "svg": "20cbb48cdb2f8438fbab5f52d8bcb12a65e0d8354e4f59af44dbae93e060de4d"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "forecast-vs-result": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "7f4d1ec954575c58e96ee2b10be8357802ff8b24dc0dfaba8f71f218362fd855",
+        "svg": "344acf74d8944a79b051d29bc59a6cbcd74b5e4ee393116933bb2ee88fc69fd9"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "help": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "0d4b7c8ae08b65f6f322302c3f85108158a5d23a7e5d1ab2becb78c97c0ee1ce",
+        "svg": "3093a3273767e5e966e2de5842f5c1b59e067b010e0c751668d856a2add47544"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "history-moment": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "38e7ff1aa10328e1bc672d86c1f7433cb55d03b4112ea283fb94e66f8ea4e001",
+        "svg": "5be8f30114881ac0b969c8bea0bb7942fad1ffa0c20cc9b7675da0427360b22a"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "home": {
+      "app": "GoalsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "e2822302ff750ca215dfd1564575fd74ee46ba346574ecc4b58c0bf5ebbb712c",
+        "svg": "7421ef8267afd8d060e56ba01500da2f3034577e970d7c8f79a926a54d5a394a"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        30
+      ]
+    },
+    "home-help": {
+      "app": "GoalsApp",
+      "fixture": "disposable RC-on-RC adopted and pending imports",
+      "generator": "scripts/render_commons.py",
+      "sha256": {
+        "png": "ac04df01d3b34e4aad0dcf2fede90987c5d3ceff484ce42acaf320f88abf5288",
+        "svg": "69f0abde946790cc0d4e9cd24bec944bc7ef7eba0c72cd7100ae44bd155d4f0e"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        30
+      ]
+    },
+    "home-settings": {
+      "app": "GoalsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "25568bff3121b39e3af7d491be7f1b9a87842303d1ed6b41269e9bfba101262e",
+        "svg": "db72b8194d945395ce8a25cc398d7eed0cd12ae2debaf50330453871821d1143"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        26
+      ]
+    },
+    "import-trees": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "c9428a2d0e1f846a4949a4d1e1fac3cf2b8b1b83bccbf1d8e7a8f06d8cbf64cd",
+        "svg": "a35ba86fa68d2270a74acce62ac14ecb4db2b44abc32fcb2efb1c97e64db54ca"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "in-progress": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "f0aeee557087ed441fb813d1e60fec589a5ba150e093d5bbfb5c96748c9a9a3c",
+        "svg": "205c3bd601b7c3f6bedaad9d8b96f450c010cc11504df99a7a3f045fe0461f89"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "new-goal": {
+      "app": "GoalsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "e5652b08ebab8e28f775cba5792eeb20f237f611c8d660735482943fcd7f6bdd",
+        "svg": "8bd574beb04d0fef9dd55e2ff0805774eca909d999d06f28c94fa704f0052bb9"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        22
+      ]
+    },
+    "other-moves": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "1be2df3f2867a83ef7cee5e74f91bdb28ae78bc9418209ddf8ce1ba288b94556",
+        "svg": "f48434ef74fe8c9faa87de703802f42e92e71c6f4c244c6ac863c835f2d3e3cc"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "review-80x24": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "b3afddfbb8adcf07b1519dc0996c2ef9f602ea9da50519be043d6c49c3f00922",
+        "svg": "6c60b755e7ed25a6b35a95af6cd4c1b497742bb8a0c7997af8383bcc31602c4a"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        80,
+        24
+      ]
+    },
+    "setup-consultant": {
+      "app": "GoalsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "3779988341be29ab2c85c661e8c5eee9c57a7c1ed6af2866f0339b6a21ff51e1",
+        "svg": "26eb027f8dc3f25ab1c3d1cdfa6298bb0eea65f8130fa45d5c8826a5e51846fe"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        30
+      ]
+    },
+    "setup-model": {
+      "app": "GoalsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "88fb62533ddaad1f2c994e1c112673031423fb6bdf66eea8f12177d0031e4bce",
+        "svg": "8948d4b43ef45201a75ebd6e10975115f1f89a3a574c5e98ab191d162e8513d0"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        30
+      ]
+    },
+    "story-moment": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "e2c32fcaad0c309568fa722013f74de7cdd50b4cc9638faac23a4fb3d10c4a90",
+        "svg": "3f62e404f032299a9df9b33571ba99e419347d5a040c9d30549ae4301a05bb60"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "story-now": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "3b397f4bbdd95446940ce1376e056afaabcf77e0966f8b8328d3185a99c3ab14",
+        "svg": "8390b36c1ad2e6c49ced7922404568450e52a74b5374e7a072699dd8e75f0cc6"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "tour": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "933e0b27ff320cbb8a9399d587e9adeb87dfc1fab2a783f88811fdc5d764094a",
+        "svg": "c20ca214dcba64fdcfdb31fb02c138739daee650e6a83999c13f67f3d2f4368f"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "tree-all-six": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "ad5eec22f1c7e65d3d0dfab5d4239d89cd5d16a7f13be83efd34275ea06e91e8",
+        "svg": "55fc107cd6ae96fcc19c8d520f07b891f599c43e1992a2d5c12c3ea3ff78c9b2"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        60
+      ]
+    },
+    "tree-evaporating-cloud": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "0372978c5dc19fc20c5e6df81fcd609b84104ee95c39044b0334926b02d7c0b4",
+        "svg": "9de92f4f775578f6cbce474630a55b57d42ff93376178df4600dcb1592303de9"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        44
+      ]
+    },
+    "tree-future-reality": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "b260251e1c41dc0c12e6b20706e1a8dafec8220e2c1cc430d12eef2882f715d1",
+        "svg": "81bfafcaeabbd2b9a0a2db30dde3e4b75e46e61ec4b61de0a7f5df2d43b2b29b"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        56
+      ]
+    },
+    "tree-goal": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "c8734cc433c754f4cadb2f754db5a8a147f63ff050c815a1de288ad62ecd85b1",
+        "svg": "582b35086a7abe4ee97a1bafea3deaac8d330b03367de89c564c87654db02768"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "tree-prerequisite": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "e7d15652397bfaaf9fba20559493e64a3714473ee4d5e27b24bed600177adfc5",
+        "svg": "ed003e56358a3f288d3b319f0d01ce1a621f48212964cce18835bb9864ece5ed"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        44
+      ]
+    },
+    "trees-current-reality": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "68f1f42f5e48a580bfc6d52fca2400b7dd730ada8576a5618015a78c08b59c99",
+        "svg": "908f48ab160a9cf2980ad228ad6f52d0fbf4b6382a64336b6d74431338f74350"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        56
+      ]
+    },
+    "trees-empty": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "48251fef88a5381fbaaeb01d974f252c99ba752a0bc59e792d3c3a65a0128c31",
+        "svg": "a0add77c9af3d001e43324d33be1206b6e9864b5e387d5db8b996a1d4b111344"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        30
+      ]
+    },
+    "trees-heard": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "8ad0434441fd0a87572e59633d83c8128a17edd713d055b12ec4cd5ccdbf2e5b",
+        "svg": "28ca22b85142478d19cab5baeb7b68adc288195a6a609d53054b491ea26ae2a6"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "trees-statement": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "d1f2ea0ff09674634acb5dc3b1a982af866d59aead4756108d2a1e3266b9d089",
+        "svg": "b6e131f433149e7a5a4e31b24b14187548cd09c6bf237ce21e5042bd62adc0c2"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        40
+      ]
+    },
+    "trees-statement-80x24": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "34376cfa657409924bf3773ce72e43ee4863d8c879a6d1daa4ecdfaa7414dfa6",
+        "svg": "2912b93a96d8f5263ffa32144f4e92884404262fb521c3e96e6706942eb449da"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        80,
+        24
+      ]
+    },
+    "trees-view": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "4b066c53cf9090b4d11d694bb19235fb9fb7d43b264f3c1c3be635a005d67d17",
+        "svg": "71773f6c945a918f84a1d60004226b88fe6dc9d8c30733d4dfbb8fb96217a2c1"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "tutorial-first-start": {
+      "app": "GoalsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "a9614252a41518c61328e3f66dfdc6b4e11e9edb33a894af094149945f71a49b",
+        "svg": "9348fc99934d5e73fd78fdd2695e666d321151360b41412eb6015188770c86db"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        30
+      ]
+    },
+    "tutorial-forecast": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "4e7476a5866b825a08dbe57571b98db4438f715e08ec4eadd2775758204b9497",
+        "svg": "973223a8296e2877140ad7662ebe7519f77c55f444b7e0d5d48e13950eda258f"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "tutorial-home": {
+      "app": "GoalsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "656c99c77dfb3e779b8d5a68ef3b7b4c3b98f60b2abdb2ba6711f82b07739cb7",
+        "svg": "f66758b4feb9a74a940da4e47a18469145437bf5f98d846c04b651cefee78f7f"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        22
+      ]
+    },
+    "tutorial-home-help": {
+      "app": "GoalsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "2f1241558e8d163245aa2c757688129300d38e33b75697e2fd9acf09d6aed5ed",
+        "svg": "21298eeded23925478ae891e2dd9c68e1459af57311f6749667718c8b20d185a"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        100,
+        30
+      ]
+    },
+    "tutorial-measure": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "934f6c6d1f23c0e1065a061fe9afa941aa0a428ad4800e1edd8e473dfe1ec8f8",
+        "svg": "a1ca19f9768b098e296aca01267c444fea04b7cb8cfd6862404aeb9df08684d7"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "tutorial-review": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "715dac494e42bf0ab983eb6b7a286f898c2ffb6fee6590d19e634e3828c45073",
+        "svg": "51a928996c44733c01860d29c13a974b72b33d8c890e2e963aa673c15d6829c8"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "tutorial-trees": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "e2e74ccbd701d8756ca35aee3554061e2604e23a774730e44b507f7b9442f435",
+        "svg": "48d54ae8084aa893137d4fec24f9e9f2f99a5d699b691ca8aaa017f3d0a429b6"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "usage-and-cost": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "cd62d822ae83ce3b078a173388d917ac95750cdd91cb7fb91e2f20f185ccd5a8",
+        "svg": "be2e85803cd8dfc62177b73e58c4c56db3363ae8a18c15071e838fc723c3f364"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        40
+      ]
+    },
+    "view-actions": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "1ccdf96702b1b5839fc51aed531908ae6351e2595f8bbc80981c8516728b898c",
+        "svg": "740c9c0b872696919f3516d45c487d1c3ceac08d0eeaefafea60d4e3b8ceedc6"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "view-goal": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "9c2102d628c6baca214d858fb59d1a57c236ac97fd92d3d6647bc06d1974031f",
+        "svg": "4a20c2b79600c3aaaef533fcd8503e556fc80e4a713ccfe17786a9325b9a6d91"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "view-history": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "12951dba26d8675f00e80911ea1963e61592fa985300f6d57b0d6b500c2738f3",
+        "svg": "9525f4a7d50091e65605952b865ddd19e397d134e8b9af200b1bde80df602b3b"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "view-reasoning": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "e5a959c5091b289342af77b72e563273c18775bf93a3a41bc5a4f20cc44883d3",
+        "svg": "43fc49ea3507a8c1d262dfd5b0ff7cacbbcefa5f14524bd5cdad2fd1307692b1"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "view-sources": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "c74e87182ab74bad60b3ae8981b4784643928367a68f46dd87641bd583481593",
+        "svg": "43eebb0219bdee39f195d0aeeaede339de590a33aebe4977db0e27a1357485b0"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "views-menu": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "8b0c34ed62a1f354e3e8844cf0f2dc114b857642043b5196b0e3bb3af102d326",
+        "svg": "800309ff95a8b6bc7bb52807f95ea4358caa004b22121c909d1ad8706cf61087"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        80,
+        30
+      ]
+    },
+    "welcome": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "04a9ad8773ffeec9624bbc9c51279a6c58f296d64989800e745e2d67348abd3e",
+        "svg": "cfc2e866665b758d01641a18125f60854cffd11bf4cdbb6d972efb7248948c7b"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        120,
+        36
+      ]
+    },
+    "workspace-narrow": {
+      "app": "ReasonCommonsApp",
+      "fixture": "guided practice / editorial reading / offline provider stand-ins",
+      "generator": "scripts/render_screenshots.py",
+      "sha256": {
+        "png": "0eb8f9d49fd0d248605912912228e6b3fd456cfaffa952ca12b6f34708864d43",
+        "svg": "fb44cd6910d5b7f8dfaa354c9dc18619d3e92219b8350ddabe1175e1ad4790d4"
+      },
+      "source_baseline": "030cbdd",
+      "terminal_size": [
+        80,
+        30
+      ]
+    }
+  },
+  "schema_version": 1
+}

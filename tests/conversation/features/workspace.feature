@@ -1,14 +1,16 @@
-@conversation @automated
+@conversation
 Feature: One persistent reasoning conversation across skill and local interfaces
   A participant works with the application's saved state.
   Local views explain and project it; only deliberate contributions consult.
 
+  @S169 @p4 @v1 @automated
   Scenario: Open an empty commons without inference
     Given a new commons
     When I open the next workspace
     Then the formal goal is unknown and no question has been invented
     And no consultation has occurred
 
+  @S170 @p4 @v1 @automated
   Scenario: Continue with literal participant text
     Given a saved question
     When David replies with literal multiline text to the displayed question
@@ -16,23 +18,27 @@ Feature: One persistent reasoning conversation across skill and local interfaces
     And the workspace presents the newly saved question
     And exactly one additional consultation has occurred
 
+  @S171 @p4 @v1 @automated
   Scenario: Resume and explain locally
     Given a saved question
     When I reopen the commons and inspect explanation, sources and history
     Then the stored rationale and original attributed text are available
     And the saved revision and consultant count are unchanged
 
+  @S172 @p4 @v1 @automated
   Scenario: Protect a reply from silent retargeting
     Given a question that another contribution has advanced
     When David replies to the previously displayed question
     Then the application reports stale and does not consult
 
+  @S173 @p4 @v1 @automated
   Scenario: Choose a consultant alternative explicitly
     Given a saved question
     When David explicitly asks for direct advice with literal text
     Then the saved input has the direct advice intent and the displayed anchor
     And exactly one additional consultation has occurred
 
+  @S174 @p4 @v1 @automated
   Scenario: Inspect results against the original forecast
     Given a completed pilot with recorded observations and a safeguard review
     When I open the tests workspace
@@ -41,6 +47,7 @@ Feature: One persistent reasoning conversation across skill and local interfaces
     When I inspect the first published revision
     Then later observations and reviews are absent and only local moves are available
 
+  @S175 @p4 @v1 @automated
   Scenario: Draw only stored connections
     Given a saved goal and prospective test
     When I open the reasoning workspace

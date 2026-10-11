@@ -1,5 +1,5 @@
 REASON COMMONS / COMPLETE TUI JOURNEY
-Delivery profile: p5 cumulative roadmap. Canonical interaction specimen.
+Future p7 interaction illustration; legacy protocol profile: p5. Not v1 UI.
 Session 1: Friday, October 2, 2026. Session 2: Monday, October 19, 2026.
 The Payments deployment commons, people, measurements, reports and future outcomes are fictional. This is an authored
 specification, not a capture of working software. Attached text and document instructions are design inputs, not
@@ -10,8 +10,8 @@ UI. A shell appears only at launch, resume and optional offline inspection.
 120x40 is the primary canvas. All frames use ASCII and need no color. '*' marks the active destination; '>' marks
 selection; the header names the single focused control. Selecting a hypothesis does not endorse it. Bracketed labels
 are keyboard-reachable controls. Enter activates a focused control; in Response it inserts a newline. Tab to Send,
-then Enter submits once. F1 is control help; Explain this is reasoning help. Ctrl+P opens Actions; the visible Actions
-control provides the same path.
+then Enter submits once. F1 is control help; Explain this is reasoning help. Ctrl+P opens Commands; its footer control
+provides the same path. Frames abstract layout and focus.
 The navigation offers destinations, not mandatory stages. Reasoning tools appear only when stored records exist. Users
 can answer, inspect, challenge, ask for another move, or leave. No tour or vocabulary test blocks work.
 $ reason-commons new deploy-flow --store ./deploy-flow-case --speaker Maya
@@ -30,11 +30,11 @@ SCREEN S01 120x40
 |   Reasoning    |                                                                                                     |
 |   Unlinked     | You can correct the account at any time.                                                            |
 |   Tests        |                                                                                                     |
-|   Actions      |      +-----------------------+     +-------------------------+                                      |
+|   Loop actions |      +-----------------------+     +-------------------------+                                      |
 |   History      |      | Your reports          |     | A next useful question  |                                      |
 |                |      | What you have seen    | --> | What would help decide? |                                      |
 | [Views]        |      +-----------------------+     +-------------------------+                                      |
-| [Actions]      |                   This shows the workflow, not causation.                                           |
+| [Commands]     |                   This shows the workflow, not causation.                                           |
 |                |                                                                                                     |
 | Saved locally  | Want to look around first? [How this works] [Open a saved commons]                                  |
 |                | Navigation and saved explanations stay local. Send asks the consultant.                             |
@@ -54,9 +54,9 @@ SCREEN S01 120x40
 | Response to Start | Send asks consultant; Enter adds a line.                                                         |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: In Response, Maya types: Production changes sit in the release queue for days. Customer escalations cause
@@ -77,11 +77,11 @@ SCREEN S02 120x40
 |   Reasoning    | +----------------------------+     +-----------------------------+                                  |
 |   Unlinked     |                                                                                                     |
 |   Tests        | +----------------------------+     +-----------------------------+                                  |
-|   Actions      | | Standard work revalidated  |     | Release work after hours    |                                  |
+|   Loop actions | | Standard work revalidated  |     | Release work after hours    |                                  |
 |   History      | +----------------------------+     +-----------------------------+                                  |
 |                | Kept as separate reports. Their connections are not established yet.                                |
 | [Views]        |                                                                                                     |
-| [Actions]      | DECISION / What would count as an improvement worth keeping?                                        |
+| [Commands]     | DECISION / What would count as an improvement worth keeping?                                        |
 |                | What progress do you want, by when, and what must not get worse?                                    |
 | Saved locally  |                                                                                                     |
 |                | You might give a measure, a date, and one or two safeguards.                                        |
@@ -101,9 +101,9 @@ SCREEN S02 120x40
 | Response to Define success | Send asks consultant; Enter adds a line.                                                |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya enters a multiline response with Enter between lines, then Tab to Send and Enter:
@@ -128,11 +128,11 @@ SCREEN S03 120x40
 |   Reasoning    | | days. Oct 30 review; immature outcomes pending.|  | Rollback: 3/30 = 10% |                        |
 |   Unlinked     | +-----------------------------------------------+  | After-hours: ~11h/wk |                         |
 |   Tests        |                                                    +----------------------+                         |
-|   Actions      | Protect rollback <=5%; after-hours <=8 engineer-hours in EVERY week.                                |
+|   Loop actions | Protect rollback <=5%; after-hours <=8 engineer-hours in EVERY week.                                |
 |   History      | Calendar, timezone and cohort maturation are explicit fields in [Goal].                             |
 |                | Source: Maya's reports. Other people's positions on G1 remain unknown.                              |
 | [Views]        |                                                                                                     |
-| [Actions]      | DECISION / Which explanation should we examine before choosing a change?                            |
+| [Commands]     | DECISION / Which explanation should we examine before choosing a change?                            |
 |                | Which reported effect do you think causes another?                                                  |
 | Saved locally  |                                                                                                     |
 |                | [Goal and safeguards]  [Unlinked reports]  [Other moves]                                            |
@@ -152,9 +152,9 @@ SCREEN S03 120x40
 | Response to Connect the reports | Send asks consultant; Enter adds a line.                                           |
 | Urgent customer escalations cause standard changes to miss the three-day target._                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya activates Send with the displayed draft.
@@ -173,11 +173,11 @@ SCREEN S04 120x40
 |   Reasoning    | | Maya reports these occur      |-- L1 ? --->| three-business-day target     |                      |
 |   Unlinked     | +-------------------------------+ hypothesis +-------------------------------+                      |
 |   Tests        |                                                                                                     |
-|   Actions      | The arrow needs an explanation of what changes in the work.                                         |
+|   Loop actions | The arrow needs an explanation of what changes in the work.                                         |
 |   History      | DECISION / Is this a useful mechanism to test?                                                      |
 |                | How does an escalation make a standard change late?                                                 |
 | [Views]        |                                                                                                     |
-| [Actions]      | Tell us what happens between the two boxes and when it does not happen.                             |
+| [Commands]     | Tell us what happens between the two boxes and when it does not happen.                             |
 |                | [Inspect connection]  [Explain this]  [Challenge the question]                                      |
 | Saved locally  | No claim of an operational constraint follows from this diagram.                                    |
 |                |                                                                                                     |
@@ -197,9 +197,9 @@ SCREEN S04 120x40
 | Response to Find the mechanism | Send asks consultant; Enter adds a line.                                            |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya answers: Engineers stop validation to insert the hotfix, then restart checks. This misses the target only
@@ -220,11 +220,11 @@ SCREEN S05 120x40
 |   Reasoning    | | +-------------------------------------------------------------------+ |                           |
 |   Unlinked     | | | Validation is interrupted and must be repeated for this change.   | |                           |
 |   Tests        | | +-------------------------------------------------------------------+ |                           |
-|   Actions      | | +-------------------------------------------------------------------+ |                           |
+|   Loop actions | | +-------------------------------------------------------------------+ |                           |
 |   History      | | | Net unrecovered recheck time exceeds slack before release cutoff. | |                           |
 |                | | +-------------------------------------------------------------------+ |                           |
 | [Views]        | | +-------------------------------------------------------------------+ |                           |
-| [Actions]      | | | No eligible later release occurs before its three-day deadline.   | |                           |
+| [Commands]     | | | No eligible later release occurs before its three-day deadline.   | |                           |
 |                | | +-------------------------------------------------------------------+ |                           |
 | Saved locally  | +-----------------------------------+-----------------------------------+                           |
 |                |                                     | L3: hypothesis                                                |
@@ -244,9 +244,9 @@ SCREEN S05 120x40
 | Response to Test the whole inference | Send asks consultant; Enter adds a line.                                      |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya types the start of an answer, "Could delay already exist?", then Tabs to Expand reasoning and opens it.
@@ -266,11 +266,11 @@ SCREEN S05A 120x40
 | * Reasoning    |                                 +------------^------------+   before release window                 |
 |   Unlinked     | SAME SAVED MODEL                             | L3 hypothesis                                        |
 |   Tests        | Expand/collapse changes          +-----------+-------------+   MECHANISM                            |
-|   Actions      | the view, never the claim.        | ALL                     |   Rechecks consume time;              |
+|   Loop actions | the view, never the claim.        | ALL                     |   Rechecks consume time;              |
 |   History      |                                 | Interruption + rechecks  |   time unavailable before              |
 |                | Unlinked reports retained:       | Net loss exceeds slack  |   release; delay crosses               |
 | [Views]        |   After-hours work               | before release cutoff   |   three-day boundary.                  |
-| [Actions]      |   Queue delays                   | No timely later release |                                        |
+| [Commands]     |   Queue delays                   | No timely later release |                                        |
 |                | Unknown links stay unknown.      +------------^------------+   EVIDENCE                             |
 | Saved locally  |                                              |                Maya's report, in004.                 |
 |                |                                 +------------+------------+   Dashboard not attached.               |
@@ -290,9 +290,9 @@ SCREEN S05A 120x40
 | Live question: Test the whole inference | Draft retained. [Return to question]                                       |
 | Retained response draft: Could delay already exist?                                                                  |
 |                                                                                                                      |
-| [Full relation]  [Evidence]  [Return to question]  [Actions]                                                         |
+| [Full relation]  [Evidence]  [Return to question]  [Commands]                                                        |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands                                          |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Esc restores the question, its diagram, draft text and editor cursor. The draft remains unsent and attributed
@@ -316,11 +316,11 @@ SCREEN S05B 120x40
 | * Reasoning    | | Next eligible release if current one is missed: 240                   |                           |
 |   Unlinked     | +-----------------------------------------------------------------------+                           |
 |   Tests        |                                                                                                     |
-|   Actions      | SAME FIELDS                      MORE NET RECHECKS     FEWER NET RECHECKS                           |
+|   Loop actions | SAME FIELDS                      MORE NET RECHECKS     FEWER NET RECHECKS                           |
 |   History      | Planned validation finish        90 min                90 min                                       |
 |                | Added recheck time               60 min                20 min                                       |
 | [Views]        | Recoverable time                  0 min                 0 min                                       |
-| [Actions]      | Final validation finish         150 min               110 min                                       |
+| [Commands]     | Final validation finish         150 min               110 min                                       |
 |                | Slack before cutoff              30 min                30 min                                       |
 | Saved locally  | Release cutoff                  120 min               120 min                                       |
 |                | Eligible deployment             240 min               120 min                                       |
@@ -340,15 +340,15 @@ SCREEN S05B 120x40
 | Live question: Test the whole inference | Draft retained. [Return to question]                                       |
 | Retained Maya draft for the question: Could delay already exist?                                                     |
 |                                                                                                                      |
-| [Return to question]  [Actual sources]  [Actions]                                                                    |
+| [Return to question]  [Actual sources]  [Commands]                                                                   |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands                                          |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Esc returns to the question and its retained draft. The following switch opens Leo's separate response to the
 question; Maya's unsent text remains labeled for its original question and actor even after a new response arrives.
 
-ACTION: Maya chooses Actions > Change speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers
+ACTION: Maya chooses Commands > Change speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers
 in Response: Threatened dates may cause escalation. Interruptions could amplify an existing delay rather than start
 it. Your wording represents my objection, but I dispute the claim that interruptions are the main cause.
 EVENT semantic in005 r0005 question005
@@ -366,11 +366,11 @@ SCREEN S06 120x40
 |   Reasoning    | | Interruption + required rechecks      | | Existing queue or complexity       |                    |
 |   Unlinked     | | AND net delay exceeds release slack        | | threatens the release date         |               |
 |   Tests        | | AND no timely later release      | |                 |                  |                         |
-|   Actions      | |                 | hypothesis          | |                 v hypothesis       |                    |
+|   Loop actions | |                 | hypothesis          | |                 v hypothesis       |                    |
 |   History      | |                 v                     | | Escalation follows threatened date |                    |
 |                | | Three-day target missed               | | It may add more delay: not settled |                    |
 | [Views]        | +---------------------------------------+ +------------------------------------+                    |
-| [Actions]      |                                                                                                     |
+| [Commands]     |                                                                                                     |
 |                | Distinguish with: event order, queue/load, recheck duration, release slack.                         |
 | Saved locally  | Evidence so far: Maya's and Leo's reports. No event series inspected.                               |
 |                | DECISION / What observation would change the pilot we choose?                                       |
@@ -390,9 +390,9 @@ SCREEN S06 120x40
 | Response to Compare explanations | Send asks consultant; Enter adds a line.                                          |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Leo opens Inspect L3, then Record a position. This opens stored records locally. His earlier natural-language
@@ -411,11 +411,11 @@ SCREEN S07 120x40
 | * Reasoning    | WORDING / Does this accurately represent the claim being discussed?                                 |
 |   Unlinked     |   ( ) Accurate    ( ) Inaccurate    ( ) Unknown     Current: unrecorded                             |
 |   Tests        |                                                                                                     |
-|   Actions      | BELIEF / What is your position on that claim?                                                       |
+|   Loop actions | BELIEF / What is your position on that claim?                                                       |
 |   History      |   ( ) Supported   ( ) Disputed      ( ) Unknown     Current: unrecorded                             |
 |                |                                                                                                     |
 | [Views]        | RELIANCE / Will you run a particular bounded test?                                                  |
-| [Actions]      |   No test version selected. This is a separate decision.                                            |
+| [Commands]     |   No test version selected. This is a separate decision.                                            |
 |                |                                                                                                     |
 | Saved locally  | Saving wording never changes belief. Saving belief never commits a test.                            |
 |                | No substantive choice is preselected. Space selects a focused radio.                                |
@@ -435,9 +435,9 @@ SCREEN S07 120x40
 | Live question: Compare explanations | Draft retained. [Return to question]                                           |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Return to question]  [Help]  [Actions]                                                                              |
+| [Return to question]  [Help]  [Commands]                                                                             |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands                                          |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Leo selects only Accurate in Wording and activates Save position.
@@ -446,7 +446,7 @@ ACTION: In the same panel he selects only Disputed in Belief and activates Save 
 EVENT local r0007 target=L3@1 dimension=belief value=disputed actor=Leo
 Receipt: r0007 saved. Leo: wording accurate; belief disputed on L3@1. Reliance unrecorded. No consultant calls. Esc
 returns to the question with the response draft intact.
-ACTION: Actions > Change speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers
+ACTION: Commands > Change speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers
 before the next release window. With a large queue, standard work waits longer. But hotfixes also tend to arrive when
 the queue is already bad, so that comparison does not isolate the cause.
 EVENT semantic in006 r0008 question006
@@ -464,11 +464,11 @@ SCREEN S08 120x40
 |   Reasoning    | Hotfix frequency   Unknown                     Reported higher                                      |
 |   Unlinked     | Source             Maya's account              Maya's account                                       |
 |   Tests        |                                                                                                     |
-|   Actions      | L3@1 remains a conditional hypothesis. Leo's belief: DISPUTED.                                      |
+|   Loop actions | L3@1 remains a conditional hypothesis. Leo's belief: DISPUTED.                                      |
 |   History      | H2 remains plausible: queue/load may influence both escalation and delay.                           |
 |                | [Event evidence]  [Compare directions]  [Inspect L3]                                                |
 | [Views]        |                                                                                                     |
-| [Actions]      | DECISION / Should we test interruption policy under these uncertainties?                            |
+| [Commands]     | DECISION / Should we test interruption policy under these uncertainties?                            |
 |                | What makes Support and Engineering choose different actions now?                                    |
 | Saved locally  | You can describe both needs or ask for a different route.                                           |
 |                | [Describe conflict]  [Give me direct help - asks consultant]                                        |
@@ -488,9 +488,9 @@ SCREEN S08 120x40
 | Response to Keep the qualification visible | Send asks consultant; Enter adds a line.                                |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya answers: Support needs urgent customer issues addressed quickly and thinks that requires inserting
@@ -511,11 +511,11 @@ SCREEN S09 120x40
 |   Reasoning    |                                    |                         |                                      |
 |   Unlinked     |     requires?        +-------------+                         +--------+     requires?               |
 |   Tests        |                      |                                                |                             |
-|   Actions      | +--------------------+--------------------+      +--------------------+--------------------+        |
+|   Loop actions | +--------------------+--------------------+      +--------------------+--------------------+        |
 |   History      | | B  Serve urgent customer needs          |      | C  Validate standard changes            |        |
 |                | | quickly enough                          |      | reliably                                |        |
 | [Views]        | +--------------------+--------------------+      +--------------------+--------------------+        |
-| [Actions]      |                      |                                                |                             |
+| [Commands]     |                      |                                                |                             |
 |                |                      |  requires?                                     |  requires?                  |
 | Saved locally  |                      |                                                |                             |
 |                | +--------------------+--------------------+      +--------------------+--------------------+        |
@@ -535,9 +535,9 @@ SCREEN S09 120x40
 | Response to Examine a necessity assumption | Send asks consultant; Enter adds a line.                                |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya answers: We could acknowledge within four business hours, triage severity, state when the deployment
@@ -558,11 +558,11 @@ SCREEN S10 120x40
 |   Reasoning    | +---------------------+----------------------------+--------------------+                           |
 |   Unlinked     |                       |                            |                                                |
 |   Tests        |              expected benefit                possible adverse path                                  |
-|   Actions      |                       v                            v                                                |
+|   Loop actions |                       v                            v                                                |
 |   History      | +--------------------------------------+ +--------------------------------------+                   |
 |                | | Fewer interruptions / less rework    | | Urgent work waits for the next slot |                    |
 | [Views]        | +------------------+-------------------+ +------------------+-------------------+                   |
-| [Actions]      |                    | ALL                                | ALL                                       |
+| [Commands]     |                    | ALL                                | ALL                                       |
 |                | +--------------------------------------+ +--------------------------------------+                   |
 | Saved locally  | | Saved time usable before release;   | | Wait exceeds legitimate need;       |                     |
 |                | | standard work ready; no other delay | | emergency path cannot serve it      |                     |
@@ -582,12 +582,12 @@ SCREEN S10 120x40
 | Response to See benefits AND possible harm | Send asks consultant; Enter adds a line.                                |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
-ACTION: Maya chooses Actions > Coaching > Direct help. Preference saved; no call or revision. In Response she types:
+ACTION: Maya chooses Commands > Coaching > Direct help. Preference saved; no call or revision. In Response she types:
 Give me a concrete bounded pilot. Queue size, incident mix and change complexity vary; do not claim this isolates a
 cause.
 EVENT semantic in009 r0011 question009
@@ -605,11 +605,11 @@ SCREEN S11 120x40
 |   Reasoning    | +-- FORECAST / propose before results ---+ +-- PROTECT ------------------------+                    |
 |   Unlinked     | | >=70% standard pilot changes deploy   | | Rollback <=5% deployed pilot cohort |                   |
 |   Tests        | | within 3 business days                | | After-hours <=8 engineer-hours/week |                   |
-|   Actions      | +---------------------------------------+ | Urgent acknowledgement >=95%/4h     |                   |
+|   Loop actions | +---------------------------------------+ | Urgent acknowledgement >=95%/4h     |                   |
 |   History      |                                           +-------------------------------------+                   |
 |                | Log release-ready/deployment times, queue size, change type, urgent requests,                       |
 | [Views]        | interruptions, rechecks, emergency-path use and rule exceptions.                                    |
-| [Actions]      | Escalate any breach to an agreed owner; do not expand before review.                                |
+| [Commands]     | Escalate any breach to an agreed owner; do not expand before review.                                |
 |                |                                                                                                     |
 | Saved locally  | LIMIT / acknowledging a request does not establish that its need was met.                           |
 |                | Historical September comparison will not isolate this policy's effect.                              |
@@ -629,9 +629,9 @@ SCREEN S11 120x40
 | Response to Choose a bounded pilot | Send asks consultant; Enter adds a line.                                        |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya chooses Use this as a draft (local form). She fills Owner: Maya; pilot Oct 5-16; review Oct 19; scope
@@ -657,11 +657,11 @@ SCREEN S12 120x40
 |   Reasoning    | Cohort rule: follow every eligible change through its full 3-day window.                            |
 |   Unlinked     | Rollback denominator: deployed eligible changes; no deployment = pending.                           |
 |   Tests        | Acknowledgement denominator: urgent requests received during pilot.                                 |
-|   Actions      | Protect: rollback <=5%; after-hours <=8h EACH week; acknowledgement >=95%/4h.                       |
+|   Loop actions | Protect: rollback <=5%; after-hours <=8h EACH week; acknowledgement >=95%/4h.                       |
 |   History      | Calendar: Mon-Fri, 08:00-18:00, Europe/Berlin; excluded closures: none stated.                      |
 |                | Oct 19 review flags immature outcomes pending and schedules their data check.                       |
 | [Views]        | Escalate any breach to Maya; no expansion before review.                                            |
-| [Actions]      | Emergency path allowed for critical incidents; record use, not automatic failure.                   |
+| [Commands]     | Emergency path allowed for critical incidents; record use, not automatic failure.                   |
 |                | Urgent-need fulfillment is observed separately; numeric bound UNKNOWN.                              |
 | Saved locally  |                                                                                                     |
 |                | +-- READY TO RUN? ------------------------------------------------------+                           |
@@ -681,9 +681,9 @@ SCREEN S12 120x40
 | Response to Original pilot forecast saved | Send asks consultant; Enter adds a line.                                 |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya opens Preparation map locally. The prerequisite and transition fragments were authored with the question;
@@ -702,11 +702,11 @@ SCREEN S13 120x40
 | * Reasoning    |                |                       |                  |                                         |
 |   Unlinked     | +-------------------------+ +-----------------------+ +------------------------+                    |
 |   Tests        | | IO1 Roles acknowledged  | | IO2 Logs operational  | | IO3 Roles demonstrate  |                    |
-|   Actions      | | owner + backup          | | timestamps + scope    | | response + escalation  |                    |
+|   Loop actions | | owner + backup          | | timestamps + scope    | | response + escalation  |                    |
 |   History      | +-------------------------+ +-----------------------+ | + emergency handling   |                    |
 |                | | Obstacle: no cover      | | Obstacle: missing     | +------------------------+                    |
 | [Views]        | | Criterion: both roles   | | records               | | Obstacle: ambiguous    |                    |
-| [Actions]      | | explain authority       | | Criterion: one sample | | operating rule         |                    |
+| [Commands]     | | explain authority       | | Criterion: one sample | | operating rule         |                    |
 |                | | Attainment: unknown     | | change + request      | | Criterion: demonstrate |                    |
 | Saved locally  | +-------------------------+ | correctly logged      | | all 3 cases correctly  |                    |
 |                |                             | Attainment: unknown   | | Attainment: unknown    |                    |
@@ -726,9 +726,9 @@ SCREEN S13 120x40
 | Live question: Original pilot forecast saved | Draft retained. [Return to question]                                  |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Return to question]  [Help]  [Actions]                                                                              |
+| [Return to question]  [Help]  [Commands]                                                                             |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands                                          |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya selects IO1 and opens Actions that may create these states. Same revision, local.
@@ -746,11 +746,11 @@ SCREEN S14 120x40
 |   Reasoning    | | ACTION: Maya names owner + backup, reads back rule and rehearses it.   |                          |
 |   Unlinked     | | CONDITIONS: Maya has stated authority; both roles participate;         |                          |
 |   Tests        | | wording resolves their authority and response questions.              |                           |
-| * Actions      | +----------------------------------+------------------------------------+                           |
+| * Loop actions | +----------------------------------+------------------------------------+                           |
 |   History      |                                    | LT1: predicted effect                                          |
 |                |                                    v                                                                |
 | [Views]        |             +-------------------------------------------------+                                     |
-| [Actions]      |             | IO1 Roles acknowledge who responds/escalates    |                                     |
+| [Commands]     |             | IO1 Roles acknowledge who responds/escalates    |                                     |
 |                |             +-------------------------------------------------+                                     |
 | Saved locally  | OBSERVE / ask both roles to explain responsibility and backup cover.                                |
 |                | FAILURE / if either is unclear, revise and rehearse before starting.                                |
@@ -770,9 +770,9 @@ SCREEN S14 120x40
 | Live question: Original pilot forecast saved | Draft retained. [Return to question]                                  |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Return to question]  [Help]  [Actions]                                                                              |
+| [Return to question]  [Help]  [Commands]                                                                             |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands                                          |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Esc to the question. Maya answers: I have named the triage owner and backup and walked them through the draft.
@@ -792,11 +792,11 @@ SCREEN S15 120x40
 |   Reasoning    | | Execution: COMPLETED as reported    |  | Attainment: UNKNOWN                 |                    |
 |   Unlinked     | +-------------------------------------+  +-------------------------------------+                    |
 |   Tests        |         completed action  =/=  observed effect  =/=  pilot improvement                              |
-|   Actions      |                                                                                                     |
+|   Loop actions |                                                                                                     |
 |   History      | Original P1@1 forecast and dates are unchanged.                                                     |
 |                | IO2 logging operational: unknown. IO3 demonstration: unknown.                                       |
 | [Views]        | DECISION / Are the required states attained before Oct 5?                                           |
-| [Actions]      | What does the rehearsal and sample log check actually show?                                         |
+| [Commands]     | What does the rehearsal and sample log check actually show?                                         |
 |                |                                                                                                     |
 | Saved locally  | [Original forecast]  [Preparation]  [Observation fields]                                            |
 |                |                                                                                                     |
@@ -816,9 +816,9 @@ SCREEN S15 120x40
 | Response to Observe readiness | Send asks consultant; Enter adds a line.                                             |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya answers on Oct 2: Both roles correctly explained who responds and when to escalate. They demonstrated
@@ -841,11 +841,11 @@ SCREEN S16 120x40
 |   Reasoning    |                                                                                                     |
 |   Unlinked     | +-- P1@1 / ORIGINAL FORECAST --------------------------------------------+                          |
 |   Tests        | | Oct 5-16 | >=70% standard changes within 3 business days               |                          |
-|   Actions      | | Rollback <=5% | after-hours <=8h EACH week | urgent ack >=95%/4h        |                         |
+|   Loop actions | | Rollback <=5% | after-hours <=8h EACH week | urgent ack >=95%/4h        |                         |
 |   History      | | Escalate to Maya; no expansion before Oct 19 review                    |                          |
 |                | +-----------------------------------------------------------------------+                           |
 | [Views]        | Reliance: unrecorded. Authority: Maya's declaration; not independently verified.                    |
-| [Actions]      | L3@1 remains provisional. Leo's belief remains DISPUTED.                                            |
+| [Commands]     | L3@1 remains provisional. Leo's belief remains DISPUTED.                                            |
 |                | DECISION / Will you run this exact bounded version?                                                 |
 | Saved locally  | [Record reliance on P1@1]  [Revise forecast - asks consultant]  [Leave undecided]                   |
 |                | Record reliance is local; it records a decision, not execution or consensus.                        |
@@ -865,9 +865,9 @@ SCREEN S16 120x40
 | Response to Decide on this exact trial | Send asks consultant; Enter adds a line.                                    |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya opens Record reliance on P1@1. The panel repeats the exact window, forecast, safeguards and actor, with
@@ -890,11 +890,11 @@ SCREEN S17 120x40
 |   Reasoning    | +---------------------+----------------------+--------------------------+                           |
 |   Unlinked     |                requires?                requires?                                                   |
 |   Tests        | +------------------------------------+ +---------------------------------------+                    |
-|   Actions      | | Adequate usable validation and     | | Feasible release access before each   |                    |
+|   Loop actions | | Adequate usable validation and     | | Feasible release access before each   |                    |
 |   History      | | recovery time for the due changes  | | change's three-day deadline            |                   |
 |                | +------------------------------------+ +---------------------------------------+                    |
 | [Views]        | Warrant: these changes need completed validation and an eligible release.                           |
-| [Actions]      | These requirements are proposed in this scope. Others are not yet mapped.                           |
+| [Commands]     | These requirements are proposed in this scope. Others are not yet mapped.                           |
 |                | Freezing an active release is a method to test, not itself a necessary condition.                   |
 | Saved locally  |                                                                                                     |
 |                | TRACE / P1@1 tests I1@1; I1 addresses interruption/rework; that route threatens G1.                 |
@@ -914,14 +914,14 @@ SCREEN S17 120x40
 | Live question: Decide on this exact trial | Draft retained. [Return to question]                                     |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Return to question]  [Help]  [Actions]                                                                              |
+| [Return to question]  [Help]  [Commands]                                                                             |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands                                          |
 +----------------------------------------------------------------------------------------------------------------------+
 
-ACTION: Actions > Export portable commons > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt:
-exported r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit
-returns to the shell and releases the writer lock.
+ACTION: Commands > Export portable commons > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt:
+exported r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Commands > Save and
+quit returns to the shell and releases the writer lock.
 $ reason-commons inspect ./deploy-flow-before-pilot.reasoncase --offline
 Offline read-only inspection: r0015; original P1 forecast; Maya relies on P1@1; Leo disputes L3@1. Schema, references,
 ancestry and content hashes pass. This command does not run the consultant.
@@ -941,11 +941,11 @@ SCREEN S18 120x40
 |   Reasoning    | | Rollback                      | <=5% deployed eligible cohort         |                           |
 |   Unlinked     | | After-hours                   | <=8 engineer-hours EACH week          |                           |
 |   Tests        | | Urgent acknowledgement        | >=95% within 4 business hours         |                           |
-|   Actions      | +-------------------------------+---------------------------------------+                           |
+|   Loop actions | +-------------------------------+---------------------------------------+                           |
 |   History      | Window Oct 5-16 | owner Maya | review Oct 19 | no reminder scheduled                                |
 |                | Preparation: reported met. Pilot execution and effects: awaiting observations.                      |
 | [Views]        | System goal: >=80% October cohort; end-of-month attainment not yet known.                           |
-| [Actions]      | DECISION / Keep, change or stop this trial?                                                         |
+| [Commands]     | DECISION / Keep, change or stop this trial?                                                         |
 |                | Supply outcomes, whether the rule was followed and comparison limitations.                          |
 | Saved locally  | Do any eligible changes still lack their full three-day follow-up?                                  |
 |                | [Original forecast]  [Outcome fields]  [Sources]  [Other moves]                                     |
@@ -965,9 +965,9 @@ SCREEN S18 120x40
 | Response to Resume and review P1 | Send asks consultant; Enter adds a line.                                          |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Maya enters: Pilot ran Oct 5-16. Freeze followed; 09:30 triage on all ten working days; urgent slot available
@@ -992,11 +992,11 @@ SCREEN S19 120x40
 |   Reasoning    | -----------------------  ----------------------------  ---------------------------                  |
 |   Unlinked     | Within 3 business days   >=70%; September 12/30 = 40%   18/24 = 75%   SUPPORTED                     |
 |   Tests        | Rollback                 <=5% deployed pilot cohort    1/24 = 4.2%   WITHIN BOUND                   |
-|   Actions      | After-hours EACH week    <=8 engineer-hours            7h; 8h        WITHIN BOUND                   |
+|   Loop actions | After-hours EACH week    <=8 engineer-hours            7h; 8h        WITHIN BOUND                   |
 |   History      | Urgent acknowledgement   >=95% within 4 business hours  9/10 = 90%    BREACH                        |
 |                |                                                                                                     |
 | [Views]        | P1 forecast saved Oct 2: unchanged. Scope/denominators above match the report.                      |
-| [Actions]      | System G1 >=80% October cohort: NOT DEMONSTRATED; pilot target is different.                        |
+| [Commands]     | System G1 >=80% October cohort: NOT DEMONSTRATED; pilot target is different.                        |
 |                | Fidelity: freeze + ten triages + urgent slot reported; emergency use logged.                        |
 | Saved locally  | Lower queue, migration mix and simultaneous changes limit causal attribution.                       |
 |                | Leo's L3@1 dispute remains. Customer need fulfillment remains UNKNOWN.                              |
@@ -1016,9 +1016,9 @@ SCREEN S19 120x40
 | Response to Review the unchanged forecast | Send asks consultant; Enter adds a line.                                 |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Before answering, Maya opens Inspect breach. This selection does not erase the delivery result or change the
@@ -1037,11 +1037,11 @@ SCREEN S20 120x40
 | * Reasoning    | +----------------------------------+------------------------------------+                           |
 |   Unlinked     |                                    | proposed mechanism from report                                 |
 |   Tests        |                                    v                                                                |
-|   Actions      |                +-----------------------------------------+                                          |
+|   Loop actions |                +-----------------------------------------+                                          |
 |   History      |                | Acknowledgement sent almost 7h later    |                                          |
 |                |                | This request misses the 4h protection   |                                          |
 | [Views]        |                +-----------------------------------------+                                          |
-| [Actions]      | P1 proposed >=95% timely acknowledgements. Reported result: 9/10 = 90%.                             |
+| [Commands]     | P1 proposed >=95% timely acknowledgements. Reported result: 9/10 = 90%.                             |
 |                | This mechanism does not settle whether the customer's urgent need was served.                       |
 | Saved locally  | Earlier NB1 (urgent work waits) also remains: fulfillment data UNKNOWN.                             |
 |                | Acknowledgement and fulfillment are separate branches and observations.                             |
@@ -1061,9 +1061,9 @@ SCREEN S20 120x40
 | Live question: Review the unchanged forecast | Draft retained. [Return to question]                                  |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Return to question]  [Help]  [Actions]                                                                              |
+| [Return to question]  [Help]  [Commands]                                                                             |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions                                           |
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands                                          |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Esc returns to the same question. Maya answers: Support believed a useful acknowledgement needed a firm fix
@@ -1084,11 +1084,11 @@ SCREEN S21 120x40
 |   Reasoning    | +-- EXPECTED BENEFIT ------------------+  +-- STILL AT RISK --------------------+                   |
 |   Unlinked     | | Estimate missing no longer blocks    |  | Timely acknowledgement can coexist |                    |
 |   Tests        | | acknowledgement before 4h            |  | with an unserved urgent need        |                   |
-|   Actions      | +--------------------------------------+  +-------------------------------------+                   |
+|   Loop actions | +--------------------------------------+  +-------------------------------------+                   |
 |   History      | Retain freeze, urgent slot, triage, emergency path and existing protections.                        |
 |                | Observe acknowledgement TIME and whether the agreed customer NEED was served.                       |
 | [Views]        | A numeric acceptable fulfillment bound has not been agreed.                                         |
-| [Actions]      |                                                                                                     |
+| [Commands]     |                                                                                                     |
 |                | DECISION / Who will own a follow-up with what prediction and review window?                         |
 | Saved locally  | [Draft follow-up]  [Inspect original breach]  [Ask a different question]                            |
 |                |                                                                                                     |
@@ -1108,9 +1108,9 @@ SCREEN S21 120x40
 | Response to Change the assumption and test it | Send asks consultant; Enter adds a line.                             |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Switch declared speaker to Leo. Leo enters: I will own and run P2 October 20-30, review October 30. Support
@@ -1136,11 +1136,11 @@ SCREEN S22 120x40
 |   Reasoning    | Retain freeze, reserved urgent slot, daily triage and existing emergency path.                      |
 |   Unlinked     | Forecast: urgent acknowledgement >=95%/4h; standard delivery >=70%/3 days.                          |
 |   Tests        | Protect: rollback <=5% deployed eligible cohort; after-hours <=8h EACH week.                        |
-|   Actions      | Same calendar and cohort rules as P1; follow immature outcomes to completion.                       |
+|   Loop actions | Same calendar and cohort rules as P1; follow immature outcomes to completion.                       |
 |   History      | Record agreed urgent customer need and whether it was served; bound UNKNOWN.                        |
 |                | Escalate any unserved urgent need or guardrail breach; no expansion before review.                  |
 | [Views]        |                                                                                                     |
-| [Actions]      | +-- WHAT THIS DECISION DOES NOT SETTLE ----------------------------------+                          |
+| [Commands]     | +-- WHAT THIS DECISION DOES NOT SETTLE ----------------------------------+                          |
 |                | | P1 acknowledgement breach remains recorded. Original forecast unchanged.|                         |
 | Saved locally  | | Leo still DISPUTES L3@1. No causal conclusion or group agreement inferred.|                       |
 |                | | System October goal is not yet demonstrated. P2 effects not observed.   |                         |
@@ -1160,13 +1160,13 @@ SCREEN S22 120x40
 | Response to Follow-up saved; open issues remain | Send asks consultant; Enter adds a line.                           |
 | _                                                                                                                    |
 |                                                                                                                      |
-| [Send]  [Explain this]  [Other moves]  [Actions]                                                                     |
+| [Send]  [Explain this]  [Other moves]  [Commands]                                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions                                                     |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands                                                    |
 +----------------------------------------------------------------------------------------------------------------------+
 
 ACTION: Leo opens History, selects r0016, then Return to question. The selected revision is historical; the live
-response target stays Follow-up saved. Actions > Consultant calls shows 15 completed semantic calls. All inspection,
+response target stays Follow-up saved. Commands > Consultant calls shows 15 completed semantic calls. All inspection,
 navigation, preference changes, export, quit and resume made zero calls. The three structured local decisions created
 revisions without consultant responses.
 The next two screens demonstrate resize of saved L3@1 at r0018, with the question and its draft retained. They are the
@@ -1195,7 +1195,7 @@ SCREEN S23 80x24
 |                                                                              |
 | [Evidence]  [Compare H2]  [Return]                                           |
 +------------------------------------------------------------------------------+
-| Tab controls  Enter open  Esc back  F1 Help  Actions                         |
+| Tab controls  Enter open  Esc back  F1 Help  Commands                        |
 +------------------------------------------------------------------------------+
 
 SCREEN S24 40x24
@@ -1219,14 +1219,14 @@ SCREEN S24 40x24
 | Live question | Draft retained       |
 | _                                    |
 |                                      |
-| [Return] [Views] [Actions]           |
+| [Return] [Views] [Commands]          |
 +--------------------------------------+
 | Tab  Enter open  Esc back  Help      |
 +--------------------------------------+
 
 ACTION: Restoring 120x40 restores the same selected L3 version, semantic scroll anchor, response draft and focus. No
-commons change. Actions > Export portable commons > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and
-quit.
+commons change. Commands > Export portable commons > ./deploy-flow-after-review.reasoncase > Export; Commands > Save
+and quit.
 $ reason-commons inspect ./deploy-flow-after-review.reasoncase --offline
 Offline inspection: r0018. P1 delivery 18/24 = 75% supports its original >=70% forecast; P1 acknowledgement 9/10 = 90%
 breaches its original >=95% bound. Full October goal remains unestablished. P2@1 prospective; owner Leo; Oct 20-30.

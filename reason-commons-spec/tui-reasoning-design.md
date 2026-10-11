@@ -1,23 +1,22 @@
 # Reason Commons TUI and reasoning rendering contract
 
-The first usable Reason Commons interface is a persistent terminal workspace. It
-keeps the current decision, question and material context visible while people
-inspect and challenge reasoning. This contract supersedes the earlier proposal
-and command-driven default. The main spec, phases, manifest and acceptance features
-now include that decision.
-
-Read [the canonical Payments journey](example-tui-session.txt),
-[the smaller v1 journey](example-mvp-session.txt) and
-[the correction journey](example-review-session.txt). These are authored,
-fictional examples, not recordings of software. [TUI-DESIGN.md](../TUI-DESIGN.md) declares project
-archetypes, patterns, keyboard adaptations and visual direction.
+The accepted simplified app is v1. This cumulative rendering contract includes
+future p5–p7 representations as tagged in the feature files; its richer diagrams
+and position fields are not requirements to expand current v1. See [the matrix](../docs/v1-reconciliation.md)
+for dispositions and [the workspace reference](../docs/tui.md) for current layout.
+The three authored journeys illustrate logic: the small loop is v1, the Payments
+and correction journeys are future. Actual screenshots come from disposable
+application fixtures, with source-backed RC development as the primary example.
 
 ## Information in front of the user
 
 A settled screen MUST answer: where am I, what are we deciding, what should I
 attend to, what is uncertain, what can I do next, and has my contribution been
 saved? Show one recommended reasoning move with visible alternative routes.
-Destinations are Next, Backlog, Goal, Reasoning, Unlinked, Tests, Actions and History.
+V1 core destinations are Next step, Backlog, Goal, Trees, Your words and History.
+Tests, Loop actions, Reasoning and Commons context remain under Commands/Views
+and appear in the sidebar when relevant. Unlinked and richer causal controls
+are future.
 They are not stages. No tour, expert mode, assent, vocabulary lesson or prescribed
 answer can block browsing, correction, direct help or exit.
 
@@ -27,7 +26,8 @@ public rationale and a worked reading of the CURRENT fragment; Help explains
 controls. Neither silently requests a new explanation from the consultant.
 A requested new explanation is labeled asks consultant before activation.
 
-Pin save status, commons, declared actor, view and focused control in the header,
+Show goal name, declared actor and save status in the header; mark focus by its
+frame (in ordered text, name it in words),
 and a short goal/safeguard context band. Pin an active breach with bound and
 actual value in affected views; retain it as historical when a follow-up begins.
 Repeat scope, forecast, baseline and qualification beside the judgment they
@@ -47,9 +47,13 @@ consultant authors task and presentation references; the local renderer resolves
 them. Layout code cannot supply missing causes, warrants, discriminators,
 favorable predictions or human agreement.
 
-## The terminal is a canvas
+## Future richer canvases
 
-120×40 is the primary target. Use 12–16 columns for destinations and the remaining
+V1 uses readable outlines, a five-box Cloud, source details and forecast/result
+comparisons. The joint operators, position evidence and multiple-route canvases
+below belong to future p5–p7; drawing does not establish truth.
+
+120×40 is the primary target. The current sidebar uses 23 columns for destinations and the remaining
 width for reasoning. A right inspector fits only when decisive labels remain
 readable. S05A shows branch index, map and relationship evidence together; S05B works
 through release slack and later-release availability without inventing commons evidence. A
@@ -160,7 +164,7 @@ is an optional accelerator, never required.
 Esc leaves editor focus for browsing without losing text. Esc from inspection
 restores view, selection, scroll, actor-and-question-bound draft and caret. Switching speakers
 retains drafts with their original actor; another actor cannot submit them
-accidentally. Preferences do not change reasoning. Actions is visible and
+accidentally. Preferences do not change reasoning. Commands is visible and
 keyboard reachable; Ctrl+P accelerates it. Printable keys filter the palette;
 arrows select. Every important action has a path without syntax.
 

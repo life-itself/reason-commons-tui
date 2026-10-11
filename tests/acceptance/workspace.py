@@ -31,12 +31,14 @@ PROVIDER = "fixture"
 class Workspace:
     """The persistent workspace on a commons folder, with a counting fixture consultant."""
 
-    def __init__(self, path, consultant, size=(120, 40), speaker=SPEAKER):
+    def __init__(self, path, consultant, size=(120, 40), speaker=SPEAKER, provider=PROVIDER, factory=None,
+                 settings=None, tour=False, story=None):
         self.path, self.consultant, self.size = path, consultant, size
         # While a step holds a consultant reply back, key presses must not wait for it.
         self.wait_for_replies = True
-        self.app = ReasonCommonsApp(path, speaker, PROVIDER, lambda c: open_case(path, consultant=c),
-                                    lambda provider: consultant)
+        self.app = ReasonCommonsApp(path, speaker, provider, lambda c: open_case(path, consultant=c),
+                                    factory or (lambda provider: consultant), settings=settings,
+                                    tour=tour, story=story)
         self.loop = asyncio.new_event_loop()
         ready = self.loop.create_future()
         self.task = self.loop.create_task(self._main(ready))

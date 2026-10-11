@@ -141,8 +141,9 @@ and a consultant proposes additions when a reply describes causes, conflicts,
 obstacles or plans; the renderer never manufactures them from notes, and the
 `backlog` view lists what waits. Joint causes and rival
 explanations remain later work. The TUI is described in [tui.md](tui.md); the
-remaining p1/p2 release gates are separate work. This
-change delivers the conversation interface for the implemented commons semantics.
+semantic and participant evaluations are separate from v1 scope. The shared
+capability surface covers application semantics even when the default sidebar
+hides a supporting view; this contribution skill uses a deliberate subset.
 
 ## Installation and configuration
 

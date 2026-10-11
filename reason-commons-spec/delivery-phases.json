@@ -1,15 +1,15 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "phases": [
     {
       "id": "p0",
-      "name": "Durable minimal commons",
+      "name": "Durable attributed records",
       "release": "v1",
       "requires": []
     },
     {
       "id": "p1",
-      "name": "Persistent TUI workspace",
+      "name": "Proposals and acceptance",
       "release": "v1",
       "requires": [
         "p0"
@@ -17,7 +17,7 @@
     },
     {
       "id": "p2",
-      "name": "Goal action review",
+      "name": "Inspectable reasoning and history",
       "release": "v1",
       "requires": [
         "p1"
@@ -25,26 +25,42 @@
     },
     {
       "id": "p3",
-      "name": "Causal reasoning",
-      "release": "later",
+      "name": "Guided work and revision",
+      "release": "v1",
       "requires": [
         "p2"
       ]
     },
     {
       "id": "p4",
-      "name": "Facilitated group",
-      "release": "later",
+      "name": "Import prior work and continue",
+      "release": "v1",
       "requires": [
         "p3"
       ]
     },
     {
       "id": "p5",
-      "name": "Full Thinking Processes",
+      "name": "Richer causal tools",
       "release": "later",
       "requires": [
         "p4"
+      ]
+    },
+    {
+      "id": "p6",
+      "name": "Facilitated group positions",
+      "release": "later",
+      "requires": [
+        "p5"
+      ]
+    },
+    {
+      "id": "p7",
+      "name": "Full reasoning and implementation tools",
+      "release": "later",
+      "requires": [
+        "p6"
       ]
     }
   ],
@@ -62,6 +78,10 @@
     "S12",
     "S13",
     "S17",
+    "S23",
+    "S26",
+    "S28",
+    "S29",
     "S30",
     "S32",
     "S34",
@@ -135,7 +155,44 @@
     "S147",
     "S148",
     "S149",
-    "S150"
+    "S150",
+    "S151",
+    "S152",
+    "S153",
+    "S154",
+    "S155",
+    "S156",
+    "S157",
+    "S158",
+    "S159",
+    "S160",
+    "S161",
+    "S162",
+    "S163",
+    "S164",
+    "S165",
+    "S166",
+    "S167",
+    "S168",
+    "S169",
+    "S170",
+    "S171",
+    "S172",
+    "S173",
+    "S174",
+    "S175",
+    "S176",
+    "S177",
+    "S178",
+    "S179",
+    "S180",
+    "S181",
+    "S182",
+    "S183",
+    "S184",
+    "S185",
+    "S186",
+    "S187"
   ],
   "sessions": {
     "example-mvp-session.txt": {
@@ -143,21 +200,30 @@
       "calls": 6,
       "revisions": 9,
       "format": "tui",
-      "width": 80
+      "width": 80,
+      "release": "v1",
+      "increment": "p4",
+      "purpose": "authored interaction illustration; not an application recording"
     },
     "example-tui-session.txt": {
       "profile": "p5",
       "calls": 15,
       "revisions": 18,
       "format": "tui",
-      "width": 120
+      "width": 120,
+      "release": "later",
+      "increment": "p7",
+      "purpose": "authored interaction illustration; not an application recording"
     },
     "example-review-session.txt": {
       "profile": "p5",
       "calls": 3,
       "revisions": 3,
       "format": "tui",
-      "width": 120
+      "width": 120,
+      "release": "later",
+      "increment": "p7",
+      "purpose": "authored interaction illustration; not an application recording"
     }
   },
   "interface": {
@@ -213,5 +279,22 @@
       "R03",
       "R04"
     ]
-  }
+  },
+  "scenario_roots": [
+    {
+      "path": "features",
+      "runner": "tests.acceptance.runner:AcceptanceRunner"
+    },
+    {
+      "path": "../tests/conversation/features",
+      "runner": "tests.conversation.runner:ConversationRunner"
+    }
+  ],
+  "protocol_profiles": [
+    "p2",
+    "p3",
+    "p4",
+    "p5"
+  ],
+  "v1_exit": "p4"
 }

@@ -1,7 +1,7 @@
 @J03 @J15 @J16
 Feature: Make the interface legible and the consultant evaluable
 
-  @S49 @p1 @v1 @automated
+  @S49 @p3 @v1 @automated
   Scenario: Retain critical context on a narrow terminal
     Given the accessible ordered text presentation in a terminal 40 columns wide and 16 rows high
     When a test review is rendered
@@ -12,14 +12,14 @@ Feature: Make the interface legible and the consultant evaluable
     And additional content is explicitly paged
     And "NEXT", uncertainty, and control labels do not depend on color
 
-  @S50 @p3 @later @automated
+  @S50 @p5 @later @automated
   Scenario: Explain a graph through equivalent prose
     Given an AND relationship from N1 and N4 to N3
     When Sam activates Reasoning > Read as text
     Then the output says both conditions must hold in the hypothesis
     And the same identifiers, conditions, and epistemic statuses remain available
 
-  @S51 @p1 @v1 @automated
+  @S51 @p3 @v1 @automated
   Scenario: Preserve a multiline draft across navigation
     Given Sam is composing a multiline answer with an embedded command-looking line
     When Sam opens history and then returns to the editor
@@ -27,7 +27,7 @@ Feature: Make the interface legible and the consultant evaluable
     And its embedded line has not been executed as a command
     And submission invokes the consultant only once
 
-  @S52 @p2 @v1 @semantic
+  @S52 @p3 @v1 @semantic
   Scenario Outline: Evaluate realistic semantic input by invariants rather than exact prose
     Given a documented commons fixture and a live question
     When the participant submits "<input>"
@@ -45,7 +45,7 @@ Feature: Make the interface legible and the consultant evaluable
       | Sales is lazy and Production never listens         |
       | Five possible causes, two observations, one demand |
 
-  @S53 @p3 @later @automated
+  @S53 @p5 @later @automated
   Scenario: Measure useful progress without rewarding agreement
     Given a group corrects two causal links and completes a pilot review
     When the commons progress view is opened

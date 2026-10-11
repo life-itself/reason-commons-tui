@@ -1,11 +1,12 @@
 REASON COMMONS / FIRST-RELEASE TUI JOURNEY
-Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
+V1 interaction illustration; legacy protocol profile: p2. Not a runtime
+capture.
 Fictional Forge commons; an authored specimen, not a recording of the
 application. Frames are 80x24. V1 has no structured graph browser, participant
 stance registry or formal tree authoring. Its persistent workspace, literal
 response editor, visible local controls, proposals that wait for the operator
-and forecast/result comparison ARE required from p1-p2. No typed commands are
-needed inside this session.
+and forecast/result comparison are in v1 (p0-p4). Actual screenshots show
+current layout. No typed commands are needed inside this session.
 $ reason-commons new forge --store ./forge-v1 --speaker Sam
 EVENT start r0000
 
@@ -30,9 +31,9 @@ SCREEN M01 80x24
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
 |                                                                              |
-| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Commands]                   |
 +------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands            |
 +------------------------------------------------------------------------------+
 
 ACTION: Sam enters: Goal: >=90% of October due orders on time, original
@@ -62,9 +63,9 @@ SCREEN M02 80x24
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
 |                                                                              |
-| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Commands]                   |
 +------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands            |
 +------------------------------------------------------------------------------+
 
 ACTION: Sam Tabs to Accept all and presses Enter. The goal with its baseline
@@ -96,9 +97,9 @@ SCREEN M02A 80x24
 | Live: Choose a test | Draft retained                                         |
 | 5 requests?                                                                  |
 |                                                                              |
-| [Return to question]  [Help]  [Views]  [Actions]                             |
+| [Return to question]  [Help]  [Views]  [Commands]                            |
 +------------------------------------------------------------------------------+
-| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions   |
+| Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands  |
 +------------------------------------------------------------------------------+
 
 ACTION: Sam activates the selected Understand why this question item. The
@@ -136,15 +137,15 @@ SCREEN M03 80x24
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
 |                                                                              |
-| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Commands]                   |
 +------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands            |
 +------------------------------------------------------------------------------+
 
 ACTION: Sam activates Accept all. P1@1 and its action enter the model; one
 local revision, no call.
 EVENT local r0004 target=P1@1,A1@1 dimension=membership value=accepted actor=Sam
-ACTION: Sam opens Actions > Accept proposals automatically and confirms. From
+ACTION: Sam opens Commands > Accept proposals automatically and confirms. From
 now on a reply's ready proposals enter the model with the reply, recorded as
 accepted under Sam's setting, and each can be undone from History. Proposals
 already waiting would keep waiting; none are. No call.
@@ -174,13 +175,13 @@ SCREEN M04 80x24
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
 |                                                                              |
-| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Commands]                   |
 +------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands            |
 +------------------------------------------------------------------------------+
 
-ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save
-and quit. Local export and cursor save, no call.
+ACTION: Commands > Export > ./forge-v1-before-review.reasoncase. Commands >
+Save and quit. Local export and cursor save, no call.
 $ reason-commons resume ./forge-v1
 M04 is restored at r0006 with Observe the result as the current question.
 Goal, safeguards and P1 remain pinned; preparation state still unobserved. No
@@ -213,9 +214,9 @@ SCREEN M05 80x24
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
 |                                                                              |
-| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Commands]                   |
 +------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands            |
 +------------------------------------------------------------------------------+
 
 ACTION: Sam answers: They waited for supplier dates. The owner thought the
@@ -244,9 +245,9 @@ SCREEN M06 80x24
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
 |                                                                              |
-| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Commands]                   |
 +------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands            |
 +------------------------------------------------------------------------------+
 
 ACTION: Sam answers: I will run the follow-up Oct 20-30; review Oct 30.
@@ -278,13 +279,13 @@ SCREEN M07 80x24
 | Response | Send asks consultant; Enter adds a line.                          |
 | _                                                                            |
 |                                                                              |
-| [Send]  [Explain this]  [Other moves]  [Views]  [Actions]                    |
+| [Send]  [Explain this]  [Other moves]  [Views]  [Commands]                   |
 +------------------------------------------------------------------------------+
-| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions             |
+| Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands            |
 +------------------------------------------------------------------------------+
 
-ACTION: Actions > Export portable commons > ./forge-v1-after-
-review.reasoncase; Actions > Save and quit. No call.
+ACTION: Commands > Export portable commons > ./forge-v1-after-
+review.reasoncase; Commands > Save and quit. No call.
 CONSULTANT CALLS 6: in001 through in006.
 9 reasoning revisions = 6 semantic commits + 3 structured local decisions.
 

@@ -1,5 +1,12 @@
 # TUI UX plan: one constraint, four small PRs
 
+> Historical design reviews and superseded proposals. The dated sections keep their
+> original phase vocabulary and findings; they are not current delivery scope.
+> The accepted v1 interface and future backlog are in [TUI-DESIGN.md](TUI-DESIGN.md)
+> and [the reconciliation matrix](docs/v1-reconciliation.md). In particular, the
+> early Heard/ratification proposal is superseded by explicit/automatic membership
+> acceptance; the accepted opening recommends a concrete RC development move.
+
 Status: Steps 1–4 and the automated part of Step 6 are implemented, one commit
 each, plus regenerated screenshots. Step 5 is deliberately deferred until
 participants show the need, and the S73 participant check has not been run.

@@ -1,81 +1,64 @@
 # Reason Commons specification bundle
 
-Reason Commons is a persistent terminal reasoning workspace from its first usable
-release; its executable is `reason-commons`. This folder holds the product
-specification and authored specimens. The application elsewhere in this
-repository implements part of it; [the delivery report](../docs/p0-delivery.md)
-says which scenarios run today.
+The accepted simplified app is **v1**. Scenario-local tags describe its scope and
+an editorial dependency progression, plus a findable future backlog. This is a
+plausible development argument, not an authenticated historical release sequence.
+See [the reconciliation matrix](../docs/v1-reconciliation.md),
+[the current delivery report](../docs/v1-delivery.md) and
+[the delivery contract](delivery-phases.md).
 
-Start with [the v1 TUI journey](example-mvp-session.txt) for the release target,
-or [the complete visual reasoning journey](example-tui-session.txt) for the
-cumulative roadmap. Read [the main specification](reason-commons-specification.md),
-[TUI-DESIGN.md](../TUI-DESIGN.md) and
-[the rendering contract](tui-reasoning-design.md) before implementation.
+The product helps people find useful next actions while reducing analysis and
+record keeping. People supply values and real-world knowledge. RC includes its
+own AI cost, human attention and accumulated reasoning in that assessment.
+A complete tree or trial is never required merely to continue a conversation.
 
-The Payments journey follows goal definition, causal scrutiny, a scoped conflict,
-beneficial/adverse forecasts, preparation, a bounded test, a breached safeguard
-and a revised follow-up. The 120x40 canvas makes room for readable boxes, complete
-ALL boundaries, both Cloud sides and selected-object evidence. The 80x24 and
-40x24 views preserve the same logic. Every scene replaces the prior scene in one
-persistent application; ACTION annotations describe keys and contributions.
+Both `features/` and `tests/conversation/features/` carry stable scenario identities,
+release, increment and evaluation tags. The manifest declares their runners.
+`@v1` means accepted baseline scope; `@automated` selects deterministic execution.
+`@semantic` and `@usability` evaluate existing capabilities without implying that
+their evidence is complete. `@later` retains unimplemented richer requirements.
 
-V1 ships p0-p2: a durable commons, persistent workspace and a complete goal/action/
-review loop for one operator, with the six trees growing in its conversation.
-The consultant drafts and the operator decides what enters the model: proposals
-wait in a backlog unless the operator chose automatic acceptance, a change flags
-what cites it for review, and any acceptance can be undone.
-The trees' formal checks and group positions arrive later.
-The shell launches/resumes and provides offline utilities. The
-[accessible ordered presentation](accessibility.md) shares the same labeled
-actions, literal editor, selection and deliberate submission. No interactive
-command language or alternate shell conversation defines ordinary work.
-Users work with questions, reports, relationships, goals, tests, actions and
-reviews. Internal consultant records do not become numbered stationery objects.
-
-- 17 jobs to be done with observable signals and traceability.
-- 13 `.feature` files: 150 named scenarios/outlines, expanding to 186 cases.
-- V1: 87 scenarios and 115 expanded cases across p0-p2.
-- Later p3-p5: 63 scenarios and 71 expanded cases.
-- 38 ASCII screens across three synchronized TUI specimens.
-- `example-mvp-session.txt`: v1, 6 consultant calls and 9 revisions, 80x24;
-  embedded first in specification section 8.
-- `example-tui-session.txt`: cumulative p5, 15 calls and 18 revisions;
-  the canonical full journey in section 9.
-- `example-review-session.txt`: p5 correction/review, 3 calls and 3 revisions;
-  before/after formulations and dependent reviews in section 10.
-- `build_tui_specimens.py`: deterministic screen authoring helper; not a runnable
-  TUI or a causal layout engine.
-- `delivery-phases.json`: phase dependencies, v1 IDs, actual screen identities,
-  interface policy and session ledgers.
-- `check_bundle.py`: validates/synchronizes artifacts and rejects reintroduced
-  legacy branding, stationery labels, command routing and numbered UI exchanges.
-
-## Development sequence
+- 17 `.feature` files: 187 named scenarios/outlines, expanding to 229 cases.
+- V1: 128 scenarios and 162 expanded cases.
+- Future: 59 scenarios and 67 expanded cases.
+- 38 ASCII screens across three synchronized authored illustrations.
 
 | Phase | Increment | Scenarios | Expanded cases |
 |---|---|---:|---:|
-| p0 | Durable minimal commons | 9 | 9 |
-| p1 | Persistent TUI workspace | 32 | 47 |
-| p2 | Complete v1 goal-action-review loop, trees in conversation, proposals decided in a backlog | 46 | 59 |
-| p3 | Partial causal reasoning | 29 | 31 |
-| p4 | Facilitated positions and Cloud | 16 | 16 |
-| p5 | Full tools and cross-tool review | 18 | 24 |
+| p0 | Durable attributed records | 9 | 9 |
+| p1 | Proposals and acceptance | 10 | 10 |
+| p2 | Inspectable reasoning and history | 12 | 17 |
+| p3 | Guided work and revision | 63 | 86 |
+| p4 | Import prior work and continue | 34 | 40 |
+| p5 | Richer causal tools | 28 | 30 |
+| p6 | Facilitated group positions | 13 | 13 |
+| p7 | Full reasoning and implementation tools | 18 | 24 |
 
-Scenario-local tags select acceptance sets, not mandatory runtime stages.
-[Delivery gates](delivery-phases.md) require actual terminal, semantic and
-participant evaluation. Build cumulatively; ship v1 after p2.
+`p0`–`p4` culminate in v1; `p5`–`p7` describe future increments. These are delivery
+labels. Serialized `delivery_profile: "p2"` remains the compatible v1 wire/archive
+profile; it is not renamed when increments change.
+
+`example-mvp-session.txt` illustrates a fictional v1 test loop (six authored
+consultations, nine revisions); it abstracts layout and is not a runtime capture.
+`example-tui-session.txt` and `example-review-session.txt` are explicitly future
+p7 illustrations of richer logic and group positions. Their legacy profiles
+remain p5. Actual v1 screenshots are generated from disposable application
+fixtures, with [RC-on-RC](../docs/restoration/working-import.md) the primary example.
+The Second Renaissance example is a separate editorial source-based illustration;
+its drafted interpretations do not establish participant adoption or trial success.
 
 ```sh
-python3 reason-commons-spec/build_tui_specimens.py
-python3 reason-commons-spec/check_bundle.py --sync
-python3 reason-commons-spec/check_bundle.py --select v1 --list
-python3 reason-commons-spec/check_bundle.py --select through-p4 --list
-python3 -m unittest discover -s reason-commons-spec -p 'test_*.py'
+.venv/bin/python reason-commons-spec/build_tui_specimens.py
+.venv/bin/python reason-commons-spec/check_bundle.py --sync
+.venv/bin/python reason-commons-spec/check_bundle.py --select v1 --list
+.venv/bin/python reason-commons-spec/check_bundle.py --select later --list
+.venv/bin/python reason-commons-spec/check_bundle.py --select through-p5 --list
+.venv/bin/python scripts/check_v1.py
 ```
 
-Edit the builder's authored copy, rebuild specimens, then synchronize the spec.
-Features and supporting contracts are edited directly. The checker verifies
-geometry, ASCII, exact screen identities, event/call/revision ledgers, tags,
-profiles, outline rows, traceability, envelopes and embedded copies. Its regression
-tests exercise document safeguards. They do not run application behavior, prove
-consulting quality or establish accessibility, learnability or lovability.
+The checker verifies scope, counts, traceability, ASCII geometry, screen identities,
+legacy profiles, authored ledgers and synchronized copies. The gate executes every
+selected automated identity and expanded row through the appropriate boundary.
+Neither establishes useful live consulting, participant usability or accessibility.
+Edit the specimen builder, rebuild, then synchronize embedded copies. Features and
+supporting contracts are edited directly with specification authorization.

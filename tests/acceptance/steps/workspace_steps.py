@@ -124,9 +124,9 @@ def activate(context, control):
     """Reach a visible control with Tab and activate it with Enter; 'A > B' then chooses B inside A."""
     w = context.workspace
     first, _, second = (part.strip() for part in control.partition(">"))
-    # The specification calls the list of every action "Actions"; on screen it is Commands, in the footer,
+    # The specification calls the list of every action "Commands"; on screen it is Commands, in the footer,
     # and Help is in the footer too. Both are reached with Tab and Enter like the buttons.
-    buttons = {"Other moves": "moves", "Explain this": "explain", "Help": "help", "Actions": "commands",
+    buttons = {"Other moves": "moves", "Explain this": "explain", "Help": "help", "Commands": "commands",
                "Send": "send", "Retry": "retry"}
     if first in buttons:
         w.tab_to(buttons[first])
@@ -137,7 +137,7 @@ def activate(context, control):
         return
     if first == "History":
         choose_in_list(context, "timeline", second)
-    elif first == "Actions":
+    elif first == "Commands":
         w.type(second)
         w.press("enter")
     else:
@@ -385,9 +385,9 @@ def default_tui(context):
     focus_editor(context)
 
 
-@when("the operator reaches Actions or Help using Tab and Enter")
+@when("the operator reaches Commands or Help using Tab and Enter")
 def reach_actions(context):
-    activate(context, "Actions")
+    activate(context, "Commands")
 
     context.entries = menu_labels(context)
 
@@ -869,7 +869,7 @@ def diagnostics_on_stderr(context):
 
 
 # ----- S110: an option from a later delivery profile ---------------------------------------
-@given("a v1 semantic response contains an option opening a Cloud view")
+@given("a v1 semantic response contains an option opening a future structured Cloud view")
 def cloud_option(context):
     def reply(request):
         from tests.support import proposal
@@ -927,12 +927,12 @@ def menu_state(context):
     return context.workspace.read(read)
 
 
-@given("Actions filter owns focus")
+@given("Commands filter owns focus")
 def actions_filter(context):
     focus_editor(context)
     context.workspace.type("Freeze the plan")
     context.draft_before = draft(context)
-    activate(context, "Actions")
+    activate(context, "Commands")
     assert menu_state(context)["focus"] == "filter"
 
 
@@ -1152,7 +1152,7 @@ def later_profile_notice(context):
     assert f"“{context.action}” belongs to a later delivery profile" in text, text[:800]
 
 
-@then("Help, navigation and Actions omit it as an available operation")
+@then("Help, navigation and Commands omit it as an available operation")
 def omitted(context):
     from reason_commons.adapters.tui import HELP
     assert context.action not in "\n".join(menu_labels(context))

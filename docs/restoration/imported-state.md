@@ -1,5 +1,12 @@
 # Reason Commons at the import boundary
 
+> Earlier restoration analysis, superseded by [working-import.md](working-import.md).
+> The proposed opening “Which decision … do you need to move forward now?” below
+> was rejected: discovering the useful next move is RC’s work. The accepted import
+> preserves the development argument in the model and recommends tracing the
+> manual-recording constraint through the implemented interface. Earlier audit
+> findings remain evidence about the old ledger, not authority for a new opening.
+
 This is the reconstruction target for `codex/restore-dogfood-import`. It answers
 the current request: determine what the system contains when the previous RC
 work has been imported and verified, ready to continue. It is a design and source

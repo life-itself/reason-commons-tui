@@ -13,6 +13,12 @@ movement, analysed from its own documents in the
 Labels in the pictures are shortened; the guide has the full wording, evidence and
 open questions for every box.
 
+The diagrams are explanatory illustrations; source words and an editor's model
+are distinct. They do not establish participant agreement, implementation or
+measured benefit. V1 records partial trees and single links; richer joint-premise,
+position and criteria checks remain [future work](v1-reconciliation.md#future-backlog).
+The primary editable v1 example is [RC developing RC](restoration/working-import.md).
+
 > **In the app.** The app draws these six trees in its Trees view: press **Ctrl+T**.
 > See [seeing the trees in the app](#seeing-the-trees-in-the-app) for how, and why
 > it helps.
@@ -126,7 +132,7 @@ works, and the objective it serves. Read it left to right.
 
 In the example, the first action is one time-boxed, stewarded review of the goal,
 the symptoms and the likely constraint. It is still the next action in the app's
-**Explore a real commons**; the third, a clear next step from an open evening to a
+**F1 Help → Explore an editorial example: Second Renaissance**; the third, a clear next step from an open evening to a
 first practice, is the test the [tutorial](tutorial.md) runs.
 
 ![Transition Tree for the Second Renaissance](images/trees/transition-tree.svg)
@@ -140,9 +146,9 @@ the same six trees as indented outlines, from what you accept of what the consul
 proposes as you talk, or of an `.ltp.yaml` file you bring in. Your goal is the Goal
 Tree's top statement, and a link may use a statement from another tree (a Future
 Reality link from the Cloud's change, say), which is drawn there too, marked with its
-own tree. The real commons on the
-home screen (**Explore a real commons**) carries this whole analysis and how it grew,
-so it is the easiest place to start.
+own tree. The separate editorial example on the
+home screen (**F1 Help → Explore an editorial example: Second Renaissance**) carries this whole analysis and how it grew,
+for read-only inspection. Continue Reason Commons is the primary editable example.
 
 **Why open them while you work.** The trees keep the whole in view while you answer
 one small question. Each branch shows the assumption it rests on, which is exactly

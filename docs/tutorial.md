@@ -7,8 +7,7 @@ test itself runs in your real life for as long as you choose. You need nothing b
 Reason Commons itself ([install it](../README.md#quick-start)); the built-in guide works
 offline.
 
-Prefer to learn inside the app? Choose **Take the guided tour** on the first
-screen or the home screen. It is this tutorial as a practice goal: a coaching
+Prefer to learn inside the app? open **F1 Help** on the first screen or home screen and choose **Practice with the guided tour**. It is this tutorial as a practice goal: a coaching
 strip explains each step, **Example answer** fills in Mira's words, and nothing is
 kept.
 
@@ -75,7 +74,8 @@ Mira picks:
 Then the most important question: **what do you expect to happen?** The guide
 repeats the change you just wrote, so you forecast exactly that. Write it down now,
 with a number if you can. This original forecast is saved before any result
-exists, and it never changes.
+exists, and its earlier versions remain in History. You can amend it before the first
+result enters the model; after that it is fixed.
 
 ![The guide repeats the change Mira chose and asks for a forecast, with the goal's measure underneath; Goal is ticked and Test + forecast is current](images/tutorial-forecast.png)
 
@@ -122,14 +122,15 @@ forecast and result side by side:
 
 ![The Tests view shows the forecast, 6 of 30 newcomers, next to the result, 9 of 31](images/forecast-vs-result.png)
 
-## 7. See a real commons, and where a test like Mira's sits
+## 7. Read an editorial example, and where a test like Mira's sits
 
-Mira is invented; the analysis her action comes from is not. On the home screen,
-choose **Explore a real commons**. It opens the Second Renaissance's shared
-reasoning as it stands now, read-only, with the one action it says comes next: a
+Mira and her outcomes are fictional. The Second Renaissance example combines
+retained attributed sources with an editor's interpretations; it does not certify
+that participants adopted those interpretations. From the home screen, open
+**F1 Help** and choose **Explore an editorial example: Second Renaissance**. It opens read-only, with the one action it says comes next: a
 time-boxed, stewarded review of the trees.
 
-![The real commons opens on its next action, with a strip below for stepping back through how it got here](images/story-now.png)
+![The editorial example opens on its next action, with a strip below for stepping back through how it got here](images/story-now.png)
 
 Press **←** (or **◀ Earlier**) to step back through how it got here, one saved step
 at a time: David's first goal tree on the forum, Robert's objections, the move to
@@ -165,9 +166,10 @@ Press **Ctrl+T** again to go back to the question.
 
 A goal with a measure and safeguards, a test whose forecast you could not quietly
 rewrite, an honest observation and a decision you can explain. The guide now asks
-for the next small change, so the next loop starts from what you learned. For
-Mira's group, the result is also evidence for the trees: it supports the Current
-Reality Tree's guess that the missing next step was a real cause.
+for the next small change, so the next loop starts from what you learned. In this fictional example, the reported outcome can inform the causal hypothesis;
+it does not establish a unique cause or an actual result for the movement.
+For continued RC development, choose **Continue Reason Commons** on home instead
+and follow [the imported argument](restoration/working-import.md).
 
 Next: read [the loop, explained](the-loop.md) to see why each step is there, or
 [use Claude](use-a-model.md) for a consultant that adapts its questions and can

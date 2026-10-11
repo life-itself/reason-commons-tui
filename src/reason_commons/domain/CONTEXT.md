@@ -38,6 +38,11 @@ that contract onto executable code; it does not change acceptance scope.
 | Attempt | A provider/recovery receipt, separate from reasoning history. |
 | Cursor | Presentation state and draft, separate from reasoning. Navigation cannot commit reasoning. |
 
+V1 is the accepted simplified application; delivery increments are editorial scope
+metadata. The compatible serialized profile remains `p2`. The imported RC
+development narrative distinguishes retained source words, AI interpretation and
+actual adoption; acceptance certifies neither the story nor historical events.
+
 `model.py` owns the closed v1 schema, exact-reference validation, explicit-input
 authority, append-only records and decisions, and the response-target rule.
 `membership.py` derives what is in the model, what waits, readiness, the

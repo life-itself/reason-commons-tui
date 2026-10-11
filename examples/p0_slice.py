@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Offline executable p0 demonstration with authored consultant proposals."""
+"""Legacy-named deterministic engine example; a subset of accepted v1, not a release gate.
+
+Offline executable p0 demonstration with authored consultant proposals."""
 
 import argparse
 import json

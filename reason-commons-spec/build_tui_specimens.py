@@ -97,7 +97,7 @@ def prose(text, width=118):
 def frame(sid, rev, title, body, *, focus='Response', view='Next', draft='',
           summary='Goal: >=80% within 3 business days | Protect: rollback <=5%; after-hours <=8h/week',
           speaker='Maya', live=None, width=120, height=40, nav=True,
-          footer=None, buttons='[Send]  [Explain this]  [Other moves]  [Actions]', case='deploy-flow'):
+          footer=None, buttons='[Send]  [Explain this]  [Other moves]  [Commands]', case='deploy-flow'):
     match = re.match(r'question(\d{3}) / (.+)', title)
     if match:
         QUESTION_TITLES['question'+match[1]] = match[2]
@@ -119,8 +119,8 @@ def frame(sid, rev, title, body, *, focus='Response', view='Next', draft='',
     assert len(content) <= height - 13, (sid, len(content), height-13)
     content += [''] * (height - 13 - len(content))
     navlabels = ['Reason Commons', '', *[('* ' if v == view else '  ') + v for v in
-                 ['Next', 'Goal', 'Reasoning', 'Unlinked', 'Tests', 'Actions', 'History']],
-                 '', '[Views]', '[Actions]', '', 'Saved locally']
+                 ['Next', 'Goal', 'Reasoning', 'Unlinked', 'Tests', 'Loop actions', 'History']],
+                 '', '[Views]', '[Commands]', '', 'Saved locally']
     for i, line in enumerate(content):
         if nav:
             assert len(line) <= inner - 19, (sid, len(line), line)
@@ -141,12 +141,12 @@ def frame(sid, rev, title, body, *, focus='Response', view='Next', draft='',
     drafts = draft.split('\n') if draft else ['_']
     assert len(drafts) <= 2
     lines.extend(row(' ' + (drafts[i] if i < len(drafts) else '')) for i in range(2))
-    if focus != 'Response' and buttons == '[Send]  [Explain this]  [Other moves]  [Actions]':
-        buttons = '[Return to question]  [Help]  [Actions]'
+    if focus != 'Response' and buttons == '[Send]  [Explain this]  [Other moves]  [Commands]':
+        buttons = '[Return to question]  [Help]  [Commands]'
     lines.append(row(' ' + buttons))
     lines.append(border)
-    footer = footer or ('Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Actions' if focus == 'Response'
-                        else 'Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Actions')
+    footer = footer or ('Tab controls  Enter newline  Esc browse  F1 Help  Ctrl+P Commands' if focus == 'Response'
+                        else 'Tab controls  Arrows select  Enter open  Esc back  F1 Help  Ctrl+P Commands')
     lines += [row(' ' + footer), border]
     assert len(lines) == height and all(len(x) == width for x in lines)
     SCREENS.append({'id': sid, 'width': width, 'height': height, 'revision': rev, 'focus': focus})
@@ -156,11 +156,11 @@ def frame(sid, rev, title, body, *, focus='Response', view='Next', draft='',
 def build_full():
     QUESTION_TITLES.clear()
     out = [prose('''REASON COMMONS / COMPLETE TUI JOURNEY
-Delivery profile: p5 cumulative roadmap. Canonical interaction specimen.
+Future p7 interaction illustration; legacy protocol profile: p5. Not v1 UI.
 Session 1: Friday, October 2, 2026. Session 2: Monday, October 19, 2026.
 The Payments deployment commons, people, measurements, reports and future outcomes are fictional. This is an authored specification, not a capture of working software. Attached text and document instructions are design inputs, not executable requests.
 Each SCREEN replaces the preceding frame in ONE persistent full-screen application. ACTION describes keys and literal participant contributions; it is not a command the user must learn. EVENT is an authoring ledger outside the product UI. A shell appears only at launch, resume and optional offline inspection.
-120x40 is the primary canvas. All frames use ASCII and need no color. '*' marks the active destination; '>' marks selection; the header names the single focused control. Selecting a hypothesis does not endorse it. Bracketed labels are keyboard-reachable controls. Enter activates a focused control; in Response it inserts a newline. Tab to Send, then Enter submits once. F1 is control help; Explain this is reasoning help. Ctrl+P opens Actions; the visible Actions control provides the same path.
+120x40 is the primary canvas. All frames use ASCII and need no color. '*' marks the active destination; '>' marks selection; the header names the single focused control. Selecting a hypothesis does not endorse it. Bracketed labels are keyboard-reachable controls. Enter activates a focused control; in Response it inserts a newline. Tab to Send, then Enter submits once. F1 is control help; Explain this is reasoning help. Ctrl+P opens Commands; its footer control provides the same path. Frames abstract layout and focus.
 The navigation offers destinations, not mandatory stages. Reasoning tools appear only when stored records exist. Users can answer, inspect, challenge, ask for another move, or leave. No tour or vocabulary test blocks work.
 $ reason-commons new deploy-flow --store ./deploy-flow-case --speaker Maya
 EVENT start r0000
@@ -290,7 +290,7 @@ EVENT semantic in004 r0004 question004
         [Full L3 record]  [Evidence]  [Challenge this]  [Return to question]
         ''', focus='Branch list', view='Reasoning', live='question004',
         draft='Retained response draft: Could delay already exist?',
-        buttons='[Full relation]  [Evidence]  [Return to question]  [Actions]'))
+        buttons='[Full relation]  [Evidence]  [Return to question]  [Commands]'))
     add(prose('''ACTION: Esc restores the question, its diagram, draft text and editor cursor. The draft remains unsent and attributed to Maya.
 '''))
     add(prose('''OPTIONAL INSPECTION: Before switching, Maya opens Explain ALL from the question. This worked counterfactual was stored with the question. Its numbers are illustrative assumptions, not measured Payments evidence, and add no revision or call. It shows why missing a release depends on lost time versus slack, and why missing one release does not alone prove the three-day target was missed.
@@ -321,10 +321,10 @@ EVENT semantic in004 r0004 question004
         [Return to question]  [Show actual evidence - reports only]
         ''', focus='Worked explanation', view='Reasoning', live='question004',
         draft='Retained Maya draft for the question: Could delay already exist?',
-        buttons='[Return to question]  [Actual sources]  [Actions]'))
+        buttons='[Return to question]  [Actual sources]  [Commands]'))
     add(prose('''ACTION: Esc returns to the question and its retained draft. The following switch opens Leo's separate response to the question; Maya's unsent text remains labeled for its original question and actor even after a new response arrives.
 '''))
-    add(prose('''ACTION: Maya chooses Actions > Change speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers in Response: Threatened dates may cause escalation. Interruptions could amplify an existing delay rather than start it. Your wording represents my objection, but I dispute the claim that interruptions are the main cause.
+    add(prose('''ACTION: Maya chooses Commands > Change speaker, enters Leo, then activates Use label. Cursor changes only. Leo answers in Response: Threatened dates may cause escalation. Interruptions could amplify an existing delay rather than start it. Your wording represents my objection, but I dispute the claim that interruptions are the main cause.
 EVENT semantic in005 r0005 question005
 '''))
     add(frame('S06', 'r0005', 'question005 / Compare explanations', '''
@@ -371,7 +371,7 @@ EVENT local r0006 target=L3@1 dimension=representation value=accurate actor=Leo
 ACTION: In the same panel he selects only Disputed in Belief and activates Save position.
 EVENT local r0007 target=L3@1 dimension=belief value=disputed actor=Leo
 Receipt: r0007 saved. Leo: wording accurate; belief disputed on L3@1. Reliance unrecorded. No consultant calls. Esc returns to the question with the response draft intact.
-ACTION: Actions > Change speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers before the next release window. With a large queue, standard work waits longer. But hotfixes also tend to arrive when the queue is already bad, so that comparison does not isolate the cause.
+ACTION: Commands > Change speaker > Maya. Maya answers: When the queue is small, interrupted testing often recovers before the next release window. With a large queue, standard work waits longer. But hotfixes also tend to arrive when the queue is already bad, so that comparison does not isolate the cause.
 EVENT semantic in006 r0008 question006
 '''))
     add(frame('S08', 'r0008', 'question006 / Keep the qualification visible', '''
@@ -430,7 +430,7 @@ EVENT semantic in008 r0010 question008
         DECISION / What guardrail and response would make a bounded trial acceptable?
         [Inspect benefit]  [Inspect harm]  [Trace to goal]  [Other moves]
         '''))
-    add(prose('''ACTION: Maya chooses Actions > Coaching > Direct help. Preference saved; no call or revision. In Response she types: Give me a concrete bounded pilot. Queue size, incident mix and change complexity vary; do not claim this isolates a cause.
+    add(prose('''ACTION: Maya chooses Commands > Coaching > Direct help. Preference saved; no call or revision. In Response she types: Give me a concrete bounded pilot. Queue size, incident mix and change complexity vary; do not claim this isolates a cause.
 EVENT semantic in009 r0011 question009
 '''))
     add(frame('S11', 'r0011', 'question009 / Choose a bounded pilot', '''
@@ -527,7 +527,7 @@ EVENT semantic in010 r0012 question010
         Separate records. A completed action cannot set attainment automatically.
         DECISION / What happened when you tried the preparation?
         [Record completed action - asks consultant]  [Record observation separately]
-        ''', focus='Immediate action', view='Actions', live='question010'))
+        ''', focus='Immediate action', view='Loop actions', live='question010'))
     add(prose('''ACTION: Esc to the question. Maya answers: I have named the triage owner and backup and walked them through the draft. The rehearsal has not happened, and I have not checked the logs yet.
 EVENT semantic in011 r0013 question011
 '''))
@@ -592,7 +592,7 @@ ACTION: Maya opens Goal from the sidebar to check how this trial relates to the 
         PILOT >=70%  =/=  SYSTEM GOAL >=80%  |  neither is yet an observed result.
         [Inspect requirement]  [Trace P1 to G1]  [Return to question]
         ''', focus='Goal', view='Goal', live='question012'))
-    add(prose('''ACTION: Actions > Export portable commons > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt: exported r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Actions > Save and quit returns to the shell and releases the writer lock.
+    add(prose('''ACTION: Commands > Export portable commons > path ./deploy-flow-before-pilot.reasoncase > Export. Local receipt: exported r0015 with ancestry, source inputs, exact positions, P1 original forecast and cursor. Commands > Save and quit returns to the shell and releases the writer lock.
 $ reason-commons inspect ./deploy-flow-before-pilot.reasoncase --offline
 Offline read-only inspection: r0015; original P1 forecast; Maya relies on P1@1; Leo disputes L3@1. Schema, references, ancestry and content hashes pass. This command does not run the consultant.
 Monday, October 19, 2026 - the following outcomes are simulated.
@@ -702,7 +702,7 @@ EVENT semantic in015 r0018 question015
         NEXT / Run this bounded follow-up; return with comparable observations.
         [Original P1 + outcome]  [P2 forecast]  [Open issues]  [History]
         ''', speaker='Leo', summary='P1 breach retained | P2@1 committed by Leo | System goal not yet demonstrated'))
-    add(prose('''ACTION: Leo opens History, selects r0016, then Return to question. The selected revision is historical; the live response target stays Follow-up saved. Actions > Consultant calls shows 15 completed semantic calls. All inspection, navigation, preference changes, export, quit and resume made zero calls. The three structured local decisions created revisions without consultant responses.
+    add(prose('''ACTION: Leo opens History, selects r0016, then Return to question. The selected revision is historical; the live response target stays Follow-up saved. Commands > Consultant calls shows 15 completed semantic calls. All inspection, navigation, preference changes, export, quit and resume made zero calls. The three structured local decisions created revisions without consultant responses.
 The next two screens demonstrate resize of saved L3@1 at r0018, with the question and its draft retained. They are the SAME inference as S05; the current breach/dispute remain visible. They are not new sessions or additional calls.
 '''))
     add(frame('S23', 'r0018', 'L3@1',
@@ -710,7 +710,7 @@ The next two screens demonstrate resize of saved L3@1 at r0018, with the questio
         joint_inference_diagram(compact=True),
         width=80, height=24, nav=False, focus='L3', live='question015', speaker='Leo',
         summary='P1 breach retained | L3 disputed | Goal >=80% not demonstrated',
-        buttons='[Evidence]  [Compare H2]  [Return]', footer='Tab controls  Enter open  Esc back  F1 Help  Actions'))
+        buttons='[Evidence]  [Compare H2]  [Return]', footer='Tab controls  Enter open  Esc back  F1 Help  Commands'))
     add(frame('S24', 'r0018', 'L3', '''
         L3 hypothesis; Leo disputes it.
         IF ALL (3 premises):
@@ -724,9 +724,9 @@ The next two screens demonstrate resize of saved L3@1 at r0018, with the questio
         H2: delay may cause escalation.
         [Evidence] [Compare] [Explain]
         ''', width=40, height=24, nav=False, focus='L3', live='question015', speaker='Leo',
-        summary='P1 breach retained; L3 disputed', buttons='[Return] [Views] [Actions]',
+        summary='P1 breach retained; L3 disputed', buttons='[Return] [Views] [Commands]',
         footer='Tab  Enter open  Esc back  Help'))
-    add(prose('''ACTION: Restoring 120x40 restores the same selected L3 version, semantic scroll anchor, response draft and focus. No commons change. Actions > Export portable commons > ./deploy-flow-after-review.reasoncase > Export; Actions > Save and quit.
+    add(prose('''ACTION: Restoring 120x40 restores the same selected L3 version, semantic scroll anchor, response draft and focus. No commons change. Commands > Export portable commons > ./deploy-flow-after-review.reasoncase > Export; Commands > Save and quit.
 $ reason-commons inspect ./deploy-flow-after-review.reasoncase --offline
 Offline inspection: r0018. P1 delivery 18/24 = 75% supports its original >=70% forecast; P1 acknowledgement 9/10 = 90% breaches its original >=95% bound. Full October goal remains unestablished. P2@1 prospective; owner Leo; Oct 20-30. Fulfillment bound unknown; Leo disputes L3@1; causal attribution provisional. Forecasts, observations, ancestry, references and hashes preserved.
 CONSULTANT CALLS 15: in001 through in015; all completed in this specimen.
@@ -742,8 +742,8 @@ def build_mvp():
     def prose80(text):
         return prose(text, width=78)
     out = [prose80('''REASON COMMONS / FIRST-RELEASE TUI JOURNEY
-Delivery profile: p2 cumulative v1; deterministic adapter acceptance specimen.
-Fictional Forge commons; an authored specimen, not a recording of the application. Frames are 80x24. V1 has no structured graph browser, participant stance registry or formal tree authoring. Its persistent workspace, literal response editor, visible local controls, proposals that wait for the operator and forecast/result comparison ARE required from p1-p2. No typed commands are needed inside this session.
+V1 interaction illustration; legacy protocol profile: p2. Not a runtime capture.
+Fictional Forge commons; an authored specimen, not a recording of the application. Frames are 80x24. V1 has no structured graph browser, participant stance registry or formal tree authoring. Its persistent workspace, literal response editor, visible local controls, proposals that wait for the operator and forecast/result comparison are in v1 (p0-p4). Actual screenshots show current layout. No typed commands are needed inside this session.
 $ reason-commons new forge --store ./forge-v1 --speaker Sam
 EVENT start r0000
 ''')]
@@ -751,7 +751,7 @@ EVENT start r0000
         return frame(sid, rev, title, body, width=80, height=24, nav=False,
                      speaker='Sam', case='forge',
                      summary=kw.pop('summary', 'Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%'),
-                     buttons='[Send]  [Explain this]  [Other moves]  [Views]  [Actions]', **kw)
+                     buttons='[Send]  [Explain this]  [Other moves]  [Views]  [Commands]', **kw)
     out.append(s('M01', 'r0000', 'Start', '''
         Welcome to Reason Commons.
         What is happening, and what would count as better?
@@ -796,7 +796,7 @@ ACTION: Sam types a draft "5 requests?", then Tabs to Other moves and presses En
         ''', width=80, height=24, nav=False, speaker='Sam', case='forge',
         focus='Other moves', live='question001', draft='5 requests?',
         summary='Goal >=90% October delivery | Protect overtime <=20h/wk; defects <=2%',
-        buttons='[Return to question]  [Help]  [Views]  [Actions]'))
+        buttons='[Return to question]  [Help]  [Views]  [Commands]'))
     out.append(prose80('''ACTION: Sam activates the selected Understand why this question item. The local Explain this view says: A bounded trial and prospective forecast let you compare results later, while protecting overtime and defects. The question asks for work you can authorize. Esc restores the same question, draft and cursor; no call. Sam replaces the draft and sends:
 I have authority to name a triage owner and backup before Oct 5. Rehearse two requests; both roles must explain response and escalation before start. Pilot daily triage Oct 5-16; review Oct 19. Predict delivery >=80%, urgent acknowledgement >=95% within 24h. Retain overtime/defect bounds. Record original dates, mix, suppliers and rule use. Stop expansion on any breach. If either role cannot explain escalation, resolve that before start. Urgent fulfillment is a separate unknown.
 EVENT semantic in002 r0003 question002
@@ -816,7 +816,7 @@ EVENT semantic in002 r0003 question002
         ''', live='question002'))
     out.append(prose80('''ACTION: Sam activates Accept all. P1@1 and its action enter the model; one local revision, no call.
 EVENT local r0004 target=P1@1,A1@1 dimension=membership value=accepted actor=Sam
-ACTION: Sam opens Actions > Accept proposals automatically and confirms. From now on a reply's ready proposals enter the model with the reply, recorded as accepted under Sam's setting, and each can be undone from History. Proposals already waiting would keep waiting; none are. No call.
+ACTION: Sam opens Commands > Accept proposals automatically and confirms. From now on a reply's ready proposals enter the model with the reply, recorded as accepted under Sam's setting, and each can be undone from History. Proposals already waiting would keep waiting; none are. No call.
 EVENT local r0005 target=case dimension=acceptance value=automatic actor=Sam
 ACTION: Sam answers: I named owner and backup today. Rehearsal has not happened; I do not know whether they can explain the rule.
 EVENT semantic in003 r0006 question003
@@ -833,7 +833,7 @@ EVENT semantic in003 r0006 question003
         What did both roles demonstrate?
         [P1 forecast]  [Reported sources]  [History]
         ''', live='question003'))
-    out.append(prose80('''ACTION: Actions > Export > ./forge-v1-before-review.reasoncase. Actions > Save and quit. Local export and cursor save, no call.
+    out.append(prose80('''ACTION: Commands > Export > ./forge-v1-before-review.reasoncase. Commands > Save and quit. Local export and cursor save, no call.
 $ reason-commons resume ./forge-v1
 M04 is restored at r0006 with Observe the result as the current question. Goal, safeguards and P1 remain pinned; preparation state still unobserved. No consultant call.
 ACTION: Sam submits: Both roles correctly explained response and escalation in the two rehearsals. Pilot then ran as planned. Fifty due orders, 40 on time. Overtime 18h then 19h; defects 1/50 then 0/50 inspected units. Urgent acknowledgements 18/20 within 24h. Original dates unchanged; similar mix but steadier suppliers. This does not isolate triage as cause.
@@ -879,7 +879,7 @@ EVENT semantic in006 r0009 question006
         NEXT / Run bounded P2, then return with observations.
         [P2 forecast]  [P1 outcome]  [Goal]  [History]
         ''', live='question006', summary='P1 breach retained | P2 committed | Goal >=90% remains unmet'))
-    out.append(prose80('''ACTION: Actions > Export portable commons > ./forge-v1-after-review.reasoncase; Actions > Save and quit. No call.
+    out.append(prose80('''ACTION: Commands > Export portable commons > ./forge-v1-after-review.reasoncase; Commands > Save and quit. No call.
 CONSULTANT CALLS 6: in001 through in006.
 9 reasoning revisions = 6 semantic commits + 3 structured local decisions.
 '''))
@@ -889,7 +889,7 @@ CONSULTANT CALLS 6: in001 through in006.
 def build_review():
     QUESTION_TITLES.clear()
     out = [prose('''ILLUSTRATIVE CROSS-TOOL TUI CORRECTION AND ACTION REVIEW
-Delivery profile: p5 cumulative roadmap; independent fictional fixture.
+Future p7 correction/review illustration; legacy protocol profile: p5.
 The r0000 fixture contains goal G1, CRT L1@1, Cloud A4@1, FRT I1@1, prerequisite IO2@1 and action T1@1. Dependencies are stored exact references, not discovered by a renderer. Frames are 120x40; keyboard and focus follow the main TUI specimen.
 $ reason-commons resume ./setup-review-fixture
 EVENT start r0000
@@ -961,7 +961,7 @@ EVENT semantic in003 r0003 question003
         A willingness to test has not filled these missing conditions.
         [Unresolved reviews]  [Original forecast]  [Exact versions]
         '''))
-    out.append(prose('''ACTION: Actions > Consultant calls, then Save and quit. Local.
+    out.append(prose('''ACTION: Commands > Consultant calls, then Save and quit. Local.
 CONSULTANT CALLS 3: in001 through in003.
 3 reasoning revisions = 3 semantic commits + 0 structured local decisions.
 '''))
